@@ -771,7 +771,7 @@ class gacl_api extends gacl {
 				//$where_query['ar1'] = 'ar.acl_id=a.id';
 				$where_query['ar2'] = '(ar.section_value='. $this->db->quote($aro_section_value) .' AND ar.value IN (\''. implode ('\',\'', $aro_value_array) .'\'))';
 
-				if (is_array($axo_array)) {
+				if (is_array($axo_array) AND count($axo_array) > 0) {
 					foreach ($axo_array as $axo_section_value => $axo_value_array) {
 						$this->debug_text("is_conflicting_acl(): AXO Section Value: $axo_section_value AXO VALUE: $axo_value_array");
 
@@ -783,7 +783,8 @@ class gacl_api extends gacl {
 
 						$this->debug_text("is_conflicting_acl(): Search: ACO Section: $aco_section_value ACO Value: $aco_value_array ARO Section: $aro_section_value ARO Value: $aro_value_array AXO Section: $axo_section_value AXO Value: $axo_value_array");
 
-						$where_query['ax1'] = 'ax.acl_id=x.id';
+						//$where_query['ax1'] = 'ax.acl_id=x.id';
+						$where_query['ax1'] = 'ax.acl_id=a.id';
 						$where_query['ax2'] = '(ax.section_value='. $this->db->quote($axo_section_value) .' AND ax.value IN (\''. implode ('\',\'', $axo_value_array) .'\'))';
 
 						$where  = 'WHERE ' . implode(' AND ', $where_query);
@@ -880,7 +881,7 @@ class gacl_api extends gacl {
 		}
 
 		//Check for conflicting ACLs.
-		if ($this->is_conflicting_acl($aco_array,$aro_array, NULL, NULL, NULL, array($acl_id)) ) {
+		if ($this->is_conflicting_acl($aco_array,$aro_array,$aro_group_ids,$axo_array,$axo_group_ids,array($acl_id))) {
 			$this->debug_text("add_acl(): Detected possible ACL conflict, not adding ACL!");
 			return false;
 		}
