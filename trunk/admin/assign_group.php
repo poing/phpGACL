@@ -42,7 +42,7 @@ switch ($_POST[action]) {
         }
          
         //Return page.
-        $gacl_api->return_page($_POST['return_page']);
+        $gacl_api->return_page("$PHP_SELF?group_type=".$_POST['group_type']."&group_id=".$_POST['group_id']."");
 		
         break;
     case Submit:
@@ -178,7 +178,7 @@ switch ($_POST[action]) {
 }
 
 $smarty->assign("group_type", $group_type);
-$smarty->assign("return_page", $_SERVER[REQUEST_URI] );
+$smarty->assign("return_page", $_SERVER['REQUEST_URI'] );
 
 $smarty->display('phpgacl/assign_group.tpl');
 ?>

@@ -222,7 +222,7 @@ switch ($_POST['action']) {
         $gacl_api->debug_text("Blah1");
         while (list(,$row) = @each($rows)) {
             list($section_value, $value, $name) = $row;
-            $gacl_api->debug_text("Blah2: $section_value, $value, $name");
+
             //Prepare javascript code for dynamic select box.
             //Init the javascript sub-array.
             if (!isset($tmp_section_value) OR $section_value != $tmp_section_value) {
