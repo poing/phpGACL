@@ -52,7 +52,8 @@ switch ($_POST[action]) {
                                     order_value,
                                     name
                         from    aco
-                        where   section_value='$_GET[section_value]'";
+                        where   section_value='$_GET[section_value]'
+                        order by order_value";
         $rs = $db->Execute($query);
         $rows = $rs->GetRows();
 

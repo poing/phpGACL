@@ -63,7 +63,7 @@ switch ($_POST[action]) {
         
         break;    
     default:
-        $query = "select id,value,order_value,name from aro_sections";
+        $query = "select id,value,order_value,name from aro_sections order by order_value";
         $rs = $db->Execute($query);
         $rows = $rs->GetRows();
 
