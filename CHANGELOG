@@ -1,3 +1,5 @@
+Mon Nov 29 2004
+	mikeb - Applied patch to admin/edit_group.php enabling the deletion of all groups. John Mortlock <johnm@hlaustralia.com.au>
 Sun Nov 28 2004
 	mikeb - Removed default table prefix from gacl.class.php.
 	mikeb - Corrected minor mistake in the manual with regards to incorrect argument ordering in acl_check() 

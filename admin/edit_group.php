@@ -35,8 +35,18 @@ switch ($_POST['action']) {
 			foreach ($_POST['delete_group'] as $group_id) {
 				$gacl_api->debug_text('Deleting group_id: '. $group_id);
 				
-				$gacl_api->del_group($group_id, TRUE, $group_type);
+				$result = $gacl_api->del_group($group_id, TRUE, $group_type);
+				if ($result == FALSE) {
+					$retry[] = $group_id;
+				}
 			}
+			
+			if (count($retry) > 0) {
+				foreach($retry as $group_id) {
+					$gacl_api->del_group($group_id, TRUE, $group_type);	
+				}
+			}
+		
 		}
 		
 		//Return page.
