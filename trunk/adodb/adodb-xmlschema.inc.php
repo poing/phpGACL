@@ -106,6 +106,25 @@ if( !defined( '_ADODB_LAYER' ) ) {
 	require( 'adodb.inc.php' );
 }
 
+
+if ( !function_exists('file_get_contents') ) {
+    function file_get_contents($filename, $use_include_path = 0) {
+        $file = @fopen($filename, 'rb', $use_include_path);
+        if ($file) {
+            if ($fsize = @filesize($filename)) {
+                $data = fread($file, $fsize);
+            } else {
+                while (!feof($file))
+                {
+                    $data .= fread($file, 1024);
+                }
+            }
+            fclose($file);
+        }
+        return $data;
+    }
+} 
+
 /**
 * Abstract DB Object. This class provides basic methods for database objects, such
 * as tables and indexes.
