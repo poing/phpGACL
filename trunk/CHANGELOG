@@ -1,3 +1,5 @@
+Wed Aug 11 2004
+	mikeb - Add comment to admin/gacl_admin.inc.php to tell people not to use "_" for table prefixes.
 Thu Aug 05 2004
         mikeb - Fixed acl_test.php ACL Check timings. Thanks to Gordon Luk <gordon.luk@dfafunds.com>
 Tue Jul 27 2004
