@@ -1,3 +1,5 @@
+Sat Oct 2 2004
+	mikeb - Added get_ungrouped_objects() function, thanks to Gordon Luk <gordon.luk@dfafunds.com>
 Sun Sep 19 2004
 	mikeb - Added a "isset()" call in Hashed_Cache_Lite		
 	mikeb - Applied patch from Gordon Luk <gordon.luk@dfafunds.com> to allow the search_acl() function to proceed without a where clause.

@@ -655,9 +655,9 @@ Example ARO "Section > Values":
    
 Example API usage:
 
-  * acl_check ( aro_section, aro_value, aco_section, aco_value);
+  * acl_check ( aco_section, aco_value, aro_section, aro_value);
    
-  * acl_check ( 'People', 'John_Smith', 'Floors', '2nd');
+  * acl_check ( 'Floors', '2nd', 'People', 'John_Smith');
    
 Valid Naming Restrictions Examples:
 
