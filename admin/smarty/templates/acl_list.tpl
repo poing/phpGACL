@@ -13,6 +13,7 @@
 		[ <a href="group_admin.php">Group Admin</a> ]
 		[ <a href="acl_admin.php?return_page=acl_list.php">ACL Admin</a> ]
 		[ <a href="acl_test.php">ACL Test</a> ]
+		[ <a href="http://phpgacl.sourceforge.net/">Home</a> ]
 		</b>
 		<br>
 	 </td>
