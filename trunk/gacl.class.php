@@ -185,19 +185,19 @@ class gacl {
 			/*
 			 * Generate SQL text for SQL's in () statements
 			 */
-			if ($aro_group_ids['group_ids']) {
+			if ( isset($aro_group_ids['group_ids']) ) {
 				$sql_aro_group_ids = implode(",", $aro_group_ids['group_ids']);   
 			}
 
-			if ($aro_path_ids) {		
+			if ( isset($aro_path_ids) ) {		
 				$sql_aro_path_ids = implode(",", $aro_path_ids);   
 			}
 
-			if ($axo_group_ids['group_ids']) {
+			if ( isset($axo_group_ids['group_ids']) ) {
 				$sql_axo_group_ids = implode(",", $axo_group_ids['group_ids']);   
 			}
 
-			if ($axo_path_ids) {		
+			if ( isset($axo_path_ids) ) {
 				$sql_axo_path_ids = implode(",", $axo_path_ids);   
 			}
 
@@ -311,7 +311,7 @@ class gacl {
 			 * Permission granted?
 			 * Now why did I not choose to use TRUE/FALSE in the first place? 
 			 */
-			if ($row[0][1] == 1) {
+			if ( isset($row[0][1]) AND $row[0][1] == 1 ) {
 				$allow = TRUE;
 			} else {
 				$allow = FALSE;
