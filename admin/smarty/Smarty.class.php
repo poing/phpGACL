@@ -1,12 +1,7 @@
 <?php
-/*
+/**
  * Project:     Smarty: the PHP compiling template engine
  * File:        Smarty.class.php
- * Author:      Monte Ohrt <monte@ispi.net>
- *              Andrei Zmievski <andrei@php.net>
- *
- * Version:     2.3.0
- * Copyright:   2001,2002 ispi of Lincoln, Inc.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -37,15 +32,28 @@
  * Lincoln, NE 68510
  *
  * The latest version of Smarty can be obtained from:
- * http://www.phpinsider.com/
+ * http://smarty.php.net/
  *
+ * @link http://smarty.php.net/
+ * @copyright 2001,2002 ispi of Lincoln, Inc.
+ * @author Monte Ohrt <monte@ispi.net>
+ * @author Andrei Zmievski <andrei@php.net>
+ * @package Smarty
+ * @version 2.5.0
  */
 
-// set SMARTY_DIR to absolute path to Smarty library files.
-// if not defined, include_path will be used.
+/* $Id$ */
+
+/**
+ * set SMARTY_DIR to absolute path to Smarty library files.
+ * if not defined, include_path will be used.
+ */
 
 define('DIR_SEP', DIRECTORY_SEPARATOR);
 
+/**
+ * Sets SMARTY_DIR only if user application has not already defined it
+ */
 if (!defined('SMARTY_DIR')) {
     define('SMARTY_DIR', dirname(__FILE__) . DIR_SEP);
 }
@@ -55,130 +63,469 @@ define('SMARTY_PHP_QUOTE',      1);
 define('SMARTY_PHP_REMOVE',     2);
 define('SMARTY_PHP_ALLOW',      3);
 
+/**
+ * @package Smarty
+ */
 class Smarty
 {
+    /**#@+
+     * Smarty Configuration Section
+     */
 
-/**************************************************************************/
-/* BEGIN SMARTY CONFIGURATION SECTION                                     */
-/* Set the following config variables to your liking.                     */
-/**************************************************************************/
+    /**
+     * The name of the directory where templates are located.
+     * 
+     * @var string
+     */
+    var $template_dir    =  'templates';
 
-    // public vars
-    var $template_dir    =  'templates';       // name of directory for templates
-    var $compile_dir     =  'templates_c';     // name of directory for compiled templates
-    var $config_dir      =  'configs';         // directory where config files are located
-    var $plugins_dir     =  array('plugins');  // plugin directories
+    /**
+     * The directory where compiled templates are located.
+     * 
+     * @var string
+     */
+    var $compile_dir     =  'templates_c';
 
-    var $debugging       =  false;             // enable debugging console true/false
-    var $debug_tpl       =  '';                // path to debug console template
-                                               // (this gets set in the constructor)
-    var $debugging_ctrl  =  'NONE';            // Possible values:
-                                               // NONE - no debug control allowed
-                                               // URL - enable debugging when keyword
-                                               //       SMARTY_DEBUG is found in $QUERY_STRING
+    /**
+     * The directory where config files are located.
+     * 
+     * @var string
+     */
+    var $config_dir      =  'configs';
 
-    var $global_assign   =  array( 'HTTP_SERVER_VARS' => array( 'SCRIPT_NAME' )
-                                 );     // variables from the GLOBALS array
-                                        // that are implicitly assigned
-                                        // to all templates
-    var $undefined       =  null;       // undefined variables in $global_assign will be
-                                        // created with this value
-    var $autoload_filters = array();    // indicates which filters will be auto-loaded
+    /**
+     * An array of directories searched for plugins.
+     * 
+     * @var array
+     */
+    var $plugins_dir     =  array('plugins');
 
-    var $compile_check   =  true;       // whether to check for compiling step or not:
-                                        // This is generally set to false once the
-                                        // application is entered into production and
-                                        // initially compiled. Leave set to true
-                                        // during development. true/false default true.
+    /**
+     * If debugging is enabled, a debug console window will display
+     * when the page loads (make sure your browser allows unrequested
+     * popup windows)
+     * 
+     * @var boolean
+     */
+    var $debugging       =  false;
 
-    var $force_compile   =  false;      // force templates to compile every time,
-                                        // overrides cache settings. default false.
+    /**
+     * This is the path to the debug console template. If not set,
+     * the default one will be used.
+     * 
+     * @var string
+     */
+    var $debug_tpl       =  '';
 
-    var $caching         =  0;     		// enable caching. can be one of 0/1/2.
-										// 0 = no caching
-										// 1 = use class cache_lifetime value
-										// 2 = use cache_lifetime in cache file
-										// default = 0.
-    var $cache_dir       =  'cache';    // name of directory for template cache files
-    var $cache_lifetime  =  3600;       // number of seconds cached content will persist.
-										// 0 = always regenerate cache,
-                                        // -1 = never expires. default is one hour (3600)
-    var $cache_handler_func   = null;   // function used for cached content. this is
-                                        // an alternative to using the built-in file
-                                        // based caching.
-    var $cache_modified_check = false;  // respect If-Modified-Since headers on cached content
+    /**
+     * This determines if debugging is enable-able from the browser.
+     * <ul>
+     *  <li>NONE => no debugging control allowed</li>
+     *  <li>URL => enable debugging when SMARTY_DEBUG is found in the URL.</li>
+     * </ul>
+     * @link http://www.foo.dom/index.php?SMARTY_DEBUG
+     * @var string
+     */
+    var $debugging_ctrl  =  'NONE';
 
+    /**
+     * This tells Smarty whether to check for recompiling or not. Recompiling
+     * does not need to happen unless a template or config file is changed. 
+     * Typically you enable this during development, and disable for
+     * production.
+     * 
+     * @var boolean
+     */
+    var $compile_check   =  true;
 
-    var $default_template_handler_func = ''; // function to handle missing templates
+    /**
+     * This forces templates to compile every time. Useful for development
+     * or debugging.
+     * 
+     * @var boolean
+     */
+    var $force_compile   =  false;
 
+    /**
+     * This enables template caching.
+     * <ul>
+     *  <li>0 = no caching</li>
+     *  <li>1 = use class cache_lifetime value</li>
+     *  <li >2 = use cache_lifetime in cache file</li>
+     * </ul>
+     * @var integer
+     */
+    var $caching         =  0;
+
+    /**
+     * The name of the directory for cache files.
+     * 
+     * @var string
+     */
+    var $cache_dir       =  'cache';
+
+    /**
+     * This is the number of seconds cached content will persist.
+     * <ul>
+     *  <li>0 = always regenerate cache</li>
+     *  <li>-1 = never expires</li>
+     * </ul>
+     * 
+     * @var integer
+     */
+    var $cache_lifetime  =  3600;
+
+    /**
+     * Only used when $caching is enabled. If true, then If-Modified-Since headers
+     * are respected with cached content, and appropriate HTTP headers are sent.
+     * This way repeated hits to a cached page do not send the entire page to the
+     * client every time.
+     * 
+     * @var boolean
+     */
+    var $cache_modified_check = false;
+
+    /**
+     * This determines how Smarty handles <?php ?> tags in templates.
+     * possible values:
+     * <ul>
+     *  <li>SMARTY_PHP_PASSTHRU -> print tags as plain text</li>
+     *  <li>SMARTY_PHP_QUOTE    -> escape tags as entities</li>
+     *  <li>SMARTY_PHP_REMOVE   -> remove php tags</li>
+     *  <li>SMARTY_PHP_ALLOW    -> execute php tags</li>
+     * </ul>
+     *
+     * @var integer
+     */
     var $php_handling    =  SMARTY_PHP_PASSTHRU;
-                                        // how smarty handles php tags in the templates
-                                        // possible values:
-                                        // SMARTY_PHP_PASSTHRU -> echo tags as is
-                                        // SMARTY_PHP_QUOTE    -> escape tags as entities
-                                        // SMARTY_PHP_REMOVE   -> remove php tags
-                                        // SMARTY_PHP_ALLOW    -> execute php tags
-                                        // default: SMARTY_PHP_PASSTHRU
 
+    /**
+     * This enables template security. When enabled, many things are restricted
+     * in the templates that normally would go unchecked. This is useful when
+     * untrusted parties are editing templates and you want a reasonable level
+     * of security. (no direct execution of PHP in templates for example)
+     * 
+     * @var boolean
+     */
+    var $security       =   false;
 
-    var $security       =   false;      // enable template security (default false)
-    var $secure_dir     =   array('templates'); // array of directories considered secure
+    /**
+     * This is the list of template directories that are considered secure. This
+     * is used only if {@link $security} is enabled. One directory per array
+     * element.  {@link $template_dir} is in this list implicitly.
+     * 
+     * @var array
+     */
+    var $secure_dir     =   array();
+
+    /**
+     * These are the security settings for Smarty. They are used only when
+     * {@link $security} is enabled.
+     * 
+     * @var array
+     */
     var $security_settings  = array(
                                     'PHP_HANDLING'    => false,
                                     'IF_FUNCS'        => array('array', 'list',
                                                                'isset', 'empty',
                                                                'count', 'sizeof',
-                                                               'in_array', 'is_array'),
+                                                               'in_array', 'is_array',
+															   'true','false'),
                                     'INCLUDE_ANY'     => false,
                                     'PHP_TAGS'        => false,
-                                    'MODIFIER_FUNCS'  => array('count')
+                                    'MODIFIER_FUNCS'  => array('count'),
+                                    'ALLOW_CONSTANTS' => false
                                    );
-    var $trusted_dir        = array();  // directories where trusted templates & php scripts
-                                        // reside ($security is disabled during their
-                                        // inclusion/execution).
 
-    var $left_delimiter  =  '{';        // template tag delimiters.
+    /**
+     * This is an array of directories where trusted php scripts reside.
+     * {@link $security} is disabled during their inclusion/execution.
+     *
+     * @var array
+     */
+    var $trusted_dir        = array();
+
+    /**
+     * The left delimiter used for the template tags.
+     * 
+     * @var string
+     */
+    var $left_delimiter  =  '{';
+
+    /**
+     * The right delimiter used for the template tags.
+     * 
+     * @var string
+     */
     var $right_delimiter =  '}';
 
-    var $compiler_class        =   'Smarty_Compiler'; // the compiler class used by
-                                                      // Smarty to compile templates
+    /**
+     * The order in which request variables are registered, similar to
+     * variables_order in php.ini E = Environment, G = GET, P = POST,
+     * C = Cookies, S = Server
+     * 
+     * @var string
+     */
+    var $request_vars_order    = "EGPCS"; 
 
-    var $request_vars_order    = "EGPCS";   // the order in which request variables are
-                                            // registered, similar to variables_order
-                                            // in php.ini
+    /**
+     * Set this if you want different sets of compiled files for the same
+     * templates. This is useful for things like different languages.
+     * Instead of creating separate sets of templates per language, you
+     * set different compile_ids like 'en' and 'de'.
+     *
+     * @var string
+     */
+    var $compile_id            = null;
 
-    var $compile_id            = null;      // persistent compile identifier
-	var $use_sub_dirs          = true;		// use sub dirs for cache and compiled files?
-											// sub directories are more efficient, but
-											// you can set this to false if your PHP environment
-											// does not allow the creation of them.
-	var $default_modifiers		= array();
-											// modifiers to implicitly append to every var
-											// example: array('escape:"htmlall"');
+    /**
+     * This tells Smarty whether or not to use sub dirs in the cache/ and
+     * templates_c/ directories. sub directories better organized, but
+     * may not work well with PHP safe mode enabled.
+     * 
+     * @var boolean
+     * 
+     */
+    var $use_sub_dirs          = true;
 
-/**************************************************************************/
-/* END SMARTY CONFIGURATION SECTION                                       */
-/* There should be no need to touch anything below this line.             */
-/**************************************************************************/
+    /**
+     * This is a list of the modifiers to apply to all template variables.
+     * Put each modifier in a separate array element in the order you want
+     * them applied. example: <code>array('escape:"htmlall"');</code>
+     *
+     * @var array
+     */
+    var $default_modifiers        = array();
 
-    // internal vars
-    var $_error_msg            = false;      // error messages. true/false
-    var $_tpl_vars             = array();    // where assigned template vars are kept
-    var $_smarty_vars          = null;       // stores run-time $smarty.* vars
-    var $_sections             = array();    // keeps track of sections
-    var $_foreach              = array();    // keeps track of foreach blocks
-    var $_tag_stack            = array();    // keeps track of tag hierarchy
-    var $_conf_obj             = null;       // configuration object
-    var $_config               = array();    // loaded configuration settings
-    var $_smarty_md5           = 'f8d698aea36fcbead2b9d5359ffca76f'; // md5 checksum of the string 'Smarty'
-    var $_version              = '2.3.0';    // Smarty version number
-    var $_extract              = false;      // flag for custom functions
-    var $_inclusion_depth      = 0;          // current template inclusion depth
-    var $_compile_id           = null;       // for different compiled templates
-    var $_smarty_debug_id      = 'SMARTY_DEBUG'; // text in URL to enable debug mode
-    var $_smarty_debug_info    = array();    // debugging information for debug console
-    var $_cache_info           = array();    // info that makes up a cache file
-    var $_plugins              = array(      // table keeping track of plugins
+    /**
+     * The function used for cache file handling. If not set, built-in caching is used.
+     * 
+     * @var null|string function name
+     */
+    var $cache_handler_func   = null;
+     
+    /**
+     * These are the variables from the globals array that are
+     * assigned to all templates automatically. This isn't really
+     * necessary any more, you can use the $smarty var to access them
+     * directly.
+     * 
+     * @var array
+     */
+    var $global_assign   =  array('HTTP_SERVER_VARS' => array('SCRIPT_NAME'));
+
+    /**
+     * The value of "undefined". Leave it alone :-)
+     * 
+     * @var null
+     */
+    var $undefined       =  null;
+
+    /**
+     * This indicates which filters are automatically loaded into Smarty.
+     * 
+     * @var array array of filter names
+     */
+    var $autoload_filters = array();
+
+    /**#@+
+     * @var boolean
+     */     
+    /**
+     * This tells if config file vars of the same name overwrite each other or not.
+     * if disabled, same name variables are accumulated in an array.
+     */
+    var $config_overwrite = true;
+
+    /**
+     * This tells whether or not to automatically booleanize config file variables.
+     * If enabled, then the strings "on", "true", and "yes" are treated as boolean
+     * true, and "off", "false" and "no" are treated as boolean false.
+     */
+    var $config_booleanize = true;
+
+    /**
+     * This tells whether hidden sections [.foobar] are readable from the
+     * tempalates or not. Normally you would never allow this since that is
+     * the point behind hidden sections: the application can access them, but
+     * the templates cannot.
+     */
+    var $config_read_hidden = false;
+
+    /**
+     * This tells whether or not automatically fix newlines in config files.
+     * It basically converts \r (mac) or \r\n (dos) to \n
+     */
+    var $config_fix_newlines = true;
+    /**#@-*/
+     
+    /**
+     * If a template cannot be found, this PHP function will be executed.
+     * Useful for creating templates on-the-fly or other special action.
+     * 
+     * @var string function name
+     */
+    var $default_template_handler_func = '';
+
+    /**
+     * The file that contains the compiler class. This can a full
+     * pathname, or relative to the php_include path.
+     * 
+     * @var string
+     */
+    var $compiler_file        =    'Smarty_Compiler.class.php';
+
+    /**
+     * The class used for compiling templates.
+     * 
+     * @var string
+     */
+    var $compiler_class        =   'Smarty_Compiler';
+
+    /**
+     * The class used to load config vars.
+     *
+     * @var string
+     */
+    var $config_class          =   'Config_File';
+
+/**#@+
+ * END Smarty Configuration Section
+ * There should be no need to touch anything below this line.
+ * @access private
+ */
+    /**
+     * error messages. true/false
+     *
+     * @var boolean
+     */
+    var $_error_msg            = false;
+
+    /**
+     * where assigned template vars are kept
+     *
+     * @var array
+     */
+    var $_tpl_vars             = array();
+
+    /**
+     * stores run-time $smarty.* vars
+     *
+     * @var null|array
+     */
+    var $_smarty_vars          = null;
+
+    /**
+     * keeps track of sections
+     *
+     * @var array
+     */
+    var $_sections             = array();
+
+    /**
+     * keeps track of foreach blocks
+     *
+     * @var array
+     */
+    var $_foreach              = array();
+
+    /**
+     * keeps track of tag hierarchy
+     *
+     * @var array
+     */
+    var $_tag_stack            = array();
+
+    /**
+     * configuration object
+     *
+     * @var Config_file
+     */
+    var $_conf_obj             = null;
+
+    /**
+     * loaded configuration settings
+     *
+     * @var array
+     */
+    var $_config               = array(array('vars'  => array(), 'files' => array()));
+
+    /**
+     * md5 checksum of the string 'Smarty'
+     *
+     * @var string
+     */
+    var $_smarty_md5           = 'f8d698aea36fcbead2b9d5359ffca76f';
+
+    /**
+     * Smarty version number
+     *
+     * @var string
+     */
+    var $_version              = '2.5.0';
+
+    /**
+     * current template inclusion depth
+     *
+     * @var integer
+     */
+    var $_inclusion_depth      = 0;
+
+    /**
+     * for different compiled templates
+     *
+     * @var string
+     */
+    var $_compile_id           = null;
+
+    /**
+     * text in URL to enable debug mode
+     *
+     * @var string
+     */
+    var $_smarty_debug_id      = 'SMARTY_DEBUG';
+
+    /**
+     * debugging information for debug console
+     *
+     * @var array
+     */
+    var $_smarty_debug_info    = array();
+
+    /**
+     * info that makes up a cache file
+     *
+     * @var array
+     */
+    var $_cache_info           = array();
+
+    /**
+     * default file permissions
+     *
+     * @var integer
+     */
+    var $_file_perms           = 0644;
+
+    /**
+     * default dir permissions
+     *
+     * @var integer
+     */
+    var $_dir_perms               = 0771;
+
+    /**
+     * registered objects
+     *
+     * @var array
+     */
+    var $_reg_objects           = array();
+
+    /**
+     * table keeping track of plugins
+     *
+     * @var array
+     */
+    var $_plugins              = array(
                                        'modifier'      => array(),
                                        'function'      => array(),
                                        'block'         => array(),
@@ -189,11 +536,13 @@ class Smarty
                                        'resource'      => array(),
                                        'insert'        => array());
 
-
-/*======================================================================*\
-    Function: Smarty
-    Purpose:  Constructor
-\*======================================================================*/
+    /**#@-*/
+    /**
+     * The class constructor.
+     *
+     * @uses $global_assign uses {@link assign()} to assign each corresponding
+     *                      value from $GLOBALS to the template vars
+     */
     function Smarty()
     {
         foreach ($this->global_assign as $key => $var_name) {
@@ -213,57 +562,63 @@ class Smarty
                 }
             }
         }
-
-		if(empty($this->debug_tpl)) {
-			// set path to debug template from SMARTY_DIR
-			$this->debug_tpl = 'file:'.SMARTY_DIR.'debug.tpl';
-		}
     }
 
 
-/*======================================================================*\
-    Function:   assign()
-    Purpose:    assigns values to template variables
-\*======================================================================*/
-    function assign($tpl_var, $value = NULL)
+    /**
+     * assigns values to template variables
+     *
+     * @param array|string $tpl_var the template variable name(s)
+     * @param mixed $value the value to assign
+     */
+    function assign($tpl_var, $value = null)
     {
         if (is_array($tpl_var)){
             foreach ($tpl_var as $key => $val) {
-                if ($key != '' && isset($val)) {
+                if ($key != '') {
                     $this->_tpl_vars[$key] = $val;
                 }
             }
         } else {
-            if ($tpl_var != '' && isset($value))
+            if ($tpl_var != '')
                 $this->_tpl_vars[$tpl_var] = $value;
         }
-        $this->_extract = true;
     }
 
-/*======================================================================*\
-    Function:   assign_by_ref()
-    Purpose:    assigns values to template variables by reference
-\*======================================================================*/
+    /**
+     * assigns values to template variables by reference
+     *
+     * @param string $tpl_var the template variable name
+     * @param mixed $value the referenced value to assign
+     */    
     function assign_by_ref($tpl_var, &$value)
     {
-        if ($tpl_var != '' && isset($value))
+        if ($tpl_var != '')
             $this->_tpl_vars[$tpl_var] = &$value;
-        $this->_extract = true;
     }
-	
-/*======================================================================*\
-    Function: append
-    Purpose:  appends values to template variables
-\*======================================================================*/
-    function append($tpl_var, $value = NULL)
+    
+    /**
+     * appends values to template variables
+     *
+     * @param array|string $tpl_var the template variable name(s)
+     * @param mixed $value the value to append
+     */    
+    function append($tpl_var, $value=null, $merge=false)
     {
         if (is_array($tpl_var)) {
-            foreach ($tpl_var as $key => $val) {
-                if ($key != '') {
-					if(!@is_array($this->_tpl_vars[$key])) {
-						settype($this->_tpl_vars[$key],'array');
+			// $tpl_var is an array, ignore $value
+            foreach ($tpl_var as $_key => $_val) {
+                if ($_key != '') {
+					if(!@is_array($this->_tpl_vars[$_key])) {
+						settype($this->_tpl_vars[$_key],'array');
 					}
-                    $this->_tpl_vars[$key][] = $val;
+					if($merge && is_array($_val)) {
+						foreach($_val as $_mkey => $_mval) {
+							$this->_tpl_vars[$_key][$_mkey] = $_mval;
+						}
+					} else {
+						$this->_tpl_vars[$_key][] = $_val;
+					}
                 }
             }
         } else {
@@ -271,32 +626,45 @@ class Smarty
 				if(!@is_array($this->_tpl_vars[$tpl_var])) {
 					settype($this->_tpl_vars[$tpl_var],'array');
 				}
-                $this->_tpl_vars[$tpl_var][] = $value;
+				if($merge && is_array($value)) {
+					foreach($value as $_mkey => $_mval) {
+						$this->_tpl_vars[$tpl_var][$_mkey] = $_mval;
+					}
+				} else {
+					$this->_tpl_vars[$tpl_var][] = $value;
+				}
             }
         }
-        $this->_extract = true;
     }
 
-/*======================================================================*\
-    Function: append_by_ref
-    Purpose:  appends values to template variables by reference
-\*======================================================================*/
-    function append_by_ref($tpl_var, &$value)
+    /**
+     * appends values to template variables by reference
+     *
+     * @param string $tpl_var the template variable name
+     * @param mixed $value the referenced value to append
+     */    
+    function append_by_ref($tpl_var, &$value, $merge=false)
     {
         if ($tpl_var != '' && isset($value)) {
 			if(!@is_array($this->_tpl_vars[$tpl_var])) {
-				settype($this->_tpl_vars[$tpl_var],'array');
+			 settype($this->_tpl_vars[$tpl_var],'array');
 			}
-            $this->_tpl_vars[$tpl_var][] = &$value;
+			if ($merge && is_array($value)) {
+				foreach($value as $_key => $_val) {
+					$this->_tpl_vars[$tpl_var][$_key] = &$value[$_key];
+				}
+			} else {
+				$this->_tpl_vars[$tpl_var][] = &$value;
+			}
         }
-        $this->_extract = true;
     }
 
 
-/*======================================================================*\
-    Function:   clear_assign()
-    Purpose:    clear the given assigned template variable.
-\*======================================================================*/
+    /**
+     * clear the given assigned template variable.
+     *
+     * @param string $tpl_var the template variable to clear
+     */    
     function clear_assign($tpl_var)
     {
         if (is_array($tpl_var))
@@ -307,165 +675,215 @@ class Smarty
     }
 
 
-/*======================================================================*\
-    Function: register_function
-    Purpose:  Registers custom function to be used in templates
-\*======================================================================*/
+    /**
+     * Registers custom function to be used in templates
+     *
+     * @param string $function the name of the template function
+     * @param string $function_impl the name of the PHP function to register
+     */    
     function register_function($function, $function_impl)
     {
         $this->_plugins['function'][$function] =
             array($function_impl, null, null, false);
     }
 
-/*======================================================================*\
-    Function: unregister_function
-    Purpose:  Unregisters custom function
-\*======================================================================*/
+    /**
+     * Unregisters custom function
+     *
+     * @param string $function name of template function
+     */    
     function unregister_function($function)
     {
         unset($this->_plugins['function'][$function]);
     }
 
-/*======================================================================*\
-    Function: register_block
-    Purpose:  Registers block function to be used in templates
-\*======================================================================*/
+    /**
+     * Registers object to be used in templates
+     *
+     * @param string $object name of template object
+     * @param object &$object_impl the referenced PHP object to register
+     * @param null|array $allowed list of allowed methods (empty = all)
+     * @param boolean $smarty_args smarty argument format, else traditional
+     */    
+    function register_object($object, &$object_impl, $allowed = array(), $smarty_args = true)
+    {
+        settype($allowed, 'array');        
+        settype($smarty_args, 'boolean');        
+        $this->_reg_objects[$object] =
+            array(&$object_impl, $allowed, $smarty_args);
+    }
+
+    /**
+     * Unregisters object
+     *
+     * @param string $object name of template object
+     */    
+    function unregister_object($object)
+    {
+        unset($this->_reg_objects[$object]);
+    }
+    
+    
+    /**
+     * Registers block function to be used in templates
+     *
+     * @param string $block name of template block
+     * @param string $block_impl PHP function to register
+     */    
     function register_block($block, $block_impl)
     {
         $this->_plugins['block'][$block] =
             array($block_impl, null, null, false);
     }
 
-/*======================================================================*\
-    Function: unregister_block
-    Purpose:  Unregisters block function
-\*======================================================================*/
+    /**
+     * Unregisters block function
+     *
+     * @param string $block name of template function
+     */    
     function unregister_block($block)
     {
         unset($this->_plugins['block'][$block]);
     }
 
-/*======================================================================*\
-    Function: register_compiler_function
-    Purpose:  Registers compiler function
-\*======================================================================*/
+    /**
+     * Registers compiler function
+     *
+     * @param string $function name of template function
+     * @param string $function_impl name of PHP function to register
+     */    
     function register_compiler_function($function, $function_impl)
     {
         $this->_plugins['compiler'][$function] =
             array($function_impl, null, null, false);
     }
 
-/*======================================================================*\
-    Function: unregister_compiler_function
-    Purpose:  Unregisters compiler function
-\*======================================================================*/
+    /**
+     * Unregisters compiler function
+     *
+     * @param string $function name of template function
+     */    
     function unregister_compiler_function($function)
     {
         unset($this->_plugins['compiler'][$function]);
     }
 
-/*======================================================================*\
-    Function: register_modifier
-    Purpose:  Registers modifier to be used in templates
-\*======================================================================*/
+    /**
+     * Registers modifier to be used in templates
+     *
+     * @param string $modifier name of template modifier
+     * @param string $modifier_impl name of PHP function to register
+     */    
     function register_modifier($modifier, $modifier_impl)
     {
         $this->_plugins['modifier'][$modifier] =
             array($modifier_impl, null, null, false);
     }
 
-/*======================================================================*\
-    Function: unregister_modifier
-    Purpose:  Unregisters modifier
-\*======================================================================*/
+    /**
+     * Unregisters modifier
+     *
+     * @param string $modifier name of template modifier
+     */    
     function unregister_modifier($modifier)
     {
         unset($this->_plugins['modifier'][$modifier]);
     }
 
-/*======================================================================*\
-    Function: register_resource
-    Purpose:  Registers a resource to fetch a template
-\*======================================================================*/
+    /**
+     * Registers a resource to fetch a template
+     *
+     * @param string $type name of resource
+     * @param array $functions array of functions to handle resource
+     */    
     function register_resource($type, $functions)
     {
         $this->_plugins['resource'][$type] =
             array((array)$functions, false);
     }
 
-/*======================================================================*\
-    Function: unregister_resource
-    Purpose:  Unregisters a resource
-\*======================================================================*/
+    /**
+     * Unregisters a resource
+     *
+     * @param string $type name of resource
+     */    
     function unregister_resource($type)
     {
         unset($this->_plugins['resource'][$type]);
     }
 
-/*======================================================================*\
-    Function: register_prefilter
-    Purpose:  Registers a prefilter function to apply
-              to a template before compiling
-\*======================================================================*/
+    /**
+     * Registers a prefilter function to apply
+     * to a template before compiling
+     *
+     * @param string $function name of PHP function to register
+     */    
     function register_prefilter($function)
     {
         $this->_plugins['prefilter'][$function]
             = array($function, null, null, false);
     }
 
-/*======================================================================*\
-    Function: unregister_prefilter
-    Purpose:  Unregisters a prefilter function
-\*======================================================================*/
+    /**
+     * Unregisters a prefilter function
+     *
+     * @param string $function name of PHP function
+     */    
     function unregister_prefilter($function)
     {
         unset($this->_plugins['prefilter'][$function]);
     }
 
-/*======================================================================*\
-    Function: register_postfilter
-    Purpose:  Registers a postfilter function to apply
-              to a compiled template after compilation
-\*======================================================================*/
+    /**
+     * Registers a postfilter function to apply
+     * to a compiled template after compilation
+     *
+     * @param string $function name of PHP function to register
+     */    
     function register_postfilter($function)
     {
         $this->_plugins['postfilter'][$function]
             = array($function, null, null, false);
     }
 
-/*======================================================================*\
-    Function: unregister_postfilter
-    Purpose:  Unregisters a postfilter function
-\*======================================================================*/
+    /**
+     * Unregisters a postfilter function
+     *
+     * @param string $function name of PHP function
+     */    
     function unregister_postfilter($function)
     {
         unset($this->_plugins['postfilter'][$function]);
     }
 
-/*======================================================================*\
-    Function: register_outputfilter
-    Purpose:  Registers an output filter function to apply
-              to a template output
-\*======================================================================*/
+    /**
+     * Registers an output filter function to apply
+     * to a template output
+     *
+     * @param string $function name of PHP function
+     */    
     function register_outputfilter($function)
     {
         $this->_plugins['outputfilter'][$function]
             = array($function, null, null, false);
     }
 
-/*======================================================================*\
-    Function: unregister_outputfilter
-    Purpose:  Unregisters an outputfilter function
-\*======================================================================*/
+    /**
+     * Unregisters an outputfilter function
+     *
+     * @param string $function name of PHP function
+     */    
     function unregister_outputfilter($function)
     {
         unset($this->_plugins['outputfilter'][$function]);
-    }
-
-/*======================================================================*\
-    Function:   load_filter()
-    Purpose:    load a filter of specified type and name
-\*======================================================================*/
+    }    
+    
+    /**
+     * load a filter of specified type and name
+     *
+     * @param string $type filter type
+     * @param string $name filter name
+     */    
     function load_filter($type, $name)
     {
         switch ($type) {
@@ -481,37 +899,40 @@ class Smarty
         }
     }
 
-/*======================================================================*\
-    Function:   clear_cache()
-    Purpose:    clear cached content for the given template and cache id
-\*======================================================================*/
+    /**
+     * clear cached content for the given template and cache id
+     *
+     * @param string $tpl_file name of template file
+     * @param string $cache_id name of cache_id
+     * @param string $compile_id name of compile_id
+     * @param string $exp_time expiration time
+     */    
     function clear_cache($tpl_file = null, $cache_id = null, $compile_id = null, $exp_time = null)
     {
-		
+        
         if (!isset($compile_id))
             $compile_id = $this->compile_id;
 
-        if (isset($cache_id))
-            $auto_id = (isset($compile_id)) ? $cache_id . '|' . $compile_id : $cache_id;
-        elseif(isset($compile_id))
-			$auto_id = $compile_id;
-		else
-            $auto_id = null;
+	if (!isset($tpl_file))
+	    $compile_id = null;
+
+	$_auto_id = $this->_get_auto_id($cache_id, $compile_id);
 
         if (!empty($this->cache_handler_func)) {
-            $funcname = $this->cache_handler_func;
-            return $funcname('clear', $this, $dummy, $tpl_file, $cache_id, $compile_id);
+            $_funcname = $this->cache_handler_func;
+            return $_funcname('clear', $this, $dummy, $tpl_file, $cache_id, $compile_id);
         } else {
-            return $this->_rm_auto($this->cache_dir, $tpl_file, $auto_id, $exp_time);
+            return $this->_rm_auto($this->cache_dir, $tpl_file, $_auto_id, $exp_time);
         }
-		
+        
     }
 
 
-/*======================================================================*\
-    Function:   clear_all_cache()
-    Purpose:    clear the entire contents of cache (all templates)
-\*======================================================================*/
+    /**
+     * clear the entire contents of cache (all templates)
+     *
+     * @param string $exp_time expire time
+     */    
     function clear_all_cache($exp_time = null)
     {
         if (!empty($this->cache_handler_func)) {
@@ -523,10 +944,13 @@ class Smarty
     }
 
 
-/*======================================================================*\
-    Function:   is_cached()
-    Purpose:    test to see if valid cache exists for this template
-\*======================================================================*/
+    /**
+     * test to see if valid cache exists for this template
+     *
+     * @param string $tpl_file name of template file
+     * @param string $cache_id
+     * @param string $compile_id
+     */    
     function is_cached($tpl_file, $cache_id = null, $compile_id = null)
     {
         if (!$this->caching)
@@ -539,21 +963,24 @@ class Smarty
     }
 
 
-/*======================================================================*\
-    Function:   clear_all_assign()
-    Purpose:    clear all the assigned template variables.
-\*======================================================================*/
+    /**
+     * clear all the assigned template variables.
+     *
+     */    
     function clear_all_assign()
     {
         $this->_tpl_vars = array();
     }
 
-/*======================================================================*\
-    Function:   clear_compiled_tpl()
-    Purpose:    clears compiled version of specified template resource,
-                or all compiled template files if one is not specified.
-                This function is for advanced use only, not normally needed.
-\*======================================================================*/
+    /**
+     * clears compiled version of specified template resource,
+     * or all compiled template files if one is not specified.
+     * This function is for advanced use only, not normally needed.
+     *
+     * @param string $tpl_file
+     * @param string $compile_id
+     * @param string $exp_time
+     */    
     function clear_compiled_tpl($tpl_file = null, $compile_id = null, $exp_time = null)
     {
         if (!isset($compile_id))
@@ -561,80 +988,124 @@ class Smarty
         return $this->_rm_auto($this->compile_dir, $tpl_file, $compile_id, $exp_time);
     }
 
- /*======================================================================*\
-    Function:   template_exists()
-    Purpose:    Checks whether requested template exists.
-\*======================================================================*/
+    /**
+     * Checks whether requested template exists.
+     *
+     * @param string $tpl_file
+     */    
     function template_exists($tpl_file)
     {
         return $this->_fetch_template_info($tpl_file, $source, $timestamp, true, true);
     }
 
-/*======================================================================*\
-    Function: get_template_vars
-    Purpose:  Returns an array containing template variables
-\*======================================================================*/
-    function &get_template_vars()
+    /**
+     * Returns an array containing template variables
+     *
+     * @param string $name
+     * @param string $type
+     * @return mixed
+     */    
+    function &get_template_vars($name=null)
     {
-        return $this->_tpl_vars;
+		if(!isset($name)) {
+        	return $this->_tpl_vars;
+		}
+		if(isset($this->_tpl_vars[$name])) {
+			return $this->_tpl_vars[$name];
+		}
     }
 
+    /**
+     * Returns an array containing config variables
+     *
+     * @param string $name
+     * @param string $type
+     * @return mixed
+     */    
+    function &get_config_vars($name=null)
+    {
+		if(!isset($name) && is_array($this->_config[0])) {
+        	return $this->_config[0]['vars'];
+		} else if(isset($this->_config[0]['vars'][$name])) {
+			return $this->_config[0]['vars'][$name];
+		}
+    }
 
-/*======================================================================*\
-    Function: trigger_error
-    Purpose:  trigger Smarty error
-\*======================================================================*/
+    /**
+     * trigger Smarty error
+     *
+     * @param string $error_msg
+     * @param integer $error_type
+     */    
     function trigger_error($error_msg, $error_type = E_USER_WARNING)
     {
         trigger_error("Smarty error: $error_msg", $error_type);
     }
 
 
-/*======================================================================*\
-    Function:   display()
-    Purpose:    executes & displays the template results
-\*======================================================================*/
+    /**
+     * executes & displays the template results
+     *
+     * @param string $tpl_file
+     * @param string $cache_id
+     * @param string $compile_id
+     */    
     function display($tpl_file, $cache_id = null, $compile_id = null)
     {
         $this->fetch($tpl_file, $cache_id, $compile_id, true);
     }
 
-/*======================================================================*\
-    Function:   fetch()
-    Purpose:    executes & returns or displays the template results
-\*======================================================================*/
-    function fetch($_smarty_tpl_file, $_smarty_cache_id = null, $_smarty_compile_id = null, $_smarty_display = false)
+    /**
+     * executes & returns or displays the template results
+     *
+     * @param string $tpl_file
+     * @param string $cache_id
+     * @param string $compile_id
+     * @param boolean $display
+     */
+    function fetch($tpl_file, $cache_id = null, $compile_id = null, $display = false)
     {
         $_smarty_old_error_level = $this->debugging ? error_reporting() : error_reporting(error_reporting() & ~E_NOTICE);
 
-        if (!$this->debugging && $this->debugging_ctrl == 'URL'
-               && strstr($GLOBALS['HTTP_SERVER_VARS']['QUERY_STRING'], $this->_smarty_debug_id)) {
-            $this->debugging = true;
+        if($this->security && !in_array($this->template_dir, $this->secure_dir)) {
+            // add template_dir to secure_dir array
+            array_unshift($this->secure_dir, $this->template_dir);
         }
 
+        if (!$this->debugging && $this->debugging_ctrl == 'URL'
+               && strstr($GLOBALS['HTTP_SERVER_VARS']['QUERY_STRING'], $this->_smarty_debug_id)) {
+            // enable debugging from URL
+            $this->debugging = true;
+        }        
+        
         if ($this->debugging) {
             // capture time for debugging info
             $debug_start_time = $this->_get_microtime();
             $this->_smarty_debug_info[] = array('type'      => 'template',
-                                                'filename'  => $_smarty_tpl_file,
+                                                'filename'  => $tpl_file,
                                                 'depth'     => 0);
             $included_tpls_idx = count($this->_smarty_debug_info) - 1;
         }
 
-        if (!isset($_smarty_compile_id))
-            $_smarty_compile_id = $this->compile_id;
+        if (!isset($compile_id)) {
+            $compile_id = $this->compile_id;
+        }
 
-        $this->_compile_id = $_smarty_compile_id;
-
+        $this->_compile_id = $compile_id;
         $this->_inclusion_depth = 0;
 
         if ($this->caching) {
-            if ($this->_read_cache_file($_smarty_tpl_file, $_smarty_cache_id, $_smarty_compile_id, $_smarty_results)) {
+            if(!empty($this->_cache_info)) {
+                // nested call, init cache_info
+                $_cache_info = $this->_cache_info;
+                $this->_cache_info = array();
+            }
+            if ($this->_read_cache_file($tpl_file, $cache_id, $compile_id, $_smarty_results)) {
                 if (@count($this->_cache_info['insert_tags'])) {
                     $this->_load_plugins($this->_cache_info['insert_tags']);
                     $_smarty_results = $this->_process_cached_inserts($_smarty_results);
                 }
-                if ($_smarty_display) {
+                if ($display) {
                     if ($this->debugging)
                     {
                         // capture time for debugging info
@@ -650,11 +1121,11 @@ class Smarty
                             header("HTTP/1.1 304 Not Modified");
                         } else {
                             header("Last-Modified: ".$gmt_mtime);
-                    		echo $_smarty_results;
+                            echo $_smarty_results;
                         }
                     } else {
-                    		echo $_smarty_results;						
-					}
+                            echo $_smarty_results;                        
+                    }
                     error_reporting($_smarty_old_error_level);
                     return true;    
                 } else {
@@ -662,32 +1133,33 @@ class Smarty
                     return $_smarty_results;
                 }
             } else {
-                $this->_cache_info = array();
-                $this->_cache_info['template'][] = $_smarty_tpl_file;
+                $this->_cache_info['template'][] = $tpl_file;
+                if ($this->cache_modified_check) {
+                    header("Last-Modified: ".gmdate('D, d M Y H:i:s', time()).' GMT');
+                }
+            }
+            if(isset($_cache_info)) {
+                // restore cache_info
+                $this->_cache_info = $_cache_info;
             }
         }
 
-        extract($this->_tpl_vars);
-
-        /* Initialize config array. */
-        $this->_config = array(array('vars'  => array(),
-                                     'files' => array()));
-
-        if (count($this->autoload_filters))
+        if (count($this->autoload_filters)) {
             $this->_autoload_filters();
+        }
 
-        $_smarty_compile_path = $this->_get_compile_path($_smarty_tpl_file);
+        $_smarty_compile_path = $this->_get_compile_path($tpl_file);
 
         // if we just need to display the results, don't perform output
         // buffering - for speed
-        if ($_smarty_display && !$this->caching && count($this->_plugins['outputfilter']) == 0) {
-            if ($this->_process_template($_smarty_tpl_file, $_smarty_compile_path))
+        if ($display && !$this->caching && count($this->_plugins['outputfilter']) == 0) {
+            if ($this->_process_template($tpl_file, $_smarty_compile_path))
             {
                 include($_smarty_compile_path);
             }
         } else {
             ob_start();
-            if ($this->_process_template($_smarty_tpl_file, $_smarty_compile_path))
+            if ($this->_process_template($tpl_file, $_smarty_compile_path))
             {
                 include($_smarty_compile_path);
             }
@@ -700,11 +1172,11 @@ class Smarty
         }
 
         if ($this->caching) {
-            $this->_write_cache_file($_smarty_tpl_file, $_smarty_cache_id, $_smarty_compile_id, $_smarty_results);
+            $this->_write_cache_file($tpl_file, $cache_id, $compile_id, $_smarty_results);
             $_smarty_results = $this->_process_cached_inserts($_smarty_results);
         }
 
-        if ($_smarty_display) {
+        if ($display) {
             if (isset($_smarty_results)) { echo $_smarty_results; }
             if ($this->debugging) {
                 // capture time for debugging info
@@ -721,14 +1193,14 @@ class Smarty
     }
 
 
-/*======================================================================*\
-    Function: _assign_smarty_interface
-    Purpose:  assign $smarty interface variable
-\*======================================================================*/
+    /**
+     * assign $smarty interface variable
+     */    
     function _assign_smarty_interface()
     {
-        if ($this->_smarty_vars !== null)
+        if (isset($this->_smarty_vars) && isset($this->_smarty_vars['request'])) {
             return;
+		}
 
         $globals_map = array('g'  => 'HTTP_GET_VARS',
                              'p'  => 'HTTP_POST_VARS',
@@ -736,59 +1208,179 @@ class Smarty
                              's'  => 'HTTP_SERVER_VARS',
                              'e'  => 'HTTP_ENV_VARS');
 
-        $smarty  = array('request'  => array());
+        $_smarty_vars_request  = array();
 
         foreach (preg_split('!!', strtolower($this->request_vars_order)) as $c) {
             if (isset($globals_map[$c])) {
-                $smarty['request'] = array_merge($smarty['request'], $GLOBALS[$globals_map[$c]]);
+                $_smarty_vars_request = array_merge($_smarty_vars_request, $GLOBALS[$globals_map[$c]]);
             }
         }
-        $smarty['request'] = @array_merge($smarty['request'], $GLOBALS['HTTP_SESSION_VARS']);
+        $_smarty_vars_request = @array_merge($_smarty_vars_request, $GLOBALS['HTTP_SESSION_VARS']);
 
-        $this->_smarty_vars = $smarty;
+        $this->_smarty_vars['request'] = $_smarty_vars_request;
+		
     }
 
 
-/*======================================================================*\
-    Function:   _generate_debug_output()
-    Purpose:    generate debug output
-\*======================================================================*/
-
-function _generate_debug_output() {
-    // we must force compile the debug template in case the environment
-    // changed between separate applications.
-	$_ldelim_orig = $this->left_delimiter;
-	$_rdelim_orig = $this->right_delimiter;	
-	
-	$this->left_delimiter = '{';
-	$this->right_delimiter = '}';
-	
-    $_force_compile_orig = $this->force_compile;
-    $this->force_compile = true;
-	$_compile_id_orig = $this->_compile_id;
-	$this->_compile_id = null;
-
-    $compile_path = $this->_get_compile_path($this->debug_tpl);
-    if ($this->_process_template($this->debug_tpl, $compile_path))
+    /**
+     * generate debug output
+     * @return string debug.tpl template output
+     * @uses $debug_tpl debug template, used to display debugging output
+     */
+    function _generate_debug_output()
     {
-    	ob_start();
-        include($compile_path);
-    	$results = ob_get_contents();
-    	ob_end_clean();
+        // we must force compile the debug template in case the environment
+        // changed between separate applications.
+
+        if(empty($this->debug_tpl)) {
+            // set path to debug template from SMARTY_DIR
+            $this->debug_tpl = 'file:'.SMARTY_DIR.'debug.tpl';
+            if($this->security && is_file($this->debug_tpl)) {
+                $secure_dir[] = $this->debug_tpl;
+            }
+        }
+
+        $_ldelim_orig = $this->left_delimiter;
+        $_rdelim_orig = $this->right_delimiter;    
+
+        $this->left_delimiter = '{';
+        $this->right_delimiter = '}';
+
+        $_force_compile_orig = $this->force_compile;
+        $this->force_compile = true;
+        $_compile_id_orig = $this->_compile_id;
+        $this->_compile_id = null;
+
+        $compile_path = $this->_get_compile_path($this->debug_tpl);
+        if ($this->_process_template($this->debug_tpl, $compile_path))
+        {
+            ob_start();
+            include($compile_path);
+            $results = ob_get_contents();
+            ob_end_clean();
+        }
+        $this->force_compile = $_force_compile_orig;
+        $this->_compile_id = $_compile_id_orig;
+
+        $this->left_delimiter = $_ldelim_orig;
+        $this->right_delimiter = $_rdelim_orig;
+
+        return $results;
     }
-    $this->force_compile = $_force_compile_orig;
-	$this->_compile_id = $_compile_id_orig;
 
-	$this->left_delimiter = $_ldelim_orig;
-	$this->right_delimiter = $_rdelim_orig;
+    /**
+     * load configuration values
+     *
+     * @param string $file
+     * @param string $section
+     * @param string $scope
+     */    
+    function config_load($file, $section = null, $scope = 'global')
+    {        
+        if(@is_dir($this->config_dir)) {
+            $_config_dir = $this->config_dir;            
+        } else {
+            // config_dir not found, try include_path
+            $this->_get_include_path($this->config_dir,$_config_dir);
+        }
 
-    return $results;
-}
+        $_file_path = str_replace('//', '/' ,$_config_dir . '/' . $file);
+        
+        // get path to compiled object file
+        if(isset($section)) {
+               $_compile_file = $this->_get_auto_filename($this->compile_dir, $section . ' ' . $file);
+        } else {
+               $_compile_file = $this->_get_auto_filename($this->compile_dir, $file);
+        }
 
-/*======================================================================*\
-    Function:   _is_trusted()
-    Purpose:    determines if a resource is trusted or not
-\*======================================================================*/
+        // need to compile config file?
+        if($this->force_compile || !file_exists($_compile_file) ||
+            ($this->compile_check &&
+                file_exists($_file_path) &&
+                ( filemtime($_compile_file) != filemtime($_file_path) ))) {
+            $_compile_config = true;
+        } else {
+            include($_compile_file);
+			$_compile_config = empty($_config_vars);
+        }
+		
+        if($_compile_config) {
+            if(!is_object($this->_conf_obj)) {
+                require_once SMARTY_DIR . $this->config_class . '.class.php';
+                $this->_conf_obj = new $this->config_class($_config_dir);
+                $this->_conf_obj->overwrite = $this->config_overwrite;
+                $this->_conf_obj->booleanize = $this->config_booleanize;
+                $this->_conf_obj->read_hidden = $this->config_read_hidden;
+                $this->_conf_obj->fix_newlines = $this->config_fix_newlines;
+                $this->_conf_obj->set_path = $_config_dir;
+            }
+            if($_config_vars = array_merge($this->_conf_obj->get($file),
+                    $this->_conf_obj->get($file, $section))) {
+                if(function_exists('var_export')) {
+                    $_compile_data = '<?php $_config_vars = ' . var_export($_config_vars, true) . '; return true; ?>';                    
+                } else {
+                    $_compile_data = '<?php $_config_vars = unserialize(\'' . str_replace('\'','\\\'', serialize($_config_vars)) . '\'); return true; ?>';
+                }
+                $this->_write_file($_compile_file, $_compile_data, true);
+                touch($_compile_file,filemtime($_file_path));
+            }
+        }
+        
+        if ($this->debugging) {
+            $debug_start_time = $this->_get_microtime();
+        }
+
+        if ($this->caching) {
+            $this->_cache_info['config'][] = $file;
+        }
+
+        $this->_config[0]['vars'] = @array_merge($this->_config[0]['vars'], $_config_vars);
+        $this->_config[0]['files'][$file] = true;
+        
+        if ($scope == 'parent') {
+                $this->_config[1]['vars'] = @array_merge($this->_config[1]['vars'], $_config_vars);
+                $this->_config[1]['files'][$file] = true;
+        } else if ($scope == 'global') {
+            for ($i = 1, $for_max = count($this->_config); $i < $for_max; $i++) {
+                    $this->_config[$i]['vars'] = @array_merge($this->_config[$i]['vars'], $_config_vars);
+                    $this->_config[$i]['files'][$file] = true;
+            }
+        }
+
+        if ($this->debugging) {
+            $debug_start_time = $this->_get_microtime();
+            $this->_smarty_debug_info[] = array('type'      => 'config',
+                                                'filename'  => $file.' ['.$section.'] '.$scope,
+                                                'depth'     => $this->_inclusion_depth,
+                                                'exec_time' => $this->_get_microtime() - $debug_start_time);
+        }
+    
+    }
+
+    /**
+     * return a reference to a registered object
+     *
+     * @param string $name
+     */    
+	function &get_registered_object($name) {
+		if (!isset($this->_reg_objects[$name]))
+		$this->_trigger_fatal_error("'$name' is not a registered object");
+
+		if (!is_object($this->_reg_objects[$name][0]))
+		$this->_trigger_fatal_error("registered '$name' is not an object");
+
+		return $this->_reg_objects[$name][0];		
+	}	
+
+    /**#@+
+     * @access private
+     */
+    /**
+     * determines if a resource is trusted or not
+     *
+     * @param string $resource_type
+     * @param string $resource_name
+     */    
     function _is_trusted($resource_type, $resource_name)
     {
         $_smarty_trusted = false;
@@ -817,10 +1409,13 @@ function _generate_debug_output() {
         return $_smarty_trusted;
     }
 
-/*======================================================================*\
-    Function:   _is_secure()
-    Purpose:    determines if a resource is secure or not.
-\*======================================================================*/
+    
+    /**
+     * determines if a resource is secure or not.
+     *
+     * @param string $resource_type
+     * @param string $resource_name
+     */    
     function _is_secure($resource_type, $resource_name)
     {
         if (!$this->security || $this->security_settings['INCLUDE_ANY']) {
@@ -849,10 +1444,14 @@ function _generate_debug_output() {
     }
 
 
-/*======================================================================*\
-    Function:   _get_php_resource
-    Purpose:    Retrieves PHP script resource
-\*======================================================================*/
+    /**
+     * Retrieves PHP script resource
+     *
+     * sets $php_resource to the returned resource
+     * @param string $resource
+     * @param string $resource_type
+     * @param  $php_resource
+     */    
     function _get_php_resource($resource, &$resource_type, &$php_resource)
     {
         $this->_parse_file_path($this->trusted_dir, $resource, $resource_type, $resource_name);
@@ -860,19 +1459,20 @@ function _generate_debug_output() {
         /*
          * Find out if the resource exists.
          */
-		
+        
         if ($resource_type == 'file') {
             $readable = false;
-			if(@is_file($resource_name)) {
-				$readable = true;
-			} else {
-				// test for file in include_path
-				if($this->_get_include_path($resource_name,$_include_path)) {
-					$readable = true;
-				}
-			}
+            if(file_exists($resource_name) && is_readable($resource_name)) {
+                $readable = true;
+            } else {
+                // test for file in include_path
+                if($this->_get_include_path($resource_name,$_include_path)) {
+                    $readable = true;
+                }
+            }
         } else if ($resource_type != 'file') {
             $readable = true;
+			$template_source = null;
             $resource_func = $this->_plugins['resource'][$resource_type][0][0];
             $readable = $resource_func($resource_name, $template_source, $this);
         }
@@ -908,10 +1508,12 @@ function _generate_debug_output() {
     }
 
 
-/*======================================================================*\
-    Function:   _process_template()
-    Purpose:
-\*======================================================================*/
+    /**
+     * umm... process the template
+     *
+     * @param string $tpl_file
+     * @param string $compile_path
+     */    
     function _process_template($tpl_file, $compile_path)
     {
         // test if template needs to be compiled
@@ -931,7 +1533,7 @@ function _generate_debug_output() {
                 } else {
                     // compile template
                     $this->_compile_template($tpl_file, $template_source, $template_compiled);
-                    $this->_write_compiled_template($compile_path, $template_compiled);
+                    $this->_write_compiled_template($compile_path, $template_compiled, $template_timestamp);
                     return true;
                 }
             }
@@ -942,36 +1544,46 @@ function _generate_debug_output() {
                 return false;
             }
             $this->_compile_template($tpl_file, $template_source, $template_compiled);
-            $this->_write_compiled_template($compile_path, $template_compiled);
+            $this->_write_compiled_template($compile_path, $template_compiled, $template_timestamp);
             return true;
         }
     }
 
-/*======================================================================*\
-    Function:   _get_compile_path
-    Purpose:    Get the compile path for this template file
-\*======================================================================*/
+    /**
+     * Get the compile path for this template file
+     *
+     * @param string $tpl_file
+     */    
     function _get_compile_path($tpl_file)
     {
         return $this->_get_auto_filename($this->compile_dir, $tpl_file,
                                          $this->_compile_id);
     }
 
-/*======================================================================*\
-    Function:   _write_compiled_template
-    Purpose:
-\*======================================================================*/
-    function _write_compiled_template($compile_path, $template_compiled)
+   /**
+     * write the compiled template
+     *
+     * @param string $compile_path
+     * @param string $template_compiled
+     * @param integer $template_timestamp
+     * @return true
+     */    
+    function _write_compiled_template($compile_path, $template_compiled, $template_timestamp)
     {
         // we save everything into $compile_dir
         $this->_write_file($compile_path, $template_compiled, true);
+        touch($compile_path, $template_timestamp);
         return true;
     }
 
-/*======================================================================*\
-    Function:   _parse_file_path
-    Purpose:    parse out the type and name from the template resource
-\*======================================================================*/
+    /**
+     * parse out the type and name from the template resource
+     *
+     * @param string $file_base_path
+     * @param string $file_path
+     * @param string $resource_type
+     * @param string $resource_name
+     */    
     function _parse_file_path($file_base_path, $file_path, &$resource_type, &$resource_name)
     {
         // split tpl_path by the first colon
@@ -994,16 +1606,16 @@ function _generate_debug_output() {
                 // relative pathname to $file_base_path
                 // use the first directory where the file is found
                 foreach ((array)$file_base_path as $_curr_path) {
-					$_fullpath = $_curr_path . DIR_SEP . $resource_name;
-                    if (@is_file($_fullpath)) {
+                    $_fullpath = $_curr_path . DIR_SEP . $resource_name;
+                    if (file_exists($_fullpath) && is_file($_fullpath)) {
                         $resource_name = $_fullpath;
                         return true;
                     }
-                	// didn't find the file, try include_path
-					if($this->_get_include_path($_fullpath, $_include_path)) {
-						$resource_name = $_include_path;
-						return true;
-					}
+                    // didn't find the file, try include_path
+                    if($this->_get_include_path($_fullpath, $_include_path)) {
+                        $resource_name = $_include_path;
+                        return true;
+                    }
                 }
                 return false;
             }
@@ -1014,11 +1626,18 @@ function _generate_debug_output() {
     }
 
 
-/*======================================================================*\
-    Function:   _fetch_template_info()
-    Purpose:    fetch the template info. Gets timestamp, and source
-                if get_source is true
-\*======================================================================*/
+    /**
+     * fetch the template info. Gets timestamp, and source
+     * if get_source is true
+     *
+     * sets $template_source to the source of the template, and
+     * $template_timestamp to its time stamp
+     * @param string $tpl_path
+     * @param string $template_source
+     * @param integer $template_timestamp
+     * @param boolean $get_source
+     * @param boolean $quiet
+     */    
     function _fetch_template_info($tpl_path, &$template_source, &$template_timestamp, $get_source = true, $quiet = false)
     {
         $_return = false;
@@ -1046,23 +1665,23 @@ function _generate_debug_output() {
                     break;
             }
         }
-		
+        
         if (!$_return) {
             // see if we can get a template with the default template handler
             if (!empty($this->default_template_handler_func)) {
                 if (!function_exists($this->default_template_handler_func)) {
                     $this->trigger_error("default template handler function \"$this->default_template_handler_func\" doesn't exist.");
-                    $_return = false;
-                }
-                $funcname = $this->default_template_handler_func;
-                $_return = $funcname($resource_type, $resource_name, $template_source, $template_timestamp, $this);
+                } else {
+                	$funcname = $this->default_template_handler_func;
+                	$_return = $funcname($resource_type, $resource_name, $template_source, $template_timestamp, $this);
+				}
             }
         }
 
         if (!$_return) {
             if (!$quiet) {
                 $this->trigger_error("unable to read template resource: \"$tpl_path\"");
-			}
+            }
         } else if ($_return && $this->security && !$this->_is_secure($resource_type, $resource_name)) {
             if (!$quiet)
                 $this->trigger_error("(secure mode) accessing \"$tpl_path\" is not allowed");
@@ -1075,13 +1694,22 @@ function _generate_debug_output() {
     }
 
 
-/*======================================================================*\
-    Function:   _compile_template()
-    Purpose:    called to compile the templates
-\*======================================================================*/
+    /**
+     * called to compile the templates
+     *
+     * sets $template_compiled to the compiled template
+     * @param string $tpl_file
+     * @param string $template_source
+     * @param string $template_compiled
+     */    
     function _compile_template($tpl_file, $template_source, &$template_compiled)
     {
-        require_once SMARTY_DIR.$this->compiler_class . '.class.php';
+        if(file_exists(SMARTY_DIR.$this->compiler_file)) {
+            require_once SMARTY_DIR.$this->compiler_file;            
+        } else {
+            // use include_path
+            require_once $this->compiler_file;
+        }
 
         $smarty_compiler = new $this->compiler_class;
 
@@ -1099,22 +1727,26 @@ function _generate_debug_output() {
         $smarty_compiler->secure_dir        = $this->secure_dir;
         $smarty_compiler->security_settings = $this->security_settings;
         $smarty_compiler->trusted_dir       = $this->trusted_dir;
+        $smarty_compiler->_reg_objects      = &$this->_reg_objects;
         $smarty_compiler->_plugins          = &$this->_plugins;
         $smarty_compiler->_tpl_vars         = &$this->_tpl_vars;
         $smarty_compiler->default_modifiers = $this->default_modifiers;
+        $smarty_compiler->compile_id        = $this->_compile_id;
 
-        if ($smarty_compiler->_compile_file($tpl_file, $template_source, $template_compiled))
+        if ($smarty_compiler->_compile_file($tpl_file, $template_source, $template_compiled)) {
             return true;
-        else {
+        } else {
             $this->trigger_error($smarty_compiler->_error_msg);
             return false;
         }
     }
 
-/*======================================================================*\
-    Function:   _smarty_include()
-    Purpose:    called for included templates
-\*======================================================================*/
+    /**
+     * called for included templates
+     *
+     * @param string $_smarty_include_tpl_file
+     * @param string $_smarty_include_vars
+     */    
     function _smarty_include($_smarty_include_tpl_file, $_smarty_include_vars)
     {
         if ($this->debugging) {
@@ -1126,16 +1758,20 @@ function _generate_debug_output() {
         }
 
         $this->_tpl_vars = array_merge($this->_tpl_vars, $_smarty_include_vars);
-        extract($this->_tpl_vars);
 
+        // config vars are treated as local, so push a copy of the
+        // current ones onto the front of the stack
         array_unshift($this->_config, $this->_config[0]);
+
         $_smarty_compile_path = $this->_get_compile_path($_smarty_include_tpl_file);
 
         if ($this->_process_template($_smarty_include_tpl_file, $_smarty_compile_path)) {
             include($_smarty_compile_path);
         }
 
+        // pop the local vars off the front of the stack
         array_shift($this->_config);
+
         $this->_inclusion_depth--;
 
         if ($this->debugging) {
@@ -1148,23 +1784,31 @@ function _generate_debug_output() {
         }
     }
 
-/*======================================================================*\
-    Function:   _smarty_include_php()
-    Purpose:    called for included templates
-\*======================================================================*/
-    function _smarty_include_php($_smarty_include_php_file, $_smarty_assign, $_smarty_once)
+    /**
+     * called for included templates
+     *
+     * @param string $_smarty_include_php_file
+     * @param string $_smarty_assign variable to assign the included template's
+     *               output into
+     * @param boolean $_smarty_once uses include_once if this is true
+     * @param array $_smarty_include_vars associative array of vars from
+     *              {include file="blah" var=$var}
+     */    
+    function _smarty_include_php($_smarty_include_php_file, $_smarty_assign, $_smarty_once, $_smarty_include_vars)
     {
         $this->_get_php_resource($_smarty_include_php_file, $_smarty_resource_type,
                                  $_smarty_php_resource);
 
+        extract($_smarty_include_vars, EXTR_PREFIX_SAME, 'include_php_');
+
         if (!empty($_smarty_assign)) {
             ob_start();
             if ($_smarty_resource_type == 'file') {
-				if($_smarty_once) {
-                	include_once($_smarty_php_resource);
-				} else {
-                	include($_smarty_php_resource);					
-				}
+                if($_smarty_once) {
+                    include_once($_smarty_php_resource);
+                } else {
+                    include($_smarty_php_resource);                    
+                }
             } else {
                 eval($_smarty_php_resource);
             }
@@ -1172,89 +1816,40 @@ function _generate_debug_output() {
             ob_end_clean();
         } else {
             if ($_smarty_resource_type == 'file') {
-				if($_smarty_once) {
-                	include_once($_smarty_php_resource);
-				} else {
-                	include($_smarty_php_resource);					
-				}
+                if($_smarty_once) {
+                    include_once($_smarty_php_resource);
+                } else {
+                    include($_smarty_php_resource);                    
+                }
             } else {
                 eval($_smarty_php_resource);
             }
         }
     }
 
-/*======================================================================*\
-    Function: _config_load
-    Purpose:  load configuration values
-\*======================================================================*/
-    function _config_load($file, $section, $scope)
+    
+    /**
+     * clear configuration values
+     *
+     * @param string $var
+     */    
+    function clear_config($var = null)
     {
-		if(@is_dir($this->config_dir)) {
-			$_config_dir = $this->config_dir;			
-		} else {
-			// config_dir not found, try include_path
-			$this->_get_include_path($this->config_dir,$_config_dir);
-		}
-		
-        if ($this->_conf_obj === null) {
-            /* Prepare the configuration object. */
-            if (!class_exists('Config_File'))
-                require_once SMARTY_DIR.'Config_File.class.php';
-            $this->_conf_obj = new Config_File($_config_dir);
-            $this->_conf_obj->read_hidden = false;
+        if(!isset($var)) {
+            // clear all values
+            $this->_config = array(array('vars'  => array(),
+                                         'files' => array()));
         } else {
-            $this->_conf_obj->set_path($_config_dir);
+            unset($this->_config[0]['vars'][$var]);            
         }
-
-        if ($this->debugging) {
-            $debug_start_time = $this->_get_microtime();
-        }
-
-        if ($this->caching) {
-            $this->_cache_info['config'][] = $file;
-        }
-
-        if (!isset($this->_config[0]['files'][$file])) {
-            $this->_config[0]['vars'] = array_merge($this->_config[0]['vars'], $this->_conf_obj->get($file));
-            $this->_config[0]['files'][$file] = true;
-        }
-        if ($scope == 'parent') {
-            if (count($this->_config) > 0 && !isset($this->_config[1]['files'][$file])) {
-                $this->_config[1]['vars'] = array_merge($this->_config[1]['vars'], $this->_conf_obj->get($file));
-                $this->_config[1]['files'][$file] = true;
-            }
-        } else if ($scope == 'global')
-            for ($i = 1, $for_max = count($this->_config); $i < $for_max; $i++) {
-                if (!isset($this->_config[$i]['files'][$file])) {
-                    $this->_config[$i]['vars'] = array_merge($this->_config[$i]['vars'], $this->_conf_obj->get($file));
-                    $this->_config[$i]['files'][$file] = true;
-                }
-            }
-
-        if (!empty($section)) {
-            $this->_config[0]['vars'] = array_merge($this->_config[0]['vars'], $this->_conf_obj->get($file, $section));
-            if ($scope == 'parent') {
-                if (count($this->_config) > 0)
-                    $this->_config[1]['vars'] = array_merge($this->_config[1]['vars'], $this->_conf_obj->get($file, $section));
-            } else if ($scope == 'global')
-                for ($i = 1, $for_max = count($this->_config); $i < $for_max; $i++)
-                    $this->_config[$i]['vars'] = array_merge($this->_config[$i]['vars'], $this->_conf_obj->get($file, $section));
-        }
-
-        if ($this->debugging) {
-            $debug_start_time = $this->_get_microtime();
-            $this->_smarty_debug_info[] = array('type'      => 'config',
-                                                'filename'  => $file.' ['.$section.'] '.$scope,
-                                                'depth'     => $this->_inclusion_depth,
-                                                'exec_time' => $this->_get_microtime() - $debug_start_time);
-        }
-    }
-
-
-/*======================================================================*\
-    Function: _process_cached_inserts
-    Purpose:  Replace cached inserts with the actual results
-\*======================================================================*/
+    }    
+    
+    
+    /**
+     * Replace cached inserts with the actual results
+     *
+     * @param string $results
+     */    
     function _process_cached_inserts($results)
     {
         preg_match_all('!'.$this->_smarty_md5.'{insert_cache (.*)}'.$this->_smarty_md5.'!Uis',
@@ -1267,9 +1862,7 @@ function _generate_debug_output() {
             }
 
             $args = unserialize($insert_args[$i]);
-
             $name = $args['name'];
-            unset($args['name']);
 
             if (isset($args['script'])) {
                 if (!$this->_get_php_resource($this->_dequote($args['script']), $resource_type, $php_resource)) {
@@ -1281,7 +1874,6 @@ function _generate_debug_output() {
                 } else {
                     eval($php_resource);
                 }
-                unset($args['script']);
             }
 
             $function_name = $this->_plugins['insert'][$name][0];
@@ -1300,63 +1892,64 @@ function _generate_debug_output() {
     }
 
 
-/*======================================================================*\
-    Function: _run_insert_handler
-    Purpose:  Handle insert tags
-\*======================================================================*/
-function _run_insert_handler($args)
-{
-    if ($this->debugging) {
-        $debug_start_time = $this->_get_microtime();
-    }
-
-    if ($this->caching) {
-        $arg_string = serialize($args);
-        $name = $args['name'];
-        if (!isset($this->_cache_info['insert_tags'][$name])) {
-            $this->_cache_info['insert_tags'][$name] = array('insert',
-                                                             $name,
-                                                             $this->_plugins['insert'][$name][1],
-                                                             $this->_plugins['insert'][$name][2],
-                                                             !empty($args['script']) ? true : false);
-        }
-        return $this->_smarty_md5."{insert_cache $arg_string}".$this->_smarty_md5;
-    } else {
-        if (isset($args['script'])) {
-            if (!$this->_get_php_resource($this->_dequote($args['script']), $resource_type, $php_resource)) {
-                return false;
-            }
-
-            if ($resource_type == 'file') {
-                include_once($php_resource);
-            } else {
-                eval($php_resource);
-            }
-            unset($args['script']);
-        }
-
-        $function_name = $this->_plugins['insert'][$args['name']][0];
-        $content = $function_name($args, $this);
+    /**
+     * Handle insert tags
+     *
+     * @param array $args
+     */    
+    function _run_insert_handler($args)
+    {
         if ($this->debugging) {
-            $this->_smarty_debug_info[] = array('type'      => 'insert',
-                                                'filename'  => 'insert_'.$args['name'],
-                                                'depth'     => $this->_inclusion_depth,
-                                                'exec_time' => $this->_get_microtime() - $debug_start_time);
+            $debug_start_time = $this->_get_microtime();
         }
-
-        if (!empty($args["assign"])) {
-            $this->assign($args["assign"], $content);
+    
+        if ($this->caching) {
+            $arg_string = serialize($args);
+            $name = $args['name'];
+            if (!isset($this->_cache_info['insert_tags'][$name])) {
+                $this->_cache_info['insert_tags'][$name] = array('insert',
+                                                                 $name,
+                                                                 $this->_plugins['insert'][$name][1],
+                                                                 $this->_plugins['insert'][$name][2],
+                                                                 !empty($args['script']) ? true : false);
+            }
+            return $this->_smarty_md5."{insert_cache $arg_string}".$this->_smarty_md5;
         } else {
-            return $content;
+            if (isset($args['script'])) {
+                if (!$this->_get_php_resource($this->_dequote($args['script']), $resource_type, $php_resource)) {
+                    return false;
+                }
+    
+                if ($resource_type == 'file') {
+                    include_once($php_resource);
+                } else {
+                    eval($php_resource);
+                }
+                unset($args['script']);
+            }
+    
+            $function_name = $this->_plugins['insert'][$args['name']][0];
+            $content = $function_name($args, $this);
+            if ($this->debugging) {
+                $this->_smarty_debug_info[] = array('type'      => 'insert',
+                                                    'filename'  => 'insert_'.$args['name'],
+                                                    'depth'     => $this->_inclusion_depth,
+                                                    'exec_time' => $this->_get_microtime() - $debug_start_time);
+            }
+    
+            if (!empty($args["assign"])) {
+                $this->assign($args["assign"], $content);
+            } else {
+                return $content;
+            }
         }
     }
-}
 
 
-/*======================================================================*\
-    Function: _run_mod_handler
-    Purpose:  Handle modifiers
-\*======================================================================*/
+    /**
+     * Handle modifiers
+     *
+     */
     function _run_mod_handler()
     {
         $args = func_get_args();
@@ -1377,10 +1970,11 @@ function _run_insert_handler($args)
     }
 
 
-/*======================================================================*\
-    Function: _dequote
-    Purpose:  Remove starting and ending quotes from the string
-\*======================================================================*/
+    /**
+     * Remove starting and ending quotes from the string
+     *
+     * @param string $string
+     */    
     function _dequote($string)
     {
         if (($string{0} == "'" || $string{0} == '"') &&
@@ -1391,11 +1985,14 @@ function _run_insert_handler($args)
     }
 
 
-/*======================================================================*\
-    Function:   _read_file()
-    Purpose:    read in a file from line $start for $lines.
-                read the entire file if $start and $lines are null.
-\*======================================================================*/
+    /**
+     * read in a file from line $start for $lines.
+     * read the entire file if $start and $lines are null.
+     *
+     * @param string $filename
+     * @param integer $start
+     * @param integer $lines
+     */    
     function _read_file($filename, $start=null, $lines=null)
     {
         if (!($fd = @fopen($filename, 'r'))) {
@@ -1431,190 +2028,242 @@ function _run_insert_handler($args)
         return $contents;
     }
 
-/*======================================================================*\
-    Function:   _write_file()
-    Purpose:    write out a file
-\*======================================================================*/
+    /**
+     * write out a file to disk
+     *
+     * @param string $filename
+     * @param string $contents
+     * @param boolean $create_dirs
+     */    
     function _write_file($filename, $contents, $create_dirs = false)
     {
-        if ($create_dirs)
-            $this->_create_dir_structure(dirname($filename));
+		$_dirname = dirname($filename);
+		
+        if ($create_dirs) {
+            $this->_create_dir_structure($_dirname);
+		}
 
-        if (!($fd = @fopen($filename, 'w'))) {
-            $this->trigger_error("problem writing '$filename.'");
+		// write to tmp file, then rename it to avoid
+		// file locking race condition
+		$_tmp_file = $_dirname . '/' . uniqid('');
+		
+        if (!($fd = @fopen($_tmp_file, 'w'))) {
+            $this->trigger_error("problem writing temporary file '$_tmp_file'");
             return false;
         }
 
-        // flock doesn't seem to work on several windows platforms (98, NT4, NT5, ?),
-        // so we'll not use it at all in windows.
-
-        if ( strtoupper(substr(PHP_OS, 0, 3)) == 'WIN' || (flock($fd, LOCK_EX)) ) {
-            fwrite( $fd, $contents );
-            fclose($fd);
-            chmod($filename, 0644);
-        }
+        fwrite($fd, $contents);
+        fclose($fd);
+		// Win32 can't rename over top another file
+		if(strtoupper(substr(PHP_OS, 0, 3)) == 'WIN' && file_exists($filename)) {
+			@unlink($filename);
+		} 
+		@rename($_tmp_file, $filename);
+        chmod($filename, $this->_file_perms);
 
         return true;
     }
 
-/*======================================================================*\
-    Function: _get_auto_filename
-    Purpose:  get a concrete filename for automagically created content
-\*======================================================================*/
+    /**
+     * get a concrete filename for automagically created content
+     *
+     * @param string $auto_base
+     * @param string $auto_source
+     * @param string $auto_id
+     */    
     function _get_auto_filename($auto_base, $auto_source = null, $auto_id = null)
     {
-		static $_dir_sep = null;
-		static $_dir_sep_enc = null;
-		
-		if(!isset($_dir_sep)) {
-			$_dir_sep_enc = urlencode(DIR_SEP);
-			if($this->use_sub_dirs) {
-				$_dir_sep = DIR_SEP;
-			} else {
-				$_dir_sep = '^';		
-			}
-		}
-		
-		if(@is_dir($auto_base)) {
-        	$res = $auto_base . DIR_SEP;
-		} else {
-			// auto_base not found, try include_path
-			$this->_get_include_path($auto_base,$_include_path);
-			$res = $_include_path . DIR_SEP;
-		}
-		
-		if(isset($auto_id)) {
-			// make auto_id safe for directory names
-			$auto_id = str_replace('%7C','|',(urlencode($auto_id)));
-			// split into separate directories
-			$auto_id = str_replace('|', $_dir_sep, $auto_id);
-        	$res .= $auto_id . $_dir_sep;
-		}
-		
-		if(isset($auto_source)) {
-			// make source name safe for filename
-			if($this->use_sub_dirs) {
-				$_filename = urlencode(basename($auto_source));
-				$_crc32 = crc32($auto_source) . $_dir_sep;
-				// prepend %% to avoid name conflicts with
-				// with $auto_id names
-				$_crc32 = '%%' . substr($_crc32,0,3) . $_dir_sep . '%%' . $_crc32;
-				$res .= $_crc32 . $_filename . '.php';
-			} else {
-        		$res .= str_replace($_dir_sep_enc,'^',urlencode($auto_source));
-			}
-		}
-		
+        static $_dir_sep = null;
+        static $_dir_sep_enc = null;
+        
+        if(!isset($_dir_sep)) {
+            $_dir_sep_enc = urlencode(DIR_SEP);
+            if($this->use_sub_dirs) {
+                $_dir_sep = DIR_SEP;
+            } else {
+                $_dir_sep = '^';        
+            }
+        }
+        
+        if(@is_dir($auto_base)) {
+            $res = $auto_base . DIR_SEP;
+        } else {
+            // auto_base not found, try include_path
+            $this->_get_include_path($auto_base,$_include_path);
+            $res = $_include_path . DIR_SEP;
+        }
+        
+        if(isset($auto_id)) {
+            // make auto_id safe for directory names
+            $auto_id = str_replace('%7C','|',(urlencode($auto_id)));
+            // split into separate directories
+            $auto_id = str_replace('|', $_dir_sep, $auto_id);
+            $res .= $auto_id . $_dir_sep;
+        }
+        
+        if(isset($auto_source)) {
+            // make source name safe for filename
+            if($this->use_sub_dirs) {
+                $_filename = urlencode(basename($auto_source));
+                $_crc32 = crc32($auto_source) . $_dir_sep;
+                // prepend %% to avoid name conflicts with
+                // with $auto_id names
+                $_crc32 = '%%' . substr($_crc32,0,3) . $_dir_sep . '%%' . $_crc32;
+                $res .= $_crc32 . $_filename . '.php';
+            } else {
+                $res .= str_replace($_dir_sep_enc,'^',urlencode($auto_source));
+            }
+        }
+        
         return $res;
     }
 
-/*======================================================================*\
-    Function: _rm_auto
-    Purpose: delete an automagically created file by name and id
-\*======================================================================*/
+    /**
+     * delete an automagically created file by name and id
+     *
+     * @param string $auto_base
+     * @param string $auto_source
+     * @param string $auto_id
+     * @param integer $exp_time
+     */    
     function _rm_auto($auto_base, $auto_source = null, $auto_id = null, $exp_time = null)
     {
-        if (!is_dir($auto_base))
+        if (!@is_dir($auto_base))
           return false;
 
-		if(!isset($auto_id) && !isset($auto_source)) {
-			$res = $this->_rmdir($auto_base, 0, $exp_time);			
-		} else {		
-        	$tname = $this->_get_auto_filename($auto_base, $auto_source, $auto_id);
-			
-			if(isset($auto_source)) {
-				$res = @unlink($tname);
-			} elseif ($this->use_sub_dirs) {
-				$res = $this->_rmdir($tname, 1, $exp_time);
-			} else {
-				// remove matching file names
-				$handle = opendir($auto_base);
-        		while ($filename = readdir($handle)) {
-					if($filename == '.' || $filename == '..') {
-						continue;	
-					} elseif (substr($auto_base . DIR_SEP . $filename,0,strlen($tname)) == $tname) {
-						$this->_unlink($auto_base . DIR_SEP . $filename, $exp_time);
-					}
-				}
-			}
-		}
+        if(!isset($auto_id) && !isset($auto_source)) {
+            $res = $this->_rmdir($auto_base, 0, $exp_time);            
+        } else {        
+            $tname = $this->_get_auto_filename($auto_base, $auto_source, $auto_id);
+            
+            if(isset($auto_source)) {
+                $res = $this->_unlink($tname);
+            } elseif ($this->use_sub_dirs) {
+                $res = $this->_rmdir($tname, 1, $exp_time);
+            } else {
+                // remove matching file names
+                $handle = opendir($auto_base);
+		$res = true;
+                while (false !== ($filename = readdir($handle))) {
+                    if($filename == '.' || $filename == '..') {
+                        continue;    
+                    } elseif (substr($auto_base . DIR_SEP . $filename,0,strlen($tname)) == $tname) {
+                        $res &= (bool)$this->_unlink($auto_base . DIR_SEP . $filename, $exp_time);
+                    }
+                }
+            }
+        }
 
         return $res;
     }
 
-/*======================================================================*\
-    Function: _rmdir
-    Purpose: delete a dir recursively (level=0 -> keep root)
-    WARNING: no security whatsoever!!
-\*======================================================================*/
+    /**
+     * delete a dir recursively (level=0 -> keep root)
+     * WARNING: no tests, it will try to remove what you tell it!
+     *
+     * @param string $dirname
+     * @param integer $level
+     * @param integer $exp_time
+     */    
     function _rmdir($dirname, $level = 1, $exp_time = null)
     {
 
        if($handle = @opendir($dirname)) {
 
-        	while ($entry = readdir($handle)) {
-            	if ($entry != '.' && $entry != '..') {
-                	if (is_dir($dirname . DIR_SEP . $entry)) {
-                    	$this->_rmdir($dirname . DIR_SEP . $entry, $level + 1, $exp_time);
-                	}
-                	else {
-                    	$this->_unlink($dirname . DIR_SEP . $entry, $exp_time);
-                	}
-            	}
-        	}
+            while (false !== ($entry = readdir($handle))) {
+                if ($entry != '.' && $entry != '..') {
+                    if (@is_dir($dirname . DIR_SEP . $entry)) {
+                        $this->_rmdir($dirname . DIR_SEP . $entry, $level + 1, $exp_time);
+                    }
+                    else {
+                        $this->_unlink($dirname . DIR_SEP . $entry, $exp_time);
+                    }
+                }
+            }
 
-        	closedir($handle);
+            closedir($handle);
 
-        	if ($level)
-            	@rmdir($dirname);
-        	
-			return true;
-		
-		} else {
-       	 	return false;
-		}
+            if ($level)
+                @rmdir($dirname);
+            
+            return true;
+        
+        } else {
+                return false;
+        }
     }
 
-/*======================================================================*\
-    Function: _unlink
-    Purpose: unlink a file, possibly using expiration time
-\*======================================================================*/
+    /**
+     * unlink a file, possibly using expiration time
+     *
+     * @param string $resource
+     * @param integer $exp_time
+     */    
     function _unlink($resource, $exp_time = null)
     {
-		if(isset($exp_time)) {
-			if(time() - filemtime($resource) >= $exp_time) {
-				unlink($resource);
-			}
-		} else {			
-			unlink($resource);
-		}
+        if(isset($exp_time)) {
+            if(time() - filemtime($resource) >= $exp_time) {
+                @unlink($resource);
+            }
+        } else {            
+            @unlink($resource);
+        }
     }
-	
-/*======================================================================*\
-    Function: _create_dir_structure
-    Purpose:  create full directory structure
-\*======================================================================*/
+    
+    /**
+     * create full directory structure
+     *
+     * @param string $dir
+     */    
     function _create_dir_structure($dir)
     {
-        if (!@file_exists($dir)) {
-            $dir_parts = preg_split('!\\'.DIR_SEP.'+!', $dir, -1, PREG_SPLIT_NO_EMPTY);
-            $new_dir = ($dir{0} == DIR_SEP) ? DIR_SEP : '';
-            foreach ($dir_parts as $dir_part) {
-                $new_dir .= $dir_part;
-                if (!file_exists($new_dir) && !mkdir($new_dir, 0771)) {
+        if (!file_exists($dir)) {
+            $_dir_parts = preg_split('!\\'.DIR_SEP.'+!', $dir, -1, PREG_SPLIT_NO_EMPTY);
+            $_new_dir = ($dir{0} == DIR_SEP) ? DIR_SEP : '';
+            
+            // do not attempt to test or make directories outside of open_basedir
+            $_open_basedir_ini = ini_get('open_basedir');
+            if(!empty($_open_basedir_ini)) {
+                $_use_open_basedir = true;
+                $_open_basedir_sep = (strtoupper(substr(PHP_OS, 0, 3)) == 'WIN') ? ';' : ':';
+                $_open_basedirs = explode($_open_basedir_sep, $_open_basedir_ini);
+            } else {                    
+                $_use_open_basedir = false;
+            }
+
+            foreach ($_dir_parts as $_dir_part) {
+                $_new_dir .= $_dir_part;
+
+                if ($_use_open_basedir) {
+                    $_make_new_dir = false;
+                    foreach ($_open_basedirs as $_open_basedir) {
+                        if (substr($_new_dir.'/', 0, strlen($_open_basedir)) == $_open_basedir) {
+                            $_make_new_dir = true;
+                            break;
+                        }
+                    }
+                } else {
+                    $_make_new_dir = true;                    
+                }
+
+                if ($_make_new_dir && !file_exists($_new_dir) && !@mkdir($_new_dir, $this->_dir_perms)) {
                     $this->trigger_error("problem creating directory \"$dir\"");
                     return false;
                 }
-                $new_dir .= DIR_SEP;
+                $_new_dir .= DIR_SEP;
             }
         }
     }
 
-/*======================================================================*\
-    Function:   _write_cache_file
-    Purpose:    Prepend the cache information to the cache file
-                and write it
-\*======================================================================*/
+    /**
+     * Prepend the cache information to the cache file
+     * and write it
+     *
+     * @param string $tpl_file
+     * @param string $cache_id
+     * @param string $compile_id
+     * @param string $results
+     */    
     function _write_cache_file($tpl_file, $cache_id, $compile_id, $results)
     {
         // put timestamp in cache header
@@ -1632,28 +2281,26 @@ function _run_insert_handler($args)
 
         if (!empty($this->cache_handler_func)) {
             // use cache_handler function
-            $funcname = $this->cache_handler_func;
-            return $funcname('write', $this, $results, $tpl_file, $cache_id, $compile_id);
+            $_funcname = $this->cache_handler_func;
+            return $_funcname('write', $this, $results, $tpl_file, $cache_id, $compile_id);
         } else {
             // use local cache file
-            if (isset($cache_id))
-            	$auto_id = (isset($compile_id)) ? $cache_id . '|' . $compile_id : $cache_id;
-            elseif(isset($compile_id))
-				$auto_id = $compile_id;
-			else
-                $auto_id = null;
-
-            $cache_file = $this->_get_auto_filename($this->cache_dir, $tpl_file, $auto_id);
-            $this->_write_file($cache_file, $results, true);
+            $_auto_id = $this->_get_auto_id($cache_id, $compile_id);
+            $_cache_file = $this->_get_auto_filename($this->cache_dir, $tpl_file, $_auto_id);
+            $this->_write_file($_cache_file, $results, true);
             return true;
         }
     }
 
-/*======================================================================*\
-    Function:   _read_cache_file
-    Purpose:    read a cache file, determine if it needs to be
-                regenerated or not
-\*======================================================================*/
+    /**
+     * read a cache file, determine if it needs to be
+     * regenerated or not
+     *
+     * @param string $tpl_file
+     * @param string $cache_id
+     * @param string $compile_id
+     * @param string $results
+     */    
     function _read_cache_file($tpl_file, $cache_id, $compile_id, &$results)
     {
         static  $content_cache = array();
@@ -1670,19 +2317,13 @@ function _run_insert_handler($args)
 
         if (!empty($this->cache_handler_func)) {
             // use cache_handler function
-            $funcname = $this->cache_handler_func;
-            $funcname('read', $this, $results, $tpl_file, $cache_id, $compile_id);
+            $_funcname = $this->cache_handler_func;
+            $_funcname('read', $this, $results, $tpl_file, $cache_id, $compile_id);
         } else {
             // use local cache file
-            if (isset($cache_id))
-            	$auto_id = (isset($compile_id)) ? $cache_id . '|' . $compile_id : $cache_id;
-            elseif(isset($compile_id))
-				$auto_id = $compile_id;
-			else
-                $auto_id = null;
-
-            $cache_file = $this->_get_auto_filename($this->cache_dir, $tpl_file, $auto_id);
-            $results = $this->_read_file($cache_file);
+            $_auto_id = $this->_get_auto_id($cache_id, $compile_id);
+            $_cache_file = $this->_get_auto_filename($this->cache_dir, $tpl_file, $_auto_id);
+            $results = $this->_read_file($_cache_file);
         }
 
         if (empty($results)) {
@@ -1733,60 +2374,78 @@ function _run_insert_handler($args)
 
         return true;
     }
-	
-/*======================================================================*\
-    Function:  _get_plugin_filepath
-    Purpose:   get filepath of requested plugin
-\*======================================================================*/
+
+    /**
+     * returns an auto_id for auto-file-functions
+     *
+     * @param string $cache_id
+     * @param string $compile_id
+     */
+    function _get_auto_id($cache_id=null, $compile_id=null) {
+	if (isset($cache_id))
+	    return (isset($compile_id)) ? $cache_id . '|' . $compile_id  : $cache_id;
+	elseif(isset($compile_id))
+	    return $compile_id;
+	else
+	    return null;
+    }
+
+    /**
+     * get filepath of requested plugin
+     *
+     * @param string $type
+     * @param string $name
+     */    
     function _get_plugin_filepath($type, $name)
     {
         $_plugin_filename = "$type.$name.php";
-		
+        
         foreach ((array)$this->plugins_dir as $_plugin_dir) {
 
             $_plugin_filepath = $_plugin_dir . DIR_SEP . $_plugin_filename;
 
-			// see if path is relative
+            // see if path is relative
             if (!preg_match("/^([\/\\\\]|[a-zA-Z]:[\/\\\\])/", $_plugin_dir)) {
-				$_relative_paths[] = $_plugin_dir;
+                $_relative_paths[] = $_plugin_dir;
                 // relative path, see if it is in the SMARTY_DIR
-            	if (@is_readable(SMARTY_DIR . $_plugin_filepath)) {
-                	return SMARTY_DIR . $_plugin_filepath;
-            	}
-			}
-			// try relative to cwd (or absolute)
+                if (@is_readable(SMARTY_DIR . $_plugin_filepath)) {
+                    return SMARTY_DIR . $_plugin_filepath;
+                }
+            }
+            // try relative to cwd (or absolute)
             if (@is_readable($_plugin_filepath)) {
                 return $_plugin_filepath;
             }
         }
 
-		// still not found, try PHP include_path
-		if(isset($_relative_paths)) {
-        	foreach ((array)$_relative_paths as $_plugin_dir) {
+        // still not found, try PHP include_path
+        if(isset($_relative_paths)) {
+            foreach ((array)$_relative_paths as $_plugin_dir) {
 
-            	$_plugin_filepath = $_plugin_dir . DIR_SEP . $_plugin_filename;
+                $_plugin_filepath = $_plugin_dir . DIR_SEP . $_plugin_filename;
 
-        		if ($this->_get_include_path($_plugin_filepath, $_include_filepath)) {
-            		return $_include_filepath;
-        		}
-        	}
-		}
-		
-		
+                if ($this->_get_include_path($_plugin_filepath, $_include_filepath)) {
+                    return $_include_filepath;
+                }
+            }
+        }
+        
+        
         return false;
     }
 
-/*======================================================================*\
-    Function:  _load_plugins
-    Purpose:   Load requested plugins
-\*======================================================================*/
+    /**
+     * Load requested plugins
+     *
+     * @param array $plugins
+     */    
     function _load_plugins($plugins)
     {
-		
-        foreach ($plugins as $plugin_info) {
+        
+        foreach ($plugins as $plugin_info) {            
             list($type, $name, $tpl_file, $tpl_line, $delayed_loading) = $plugin_info;
             $plugin = &$this->_plugins[$type][$name];
-
+            
             /*
              * We do not load plugin more than once for each instance of Smarty.
              * The following code checks for that. The plugin can also be
@@ -1800,7 +2459,7 @@ function _run_insert_handler($args)
             if (isset($plugin)) {
                 if (!$plugin[3]) {
                     if (!function_exists($plugin[0])) {
-                        $this->_trigger_plugin_error("$type '$name' is not implemented", $tpl_file, $tpl_line);
+                        $this->_trigger_fatal_error("[plugin] $type '$name' is not implemented", $tpl_file, $tpl_line, __FILE__, __LINE__);
                     } else {
                         $plugin[1] = $tpl_file;
                         $plugin[2] = $tpl_line;
@@ -1822,7 +2481,7 @@ function _run_insert_handler($args)
 
             $plugin_file = $this->_get_plugin_filepath($type, $name);
 
-            if ($found = ($plugin_file != false)) {
+            if (! $found = ($plugin_file != false)) {
                 $message = "could not load plugin file '$type.$name.php'\n";
             }
 
@@ -1836,7 +2495,7 @@ function _run_insert_handler($args)
 
                 $plugin_func = 'smarty_' . $type . '_' . $name;
                 if (!function_exists($plugin_func)) {
-                    $this->_trigger_plugin_error("plugin function $plugin_func() not found in $plugin_file", $tpl_file, $tpl_line);
+                    $this->_trigger_fatal_error("[plugin] function $plugin_func() not found in $plugin_file", $tpl_file, $tpl_line, __FILE__, __LINE__);
                     continue;
                 }
             }
@@ -1881,15 +2540,16 @@ function _run_insert_handler($args)
                 $this->_plugins[$type][$name] = array($plugin_func, $tpl_file, $tpl_line, true);
             } else {
                 // output error
-                $this->_trigger_plugin_error($message, $tpl_file, $tpl_line);
+                $this->_trigger_fatal_error('[plugin] ' . $message, $tpl_file, $tpl_line, __FILE__, __LINE__);
             }
         }
     }
 
-/*======================================================================*\
-    Function:   _load_resource_plugin
-    Purpose:   
-\*======================================================================*/
+    /**
+     * load a resource plugin
+     *
+     * @param string $type
+     */    
     function _load_resource_plugin($type)
     {
         /*
@@ -1912,7 +2572,7 @@ function _run_insert_handler($args)
             }
 
             if (!$plugin[1]) {
-                $this->_trigger_plugin_error("resource '$type' is not implemented");
+                $this->_trigger_fatal_error("[plugin] resource '$type' is not implemented", null, null, __FILE__, __LINE__);
             }
 
             return;
@@ -1935,7 +2595,7 @@ function _run_insert_handler($args)
             foreach ($resource_ops as $op) {
                 $plugin_func = 'smarty_resource_' . $type . '_' . $op;
                 if (!function_exists($plugin_func)) {
-                    $this->_trigger_plugin_error("plugin function $plugin_func() not found in $plugin_file");
+                    $this->_trigger_fatal_error("[plugin] function $plugin_func() not found in $plugin_file", null, null, __FILE__, __LINE__);
                     return;
                 } else {
                     $resource_funcs[] = $plugin_func;
@@ -1946,10 +2606,9 @@ function _run_insert_handler($args)
         }
     }
 
-/*======================================================================*\
-    Function:   _autoload_filters()
-    Purpose:    automatically load a set of filters
-\*======================================================================*/
+    /**
+     * automatically load a set of filters
+     */
     function _autoload_filters()
     {
         foreach ($this->autoload_filters as $filter_type => $filters) {
@@ -1959,34 +2618,47 @@ function _run_insert_handler($args)
         }
     }
 
-/*======================================================================*\
-    Function:   quote_replace
-    Purpose:    Quote subpattern references
-\*======================================================================*/
+    /**
+     * Quote subpattern references
+     *
+     * @param string $string
+     */
     function quote_replace($string)
     {
         return preg_replace('![\\$]\d!', '\\\\\\0', $string);
     }
 
 
-/*======================================================================*\
-    Function: _trigger_plugin_error
-    Purpose:  trigger Smarty plugin error
-\*======================================================================*/
-    function _trigger_plugin_error($error_msg, $tpl_file = null, $tpl_line = null, $error_type = E_USER_ERROR)
+    /**
+     * trigger Smarty plugin error
+     *
+     * @param string $error_msg
+     * @param string $tpl_file
+     * @param integer $tpl_line
+     * @param string $file
+     * @param integer $line
+     * @param integer $error_type
+     */    
+    function _trigger_fatal_error($error_msg, $tpl_file = null, $tpl_line = null,
+            $file = null, $line = null, $error_type = E_USER_ERROR)
     {
-        if (isset($tpl_line) && isset($tpl_file)) {
-            trigger_error("Smarty plugin error: [in " . $tpl_file . " line " .
-                          $tpl_line . "]: $error_msg", $error_type);
+        if(isset($file) && isset($line)) {
+            $info = ' ('.basename($file).", line $line)";
         } else {
-            trigger_error("Smarty plugin error: $error_msg", $error_type);
+            $info = null;
+        }
+        if (isset($tpl_line) && isset($tpl_file)) {
+            trigger_error("Smarty error: [in " . $tpl_file . " line " .
+                          $tpl_line . "]: $error_msg$info", $error_type);
+        } else {
+            trigger_error("Smarty error: $error_msg$info", $error_type);
         }
     }
 
-/*======================================================================*\
-    Function:   _get_microtime
-    Purpose:    Get seconds and microseconds
-\*======================================================================*/
+    /**
+     * Get seconds and microseconds
+     * @return double
+     */    
     function _get_microtime()
     {
         $mtime = microtime();
@@ -1995,33 +2667,35 @@ function _run_insert_handler($args)
         return ($mtime);
     }
 
-/*======================================================================*\
-    Function:   _get_include_path
-    Purpose:    Get path to file from include_path
-\*======================================================================*/
-    function _get_include_path($file_path,&$new_file_path)
+    /**
+     * Get path to file from include_path
+     *
+     * @param string $file_path
+     * @param string $new_file_path
+     */    
+    function _get_include_path($file_path, &$new_file_path)
     {
-		static $_path_array = null;
-		
-		if(!isset($_path_array)) {
-			$_ini_include_path = ini_get('include_path');
+        static $_path_array = null;
+        
+        if(!isset($_path_array)) {
+            $_ini_include_path = ini_get('include_path');
 
-			if(strstr($_ini_include_path,';')) {
-				// windows pathnames
-				$_path_array = explode(';',$_ini_include_path);
-			} else {
-				$_path_array = explode(':',$_ini_include_path);
-			}
-		}
-        foreach ($_path_array as $_include_path) {
-            if (@file_exists($_include_path . DIR_SEP . $file_path)) {
-               	$new_file_path = $_include_path . DIR_SEP . $file_path;
-				return true;
+            if(strstr($_ini_include_path,';')) {
+                // windows pathnames
+                $_path_array = explode(';',$_ini_include_path);
+            } else {
+                $_path_array = explode(':',$_ini_include_path);
             }
         }
-		return false;
-	}	
-	
+        foreach ($_path_array as $_include_path) {
+            if (file_exists($_include_path . DIR_SEP . $file_path)) {
+                   $new_file_path = $_include_path . DIR_SEP . $file_path;
+                return true;
+            }
+        }
+        return false;
+    }    
+    /**#@-*/
 }
 
 /* vim: set expandtab: */

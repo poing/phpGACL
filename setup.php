@@ -149,7 +149,7 @@ $schema = new adoSchema($db, TRUE);
 $orig_xml_file = $final_xml_file = 'schema.xml';
 
 // special handling if we are going to do table prefixing
-if ($db_table_prefix) {
+//if ($db_table_prefix) {
 	if (function_exists('file_get_contents')) {   // 4.3.0 and above only
 
 		$xml = file_get_contents($orig_xml_file);
@@ -180,7 +180,7 @@ if ($db_table_prefix) {
 	} else {
 		echo_failed("Can't write translated database schema file to '$tmp_xml_file'. Check permissions in directory?");
 	}
-}
+//}
 
 // Build the SQL array
 $sql = $schema->ParseSchema($final_xml_file);
