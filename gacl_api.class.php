@@ -1413,7 +1413,7 @@ class gacl_api extends gacl {
 	 */
 	function get_group_id($value = NULL, $name = NULL, $group_type = 'ARO') {
 
-		$this->debug_text("get_group_id(): Name: $name");
+		$this->debug_text("get_group_id(): Value: $value, Name: $name, Type: $group_type" );
 
 		switch(strtolower(trim($group_type))) {
 			case 'axo':
@@ -1732,6 +1732,9 @@ class gacl_api extends gacl {
 		//This has to be outside the transaction, because the first time it is run, it will say the sequence
 		//doesn't exist. Then try to create it, but the transaction will already by aborted by then.
 		$insert_id = $this->db->GenID($this->_db_table_prefix.$group_type.'_groups_id_seq',10);
+		if (trim( $value ) === '') {
+			$value = $insert_id;
+		}
 
 		$this->db->BeginTrans();
 
