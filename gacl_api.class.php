@@ -739,9 +739,9 @@ class gacl_api extends gacl {
 		
 		$query  = '
 			SELECT		a.id
-			FROM		'. $this->_db_table_prefix .'acl a,
-						'. $this->_db_table_prefix .'aco_map ac,
-						'. $this->_db_table_prefix .'aro_map ar
+			FROM		'. $this->_db_table_prefix .'acl a
+			LEFT JOIN	'. $this->_db_table_prefix .'aco_map ac ON ac.acl_id=a.id
+			LEFT JOIN	'. $this->_db_table_prefix .'aro_map ar ON ar.acl_id=a.id
 			LEFT JOIN	'. $this->_db_table_prefix .'axo_map ax ON ax.acl_id=a.id
 			LEFT JOIN	'. $this->_db_table_prefix .'axo_groups_map axg ON axg.acl_id=a.id
 			LEFT JOIN	'. $this->_db_table_prefix .'axo_groups xg ON xg.id=axg.group_id
@@ -757,9 +757,9 @@ class gacl_api extends gacl {
 				continue;
 				// return TRUE;
 			}
-			
+			//Move the below line in to the LEFT JOIN above for PostgreSQL sake.
+			//'ac1' => 'ac.acl_id=a.id',
 			$where_query = array(
-				'ac1' => 'ac.acl_id=a.id',
 				'ac2' => '(ac.section_value='. $this->db->quote($aco_section_value) .' AND ac.value IN (\''. implode ('\',\'', $aco_value_array) .'\'))'
 			);
 			
@@ -776,7 +776,8 @@ class gacl_api extends gacl {
 				
 				$this->debug_text("is_conflicting_acl(): Search: ACO Section: $aco_section_value ACO Value: $aco_value_array ARO Section: $aro_section_value ARO Value: $aro_value_array");
 				
-				$where_query['ar1'] = 'ar.acl_id=a.id';
+				//Move the below line in to the LEFT JOIN above for PostgreSQL sake.				
+				//$where_query['ar1'] = 'ar.acl_id=a.id';
 				$where_query['ar2'] = '(ar.section_value='. $this->db->quote($aro_section_value) .' AND ar.value IN (\''. implode ('\',\'', $aro_value_array) .'\'))';
 				
 				if (is_array($axo_array)) {
@@ -893,16 +894,27 @@ class gacl_api extends gacl {
 			return false;
 		}
 
-		$this->db->BeginTrans();
-
 		//Edit ACL if acl_id is set. This is simply if we're being called by edit_acl().
 		if (empty($acl_id)) {
 			//Create ACL row first, so we have the acl_id
 			$acl_id = $this->db->GenID($this->_db_table_prefix.'acl_seq',10);
 
+			//Double check the ACL ID was generated.
+			if (empty($acl_id)) {
+				$this->debug_text("add_acl(): ACL_ID generation failed!");
+				return false;
+			}
+			
+			//Begin transaction _after_ GenID. Because on the first run, if GenID has to create the sequence,
+			//the transaction will fail.
+			$this->db->BeginTrans();
+			
 			$query = 'INSERT INTO '.$this->_db_table_prefix."acl (id,section_value,allow,enabled,return_value,note,updated_date) VALUES($acl_id,".$this->db->quote($section_value).",$allow,$enabled,".$this->db->quote($return_value).','.$this->db->quote($note).','.time().')';
 			$result = $this->db->Execute($query);
 		} else {
+			
+			$this->db->BeginTrans();
+			
 			//Update ACL row, and remove all mappings so they can be re-inserted.
 			$query  = '
 				UPDATE	'. $this->_db_table_prefix .'acl
