@@ -1,22 +1,18 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-
 {include file="phpgacl/header.tpl"} 
-    <meta name="generator" content="HTML Tidy, see www.w3.org">
-    <title>phpGACL Admin</title>
-    <meta http-equiv="content-type" content="text/html; charset=ISO-8859-1">
     <style type="text/css">
     {literal}
     input.search {
-    	width: 100%;
+    	width: 99%;
     }
     select.search {
+    	margin-top: 0px;
     	width: 99%;
     }
     {/literal}
     </style>
-  </head>
 {include file="phpgacl/acl_admin_js.tpl"}
-<body onload="document.object_search.name_search_str.focus();">
+  </head>
+  <body onload="document.object_search.name_search_str.focus();">
     <form method="get" name="object_search" action="object_search.php">
       <table cellpadding="2" cellspacing="2" border="2" width="100%">
         <tbody>
@@ -50,13 +46,13 @@
           </tr>
 		{if ($total_rows > 0)}
           <tr valign="middle" align="center">
-            <td>
+            <td width="90%">
 			  <select name="objects" class="search" tabindex="0" size="10" multiple>
 			    {html_options options=$options_objects}
 			  </select>
             </td>
-            <td width="50">
-				<input type="button" name="select" value="&nbsp;>>&nbsp;" onClick="select_item(opener.document.{$src_form}.{$object_type}_section, document.object_search.elements['objects'], opener.document.{$src_form}.elements['selected_{$object_type}[]'])">
+            <td width="10%">
+				<input type="button" class="select" name="select" value="&nbsp;&gt;&gt;&nbsp;" onClick="select_item(opener.document.{$src_form}.{$object_type}_section, document.object_search.elements['objects'], opener.document.{$src_form}.elements['selected_{$object_type}[]'])">
              </td>
           </tr>
 		{/if}

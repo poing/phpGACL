@@ -1,3 +1,7 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+
 <html>
-  <body>
-        <link rel="stylesheet" href="admin.css" type="text/css" title="phpGACL"/>
+  <head>
+    <title>phpGACL Admin</title>
+    <meta http-equiv="content-type" content="text/html; charset=ISO-8859-1" />
+    <link rel="stylesheet" href="admin.css" type="text/css" title="phpGACL" />

@@ -1,9 +1,4 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-
 {include file="phpgacl/header.tpl"}
-    <meta name="generator" content="HTML Tidy, see www.w3.org">
-    <title>phpGACL Admin</title>
-    <meta http-equiv="content-type" content="text/html; charset=ISO-8859-1">
 {include file="phpgacl/acl_admin_js.tpl"}
 {literal}
     <style type="text/css">
@@ -32,15 +27,16 @@
 		border-bottom: 1px solid grey;
 	}
 	input.filter {
-		width: 100%;
+		width: 99%;
 	}
 	select.filter {
 		width: 99%;
+		margin-top: 0px;
 	}
    </style>
 {/literal}
   </head>
-
+<body>
 {include file="phpgacl/navigation.tpl"}
 <form method="get" name="acl_list" action="acl_list.php">
 <table cellpadding="2" cellspacing="2" border="0" width="100%">
@@ -106,7 +102,7 @@
 	<td colspan="5"><input type="text" name="filter_return_value" size="50" value="{$filter_return_value}" class="filter"></td>
   </tr>
   <tr class="controls" align="center">
-    <td colspan="6"><input type="submit" name="action" value="Filter"></td>
+    <td colspan="6"><input type="submit" class="button" name="action" value="Filter"></td>
   </tr>
   <tr class="spacer">
   	<td colspan="6"></td>
@@ -242,7 +238,7 @@
   <tr class="controls">
     <td colspan="6">&nbsp;</td>
     <td colspan="2" align="center">
-      <input type="submit" name="action" value="Delete">
+      <input type="submit" class="button" name="action" value="Delete">
     </td>
   </tr>
 </table>
