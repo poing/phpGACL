@@ -250,7 +250,8 @@ class gacl {
 
 			$query = '
 					SELECT		a.id,a.allow,a.return_value
-					FROM		'. $this->_db_table_prefix .'acl a,'. $this->_db_table_prefix .'aco_map ac';
+					FROM		'. $this->_db_table_prefix .'acl a
+					LEFT JOIN 	'. $this->_db_table_prefix .'aco_map ac ON ac.acl_id=a.id';
 			
 			if ($aro_section_value != $this->_group_switch) {
 				$query .= '
@@ -283,9 +284,11 @@ class gacl {
 				$query .= '
 					LEFT JOIN	'. $this->_db_table_prefix .'axo_groups xg ON xg.id=axg.group_id';
 			}
-			
+
+			//Move the below line to the LEFT JOIN above for PostgreSQL's sake.
+			//AND	ac.acl_id=a.id
 			$query .= '
-					WHERE		a.enabled=1 AND	ac.acl_id=a.id
+					WHERE		a.enabled=1
 						AND		(ac.section_value='. $this->db->quote($aco_section_value) .' AND ac.value='. $this->db->quote($aco_value) .')';
 			
 			// if we are querying an aro group

@@ -1,3 +1,5 @@
+* Value is a reserved word on SapDB/MaxDB. Quote it.
+
 * Add ability to find all groups objects are assigned too in admin interface.
 
 * Add button to "select all" in group assignment pages(s).
