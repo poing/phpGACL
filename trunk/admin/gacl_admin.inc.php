@@ -36,7 +36,6 @@ $gacl_options = array(
 								'items_per_page' => 100,
 								'max_select_box_items' => 100,
 								'max_search_return_items' => 200,
-								'db_table_prefix' => 'gacl_',								
 								'db_type' => 'mysql',
 								'db_host' => 'localhost',
 								'db_user' => 'root',

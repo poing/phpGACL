@@ -393,7 +393,7 @@ class gacl {
 					 * recursive query.
 					 */
 					$query = "select group_id from $group_path_table where id = $path_id AND tree_level <= $tree_level";
-					$parent_ids_sql = @implode($db->GetCol($query),',');
+					$parent_ids_sql = @implode($this->db->GetCol($query),',');
 				} else {
 					/*
 					 * Subtree is too deep, or invalid, so don't return any parent IDs
