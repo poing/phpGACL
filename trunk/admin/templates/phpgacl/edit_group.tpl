@@ -37,7 +37,7 @@
           </tr>
           <tr class="controls" align="center">
             <td colspan="4">
-              <input type="submit" name="action" value="Submit"> <input type="reset" value="Reset">
+              <input type="submit" class="button" name="action" value="Submit"> <input type="reset" class="button" value="Reset">
             </td>
           </tr>
         </tbody>
