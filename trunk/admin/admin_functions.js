@@ -76,14 +76,14 @@ function select_item(parent_form_element, src_form_element, dst_form_element) {
 			if (!found_dup) {
 				//Grab the current selected value from the parent
 				src_id = src_form_element.options[i].value;
-				src_text = src_form_element.options[i].text;				
+				src_text = src_form_element.options[i].text;
 				
 				src_section_id = parent_form_element.options[parent_form_element.selectedIndex].value;
 				src_section_text = parent_form_element.options[parent_form_element.selectedIndex].text;
 				
 				options_length = dst_form_element.options.length;
 				dst_form_element.options[options_length] = new Option(src_section_text + ' > ' + src_text, src_section_id + '^' + src_id);
-				dst_form_element.options[options_length].selected = true;			   
+				// dst_form_element.options[options_length].selected = true;
 			}
 		}
 		
@@ -108,10 +108,7 @@ function deselect_item(form_element) {
 //Used to unselect all items in a combo box
 function unselect_all(form_element) {
 	for (i=0; i < form_element.options.length; i++) {
-		if (form_element.options[i].selected) {
-			form_element.options[i].selected = false;
-			i=i - 1;
-		}
+		form_element.options[i].selected = false;
 	}
 }
 

@@ -28,43 +28,32 @@ div#top-br {
 
 div#top-bl {
 	margin: 0px;
-	padding: 10px 8px 0px 10px;
+	padding: 10px 180px 0px 10px;
 	background: url("images/div-l.png") no-repeat bottom left;
 }
 
-div#top-bl table,
-div#top-bl table tr {
-	background-color: transparent;
-}
-
 div#top-bl h1 {
-	padding: 0px;
-	margin: 0px 0px 1px 0px;
-	width: 176px;
-	height: 48px;
-	background: url("images/logo.png") no-repeat top right;
-}
-
-div#top-bl h1 span {
+	position: absolute;
 	visibility: hidden;
 }
 
 div#top-bl h2 {
 	color: #eeeeee;
 	font-size: 150%;
-	margin: 0px 4px 6px;
+	margin: 6px 4px;
 	padding: 0px;
 }
 
 ul#menu {
 	margin: 0px;
 	padding: 0px;
-	list-style: none;
-	display: block;
+	
+	display: table;
+	width: 100%;
+	list-style-type: none;
 }
 
 ul#menu li {
-	display: inline;
 	float: left;
 	
 	margin: 0px 2px 0px 0px;
