@@ -14,24 +14,7 @@ MAILING LISTS:
 
 INSTALL:
 	
-	Untar the distribution .tar.gz file into the root or a subdirectory of your web site.
-
-	Create the directory /tmp/db_cache.
-
-	Edit phpgacl/config.inc.php.
-
-	Make sure the current directory (.) is in your PHP include path as specified in your php.ini.  Your php.ini is likely at /usr/local/lib/php.ini.  Comment out line 27, which says:
-	ini_set("include_path",".");
-
-	Set the db_type, db_host, db_user, db_password, and db_name you will be using.
-
-	Create the database you specified in db_name on the server.
-
-	Surf to http://yoursite.net/phpgacl/setup.php.  The required tables will be installed based on your choice of database.
-
-	Click the link at the bottom of the successful setup page or surf to:
-	http://yoursite.net/phpgacl/admin/acl_admin.php
-	
+	Please see MANUAL.HTML	or http://phpgacl.sourceforge.net/MANUAL.HTML
 
 SYNOPSIS:
 
