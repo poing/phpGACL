@@ -1,6 +1,6 @@
 <?
-require_once("gacl_admin.inc.php");
-$debug=1;
+require_once("admin/gacl_admin.inc.php");
+//$debug=1;
 
 function echo_success($text) {
     echo "<font color=\"green\"><b>Success!</b></font> $text<br>\n";   	
