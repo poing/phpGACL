@@ -1499,6 +1499,9 @@ class gacl_api extends gacl {
 	/*======================================================================*\
 		Function:	add_group()
 		Purpose:	Inserts a group, defaults to be on the "root" branch.
+				Since v3.3.x you can only create one group with Parent_ID=0
+				So, its a good idea to create a "Virtual Root" group with Parent_ID=0
+				Then assign other groups to that.
 	\*======================================================================*/
 	function add_group($value, $name, $parent_id=0, $group_type='ARO') {
 
