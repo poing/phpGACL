@@ -209,6 +209,7 @@ switch ($_POST['action']) {
 
         //Grab formatted Groups for select box
         $smarty->assign("options_groups", format_groups(sort_groups()) );
+	$smarty->assign("selected_groups", $selected_groups);
         
 		$smarty->assign("allow", $allow);
 		$smarty->assign("enabled", $enabled);
@@ -222,10 +223,6 @@ switch ($_POST['action']) {
 			$smarty->assign("options_selected_aro", $options_selected_aro);
 		}
 		$smarty->assign("selected_aro", @array_keys($options_selected_aro));
-
-		if (isset($options_selected_aro)) {
-			$smarty->assign("selected_groups", $selected_groups);
-		}
 
 		if (isset($_GET['acl_id'])) {
 			$smarty->assign("acl_id", $_GET['acl_id'] );
