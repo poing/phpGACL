@@ -669,11 +669,20 @@ class gacl_api {
 	
 	/*======================================================================*\
 		Function:	get_group_aro()
-		Purpose:	Gets all ARO's assigned to a group.
+		Purpose:	Gets all objects assigned to a group. 
 	\*======================================================================*/
-	function get_group_aro($group_id) {
+	function get_group_objects($group_id, $group_type='ARO') {
 		global $db;
 		
+		switch(strtolower($group_type)) {
+			case 'axo':
+				$table = 'groups_axo_map';
+				break;
+			default:
+				$table = 'groups_aro_map';
+				break;
+		}
+
 		debug("get_group_aro(): Group ID: $group_id");
 		
 		if (empty($group_id)) {
@@ -681,20 +690,20 @@ class gacl_api {
 			return false;	
 		}
 				
-        $query = "select aro_id from groups_aro_map where group_id = $group_id";
-		$rs = $db->GetCol($query);
+        $query = "select section_value, value from $table where group_id = $group_id";
+		$rs = $db->GetRows($query);
 		
 		if ($db->ErrorNo() != 0) {
-			debug("get_group_aro(): database error: ". $db->ErrorMsg() ." (". $db->ErrorNo() .")");
+			debug("get_group_objects(): database error: ". $db->ErrorMsg() ." (". $db->ErrorNo() .")");
 			return false;	
 		} else {
-			debug("get_group_aro(): Got group ARO's");			
+			debug("get_group_objects(): Got group objects");			
 			return $rs;
 		}		
 	}
 
 	/*======================================================================*\
-		Function:	add_group_aro()
+		Function:	add_group_object()
 		Purpose:	Assigns an ARO to a group
 	\*======================================================================*/
 	function add_group_object($group_id, $object_section_value, $object_value, $group_type='ARO') {

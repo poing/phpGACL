@@ -144,6 +144,11 @@
           </tr>
 
           <tr>
+            <td colspan="5" valign="top" align="center" bgcolor="#d3dce3">
+                <b>(Optional)</b>
+             </td>
+          </tr>
+          <tr>
             <td valign="top" align="center" bgcolor="#d3dce3"><b>Sections</b><br>
              </td>
 
