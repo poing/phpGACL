@@ -1,3 +1,7 @@
+Sun May 02 2004
+	mikeb - Added Perl ACL_Check module written by Gordon Luk <gluk@dfafunds.com>
+	mikeb - Upgraded to ADODB v4.22
+	mikeb - Upgraded to Smarty v2.6.2
 Wed Apr 21 2004
 	mikeb - Fixed index name for value column in AXO group table. Falk <support@fajo.de>
 	mikeb - Updated schema diagrams. Falk <support@fajo.de>
