@@ -419,6 +419,10 @@
 			<NOTNULL/>
 			<KEY/>
 		</field>
+		<index name="aro_id">
+			<descr>Index on aro_id</descr>
+			<col>aro_id</col>
+		</index>
 	</table>
 
 	<!-- ACL to ARO Group Map Table -->
@@ -487,6 +491,10 @@
 			<NOTNULL/>
 			<KEY/>
 		</field>
+		<index name="axo_id">
+			<descr>Index on axo_id</descr>
+			<col>axo_id</col>
+		</index>
 	</table>
 
 	<!-- ACL to AXO Group Map Table -->

@@ -2315,6 +2315,61 @@ class gacl_api extends gacl {
 	}
 
 	/*======================================================================*\
+		   Function:       get_ungrouped_objects()
+		   Purpose:        Grabs ID's of all Objects (ARO's and AXO's only) in the database not assigned to a Group.
+	\*======================================================================*/
+	function get_ungrouped_objects($return_hidden=1, $object_type=NULL) {
+	
+		   switch(strtolower(trim($object_type))) {
+				   case 'aro':
+						   $object_type = 'aro';
+						   $table = $this->_db_table_prefix .'aro';
+						   break;
+				   case 'axo':
+						   $object_type = 'axo';
+						   $table = $this->_db_table_prefix .'axo';
+						   break;
+				   default:
+						   $this->debug_text('get_ungrouped_objects(): Invalid Object Type: '. $object_type);
+						   return FALSE;
+		   }
+	
+		   $this->debug_text("get_ungrouped_objects(): Section Value: $section_value Object Type: $object_type");
+	
+		   $query = 'SELECT id FROM '. $table . '
+						   LEFT JOIN groups_' . $table . '_map
+						   ON ' . $table . '.id = groups_' . $table . '_map.' . $table . '_id
+						   ';
+	
+		   $where = array();
+		   $where[] = 'groups_' . $table . '_map.group_id IS NULL';
+	
+		   if ($return_hidden==0) {
+				   $where[] = 'hidden=0';
+		   }
+	
+		   if (!empty($where)) {
+				   $query .= ' WHERE '. implode(' AND ', $where);
+		   }
+	
+		   $rs = $this->db->Execute($query);
+	
+		   if (!is_object($rs)) {
+				   $this->debug_db('get_ungrouped_objects');
+				   return false;
+		   }
+	
+		   while(!$rs->EOF) {
+				   $retarr[] = $rs->fields[0];
+				   $rs->MoveNext();
+		   }
+	
+		   // Return Array of object IDS
+		   return $retarr;
+	}
+
+
+	/*======================================================================*\
 		Function:	get_objects ()
 		Purpose:	Grabs all Objects in the database, or specific to a section_value
 					returns format suitable for add_acl and is_conflicting_acl
