@@ -71,14 +71,14 @@ class gacl_api extends gacl {
 		global $_SERVER, $debug;
 		
 		if (empty($url) AND !empty($_SERVER[HTTP_REFERER])) {
-			$this->debug_text("$gacl_api->return_page(): URL not set, using referer!");
+			$this->debug_text("return_page(): URL not set, using referer!");
 			$url = $_SERVER[HTTP_REFERER];
 		}
 		
 		if (!$debug OR $debug==0) {
 			header("Location: $url\n\n");
 		} else {
-			$gacl_api->debug_text("$gacl_api->return_page(): URL: $url -- Referer: $_SERVER[HTTP_REFERRER]");   
+			$this->debug_text("return_page(): URL: $url -- Referer: $_SERVER[HTTP_REFERRER]");   
 		}
 	}
 
@@ -140,30 +140,30 @@ class gacl_api extends gacl {
 	\*======================================================================*/
 	function consolidated_edit_acl($aco_section_value, $aco_value, $aro_section_value, $aro_value, $return_value) {
 
-		$this->debug_text("add_consolidated_acl(): ACO Section Value: $aco_section_value ACO Value: $aco_value ARO Section Value: $aro_section_value ARO Value: $aro_value Return Value: $return_value");
+		$this->debug_text("consolidated_edit_acl(): ACO Section Value: $aco_section_value ACO Value: $aco_value ARO Section Value: $aro_section_value ARO Value: $aro_value Return Value: $return_value");
 
 		if (empty($aco_section_value) ) {
-			$this->debug_text("add_consolidated_acl(): ACO Section Value ($aco_section_value) is empty, this is required!");
+			$this->debug_text("consolidated_edit_acl(): ACO Section Value ($aco_section_value) is empty, this is required!");
 			return false;
 		}
 		
 		if (empty($aco_value) ) {
-			$this->debug_text("add_consolidated_acl(): ACO Value ($aco_value) is empty, this is required!");
+			$this->debug_text("consolidated_edit_acl(): ACO Value ($aco_value) is empty, this is required!");
 			return false;
 		}
 		
 		if (empty($aro_section_value) ) {
-			$this->debug_text("add_consolidated_acl(): ARO Section Value ($aro_section_value) is empty, this is required!");
+			$this->debug_text("consolidated_edit_acl(): ARO Section Value ($aro_section_value) is empty, this is required!");
 			return false;
 		}
 
 		if (empty($aro_value) ) {
-			$this->debug_text("add_consolidated_acl(): ARO Value ($aro_value) is empty, this is required!");
+			$this->debug_text("consolidated_edit_acl(): ARO Value ($aro_value) is empty, this is required!");
 			return false;
 		}
 
 		if (empty($return_value) ) {
-			$this->debug_text("add_consolidated_acl(): Return Value ($return_value) is empty, this is required!");
+			$this->debug_text("consolidated_edit__acl(): Return Value ($return_value) is empty, this is required!");
 			return false;
 		}
 
@@ -172,21 +172,21 @@ class gacl_api extends gacl {
 		//showarray($current_acl_ids);
 		
 		if (is_array($current_acl_ids)) {
-			$this->debug_text("add_consolidated_acl(): Found current ACL_IDs, counting ACOs");
+			$this->debug_text("consolidated_edit_acl(): Found current ACL_IDs, counting ACOs");
 			
 			foreach ($current_acl_ids as $current_acl_id) {
 				//Check to make sure these ACLs only have a single ACO mapped to them.
 				$current_acl_array = &$this->get_acl($current_acl_id);
 
 				//showarray($current_acl_array);
-				$this->debug_text("add_consolidated_acl(): Current Count: ".$this->count_all($current_acl_array['aco'])."");
+				$this->debug_text("consolidated_edit_acl(): Current Count: ".$this->count_all($current_acl_array['aco'])."");
 				
 				if ( $this->count_all($current_acl_array['aco']) == 1) {
-					$this->debug_text("add_consolidated_acl(): ACL ID: $current_acl_id has 1 ACO.");
+					$this->debug_text("consolidated_edit_acl(): ACL ID: $current_acl_id has 1 ACO.");
 
 					//Test to see if the return values match, if they do, no need removing or appending ARO. Just return true.
 					if ($current_acl_array['return_value'] == $return_value) {
-						$this->debug_text("add_consolidated_acl(): ACL ID: $current_acl_id has 1 ACO, and the same return value. No need to modify.");
+						$this->debug_text("consolidated_edit_acl(): ACL ID: $current_acl_id has 1 ACO, and the same return value. No need to modify.");
 						return true;
 					}
 					
@@ -202,17 +202,17 @@ class gacl_api extends gacl {
 		//If acl_id's turns up more then one ACL, lets remove the ARO from all of them in hopes to
 		//eliminate any conflicts. 
 		if (is_array($acl_ids) AND $acl_ids_count > 0) {
-			$this->debug_text("add_consolidated_acl(): Removing specified ARO from existing ACL.");
+			$this->debug_text("consolidated_edit_acl(): Removing specified ARO from existing ACL.");
 
 			foreach ($acl_ids as $acl_id) {
 				//Remove ARO from current ACLs, so we don't create conflicting ACLs later on.
 				if (!$this->shift_acl($acl_id, array($aro_section_value => array($aro_value)) ) ) {
-					$this->debug_text("add_consolidated_acl(): Error removing specified ARO from ACL ID: $acl_id");
+					$this->debug_text("consolidated_edit_acl(): Error removing specified ARO from ACL ID: $acl_id");
 					return false;
 				}
 			}
 		} else {
-			$this->debug_text("add_consolidated_acl(): Didn't find any current ACLs with a single ACO. ");
+			$this->debug_text("consolidated_edit_acl(): Didn't find any current ACLs with a single ACO. ");
 		}
 		unset($acl_ids);
 		unset($acl_ids_count);
@@ -223,16 +223,16 @@ class gacl_api extends gacl {
 		//showarray($new_acl_ids);
 		
 		if (is_array($new_acl_ids)) {
-			$this->debug_text("add_consolidated_acl(): Found new ACL_IDs, counting ACOs");
+			$this->debug_text("consolidated_edit_acl(): Found new ACL_IDs, counting ACOs");
 			
 			foreach ($new_acl_ids as $new_acl_id) {
 				//Check to make sure these ACLs only have a single ACO mapped to them.
 				$new_acl_array = &$this->get_acl($new_acl_id);
 				//showarray($new_acl_array);				
-				$this->debug_text("add_consolidated_acl(): New Count: ".$this->count_all($new_acl_array['aco'])."");
+				$this->debug_text("consolidated_edit_acl(): New Count: ".$this->count_all($new_acl_array['aco'])."");
 				if ( $this->count_all($new_acl_array['aco']) == 1) {
 
-					$this->debug_text("add_consolidated_acl(): ACL ID: $new_acl_id has 1 ACO, append should be able to take place.");
+					$this->debug_text("consolidated_edit_acl(): ACL ID: $new_acl_id has 1 ACO, append should be able to take place.");
 					$acl_ids[] = $new_acl_id;
 				}
 				
@@ -243,23 +243,42 @@ class gacl_api extends gacl {
 		$acl_ids_count = count($acl_ids);
 		
 		if (is_array($acl_ids) AND $acl_ids_count == 1) {
-			$this->debug_text("add_consolidated_acl(): Appending specified ARO to existing ACL.");
+			$this->debug_text("consolidated_edit_acl(): Appending specified ARO to existing ACL.");
 
 			$acl_id=$acl_ids[0];
 			
 			if (!$this->append_acl($acl_id, array($aro_section_value => array($aro_value)) ) ) {
-				$this->debug_text("add_consolidated_acl(): Error appending specified ARO to ACL ID: $acl_id");
+				$this->debug_text("consolidated_edit_acl(): Error appending specified ARO to ACL ID: $acl_id");
 				return false;
 			}
 
-			$this->debug_text("add_consolidated_acl(): Hot damn, ACL consolidated!");
+			$this->debug_text("consolidated_edit_acl(): Hot damn, ACL consolidated!");
 			return true;
 		} elseif($acl_ids_count > 1) {
-			$this->debug_text("add_consolidated_acl(): Found more then one ACL with a single ACO. Possible conflicting ACLs.");
+			$this->debug_text("consolidated_edit_acl(): Found more then one ACL with a single ACO. Possible conflicting ACLs.");
 			return false;	
+		} elseif ($acl_ids_count == 0) {
+			$this->debug_text("consolidated_edit_acl(): No existing ACLs found, create a new one.");
+			
+			if (!$this->add_acl(	array( $aco_section_value => array($aco_value) ),
+									array( $aro_section_value => array($aro_value) ),
+									NULL,
+									NULL,
+									NULL,
+									TRUE,
+									TRUE,
+									$return_value,
+									NULL)
+								) {
+				$this->debug_text("consolidated_edit_acl(): Error adding new ACL for ACO Section: $aco_section_value ACO Value: $aco_value Return Value: $return_value");
+				return false;
+			}
+			
+			$this->debug_text("consolidated_edit_acl(): ADD_ACL() successfull, returning True.");
+			return true;
 		}
 
-		$this->debug_text("add_consolidated_acl(): Returning false.");
+		$this->debug_text("consolidated_edit_acl(): Returning false.");
 		return false;
 	}
 
@@ -535,7 +554,17 @@ class gacl_api extends gacl {
 			}
 		}
 		
-		if ($update == 1) {	
+		if ($update == 1) {
+			//We know something was changed, so lets see if no ACO's or no ARO's are left assigned to this ACL, if so, delete the ACL completely.
+			$this->showarray($acl_array);
+			$this->debug_text("shift_acl(): ACOs: ". $this->count_all($acl_array['aco']) ." AROs: ".$this->count_all($acl_array['aro'])."");
+			
+			if ( $this->count_all($acl_array['aco']) == 0 OR $this->count_all($acl_array['aro']) == 0) {
+				$this->debug_text("shift_acl(): No ACOs or AROs left assigned to this ACL (ID: $acl_id), deleting ACL.");
+				
+				return $this->del_acl($acl_id);
+			}
+			
 			$this->debug_text("shift_acl(): Update flag set, updating ACL.");
 			//function edit_acl($acl_id, $aco_array, $aro_array, $aro_group_ids=NULL, $axo_array=NULL, $axo_group_ids=NULL, $allow=1, $enabled=1, $return_value=NULL, $note=NULL) {
 			return $this->edit_acl($acl_id, $acl_array['aco'], $acl_array['aro'], $acl_array['aro_groups'], $acl_array['axo'], $acl_array['axo_groups'], $acl_array['allow'], $acl_array['enabled'], $acl_array['return_value'], $acl_array['note']);
@@ -572,7 +601,7 @@ class gacl_api extends gacl {
 
 		while (list(,$row) = @each($rows)) {
 			list($section_value, $value, $section, $aco) = $row;
-			$gacl_api->debug_text("Section Value: $section_value Value: $value Section: $section ACO: $aco");
+			$this->debug_text("Section Value: $section_value Value: $value Section: $section ACO: $aco");
 			
 			$retarr['aco'][$section_value][] = $value;
 			
@@ -587,7 +616,7 @@ class gacl_api extends gacl {
 
 		while (list(,$row) = @each($rows)) {
 			list($section_value, $value, $section, $aro) = $row;
-			$gacl_api->debug_text("Section Value: $section_value Value: $value Section: $section ARO: $aro");
+			$this->debug_text("Section Value: $section_value Value: $value Section: $section ARO: $aro");
 			
 			$retarr['aro'][$section_value][] = $value;
 			
@@ -602,7 +631,7 @@ class gacl_api extends gacl {
 
 		while (list(,$row) = @each($rows)) {
 			list($section_value, $value, $section, $axo) = $row;
-			$gacl_api->debug_text("Section Value: $section_value Value: $value Section: $section AXO: $axo");
+			$this->debug_text("Section Value: $section_value Value: $value Section: $section AXO: $axo");
 			
 			$retarr['axo'][$section_value][] = $value;
 			
