@@ -1,3 +1,6 @@
+Wed Nov 12 2003
+	- More MPTT fixes from Dan
+	- is_conflicting_acl() patch from Dan also. 
 Tue Nov 11 2003
 	- Applied MPTT (different group tree format) patch from Dan Cech <dcech@phpwerx.net>
 	- Minor cleanup of the above patch.
