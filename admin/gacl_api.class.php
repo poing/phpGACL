@@ -289,6 +289,9 @@ class gacl_api {
 			if ($row_count > 1) {
 				debug("get_group_id(): Returned $row_count rows, can only return one. Please make your names unique.");
 				return false;	
+			} elseif($row_count == 0) {
+				debug("get_group_id(): Returned $row_count rows");				
+				return false;
 			} else {
 				$rows = $rs->GetRows();
 
@@ -316,14 +319,17 @@ class gacl_api {
 		$rs = $db->Execute($query);
 
 		if ($db->ErrorNo() != 0) {
-			debug("get_group_id(): database error: ". $db->ErrorMsg() ." (". $db->ErrorNo() .")");
+			debug("get_group_parent_id(): database error: ". $db->ErrorMsg() ." (". $db->ErrorNo() .")");
 			return false;	
 		} else {
 			$row_count = $rs->RecordCount();
 			
 			if ($row_count > 1) {
-				debug("get_group_id(): Returned $row_count rows, can only return one. Please make your names unique.");
+				debug("get_group_parent_id(): Returned $row_count rows, can only return one. Please make your names unique.");
 				return false;	
+			} elseif($row_count == 0) {
+				debug("get_group_parent_id(): Returned $row_count rows");				
+				return false;
 			} else {
 				$rows = $rs->GetRows();
 
@@ -455,6 +461,32 @@ class gacl_api {
 	}
 	
 	/*======================================================================*\
+		Function:	get_group_aro()
+		Purpose:	Gets all ARO's assigned to a group.
+	\*======================================================================*/
+	function get_group_aro($group_id) {
+		global $db;
+		
+		debug("get_group_aro(): Group ID: $group_id");
+		
+		if (empty($group_id)) {
+			debug("get_group_aro(): Group ID:  ($group_id) is empty, this is required");
+			return false;	
+		}
+				
+        $query = "select aro_id from groups_aro_map where group_id = $group_id";
+		$rs = $db->GetCol($query);
+		
+		if ($db->ErrorNo() != 0) {
+			debug("get_group_aro(): database error: ". $db->ErrorMsg() ." (". $db->ErrorNo() .")");
+			return false;	
+		} else {
+			debug("get_group_aro(): Got group ARO's");			
+			return $rs;
+		}		
+	}
+
+	/*======================================================================*\
 		Function:	add_group_aro()
 		Purpose:	Assigns an ARO to a group
 	\*======================================================================*/
@@ -476,7 +508,7 @@ class gacl_api {
 			return false;	
 		} else {
 			debug("add_group_aro(): Added ARO ID: $aro_id to Group ID: $group_id");			
-			return $true;
+			return true;
 		}		
 	}
 
@@ -502,7 +534,7 @@ class gacl_api {
 			return false;	
 		} else {
 			debug("del_group_aro(): Deleted ARO ID: $aro_id to Group ID: $group_id assignment");			
-			return $true;
+			return true;
 		}		
 	}
 
@@ -624,6 +656,66 @@ class gacl_api {
 	 */
 
 	/*======================================================================*\
+		Function:	get_aro()
+		Purpose:	Grabs all ARO's in the database, or specific to a section_id
+	\*======================================================================*/
+	function get_aro($section_id = null) {
+		global $db;
+		
+		debug("get_aro(): Section ID: $section_id");
+		
+			
+		$query = "select id from aro ";
+		if (!empty($section_id) ) {
+			$query .= " where section_id = $section_id";
+		}
+
+		$rs = $db->GetCol($query);
+
+		if ($db->ErrorNo() != 0) {
+			debug("get_aro(): database error: ". $db->ErrorMsg() ." (". $db->ErrorNo() .")");
+			return false;	
+		} else {
+			//Return all ARO id's
+			return $rs;	
+		}
+	}
+
+	/*======================================================================*\
+		Function:	get_aro_data()
+		Purpose:	Gets all data pertaining to a specific ARO.
+	\*======================================================================*/
+	function get_aro_data($aro_id) {
+		global $db;
+		
+		debug("get_aro_data(): ARO ID: $aro_id");
+
+		if (empty($aro_id) ) {
+			debug("get_aro_data(): ARO ID ($aro_id) is empty, this is required");
+			return false;	
+		}
+		
+		$query = "select section_id, value, order_value, name from aro where id = $aro_id";
+
+		$rs = $db->Execute($query);
+
+		if ($db->ErrorNo() != 0) {
+			debug("get_aro_data(): database error: ". $db->ErrorMsg() ." (". $db->ErrorNo() .")");
+			return false;	
+		} else {
+			if ($rs->RecordCount() > 0) {
+				$rows = $rs->GetRows();
+
+				//Return all ACO id's
+				return $rows;
+			} else {
+				debug("get_aro_data(): Returned $row_count rows");
+				return false;	
+			}
+		}
+	}
+
+	/*======================================================================*\
 		Function:	get_aro_id()
 		Purpose:	Gets the aro_id given the name OR value of the ARO.
 						so if there are duplicate names, it will return false.
@@ -650,6 +742,9 @@ class gacl_api {
 			if ($row_count > 1) {
 				debug("add_aro(): Returned $row_count rows, can only return one. Please search by value not name, or make your names unique.");
 				return false;	
+			} elseif($row_count == 0) {
+				debug("add_aro(): Returned $row_count rows");				
+				return false;
 			} else {
 				$rows = $rs->GetRows();
 
@@ -666,10 +761,10 @@ class gacl_api {
 	function get_aro_section_id($aro_id) {
 		global $db;
 		
-		debug("add_aro(): Value: $value Name: $name");
+		debug("get_aro_section_id(): ARO ID: $aro_id");
 		
 		if (empty($aro_id) ) {
-			debug("add_aro(): ID ($aro_id) is empty, this is required");
+			debug("get_aro_section_id(): ID ($aro_id) is empty, this is required");
 			return false;	
 		}
 			
@@ -677,13 +772,23 @@ class gacl_api {
 		$rs = $db->Execute($query);
 
 		if ($db->ErrorNo() != 0) {
-			debug("add_aro(): database error: ". $db->ErrorMsg() ." (". $db->ErrorNo() .")");
+			debug("get_aro_section_id(): database error: ". $db->ErrorMsg() ." (". $db->ErrorNo() .")");
 			return false;	
 		} else {
-			$rows = $rs->GetRows();
+			$row_count = $rs->RecordCount();
+			
+			if ($row_count > 1) {
+				debug("get_aro_section_id(): Returned $row_count rows, can only return one. Please search by value not name, or make your names unique.");
+				return false;	
+			} elseif($row_count == 0) {
+				debug("get_aro_section_id(): Returned $row_count rows");				
+				return false;
+			} else {
+				$rows = $rs->GetRows();
 
-			//Return only the ID in the first row.
-			return $rows[0][0];	
+				//Return only the ID in the first row.
+				return $rows[0][0];	
+			}
 		}
 	}
 
@@ -793,10 +898,10 @@ class gacl_api {
 	function get_aro_section_section_id($name = null, $value = null) {
 		global $db;
 		
-		debug("add_aro_section(): Value: $value Name: $name");
+		debug("get_aro_section_section_id(): Value: $value Name: $name");
 		
 		if (empty($name) AND empty($value) ) {
-			debug("add_aro_section(): name ($name) OR value ($value) is empty, this is required");
+			debug("get_aro_section_section_id(): name ($name) OR value ($value) is empty, this is required");
 			return false;	
 		}
 			
@@ -804,13 +909,13 @@ class gacl_api {
 		$rs = $db->Execute($query);
 
 		if ($db->ErrorNo() != 0) {
-			debug("add_aro_section(): database error: ". $db->ErrorMsg() ." (". $db->ErrorNo() .")");
+			debug("get_aro_section_section_id(): database error: ". $db->ErrorMsg() ." (". $db->ErrorNo() .")");
 			return false;	
 		} else {
 			$row_count = $rs->RecordCount();
 			
 			if ($row_count > 1) {
-				debug("add_aro_section(): Returned $row_count rows, can only return one. Please search by value not name, or make your names unique.");
+				debug("get_aro_section_section_id(): Returned $row_count rows, can only return one. Please search by value not name, or make your names unique.");
 				return false;	
 			} else {
 				$rows = $rs->GetRows();
@@ -911,42 +1016,71 @@ class gacl_api {
 	}
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 	/*
 	 *
 	 * Access Control Objects (ACO)
 	 *
 	 */
+
+	/*======================================================================*\
+		Function:	get_aco()
+		Purpose:	Grabs all ACO's in the database, or specific to a section_id
+	\*======================================================================*/
+	function get_aco($section_id = null) {
+		global $db;
+		
+		debug("get_aco(): Section ID: $section_id");
+		
+			
+		$query = "select id from aco ";
+		if (!empty($section_id) ) {
+			$query .= " where section_id = $section_id";
+		}
+
+		$rs = $db->GetCol($query);
+
+		if ($db->ErrorNo() != 0) {
+			debug("get_aco(): database error: ". $db->ErrorMsg() ." (". $db->ErrorNo() .")");
+			return false;	
+		} else {
+			//Return all ACO id's
+			return $rs;	
+		}
+	}
+
+	/*======================================================================*\
+		Function:	get_aco_data()
+		Purpose:	Gets all data pertaining to a specific ACO.
+	\*======================================================================*/
+	function get_aco_data($aco_id) {
+		global $db;
+		
+		debug("get_aco_data(): ACO ID: $aco_id");
+
+		if (empty($aco_id) ) {
+			debug("get_aco_data(): ACO ID ($aco_id) is empty, this is required");
+			return false;	
+		}
+		
+		$query = "select section_id, value, order_value, name from aco where id = $aco_id";
+
+		$rs = $db->Execute($query);
+
+		if ($db->ErrorNo() != 0) {
+			debug("get_aco_data(): database error: ". $db->ErrorMsg() ." (". $db->ErrorNo() .")");
+			return false;	
+		} else {
+			if ($rs->RecordCount() > 0) {
+				$rows = $rs->GetRows();
+
+				//Return all ACO id's
+				return $rows;
+			} else {
+				debug("get_aco_data(): Returned $row_count rows");
+				return false;	
+			}
+		}
+	}
 
 	/*======================================================================*\
 		Function:	get_aco_id()
@@ -956,10 +1090,10 @@ class gacl_api {
 	function get_aco_id($name = null, $value = null) {
 		global $db;
 		
-		debug("add_aco(): Value: $value Name: $name");
+		debug("get_aco_id(): Value: $value Name: $name");
 		
 		if (empty($name) AND empty($value) ) {
-			debug("add_aco(): name ($name) OR value ($value) is empty, this is required");
+			debug("get_aco_id(): name ($name) OR value ($value) is empty, this is required");
 			return false;	
 		}
 			
@@ -967,14 +1101,17 @@ class gacl_api {
 		$rs = $db->Execute($query);
 
 		if ($db->ErrorNo() != 0) {
-			debug("add_aco(): database error: ". $db->ErrorMsg() ." (". $db->ErrorNo() .")");
+			debug("get_aco_id(): database error: ". $db->ErrorMsg() ." (". $db->ErrorNo() .")");
 			return false;	
 		} else {
 			$row_count = $rs->RecordCount();
 			
 			if ($row_count > 1) {
-				debug("add_aco(): Returned $row_count rows, can only return one. Please search by value not name, or make your names unique.");
+				debug("get_aco_id(): Returned $row_count rows, can only return one. Please search by value not name, or make your names unique.");
 				return false;	
+			} elseif($row_count == 0) {
+				debug("get_aco_id(): Returned $row_count rows");				
+				return false;
 			} else {
 				$rows = $rs->GetRows();
 
@@ -991,10 +1128,10 @@ class gacl_api {
 	function get_aco_section_id($aco_id) {
 		global $db;
 		
-		debug("add_aco(): Value: $value Name: $name");
+		debug("get_aco_section_id(): ACO ID: $aco_id");
 		
 		if (empty($aco_id) ) {
-			debug("add_aco(): ID ($aco_id) is empty, this is required");
+			debug("get_aco_section_id(): ACO ID ($aco_id) is empty, this is required");
 			return false;	
 		}
 			
@@ -1002,13 +1139,23 @@ class gacl_api {
 		$rs = $db->Execute($query);
 
 		if ($db->ErrorNo() != 0) {
-			debug("add_aco(): database error: ". $db->ErrorMsg() ." (". $db->ErrorNo() .")");
+			debug("get_aco_section_id(): database error: ". $db->ErrorMsg() ." (". $db->ErrorNo() .")");
 			return false;	
 		} else {
-			$rows = $rs->GetRows();
+			$row_count = $rs->RecordCount();
+			
+			if ($row_count > 1) {
+				debug("get_aco_section_id(): Returned $row_count rows, can only return one. Please search by value not name, or make your names unique.");
+				return false;	
+			} elseif($row_count == 0) {
+				debug("get_aco_section_id(): Returned $row_count rows");				
+				return false;
+			} else {
+				$rows = $rs->GetRows();
 
-			//Return only the ID in the first row.
-			return $rows[0][0];	
+				//Return only the ID in the first row.
+				return $rows[0][0];	
+			}
 		}
 	}
 
@@ -1117,10 +1264,10 @@ class gacl_api {
 	function get_aco_section_section_id($name = null, $value = null) {
 		global $db;
 		
-		debug("add_aco_section(): Value: $value Name: $name");
+		debug("get_aco_section_section_id(): Value: $value Name: $name");
 		
 		if (empty($name) AND empty($value) ) {
-			debug("add_aco_section(): name ($name) OR value ($value) is empty, this is required");
+			debug("get_aco_section_section_id(): name ($name) OR value ($value) is empty, this is required");
 			return false;	
 		}
 			
@@ -1128,14 +1275,17 @@ class gacl_api {
 		$rs = $db->Execute($query);
 
 		if ($db->ErrorNo() != 0) {
-			debug("add_aco_section(): database error: ". $db->ErrorMsg() ." (". $db->ErrorNo() .")");
+			debug("get_aco_section_section_id(): database error: ". $db->ErrorMsg() ." (". $db->ErrorNo() .")");
 			return false;	
 		} else {
 			$row_count = $rs->RecordCount();
 			
 			if ($row_count > 1) {
-				debug("add_aco_section(): Returned $row_count rows, can only return one. Please search by value not name, or make your names unique.");
+				debug("get_aco_section_section_id(): Returned $row_count rows, can only return one. Please search by value not name, or make your names unique.");
 				return false;	
+			} elseif($row_count == 0) {
+				debug("get_aco_section_section_id(): Returned $row_count rows");				
+				return false;
 			} else {
 				$rows = $rs->GetRows();
 

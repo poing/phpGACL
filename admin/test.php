@@ -2,6 +2,35 @@
 $debug=1;
 require_once("gacl_admin.inc.php");
 
+$group_id = $gacl_api->get_group_id("Browsers");
+$test = $gacl_api->get_group_aro($group_id);
+
+showarray($test);
+
+
+$test = $gacl_api->get_aro_data(10);
+
+showarray($test);
+
+$test = $gacl_api->get_aco_data(10);
+
+showarray($test);
+
+
+$test = $gacl_api->get_aco_data(9999);
+
+showarray($test);
+
+$test = $gacl_api->get_aco_section_id(10);
+
+showarray($test);
+
+$test = $gacl_api->get_aco_section_id(9999);
+
+showarray($test);
+
+
+/*
 //Populate the ARO's
 $max_aros = 100;
 for ($i=0; $i < $max_aros; $i++) {
@@ -13,5 +42,5 @@ for ($i=0; $i < $max_aros; $i++) {
 	
 
 }
-
+*/
 ?>
