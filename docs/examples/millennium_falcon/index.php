@@ -21,19 +21,22 @@ include_once('millenniumFalcon.inc');
 		break;
 		case 'example1':
 			$outputDebug = true;
-			require_once('reset.php');
+                        $gacl_api = new gacl_api($gacl_options);
+                        $gacl_api->clear_database();
 			include('definingAccessControl.php');
 		break;
 		case 'example2':
 			$outputDebug = false;
-			require_once('reset.php');
+                        $gacl_api = new gacl_api($gacl_options);
+                        $gacl_api->clear_database();
 			include('definingAccessControl.php');
 			$outputDebug = true;
 			include('fineGrainAccessControl.php');
 		break;
 		case 'example3':
 			$outputDebug = false;
-			require_once('reset.php');
+                        $gacl_api = new gacl_api($gacl_options);
+                        $gacl_api->clear_database();
 			include('definingAccessControl.php');
 			include('fineGrainAccessControl.php');
 			$outputDebug = true;

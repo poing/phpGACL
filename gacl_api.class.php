@@ -3737,5 +3737,52 @@ class gacl_api extends gacl {
 
 		return false;
 	}
+
+	/**
+	 * clear_database()
+	 *
+	 * Deletes all data from the phpGACL tables. USE WITH CAUTION.
+	 *
+	 * @return bool Returns TRUE if successful, FALSE otherwise
+	 * 
+	 */
+        function clear_database(){
+
+                $tablesToClear = array(
+                        $this->_db_table_prefix.'acl',
+                        $this->_db_table_prefix.'aco',
+                        $this->_db_table_prefix.'aco_map',
+                        $this->_db_table_prefix.'aco_sections',
+                        $this->_db_table_prefix.'aro',
+                        $this->_db_table_prefix.'aro_groups',
+                        $this->_db_table_prefix.'aro_groups_map',
+                        $this->_db_table_prefix.'aro_map',
+                        $this->_db_table_prefix.'aro_sections',
+                        $this->_db_table_prefix.'axo',
+                        $this->_db_table_prefix.'axo_groups',
+                        $this->_db_table_prefix.'axo_groups_map',
+                        $this->_db_table_prefix.'axo_map',
+                        $this->_db_table_prefix.'axo_sections',
+                        $this->_db_table_prefix.'groups_aro_map',
+                        $this->_db_table_prefix.'groups_axo_map'
+                        );
+
+                // Get all the table names and loop
+                $tableNames = $this->db->MetaTables('TABLES');
+                $query = array();
+                foreach ($tableNames as $key => $value){
+                        if (in_array($value, $tablesToClear) ) {
+                                $query[] = 'TRUNCATE TABLE '.$value.';';
+                        }
+                }
+
+                // Loop the queries and return.
+                foreach ($query as $key => $value){
+                        $result = $this->db->Execute($value);
+                }
+
+		return TRUE;
+        }
+
 }
 ?>

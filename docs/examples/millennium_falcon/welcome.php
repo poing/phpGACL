@@ -5,7 +5,7 @@
 	<?php
 		require_once('millenniumFalcon.inc');
 		echo "<li><b>CURRENT DATABASE: ".$gacl_options['db_name']."</b></li>";
-		echo "<li><b>WARNING: THE ".$gacl_options['db_name']." DATABASE WILL BE RESET IF YOU RUN ANY EXAMPLE!</b></li>";
+		echo "<li><font color='red' size='+1'><b>WARNING: THE ".$gacl_options['db_name']." DATABASEWILL BE RESET IF YOU RUN ANY EXAMPLE!</b></font></li>";
 	?>
 	</ul>
 </p>

@@ -71,7 +71,7 @@ unset($result);
  *
  * First get the Passengers Groupid.
  */
-$result = $gacl_api->get_group_id('Passengers');
+$result = $gacl_api->get_group_id('passengers');
 if ($outputDebug == TRUE){
 	if ($result !== FALSE) {
 		echo "Got the groupid for Passengers!<br>\n";
