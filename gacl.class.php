@@ -506,7 +506,7 @@ class gacl {
 					FROM		' . $group_table . ' g1,' . $group_table . ' g2';
 
 				$where = '
-					WHERE		g1.value=' . $value;
+					WHERE		g1.value=' . $this->db->quote( $value );
 			} else {
 				$query .= '
 					FROM		'. $object_table .' o,'. $group_map_table .' gm,'. $group_table .' g1,'. $group_table .' g2';

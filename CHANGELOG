@@ -1,3 +1,5 @@
+Mon Aug 16 2004
+	mikeb - Quoted group value in acl_get_groups(). Thanks to Christer Lindh <clindh@homenet.se>
 Wed Aug 11 2004
 	mikeb - Add comment to admin/gacl_admin.inc.php to tell people not to use "_" for table prefixes.
 Thu Aug 05 2004
