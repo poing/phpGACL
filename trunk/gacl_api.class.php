@@ -1417,6 +1417,50 @@ class gacl_api extends gacl {
 		//Return the ID.
 		return $row[0];
 	}
+	
+	/*======================================================================*\
+		Function:	get_root_group_id ()
+		Purpose:	Grabs the id of the root group for the specified tree
+	\*======================================================================*/
+	function get_root_group_id($group_type='ARO') {
+		
+		$this->debug_text('get_root_group_id(): Group Type: '. $group_type);
+		
+		switch (strtolower($group_type)) {
+			case 'axo':
+				$table = 'axo_groups';
+				break;
+			case 'aro':
+				$table = 'aro_groups';
+				break;
+			default:
+				$this->debug_text('get_root_group_id(): Invalid Group Type: '. $group_type);
+				return FALSE;
+		}
+		
+		$query = 'SELECT id FROM '. $table .' WHERE parent_id=0';
+		$rs = $this->db->Execute($query);
+		
+		if (!is_object($rs)) {
+			$this->debug_db('get_root_group_id');
+			return FALSE;
+		}
+		
+		$row_count = $rs->RecordCount();
+		
+		switch ($row_count) {
+			case 1:
+				$row = $rs->FetchRow();
+				// Return the ID.
+				return $row[0];
+			case 0:
+				$this->debug_text('get_root_group_id(): Returned 0 rows, you do not have a root group defined yet.');
+				return FALSE;
+		}
+		
+		$this->debug_text('get_root_group_id(): Returned '. $row_count .' rows, can only return one. Your tree is very broken.');
+		return FALSE;
+	}
 
 	/*======================================================================*\
 		Function:	map_path_to_root()
@@ -1649,16 +1693,16 @@ class gacl_api extends gacl {
 		$object_value = trim($object_value);
 
 		if (empty($group_id) OR empty($object_value) OR empty($object_section_value)) {
-			$this->debug_text("add_group_object(): Group ID:  ($group_id) OR Value ($object_value) OR Section value ($object_section_value) is empty, this is required");
+			$this->debug_text("add_group_object(): Group ID: ($group_id) OR Value ($object_value) OR Section value ($object_section_value) is empty, this is required");
 			return false;
 		}
 
 		// test to see if object & group exist and if object is already a member
 		$query  = '
-				SELECT		g.id AS group_id,o.id AS id, gm.group_id AS member
+				SELECT		o.id AS id,g.id AS group_id,gm.group_id AS member
 				FROM		'. $object_table .' o
 				LEFT JOIN	'. $group_table .' g ON g.id='. $group_id .'
-				LEFT JOIN	'. $table .' gm ON (gm.group_id=g.id AND gm.'. $group_type .'_id=o.id)
+				LEFT JOIN	'. $table .' gm ON (gm.'. $group_type .'_id=o.id AND gm.group_id=g.id)
 				WHERE		(o.section_value='. $this->db->quote($object_section_value) .' AND o.value='. $this->db->quote($object_value) .')';
 		$rs = $this->db->Execute($query);
 		
@@ -1668,37 +1712,42 @@ class gacl_api extends gacl {
 		}
 		
 		if ($rs->RecordCount() != 1) {
-			$this->debug_text("add_group_object (): Group ID ($group_id) OR Value ($object_value) OR Section value ($object_section_value) is invalid. Does this object exist?");
+			$this->debug_text('add_group_object(): Value ('. $object_value .') OR Section value ('. $object_section_value .') is invalid. Does this object exist?');
 			return FALSE;
 		}
 		
 		$row = $rs->FetchRow();
 		
+		if ($row[1] != $group_id) {
+			$this->debug_text('add_group_object(): Group ID ('. $group_id .') is invalid. Does this group exist?');
+			return FALSE;
+		}
+		
 		//Group_ID == Member
-		if ($row[0] == $row[2]) {
-			$this->debug_text("add_group_object (): Object: $object_value is already a member of Group ID: $group_id");
+		if ($row[1] == $row[2]) {
+			$this->debug_text('add_group_object(): Object: ('. $object_section_value .' -> '. $object_value .') is already a member of Group: ('. $group_id .')');
 			//Object is already assigned to group. Return true.
-			return true;
+			return TRUE;
 		}
 
-		$object_id = $row[1];
+		$object_id = $row[0];
 		
 		$query = 'INSERT INTO '. $table .' (group_id,'. $group_type .'_id) VALUES ('. $group_id .','. $object_id .')';
 		$rs = $this->db->Execute($query);
 
 		if (!is_object($rs)) {
 			$this->debug_db('add_group_object');
-			return false;
+			return FALSE;
 		}
 		
-		$this->debug_text("add_group_object(): Added Value: $object_value to Group ID: $group_id");
+		$this->debug_text('add_group_object(): Added Object: '. $object_id .' to Group ID: '. $group_id);
 
 		if ($this->_caching == TRUE AND $this->_force_cache_expire == TRUE) {
 			//Expire all cache.
 			$this->Cache_Lite->clean('default');
 		}
 
-		return true;
+		return TRUE;
 	}
 
 	/*======================================================================*\
@@ -1755,8 +1804,9 @@ class gacl_api extends gacl {
 		Function:	edit_group()
 		Purpose:	Edits a group
 	\*======================================================================*/
-	function edit_group($group_id, $name=NULL, $parent_id=0, $group_type='ARO') {
-
+	function edit_group($group_id, $name=NULL, $parent_id=NULL, $group_type='ARO') {
+		$this->debug_text("edit_group(): ID: $group_id Name: $name Parent ID: $parent_id Group Type: $group_type");
+		
 		switch(strtolower(trim($group_type))) {
 			case 'axo':
 				$group_type = 'axo';
@@ -1767,63 +1817,98 @@ class gacl_api extends gacl {
 				$table = $this->_db_table_prefix .'aro_groups';
 				break;
 		}
-
-		$this->debug_text("edit_group(): ID: $group_id Name: $name Parent ID: $parent_id Group Type: $group_type");
-
-		$name = trim($name);
 		
 		if (empty($group_id) ) {
-			$this->debug_text("edit_group(): Group ID ($group_id) is empty, this is required");
-			return false;
+			$this->debug_text('edit_group(): Group ID ('. $group_id .') is empty, this is required');
+			return FALSE;
 		}
-
-		if ($group_id == $parent_id) {
-			$this->debug_text("edit_group(): Groups can't be a parent to themselves. Incest is bad. ;)");
-			return false;
+		
+		if ( !is_array($curr = $this->get_group_data($group_id, $group_type)) ) {
+			$this->debug_text('edit_group(): Invalid Group ID: '. $group_id);
+			return FALSE;
 		}
-
-		//Make sure we don't re-parent to our own children.
-		//Grab all children of this group_id.
-		//$children_ids = @array_keys( $this->format_groups($this->sort_groups($group_type), 'ARRAY', $group_id) );
-		$children_ids = $this->get_group_children($group_id, $group_type, 'RECURSE');
-		if (is_array($children_ids)) {
-			if (@in_array($parent_id, $children_ids) ) {
-				$this->debug_text("edit_group(): Groups can not be re-parented to there own children, this would be incestuous!");
-				return false;
+		
+		$name = trim($name);
+		
+		// don't set name if it is unchanged
+		if ($name == $curr[2]) {
+			unset($name);
+		}
+		
+		// don't set parent_id if it is unchanged
+		if ($parent_id == $curr[1]) {
+			unset($parent_id);
+		}
+		
+		if (!empty($parent_id)) {
+			if ($group_id == $parent_id) {
+				$this->debug_text('edit_group(): Groups can\'t be a parent to themselves. Incest is bad. ;)');
+				return FALSE;
+			}
+			
+			//Make sure we don't re-parent to our own children.
+			//Grab all children of this group_id.
+			$children_ids = $this->get_group_children($group_id, $group_type, 'RECURSE');
+			if (is_array($children_ids)) {
+				if (@in_array($parent_id, $children_ids) ) {
+					$this->debug_text('edit_group(): Groups can\'t be re-parented to their own children, this would be incestuous!');
+					return FALSE;
+				}
+			}
+			unset($children_ids);
+			
+			// make sure parent exists
+			if (!$this->get_group_data($parent_id, $group_type)) {
+				$this->debug_text('edit_group(): Parent Group ('. $parent_id .') doesn\'t exist');
+				return FALSE;
 			}
 		}
-		unset($children_ids);
+		
+		$set = array();
+		
+		// update name if it is specified.
+		if (!empty($name)) {
+			$set[] = 'name='. $this->db->quote($name);
+		}
+		
+		// update parent_id if it is specified.
+		if (!empty($parent_id)) {
+			$set[] = 'parent_id='. $parent_id;
+		}
+		
+		if (empty($set)) {
+			$this->debug_text('edit_group(): Nothing to update.');
+			return FALSE;
+		}
 		
 		$this->db->BeginTrans();
 		
-		$query  = 'UPDATE '. $table .' SET ';
-		//Don't update name if it is not specified.
-		if ($name != NULL) {
-			$query .= 'name='. $this->db->quote($name) .', ';
-		}				
-		$query .= 'parent_id='. $parent_id .' WHERE id='. $group_id;
+		$query  = 'UPDATE '. $table .' SET '. implode(',', $set) .' WHERE id='. $group_id;
 		$rs = $this->db->Execute($query);
-
+		
 		if (!is_object($rs)) {
 			$this->debug_db('edit_group');
-			return false;
-		}
-		
-		$this->debug_text("edit_group(): Modified group ID: $group_id");
-		
-		// rebuild the group tree
-		if (!$this->rebuild_tree($group_type)) {
 			$this->db->RollbackTrans();
 			return FALSE;
+		}
+		
+		$this->debug_text('edit_group(): Modified group ID: '. $group_id);
+		
+		// rebuild group tree if parent_id has changed
+		if (!empty($parent_id)) {
+			if (!$this->_rebuild_tree($table, $this->get_root_group_id($group_type))) {
+				$this->db->RollbackTrans();
+				return FALSE;
+			}
 		}
 		
 		$this->db->CommitTrans();
 		
 		if ($this->_caching == TRUE AND $this->_force_cache_expire == TRUE) {
-			//Expire all cache.	
+			// Expire all cache.
 			$this->Cache_Lite->clean('default');
 		}
-
+		
 		return TRUE;
 	}
 	
@@ -1831,7 +1916,9 @@ class gacl_api extends gacl {
 		Function:	rebuild_tree ()
 		Purpose:	rebuilds the group tree for the given type
 	\*======================================================================*/
-	function rebuild_tree($group_type = 'ARO', $parent_id = NULL, $left = 1) {
+	function rebuild_tree($group_type = 'ARO', $group_id = NULL, $left = 1) {
+		$this->debug_text("rebuild_tree(): Group Type: $group_type Group ID: $group_id Left: $left");
+		
 		switch (strtolower(trim($group_type))) {
 			case 'axo':
 				$group_type = 'axo';
@@ -1843,29 +1930,35 @@ class gacl_api extends gacl {
 				break;
 		}
 		
-		if (!isset($parent_id)) {
-			$query = 'SELECT id FROM '. $table .' WHERE lft=1';
-			$parent_id = $this->db->GetOne($query);
-			$left = 1;
-			$this->debug_text('rebuild_tree(): No Parent ID Specified, using root parent id: '. $parent_id);
+		if (!isset($group_id)) {
+			if ($group_id = $this->get_root_group_id($group_type)) {
+				$left = 1;
+				$this->debug_text('rebuild_tree(): No Group ID Specified, using Root Group ID: '. $group_id);
+			} else {
+				$this->debug_text('rebuild_tree(): A Root group could not be found, are there any groups defined?');
+				return FALSE;
+			}
 		}
 		
-		$rebuilt = $this->_rebuild_tree($group_type, $table, $parent_id, $left);
+		$this->db->BeginTrans();
+		$rebuilt = $this->_rebuild_tree($table, $group_id, $left);
 		
 		if ($rebuilt === FALSE) {
 			$this->debug_text('rebuild_tree(): Error rebuilding tree!');
+			$this->db->RollBackTrans();
 			return FALSE;
 		}
 		
+		$this->db->CommitTrans();
 		$this->debug_text('rebuild_tree(): Tree rebuilt.');
 		return TRUE;
 	}
 	
-	function _rebuild_tree($group_type, $table, $parent_id, $left) {
-		$this->debug_text("_rebuild_tree(): Parent ID: $parent_id Group Type: $group_type");
+	function _rebuild_tree($table, $group_id, $left = 1) {
+		$this->debug_text("_rebuild_tree(): Table: $table Group ID: $group_id Left: $left");
 		
 		// get all children of this node
-		$query = 'SELECT id FROM '. $table .' WHERE parent_id='. $parent_id;
+		$query = 'SELECT id FROM '. $table .' WHERE parent_id='. $group_id;
 		$rs = $this->db->Execute($query);
 		
 		if (!is_object($rs)) {
@@ -1881,7 +1974,7 @@ class gacl_api extends gacl {
 			// child of this node
 			// $right is the current right value, which is
 			// incremented by the rebuild_tree function
-			$right = $this->_rebuild_tree($group_type, $table, $row[0], $right);
+			$right = $this->_rebuild_tree($table, $row[0], $right);
 			
 			if ($right === FALSE) {
 				return FALSE;
@@ -1890,7 +1983,7 @@ class gacl_api extends gacl {
 		
 		// we've got the left value, and now that we've processed
 		// the children of this node we also know the right value
-		$query  = 'UPDATE '. $table .' SET lft='. $left .', rgt='. $right .' WHERE id='. $parent_id;
+		$query  = 'UPDATE '. $table .' SET lft='. $left .', rgt='. $right .' WHERE id='. $group_id;
 		$rs = $this->db->Execute($query);
 		
 		if (!is_object($rs)) {
@@ -2391,6 +2484,9 @@ class gacl_api extends gacl {
 				$object_type = 'axo';
 				$table = $this->_db_table_prefix .'axo';
 				break;
+			default:
+				$this->debug_text('get_object_section_value(): Invalid Object Type: '. $object_type);
+				return FALSE;
 		}
 
 		$this->debug_text("get_object_section_value(): Object ID: $object_id Object Type: $object_type");
@@ -2431,6 +2527,66 @@ class gacl_api extends gacl {
 		return $row[0];
 	}
 
+	/*======================================================================*\
+		Function:	get_object_groups()
+		Purpose:	Gets all groups an object is a member of.
+					If $option == 'RECURSE' it will get all ancestor groups.
+					defaults to only get direct parents.
+	\*======================================================================*/
+	function get_object_groups($object_id, $object_type = 'ARO', $option = 'NO_RECURSE') {
+		$this->debug_text('get_object_groups(): Object ID: '. $group_id .' Object Type: '. $object_type .' Option: '. $option);
+		
+		switch(strtolower(trim($object_type))) {
+			case 'axo':
+				$object_type = 'axo';
+				$group_table = $this->_db_table_prefix .'axo_groups';
+				$map_table = $this->_db_table_prefix .'groups_axo_map';
+				break;
+			case 'aro':
+				$object_type = 'aro';
+				$group_table = $this->_db_table_prefix .'aro_groups';
+				$map_table = $this->_db_table_prefix .'groups_aro_map';
+				break;
+			default:
+				$this->debug_text('get_object_groups(): Invalid Object Type: '. $object_type);
+				return FALSE;
+		}
+		
+		if (empty($object_id)) {
+			$this->debug_text('get_object_groups(): Object ID: ('. $object_id .') is empty, this is required');
+			return FALSE;
+		}
+		
+		if (strtoupper($option) == 'RECURSE') {
+		    $query = '
+				SELECT		DISTINCT g.id AS group_id
+				FROM		'. $map_table .' gm
+				LEFT JOIN	'. $group_table .' g1 ON g1.id=gm.group_id
+				LEFT JOIN	'. $group_table .' g ON g.lft<=g1.lft AND g.rgt>=g1.rgt';
+		} else {
+		    $query = '
+		    	SELECT		gm.group_id
+		    	FROM		'. $map_table .' gm';
+		}
+		
+		$query .= '
+				WHERE		gm.'. $object_type .'_id='. $object_id;
+		$rs = $this->db->Execute($query);
+		
+		if (!is_object($rs)) {
+			$this->debug_db('get_object_groups');
+			return FALSE;
+		}
+		
+		$retarr = array();
+		
+		while ($row = $rs->FetchRow()) {
+			$retarr[] = $row[0];
+		}
+		
+		return $retarr;
+	}
+	
 	/*======================================================================*\
 		Function:	add_object()
 		Purpose:	Inserts a new object
