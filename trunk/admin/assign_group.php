@@ -143,8 +143,7 @@ switch ($_POST['action']) {
 							$table b,
 							$group_sections_table c
 					where   a.group_id = ". $_GET['group_id'] ."
-								AND a.section_value=b.section_value
-								AND a.value=b.value
+								AND a." . $group_type . "_id=b.id
 								AND b.section_value=c.value
 					order by c.name, b.name";
         //$rs = $db->Execute($query);
