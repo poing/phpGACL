@@ -6,19 +6,11 @@
     <meta http-equiv="content-type" content="text/html; charset=ISO-8859-1">
   </head>
 
-<div align="center">
-Keep in mind the server hosting this may be overloaded. Preliminary benchmarks<br>
-on my Celeron 800 running Apache, MySQL, and X11 show about 5ms per
-acl_check() with caching turned off, <br>
-which of course is heavily dependant on the database itself.
-</div>
-<Br>
-
 <form method="post" name="acl_list" action="acl_list.php">
 <table cellpadding="2" cellspacing="2" border="2" width="100%">
   <tr align="center">
 	<td valign="top" colspan="10" bgcolor="#cccccc"><b>phpGACL ACL Test
-		[ <a href="admin/acl_list.php">ACL List</a> ]
+		[ <a href="acl_list.php">ACL List</a> ]
 		</b>
 		<br>
 	 </td>
