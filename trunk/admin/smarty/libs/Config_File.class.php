@@ -18,7 +18,7 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
  * @link http://smarty.php.net/
- * @version 2.6.3
+ * @version 2.6.6
  * @copyright Copyright: 2001-2004 ispi of Lincoln, Inc.
  * @author Andrei Zmievski <andrei@php.net>
  * @access public
