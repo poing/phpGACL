@@ -11,7 +11,7 @@
 
 {include file="acl_admin_js.tpl"}
 
-<body onload="populate(document.acl_admin.aco_section,document.acl_admin.elements['aco[]'], '{$js_aco_array_name}');populate(document.acl_admin.aro_section,document.acl_admin.elements['aro[]'], '{$js_aro_array_name}')">
+<body onload="document.object_search.name_search_str.focus();">
     <form method="get" name="object_search" action="obj_search.php">
       <table cellpadding="2" cellspacing="2" border="2" width="100%">
         <tbody>
@@ -21,27 +21,38 @@
           </tr>
 
           <tr>
-            <td valign="top" align="center" bgcolor="#d3dce3">&nbsp;<b>{$object_type} {$section_value} Search</b><br>
+            <td colspan="2" valign="top" align="center" bgcolor="#d3dce3">
+				<b>{$object_type} {$section_value} Search</b><br>
              </td>
           </tr>
-
           <tr>
-            <td valign="middle" bgcolor="#cccccc" align="center">
-				Value: <input type="text" name="value_search_str" value="">
+            <td colspan="2" valign="middle" bgcolor="#cccccc" align="center">
+				Name: <input type="text" name="name_search_str" value="{$name_search_str}">
 				<br>
-				Name: <input type="text" name="name_search_str" value="">
+				Value: <input type="text" name="value_search_str" value="{$value_search_str}">
 				<br>
 				<input type="submit" name="action" value="Search"><br>
              </td>
           </tr>
-
+		{if ($total_rows != '')}
           <tr>
-            <td valign="top" bgcolor="#999999" rowspan="1" colspan="5">
-              <div align="center">
-                <input type="submit" name="action" value="Search">
-              </div>
-            </td>
+            <td colspan="2" valign="top" align="center" bgcolor="#d3dce3">
+				<b>{$total_rows} Objects Found</b>
+             </td>
           </tr>
+        {/if}
+		{if ($total_rows > 0)}
+          <tr>
+            <td valign="middle" bgcolor="#cccccc" align="center">
+				 <select name="objects" tabindex="0" size="10" width="200" multiple>
+					{html_options options=$options_objects}
+				</select>
+             </td>
+            <td width="50" valign="middle" bgcolor="#cccccc" align="center">
+				<input type="BUTTON" name="select" value="&nbsp;>>&nbsp;" onClick="select_item(opener.document.acl_admin.{$object_type}_section, document.object_search.elements['objects'], opener.document.acl_admin.elements['selected_{$object_type}[]'])">
+             </td>
+          </tr>
+		{/if}
         </tbody>
       </table>
 	<input type="hidden" name="object_type" value="{$object_type}">

@@ -1,18 +1,18 @@
 <?php
 require_once("gacl_admin.inc.php");
 
-switch ($_POST[action]) {
+switch ($_POST['action']) {
     case Delete:
 	    debug("Delete!");
 
-        if (count($_POST[delete_acl]) > 0) {
-            foreach($_POST[delete_acl] as $id) {
+        if (count($_POST['delete_acl']) > 0) {
+            foreach($_POST['delete_acl'] as $id) {
                 $gacl_api->del_acl($id);            
             }
         }   
 
         //Return page.
-        return_page($_POST[return_page]);
+        return_page($_POST['return_page']);
 	
         break;
     case Submit:
@@ -163,7 +163,7 @@ switch ($_POST[action]) {
         break;
 }
 
-$smarty->assign("return_page", $_SERVER[PHP_SELF] );
+$smarty->assign("return_page", $_SERVER['PHP_SELF'] );
 
 $smarty->display('acl_list.tpl');
 ?>

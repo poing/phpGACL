@@ -1,3 +1,7 @@
+Fri Jan 24 2003
+	- Fixed JS UnSelect button bug for AXO groups.
+	- Added Object searching to help the admin interface handle an unlimited number of objects.
+	
 Tue Jan 14 2003
 	- Upgraded ADODB to v3.00
 	- Added user definable ACL return values, along with the acl_return_value() function.
