@@ -1,5 +1,6 @@
 Sat Nov 27 2004
 	mikeb - Added Millennium Falcon example written by Ross Lawley <ross.lawley@mediatelgroup.co.uk>
+	mikeb - Added 3-dimensional ACL Test page from Meinhard <meinhard.jahn@karsten-jahnke.de>
 Sun Nov 7 2004
 	mikeb - Updated Cache Lite class to latest version, including improved Hashed_Cache_Lite class thanks to Dan.
 	mikeb - If caching is not enabled, improved the bypassing of the caching library/overhead thanks to Andrew Eddie <eddieajau@iprimus.com.au>
