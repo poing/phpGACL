@@ -19,12 +19,93 @@ switch ($_GET['action']) {
         $gacl_api->debug_text("Submit!!");
         break;    
     default:
-/*
-		//Count all ACL's
-		$count_query = "select count(*) from acl";
-		$total_rows = $db->getone($count_query);
-		echo "Total Rows: $total_rows<br>\n";
-*/		
+
+		/*
+		 * When the user requests to filter the list, run the filter and get just the matching IDs.
+		 * Use these IDs to get the entire ACL information in the second query.
+		 *
+		 * If we just put the LIKE statements in the second query, it will match the correct ACLs
+		 * but will only return the matching rows, so it won't show the entire ACL information. 
+		 *
+		 */
+		if (isset($_GET['action']) AND $_GET['action'] == 'Filter') {
+			$gacl_api->debug_text("Filtering...");
+				
+			$query = "select	distinct
+											a.id
+									from
+											acl a
+											LEFT JOIN aco_map b ON a.id=b.acl_id
+
+											LEFT JOIN aco e ON ( b.section_value=e.section_value AND b.value = e.value )
+											LEFT JOIN aco_sections f ON e.section_value=f.value
+
+											LEFT JOIN aro_map c ON a.id=c.acl_id
+											LEFT JOIN aro_groups_map d ON a.id=d.acl_id
+
+											LEFT JOIN axo_map j ON a.id=j.acl_id
+											LEFT JOIN axo_groups_map k ON a.id=k.acl_id
+
+											LEFT JOIN aro g ON ( c.section_value=g.section_value AND c.value = g.value )
+											LEFT JOIN aro_sections h ON g.section_value=h.value
+											LEFT JOIN aro_groups i ON i.id=d.group_id
+
+											LEFT JOIN axo l ON ( j.section_value=l.section_value AND j.value = l.value )
+											LEFT JOIN axo_sections m ON l.section_value=m.value
+											LEFT JOIN axo_groups n ON n.id=k.group_id ";
+			
+			if ( isset($_GET['filter_aco_section_name']) AND $_GET['filter_aco_section_name'] != '') {
+				$filter_query[] = "			( lower(f.value) LIKE '".strtolower($_GET['filter_aco_section_name'])."' OR lower(f.name) LIKE '".strtolower($_GET['filter_aco_section_name'])."') ";
+			}
+			if ( isset($_GET['filter_aco_name']) AND $_GET['filter_aco_name'] != '') {
+				$filter_query[] = "			( lower(e.value) LIKE '".strtolower($_GET['filter_aco_name'])."' OR lower(e.name) LIKE '".strtolower($_GET['filter_aco_name'])."') ";
+			}
+
+			if ( isset($_GET['filter_aro_section_name']) AND $_GET['filter_aro_section_name'] != '') {
+				$filter_query[] = "			( lower(h.value) LIKE '".strtolower($_GET['filter_aro_section_name'])."' OR lower(h.name) LIKE '".strtolower($_GET['filter_aro_section_name'])."') ";
+			}
+			if ( isset($_GET['filter_aro_name']) AND $_GET['filter_aro_name'] != '') {
+				$filter_query[] = "			( lower(g.value) LIKE '".strtolower($_GET['filter_aro_name'])."' OR lower(g.name) LIKE '".strtolower($_GET['filter_aro_name'])."') ";
+			}
+			if ( isset($_GET['filter_aro_group_name']) AND $_GET['filter_aro_group_name'] != '') {
+				$filter_query[] = "			( lower(i.name) LIKE '".strtolower($_GET['filter_aro_group_name'])."') ";
+			}
+			
+			if ( isset($_GET['filter_axo_section_name']) AND $_GET['filter_axo_section_name'] != '') {
+				$filter_query[] = "			( lower(m.value) LIKE '".strtolower($_GET['filter_axo_section_name'])."' OR lower(m.name) LIKE '".strtolower($_GET['filter_axo_section_name'])."') ";
+			}
+			if ( isset($_GET['filter_axo_name']) AND $_GET['filter_axo_name'] != '') {
+				$filter_query[] = "			( lower(l.value) LIKE '".strtolower($_GET['filter_axo_name'])."' OR lower(l.name) LIKE '".strtolower($_GET['filter_axo_name'])."') ";
+			}
+			if ( isset($_GET['filter_axo_group_name']) AND $_GET['filter_axo_group_name'] != '') {
+				$filter_query[] = "			( lower(n.name) LIKE '".strtolower($_GET['filter_axo_group_name'])."') ";
+			}
+
+			if ( isset($_GET['filter_return_value']) AND $_GET['filter_return_value'] != '') {
+				$filter_query[] = "			( lower(a.return_value) LIKE '".strtolower($_GET['filter_return_value'])."') ";
+			}
+			if ( isset($_GET['filter_allow']) AND $_GET['filter_allow'] != '-1') {
+				$filter_query[] = "			( a.allow LIKE '".$_GET['filter_allow']."') ";
+			}
+			if ( isset($_GET['filter_enabled']) AND $_GET['filter_enabled'] != '-1') {
+				$filter_query[] = "			( a.enabled LIKE '".$_GET['filter_enabled']."') ";
+			}
+
+			if (isset($filter_query) AND is_array($filter_query)) {
+				$query .= "	where ";
+				$query .= implode($filter_query, " AND ");
+
+				$acl_ids = $db->GetCol($query);
+				
+				if (isset($acl_ids) AND $acl_ids != FALSE AND count($acl_ids) > 0 ) {
+					$acl_ids_sql = implode($acl_ids, ",");
+				} elseif (count($acl_ids) == 1) {
+					//This shouldn't match any ACLs, returning 0 rows.
+					$acl_ids_sql = -1;
+				}
+			}
+		}
+		
         //Grab all ACLs
         $query = "select	distinct
                                         a.id,
@@ -64,53 +145,12 @@ switch ($_GET['action']) {
                                         LEFT JOIN axo l ON ( j.section_value=l.section_value AND j.value = l.value )
                                         LEFT JOIN axo_sections m ON l.section_value=m.value
 										LEFT JOIN axo_groups n ON n.id=k.group_id ";
-		
-		if ( isset($_GET['filter_aco_section_name']) AND $_GET['filter_aco_section_name'] != '') {
-			$filter_query[] = "			( f.value LIKE '".$_GET['filter_aco_section_name']."' OR f.name LIKE '".$_GET['filter_aco_section_name']."') ";
-		}
-		if ( isset($_GET['filter_aco_name']) AND $_GET['filter_aco_name'] != '') {
-			$filter_query[] = "			( e.value LIKE '".$_GET['filter_aco_name']."' OR e.name LIKE '".$_GET['filter_aco_name']."') ";
-		}
-
-		if ( isset($_GET['filter_aro_section_name']) AND $_GET['filter_aro_section_name'] != '') {
-			$filter_query[] = "			( h.value LIKE '".$_GET['filter_aro_section_name']."' OR h.name LIKE '".$_GET['filter_aro_section_name']."') ";
-		}
-		if ( isset($_GET['filter_aro_name']) AND $_GET['filter_aro_name'] != '') {
-			$filter_query[] = "			( g.value LIKE '".$_GET['filter_aro_name']."' OR g.name LIKE '".$_GET['filter_aro_name']."') ";
-		}
-		if ( isset($_GET['filter_aro_group_name']) AND $_GET['filter_aro_group_name'] != '') {
-			$filter_query[] = "			( i.name LIKE '".$_GET['filter_aro_group_name']."') ";
-		}
-		
-		if ( isset($_GET['filter_axo_section_name']) AND $_GET['filter_axo_section_name'] != '') {
-			$filter_query[] = "			( m.value LIKE '".$_GET['filter_axo_section_name']."' OR m.name LIKE '".$_GET['filter_axo_section_name']."') ";
-		}
-		if ( isset($_GET['filter_axo_name']) AND $_GET['filter_axo_name'] != '') {
-			$filter_query[] = "			( l.value LIKE '".$_GET['filter_axo_name']."' OR l.name LIKE '".$_GET['filter_axo_name']."') ";
-		}
-		if ( isset($_GET['filter_axo_group_name']) AND $_GET['filter_axo_group_name'] != '') {
-			$filter_query[] = "			( n.name LIKE '".$_GET['filter_axo_group_name']."') ";
-		}
-
-		if ( isset($_GET['filter_return_value']) AND $_GET['filter_return_value'] != '') {
-			$filter_query[] = "			( a.return_value LIKE '".$_GET['filter_return_value']."') ";
-		}
-		if ( isset($_GET['filter_allow']) AND $_GET['filter_allow'] != '-1') {
-			$filter_query[] = "			( a.allow LIKE '".$_GET['filter_allow']."') ";
-		}
-		if ( isset($_GET['filter_enabled']) AND $_GET['filter_enabled'] != '-1') {
-			$filter_query[] = "			( a.enabled LIKE '".$_GET['filter_enabled']."') ";
-		}
-
-
-		if (isset($_GET['action']) AND $_GET['action'] == 'Filter' AND is_array($filter_query)) {
-			$query .= "	where ";
-			$query .= implode($filter_query, " AND ");
+		if (isset($acl_ids_sql) AND $acl_ids_sql != '') {
+			$query .= "	where a.id in ($acl_ids_sql)";
 		}
 		
         $query .= "		order by a.id, f.name, e.name, h.name, g.name, i.name";
         
-        //$rs = $db->Execute($query);
         $rs = $db->pageexecute($query, $gacl_api->_items_per_page, $_GET['page']);
         $rows = $rs->GetRows();
 

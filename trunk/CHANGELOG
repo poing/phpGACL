@@ -1,3 +1,5 @@
+Mon May 19 2003
+	- Fixed ACL List filtering so it returns all ACL rows, not just the ones matching the LIKE query.
 Fri May 16 2003
 	- Fixed a few PHP warnings phpgacl.class.php
 	- Removed an else condition from an if statement that didn't do anything anyways.
