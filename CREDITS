@@ -1,6 +1,9 @@
 Mike Benoit <ipso@snappymail.ca>
     Wrote initial "proof of concept" implementation, and maintains documentation & code base.
 
+Dan Cech <dcech@phpwerx.net>
+    Implemented the MPTT code, '_group_' feature, and ACL checks in the test suite.
+    
 Ben Margolin <ben@prince.org>
     Caught and fixed several bugs.
 
