@@ -75,7 +75,7 @@ class gacl_api {
 			//Create ACL row first, so we have the acl_id
 			$acl_id = $db->GenID('acl_seq',10);
 			$query = "insert into acl (id,allow,enabled,updated_date) VALUES($acl_id, $allow, $enabled, ".time().")";
-			//$rs = $db->Execute($query);
+			$rs = $db->Execute($query);
 		} else {
 			//Update ACL row, and remove all mappings so they can be re-inserted.
 			$query = "update acl set allow=$allow,enabled=$enabled,updated_date=".time()." where id=$acl_id";
