@@ -110,7 +110,8 @@ class gacl_api extends gacl {
 		Purpose:	Recursively counts elements in an array.
 	\*======================================================================*/
 	function count_all($arg) {
-		unset($count);
+		#unset($count);
+		$count = 0;
 		// skip if argument is empty
 		if ($arg) {
 			// not an array, return 1 (base case)
