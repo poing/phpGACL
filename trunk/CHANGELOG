@@ -1,5 +1,9 @@
+Tue July 01 2003
+	- Fixed security bug that could allow someone to see your database password.
+	
 Mon June 16 2003
-	- Added acl_query_array() to aid in running an acl_check() over a large amount of AROs, returning section_value, values.
+	- Added acl_query_array() to aid in running an acl_check() over a large amount of AROs, returning section_value, values
+		of those that return true. Especially useful with get_group_objects();
 
 Thu June 12 2003
 	- Added "ACLs" link to the group page, so you easily show all ACLs a specific group is assigned too.

@@ -67,17 +67,14 @@ class gacl {
 	 * Constructor
 	 */
 	function gacl($options = NULL) {
-		if ($this->_debug OR isset($_GET['debug'])) {
-			$this->_debug=TRUE;
-		}
-			
+
 		$available_options = array('debug','items_per_page','max_select_box_items','max_search_return_items','db_table_prefix','db_type','db_host','db_user','db_password','db_name','caching','force_cache_expire','cache_dir','cache_expire_time');
 		if (is_array($options)) {
 			foreach ($options as $key => $value) {
-					$this->debug_text("Option: $key - $value");
+					$this->debug_text("Option: $key");
 
 					if (in_array($key, $available_options) ) {
-						$this->debug_text("Valid Config options: $key - $value");
+						$this->debug_text("Valid Config options: $key");
 						$property = '_'.$key;
 						$this->$property = $value;
 					} else {
