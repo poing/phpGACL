@@ -52,7 +52,14 @@ switch ($_POST[action]) {
         $query = "select name from aro_sections where value = '$_GET[section_value]'";
         $section_name = $db->GetOne($query);
 
-        $query = "select id,section_value, value,order_value,name from aro where section_value= '$_GET[section_value]'";
+        $query = "select    id,
+                                    section_value,
+                                    value,
+                                    order_value,
+                                    name
+                            from aro
+                            where section_value= '$_GET[section_value]'
+                            order by order_value";
         $rs = $db->Execute($query);
         $rows = $rs->GetRows();
 
