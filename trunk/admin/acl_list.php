@@ -62,63 +62,79 @@ switch ($_POST[action]) {
 
         $rows = $rs->GetRows();
 
-        //showarray($rows);
-
-        $i=-1;
-        while (list(,$row) = @each($rows)) {
+		//Parese the SQL data and get rid of any duplicate data.
+        while (list(,$row) = @each($rows)) {			
             list($acl_id, $aco_section, $aco, $aro_section, $aro, $aro_group, $axo, $axo_section, $axo_group, $allow, $enabled, $updated_date) = $row;
-            debug("ID: $acl_id ACO Section: $aco_section ACO: $aco  ARO Section: $aro_section ARO: $aro AXO Section: $axo_section AXO: $axo");
+            debug("<b>ID:</b> $acl_id <b>ACO Section:</b> $aco_section <b>ACO:</b> $aco  <b>ARO Section:</b> $aro_section <b>ARO:</b> $aro <b>AXO Section:</b> $axo_section <b>AXO:</b> $axo");
 
-			$aco_name = "$aco_section > $aco";
-			$aro_name = "$aro_section > $aro";
-			$axo_name = "$axo_section > $axo";
+			$prepared_rows[$acl_id][acl][id] = $acl_id;
+			$prepared_rows[$acl_id][acl][allow] = $allow;
+			$prepared_rows[$acl_id][acl][enabled] = $enabled;
+			$prepared_rows[$acl_id][acl][updated_date] = $updated_date;
+
+			$prepared_rows[$acl_id][aco][$aco_section.$aco] = "$aco_section > $aco";
 			
-			if ($tmp_acl_id != $acl_id) {
-				$i++;
-				$acls[$i] = array(
-									id => $acl_id,
-									allow => (bool)$allow,
-									enabled => (bool)$enabled,
-									updated_date => date("d-M-y H:m:i",$updated_date)
-								);
-				unset($tmp_aco);
-				unset($tmp_aro);
-				unset($tmp_aro_group);
-				unset($tmp_axo);
-				unset($tmp_axo_group);
+			if ($aro_section AND $aro) {
+				$prepared_rows[$acl_id][aro][$aro_section.$aro] = "$aro_section > $aro";
 			}
-			//$acls[$i][aco][] = array(aco_section => $aco_section, aco => $aco);
-			//$acls[$i][aro][] = array(aro_section => $aro_section, aro => $aro);
-			if ($aco_section AND $aco AND ($aco_name != $tmp_aco)) {
-				$acls[$i][aco][] = array(aco => $aco_name);
+			if ($aro_group) {
+				$prepared_rows[$acl_id][aro_groups][$aro_group] = "$aro_group";
 			}
 
-			if ($aro_section AND $aro AND ($aro_name != $tmp_aro)) {
-				$acls[$i][aro][] = array(aro => $aro_name);
+			if ($axo_section AND $axo) {
+				$prepared_rows[$acl_id][axo][$axo_section.$axo] = "$axo_section > $axo";
 			}
-			if ($aro_group AND ($aro_group != $tmp_aro_group)) {
-				$acls[$i][aro_groups][] = array(group => "$aro_group");
+			if ($axo_group) {
+				$prepared_rows[$acl_id][axo_groups][$axo_group] = "$axo_group";
+			}
+		
+		}
+
+        
+		//Prepare the data for Smarty.
+        $i=-1;
+		foreach ($prepared_rows as $acl_id => $acl_array) {
+			
+			if ($acl_array[aco]) {
+				foreach ($acl_array[aco] as $key => $value) {
+					$aco_array[] = array('aco' => $value);
+				}
 			}
 
-			if ($axo_section AND $axo AND ($axo_name != $tmp_axo)) {
-				$acls[$i][axo][] = array(axo => $axo_name);
+			if ($acl_array[aro]) {
+				foreach ($acl_array[aro] as $key => $value) {
+					$aro_array[] = array('aro' => $value);
+				}
 			}
-			if ($axo_group AND ($axo_group != $tmp_axo_group)) {
-				$acls[$i][axo_groups][] = array(group => "$axo_group");
+			if ($acl_array[aro_groups]) {
+				foreach ($acl_array[aro_groups] as $key => $value) {
+					$aro_groups_array[] = array('group' => $value);
+				}
 			}
 
-			$tmp_acl_id = $acl_id;
-
-			$tmp_aco = $aco_name;
-
-			$tmp_aro = $aro_name;
-			$tmp_aro_group = $aro_group;
-
-			$tmp_axo = $axo_name;
-			$tmp_axo_group = $axo_group;
-
+			if ($acl_array[axo]) {
+				foreach ($acl_array[axo] as $key => $value) {
+					$axo_array[] = array('axo' => $value);
+				}
+			}
+			if ($acl_array[axo_groups]) {
+				foreach ($acl_array[axo_groups] as $key => $value) {
+					$axo_groups_array[] = array('group' => $value);
+				}
+			}
+			
+			$acls[] = array(
+								id => $acl_array[acl][id],
+								allow => (bool)$acl_array[acl][allow],
+								enabled => (bool)$acl_array[acl][enabled],
+								updated_date => date("d-M-y H:m:i",$acl_array[acl][updated_date]),
+								aco => $aco_array,
+								aro => $aro_array,
+								aro_groups => $aro_groups_array,
+								axo => $axo_array,
+								axo_groups => $axo_groups_array								
+							);
         }
-        //showarray($acls);
         
         $smarty->assign("acls", $acls);
         
