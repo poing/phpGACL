@@ -1,5 +1,24 @@
 <?php
 /*
+ * phpGACL - Generic Access Control List
+ * Copyright (C) 2002 Mike Benoit
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ */
+
+/*
  *
  * NOTE: Currently this API only works for ARO/ACO Sections and ARO's. More will come.
  *
@@ -57,7 +76,7 @@ class gacl_api {
 			$query = "insert into acl (id,allow,enabled,updated_date) VALUES($acl_id, $allow, $enabled, ".time().")";
 			//$rs = $db->Execute($query);
 		} else {
-			//Create ACL row first, so we have the acl_id
+			//Update ACL row, and remove all mappings so they can be re-inserted.
 			$query = "update acl set allow=$allow,enabled=$enabled,updated_date=".time()." where id=$acl_id";
 			$rs = $db->Execute($query);			
 
@@ -87,11 +106,8 @@ class gacl_api {
 					debug("add_acl(): database error: ". $db->ErrorMsg() ." (". $db->ErrorNo() .")");
 					return false;	
 				}
-
 			}
-
 		}
-
 		
 		if ($db->ErrorNo() != 0) {
 			debug("add_acl(): database error: ". $db->ErrorMsg() ." (". $db->ErrorNo() .")");
