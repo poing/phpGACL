@@ -1,3 +1,5 @@
+Fri May 07 2004
+	dcech - Fixed setup issues with new schema format, and moved to AXMLS prefixing.
 Wed May 05 2004
 	mikeb - Fixed bug in acl_get_groups() where $root_group = '' causes a SQL error. Thanks to Hakan Kuecuekyilmaz <hakan@lisas.de>
 	mikeb - Fixed Unit Tests to work with group_value's. Thanks to the help from Hakan Kuecuekyilmaz <hakan@lisas.de>
