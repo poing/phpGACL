@@ -1367,7 +1367,7 @@ class gacl_api extends gacl {
 			return false;
 		}
 
-		$query  = 'SELECT id, parent_id, name, value, lft, rgt FROM '. $table .' WHERE id='. $group_id;
+		$query  = 'SELECT id, parent_id, value, name, lft, rgt FROM '. $table .' WHERE id='. $group_id;
 		//$rs = $this->db->Execute($query);
 		$row = $this->db->GetRow($query);
 
