@@ -1,3 +1,6 @@
+Sat Jun 19 2004
+        dcech - cleaned up setup script a little
+        dcech - upgraded to adodb-xmlschema CVS to get fixes for prefix-related problems.
 Fri Jun 18 2004
         dcech - upgraded to ADOdb v4.23
 Thu Jun 17 2004
