@@ -1,13 +1,8 @@
 <?php
 
-/*
+/**
  * Project:     Smarty: the PHP compiling template engine
  * File:        Smarty_Compiler.class.php
- * Author:      Monte Ohrt <monte@ispi.net>
- *              Andrei Zmievski <andrei@php.net>
- *
- * Version:     2.3.0
- * Copyright:   2001,2002 ispi of Lincoln, Inc.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -35,12 +30,22 @@
  *
  * The latest version of Smarty can be obtained from:
  * http://www.phpinsider.com/
- *
+ * @link http://www.phpinsider.com/
+ * @author Monte Ohrt <monte@ispi.net>
+ * @author Andrei Zmievski <andrei@php.net>
+ * @version 2.5.0
+ * @copyright 2001,2002 ispi of Lincoln, Inc.
+ * @package Smarty
  */
+
+/* $Id$ */
 
 class Smarty_Compiler extends Smarty {
 
     // internal vars
+    /**#@+
+     * @access private
+     */
     var $_sectionelse_stack     =   array();    // keeps track of whether section had 'else' part
     var $_foreachelse_stack     =   array();    // keeps track of whether foreach had 'else' part
     var $_literal_blocks        =   array();    // keeps literal template blocks
@@ -50,12 +55,157 @@ class Smarty_Compiler extends Smarty {
     var $_capture_stack         =   array();    // keeps track of nested capture buffers
     var $_plugin_info           =   array();    // keeps track of plugins to load
     var $_init_smarty_vars      =   false;
+	var $_permitted_tokens		=	array('true','false','yes','no','on','off','null');
+    var $_db_qstr_regexp		=	null;		// regexps are setup in the constructor
+    var $_si_qstr_regexp		=	null;
+    var $_qstr_regexp			=	null;
+    var $_func_regexp			=	null;
+    var $_var_bracket_regexp	=	null;
+    var $_dvar_guts_regexp		=	null;
+    var $_dvar_regexp			=	null;
+    var $_cvar_regexp			=	null;
+    var $_svar_regexp			=	null;
+    var $_avar_regexp			=	null;
+    var $_mod_regexp			=	null;
+    var $_var_regexp			=	null;
+    var $_parenth_param_regexp	=	null;
+	var $_func_call_regexp		=	null;
+	var $_obj_ext_regexp		=	null;
+	var $_obj_start_regexp		=	null;
+	var $_obj_params_regexp		=	null;
+	var $_obj_call_regexp		=	null;
+    /**#@-*/
+	/**
+	 * The class constructor.
+	 */
+    function Smarty_Compiler()
+    {
+		// matches double quoted strings:
+		// "foobar"
+		// "foo\"bar"
+    	$this->_db_qstr_regexp = '"[^"\\\\]*(?:\\\\.[^"\\\\]*)*"';
 
+		// matches single quoted strings:
+		// 'foobar'
+		// 'foo\'bar'
+    	$this->_si_qstr_regexp = '\'[^\'\\\\]*(?:\\\\.[^\'\\\\]*)*\'';
 
-/*======================================================================*\
-    Function:   _compile_file()
-    Input:      compile a template file
-\*======================================================================*/
+		// matches single or double quoted strings
+    	$this->_qstr_regexp = '(?:' . $this->_db_qstr_regexp . '|' . $this->_si_qstr_regexp . ')';
+
+		// matches bracket portion of vars
+		// [0]
+		// [foo]
+		// [$bar]
+		$this->_var_bracket_regexp = '\[\$?[\w\.]+\]';
+				
+		// matches $ vars (not objects):
+		// $foo
+		// $foo.bar
+		// $foo.bar.foobar
+		// $foo[0]
+		// $foo[$bar]
+		// $foo[5][blah]
+		// $foo[5].bar[$foobar][4]
+		$this->_dvar_guts_regexp = '\w+(?:' . $this->_var_bracket_regexp
+				. ')*(?:\.\$?\w+(?:' . $this->_var_bracket_regexp . ')*)*';
+		$this->_dvar_regexp = '\$' . $this->_dvar_guts_regexp;
+
+		// matches config vars:
+		// #foo#
+		// #foobar123_foo#
+		$this->_cvar_regexp = '\#\w+\#';
+
+		// matches section vars:
+		// %foo.bar%
+		$this->_svar_regexp = '\%\w+\.\w+\%';
+
+		// matches all valid variables (no quotes, no modifiers)
+		$this->_avar_regexp = '(?:' . $this->_dvar_regexp . '|'
+		   . $this->_cvar_regexp . '|' . $this->_svar_regexp . ')';
+
+		// matches valid variable syntax:
+		// $foo
+		// $foo
+		// #foo#
+		// #foo#
+		// "text"
+		// "text"
+		$this->_var_regexp = '(?:' . $this->_avar_regexp . '|' . $this->_qstr_regexp . ')';
+				
+		// matches valid object call (no objects allowed in parameters):
+		// $foo->bar
+		// $foo->bar()
+		// $foo->bar("text")
+		// $foo->bar($foo, $bar, "text")
+		// $foo->bar($foo, "foo")
+		// $foo->bar->foo()
+		// $foo->bar->foo->bar()
+		$this->_obj_ext_regexp = '\->(?:\$?' . $this->_dvar_guts_regexp . ')';
+    	$this->_obj_params_regexp = '\((?:\w+|'
+				. $this->_var_regexp . '(?:\s*,\s*(?:(?:\w+|'
+				. $this->_var_regexp . ')))*)?\)';		
+    	$this->_obj_start_regexp = '(?:' . $this->_dvar_regexp . '(?:' . $this->_obj_ext_regexp . ')+)';
+		$this->_obj_call_regexp = '(?:' . $this->_obj_start_regexp . '(?:' . $this->_obj_params_regexp . ')?)';
+
+		// matches valid modifier syntax:
+		// |foo
+		// |@foo
+		// |foo:"bar"
+		// |foo:$bar
+		// |foo:"bar":$foobar
+		// |foo|bar
+		// |foo:$foo->bar
+		$this->_mod_regexp = '(?:\|@?\w+(?::(?>\w+|'
+		   . $this->_obj_call_regexp . '|' . $this->_avar_regexp . '|' . $this->_qstr_regexp .'))*)';		
+				
+		// matches valid function name:
+		// foo123
+		// _foo_bar
+		$this->_func_regexp = '[a-zA-Z_]\w*';
+
+		// matches valid registered object:
+		// foo->bar
+		$this->_reg_obj_regexp = '[a-zA-Z_]\w*->[a-zA-Z_]\w*';
+				
+		// matches valid parameter values:
+		// true
+		// $foo
+		// $foo|bar
+		// #foo#
+		// #foo#|bar
+		// "text"
+		// "text"|bar
+		// $foo->bar
+		$this->_param_regexp = '(?:\s*(?:' . $this->_obj_call_regexp . '|'
+		   . $this->_var_regexp  . '|\w+)(?>' . $this->_mod_regexp . '*)\s*)';		
+		
+		// matches valid parenthesised function parameters:
+		// 
+		// "text"
+		//	$foo, $bar, "text"
+		// $foo|bar, "foo"|bar, $foo->bar($foo)|bar
+    	$this->_parenth_param_regexp = '(?:\((?:\w+|'
+				. $this->_param_regexp . '(?:\s*,\s*(?:(?:\w+|'
+				. $this->_param_regexp . ')))*)?\))';
+	
+		// matches valid function call:
+		// foo()
+		// foo_bar($foo)
+		// _foo_bar($foo,"bar")
+		// foo123($foo,$foo->bar(),"foo")
+    	$this->_func_call_regexp = '(?:' . $this->_func_regexp . '\s*(?:'
+		   . $this->_parenth_param_regexp . '))';		
+	}			
+			
+	/**
+	 * compile a template file
+	 *
+     * sets $template_compiled to the compiled source
+	 * @param string $tpl_file
+	 * @param string $template_source
+	 * @param string $template_compiled
+	 */
     function _compile_file($tpl_file, $template_source, &$template_compiled)
     {
         if ($this->security) {
@@ -81,7 +231,7 @@ class Smarty_Compiler extends Smarty {
                     $template_source = $prefilter[0]($template_source, $this);
                     $this->_plugins['prefilter'][$filter_name][3] = true;
                 } else {
-                    $this->_trigger_plugin_error("Smarty plugin error: prefilter '$filter_name' is not implemented");
+                    $this->_trigger_fatal_error("[plugin] prefilter '$filter_name' is not implemented");
                 }
             }
         }
@@ -108,32 +258,33 @@ class Smarty_Compiler extends Smarty {
         $template_tags = $match[1];
         /* Split content by template tags to obtain non-template content. */
         $text_blocks = preg_split("!{$ldq}.*?{$rdq}!s", $template_source);
-
+		
         /* loop through text blocks */
         for ($curr_tb = 0, $for_max = count($text_blocks); $curr_tb < $for_max; $curr_tb++) {
-            /* match anything within <? ?> */
-            if (preg_match_all('!(<\?[^?]*?\?>|<script\s+language\s*=\s*[\"\']?php[\"\']?\s*>)!is', $text_blocks[$curr_tb], $sp_match)) {
-                /* found at least one match, loop through each one */
+            /* match anything resembling php tags */
+            if (preg_match_all('!(<\?(?:\w+|=)?|\?>|language\s*=\s*[\"\']?php[\"\']?)!is', $text_blocks[$curr_tb], $sp_match)) {
+				/* replace tags with placeholders to prevent recursive replacements */
+				$sp_match[1] = array_unique($sp_match[1]);
+				usort($sp_match[1], '_smarty_sort_length');
+                for ($curr_sp = 0, $for_max2 = count($sp_match[1]); $curr_sp < $for_max2; $curr_sp++) {
+					$text_blocks[$curr_tb] = str_replace($sp_match[1][$curr_sp],'%%%SMARTYSP'.$curr_sp.'%%%',$text_blocks[$curr_tb]);
+				}
+                /* process each one */
                 for ($curr_sp = 0, $for_max2 = count($sp_match[0]); $curr_sp < $for_max2; $curr_sp++) {
-                    if (preg_match('!^(<\?(php\s|\s|=\s)|<script\s*language\s*=\s*[\"\']?php[\"\']?\s*>)!is', $sp_match[0][$curr_sp])) {
-                        /* php tag */
-                        if ($this->php_handling == SMARTY_PHP_PASSTHRU) {
-                            /* echo php contents */
-                            $text_blocks[$curr_tb] = str_replace($sp_match[0][$curr_sp], '<?php echo \''.str_replace("'", "\'", $sp_match[0][$curr_sp]).'\'; ?>'."\n", $text_blocks[$curr_tb]);
-                       } else if ($this->php_handling == SMARTY_PHP_QUOTE) {
-                            /* quote php tags */
-                            $text_blocks[$curr_tb] = str_replace($sp_match[0][$curr_sp], htmlspecialchars($sp_match[0][$curr_sp]), $text_blocks[$curr_tb]);
-                        } else if ($this->php_handling == SMARTY_PHP_REMOVE) {
-                            /* remove php tags */
-                            if (substr($sp_match[0][$curr_sp], 0, 2) == '<?')
-                                $text_blocks[$curr_tb] = str_replace($sp_match[0][$curr_sp], '', $text_blocks[$curr_tb]);
-                            else
-                                /* attempt to remove everything between <script ...> and </script> */
-                                $text_blocks[$curr_tb] = preg_replace('!'.preg_quote($sp_match[0][$curr_sp], '!').'.*?</script\s*>!is', '', $text_blocks[$curr_tb]);
-                        }
-                    } else
-                        /* echo the non-php tags */
-                        $text_blocks[$curr_tb] = str_replace($sp_match[0][$curr_sp], '<?php echo \''.str_replace("'", "\'", $sp_match[0][$curr_sp]).'\'; ?>'."\n", $text_blocks[$curr_tb]);
+                    if ($this->php_handling == SMARTY_PHP_PASSTHRU) {
+                        /* echo php contents */
+                        $text_blocks[$curr_tb] = str_replace('%%%SMARTYSP'.$curr_sp.'%%%', '<?php echo \''.str_replace("'", "\'", $sp_match[1][$curr_sp]).'\'; ?>'."\n", $text_blocks[$curr_tb]);
+                    } else if ($this->php_handling == SMARTY_PHP_QUOTE) {
+                        /* quote php tags */
+                        $text_blocks[$curr_tb] = str_replace('%%%SMARTYSP'.$curr_sp.'%%%', htmlspecialchars($sp_match[1][$curr_sp]), $text_blocks[$curr_tb]);
+                    } else if ($this->php_handling == SMARTY_PHP_REMOVE) {
+                        /* remove php tags */
+                        $text_blocks[$curr_tb] = str_replace('%%%SMARTYSP'.$curr_sp.'%%%', '', $text_blocks[$curr_tb]);
+                    } else {
+						/* SMARTY_PHP_ALLOW, but echo non php starting tags */
+						$sp_match[1][$curr_sp] = preg_replace('%(<\?(?!php|=|$))%i', '<?php echo \'\\1\'?>'."\n", $sp_match[1][$curr_sp]);
+						$text_blocks[$curr_tb] = str_replace('%%%SMARTYSP'.$curr_sp.'%%%', $sp_match[1][$curr_sp], $text_blocks[$curr_tb]);
+					}
                 }
             }
         }
@@ -178,7 +329,7 @@ class Smarty_Compiler extends Smarty {
                     $template_compiled = $postfilter[0]($template_compiled, $this);
                     $this->_plugins['postfilter'][$filter_name][3] = true;
                 } else {
-                    $this->_trigger_plugin_error("Smarty plugin error: postfilter '$filter_name' is not implemented");
+                    $this->_trigger_fatal_error("Smarty plugin error: postfilter '$filter_name' is not implemented");
                 }
             }
         }
@@ -211,37 +362,45 @@ class Smarty_Compiler extends Smarty {
         return true;
     }
 
-
-/*======================================================================*\
-    Function: _compile_tag
-    Purpose:  Compile a template tag
-\*======================================================================*/
+	/**
+	 * Compile a template tag
+	 *
+	 * @param string $template_tag
+	 */
     function _compile_tag($template_tag)
-    {
+    {		
+				
         /* Matched comment. */
         if ($template_tag{0} == '*' && $template_tag{strlen($template_tag) - 1} == '*')
             return '';
+		
+        /* Split tag into two three parts: command, command modifiers and the arguments. */
+        if(! preg_match('/^(?:(' . $this->_obj_call_regexp . '|' . $this->_var_regexp
+				. '|' . $this->_reg_obj_regexp . '|\/?' . $this->_func_regexp . ')(' . $this->_mod_regexp . '*))
+                      (?:\s+(.*))?$
+                    /xs', $template_tag, $match)) {
+			$this->_syntax_error("unrecognized tag: $template_tag", E_USER_ERROR, __FILE__, __LINE__);
+		}
 
-        $qstr_regexp = '"[^"\\\\]*(?:\\\\.[^"\\\\]*)*"|\'[^\'\\\\]*(?:\\\\.[^\'\\\\]*)*\'';
-
-        /* Split tag into two parts: command and the arguments. */
-        preg_match('/^(
-                       (?: ' . $qstr_regexp . ' | (?>[^"\'\s]+))+
-                      )
-                      (?:\s+(.*))?
-                    /xs', $template_tag, $match);
         $tag_command = $match[1];
-        $tag_args = isset($match[2]) ? $match[2] : '';
-
-        /* If the tag name matches a variable or section property definition,
-           we simply process it. */
-        if (preg_match('!^\$\w+(?>(\[(\d+|\$\w+|\w+(\.\w+)?)\])|((\.|->)\$?\w+))*(?>\|@?\w+(:(?>' . $qstr_regexp . '|[^|]+))*)*$!', $tag_command) ||   // if a variable
-            preg_match('!^#(\w+)#(?>\|@?\w+(:(?>' . $qstr_regexp . '|[^|]+))*)*$!', $tag_command)     ||  // or a configuration variable
-            preg_match('!^%\w+\.\w+%(?>\|@?\w+(:(?>' . $qstr_regexp . '|[^|]+))*)*$!', $tag_command)) {    // or a section property
-            settype($tag_command, 'array');
-            $this->_parse_vars_props($tag_command);
-            return "<?php echo $tag_command[0]; ?>\n";
-        }
+        $tag_modifier = isset($match[2]) ? $match[2] : null;
+        $tag_args = isset($match[3]) ? $match[3] : null;
+		
+		
+        /* If the tag name is a variable or object, we process it. */
+        if (preg_match('!^' . $this->_obj_call_regexp . '|' . $this->_var_regexp . '$!', $tag_command)) {
+            $_return = $this->_parse_var_props($tag_command . $tag_modifier, $this->_parse_attrs($tag_args));
+			if(isset($_tag_attrs['assign'])) {
+				return "<?php \$this->assign('" . $this->_dequote($_tag_attrs['assign']) . "', $_return ); ?>\n";  
+			} else {
+            	return "<?php echo $_return; ?>\n";
+			}
+		}
+		
+	    /* If the tag name is a registered object, we process it. */
+        if (preg_match('!^' . $this->_reg_obj_regexp . '$!', $tag_command)) {
+			return $this->_compile_registered_object_tag($tag_command, $this->_parse_attrs($tag_args), $tag_modifier);
+		}
 
         switch ($tag_command) {
             case 'include':
@@ -317,7 +476,7 @@ class Smarty_Compiler extends Smarty {
 
             case 'php':
                 if ($this->security && !$this->security_settings['PHP_TAGS']) {
-                    $this->_syntax_error("(secure mode) php tags not permitted", E_USER_WARNING);
+                    $this->_syntax_error("(secure mode) php tags not permitted", E_USER_WARNING, __FILE__, __LINE__);
                     return;
                 }
                 list (,$php_block) = each($this->_php_blocks);
@@ -330,19 +489,23 @@ class Smarty_Compiler extends Smarty {
             default:
                 if ($this->_compile_compiler_tag($tag_command, $tag_args, $output)) {
                     return $output;
-                } else if ($this->_compile_block_tag($tag_command, $tag_args, $output)) {
+                } else if ($this->_compile_block_tag($tag_command, $tag_args, $tag_modifier, $output)) {
                     return $output;
                 } else {
-                    return $this->_compile_custom_tag($tag_command, $tag_args);
+                    return $this->_compile_custom_tag($tag_command, $tag_args, $tag_modifier);
                 }
         }
     }
 
 
-/*======================================================================*\
-    Function: _compile_compiler_tag
-    Purpose:  compile the custom compiler tag
-\*======================================================================*/
+	/**
+	 * compile the custom compiler tag
+	 *
+     * sets $output to the compiled custom compiler tag
+	 * @param string $tag_command
+	 * @param string $tag_args
+	 * @param string $output
+	 */
     function _compile_compiler_tag($tag_command, $tag_args, &$output)
     {
         $found = false;
@@ -388,7 +551,7 @@ class Smarty_Compiler extends Smarty {
             if ($have_function) {
                 $output = '<?php ' . $plugin_func($tag_args, $this) . ' ?>';
             } else {
-                $this->_syntax_error($message, E_USER_WARNING);
+                $this->_syntax_error($message, E_USER_WARNING, __FILE__, __LINE__);
             }
             return true;
         } else {
@@ -397,11 +560,16 @@ class Smarty_Compiler extends Smarty {
     }
 
 
-/*======================================================================*\
-    Function: _compile_block_tag
-    Purpose:  compile block function tag
-\*======================================================================*/
-    function _compile_block_tag($tag_command, $tag_args, &$output)
+	/**
+	 * compile block function tag
+	 *
+     * sets $output to compiled block function tag
+	 * @param string $tag_command
+	 * @param string $tag_args
+	 * @param string $tag_modifier
+	 * @param string $output
+	 */
+    function _compile_block_tag($tag_command, $tag_args, $tag_modifier, &$output)
     {
         if ($tag_command{0} == '/') {
             $start_tag = false;
@@ -445,7 +613,7 @@ class Smarty_Compiler extends Smarty {
         if (!$found) {
             return false;
         } else if (!$have_function) {
-            $this->_syntax_error($message, E_USER_WARNING);
+            $this->_syntax_error($message, E_USER_WARNING, __FILE__, __LINE__);
             return true;
         }
 
@@ -467,49 +635,126 @@ class Smarty_Compiler extends Smarty {
 
             $output = "<?php \$this->_tag_stack[] = array('$tag_command', array(".implode(',', (array)$arg_list).")); \$this->_plugins['block']['$tag_command'][0](array(".implode(',', (array)$arg_list)."), null, \$this); ob_start(); ?>";
         } else {
-            $output = "<?php \$this->_block_content = ob_get_contents(); ob_end_clean(); \$this->_plugins['block']['$tag_command'][0](\$this->_tag_stack[count(\$this->_tag_stack)-1][1], \$this->_block_content, \$this); array_pop(\$this->_tag_stack); ?>";
+            $output = "<?php \$this->_block_content = ob_get_contents(); ob_end_clean(); ";
+			$out_tag_text = "\$this->_plugins['block']['$tag_command'][0](\$this->_tag_stack[count(\$this->_tag_stack)-1][1], \$this->_block_content, \$this)";
+			if($tag_modifier != '') {
+				$this->_parse_modifiers($out_tag_text, $tag_modifier);
+			}
+			$output .= 'echo ' . $out_tag_text . ';';
+			$output .= " array_pop(\$this->_tag_stack); ?>";
         }
 
         return true;
     }
 
 
-/*======================================================================*\
-    Function: _compile_custom_tag
-    Purpose:  compile custom function tag
-\*======================================================================*/
-    function _compile_custom_tag($tag_command, $tag_args)
+	/**
+	 * compile custom function tag
+	 *
+	 * @param string $tag_command
+	 * @param string $tag_args
+	 * @param string $tag_modifier
+	 */
+    function _compile_custom_tag($tag_command, $tag_args, $tag_modifier)
     {
         $this->_add_plugin('function', $tag_command);
 
         $arg_list = array();
         $attrs = $this->_parse_attrs($tag_args);
+
         foreach ($attrs as $arg_name => $arg_value) {
             if (is_bool($arg_value))
                 $arg_value = $arg_value ? 'true' : 'false';
+            if (is_null($arg_value))
+                $arg_value = 'null';
             $arg_list[] = "'$arg_name' => $arg_value";
         }
-
-        return "<?php \$this->_plugins['function']['$tag_command'][0](array(".implode(',', (array)$arg_list)."), \$this); if(\$this->_extract) { extract(\$this->_tpl_vars); \$this->_extract=false; } ?>";
+		
+		$return = "\$this->_plugins['function']['$tag_command'][0](array(".implode(',', (array)$arg_list)."), \$this)";
+		
+		if($tag_modifier != '') {
+			$this->_parse_modifiers($return, $tag_modifier);
+		}
+		
+        return '<?php echo ' . $return . " ; ?>\n";
     }
 
+	/**
+	 * compile a registered object tag
+	 *
+	 * @param string $tag_command
+	 * @param array $attrs
+	 * @param string $tag_modifier
+	 */
+    function _compile_registered_object_tag($tag_command, $attrs, $tag_modifier)
+    {
+		list($object, $obj_comp) = explode('->', $tag_command);
 
-/*======================================================================*\
-    Function: _compile_insert_tag
-    Purpose:  Compile {insert ...} tag
-\*======================================================================*/
+        $arg_list = array();
+		if(count($attrs)) {
+			$_assign_var = false;
+        	foreach ($attrs as $arg_name => $arg_value) {
+				if($arg_name == 'assign') {
+					$_assign_var = $arg_value;
+					unset($attrs['assign']);
+					continue;
+				}
+            	if (is_bool($arg_value))
+                	$arg_value = $arg_value ? 'true' : 'false';
+            	$arg_list[] = "'$arg_name' => $arg_value";
+        	}
+		}
+				
+		if(!is_object($this->_reg_objects[$object][0])) {
+			$this->_trigger_fatal_error("registered '$object' is not an object");
+		} elseif(!empty($this->_reg_objects[$object][1]) && !in_array($obj_comp, $this->_reg_objects[$object][1])) {
+			$this->_trigger_fatal_error("'$obj_comp' is not a registered component of object '$object'");
+		} elseif(method_exists($this->_reg_objects[$object][0], $obj_comp)) {
+			// method
+			if($this->_reg_objects[$object][2]) {
+				// smarty object argument format
+				$return = "\$this->_reg_objects['$object'][0]->$obj_comp(array(".implode(',', (array)$arg_list)."), \$this)";
+			} else {
+				// traditional argument format
+				$return = "\$this->_reg_objects['$object'][0]->$obj_comp(".implode(',', array_values($attrs)).")";
+			}
+		} else {
+			// property
+			$return = "\$this->_reg_objects['$object'][0]->$obj_comp";
+		}
+		
+		if($tag_modifier != '') {
+			$this->_parse_modifiers($return, $tag_modifier);
+		}
+		
+		if($_assign_var) {
+			return "<?php \$this->assign('" . $this->_dequote($_assign_var) ."',  $return); ?>\n";
+		} else {
+        	return '<?php echo ' . $return . "; ?>\n";
+		}
+    }
+	
+	
+
+	/**
+	 * Compile {insert ...} tag
+	 *
+	 * @param string $tag_args
+	 */
     function _compile_insert_tag($tag_args)
     {
         $attrs = $this->_parse_attrs($tag_args);
         $name = $this->_dequote($attrs['name']);
 
         if (empty($name)) {
-            $this->_syntax_error("missing insert name");
+            $this->_syntax_error("missing insert name", E_USER_ERROR, __FILE__, __LINE__);
         }
 
         if (!empty($attrs['script'])) {
             $delayed_loading = true;
-        }
+        } else {
+            $delayed_loading = false;			
+		}
 
         foreach ($attrs as $arg_name => $arg_value) {
             if (is_bool($arg_value))
@@ -523,53 +768,53 @@ class Smarty_Compiler extends Smarty {
     }
 
 
-/*======================================================================*\
-    Function: _compile_config_load_tag
-    Purpose:  Compile {config_load ...} tag
-\*======================================================================*/
+	/**
+	 * Compile {config_load ...} tag
+	 *
+	 * @param string $tag_args
+	 */
     function _compile_config_load_tag($tag_args)
     {
         $attrs = $this->_parse_attrs($tag_args);
 
         if (empty($attrs['file'])) {
-            $this->_syntax_error("missing 'file' attribute in config_load tag");
+            $this->_syntax_error("missing 'file' attribute in config_load tag", E_USER_ERROR, __FILE__, __LINE__);
         }
 
         if (empty($attrs['section'])) {
             $attrs['section'] = 'null';
         }
 
-        $scope = @$this->_dequote($attrs['scope']);
-        if (!empty($scope)) {
+        if (isset($attrs['scope'])) {
+			$scope = @$this->_dequote($attrs['scope']);
             if ($scope != 'local' &&
                 $scope != 'parent' &&
                 $scope != 'global') {
-                $this->_syntax_error("invalid 'scope' attribute value");
+                $this->_syntax_error("invalid 'scope' attribute value", E_USER_ERROR, __FILE__, __LINE__);
             }
         } else {
-            if (!empty($attrs['global']) && $attrs['global'])
+            if (isset($attrs['global']) && $attrs['global'])
                 $scope = 'parent';
             else
                 $scope = 'local';
         }
 
-        $output  = '<?php $this->_config_load(' . $attrs['file'] . ', ' . $attrs['section'] . ", '$scope'); ?>";
-
-        return $output;
+        return '<?php $this->config_load(' . $attrs['file'] . ', ' . $attrs['section'] . ", '$scope'); ?>";
     }
 
 
-/*======================================================================*\
-    Function: _compile_include_tag
-    Purpose:  Compile {include ...} tag
-\*======================================================================*/
+	/**
+	 * Compile {include ...} tag
+	 *
+	 * $param string $tag_args
+	 */
     function _compile_include_tag($tag_args)
     {
         $attrs = $this->_parse_attrs($tag_args);
         $arg_list = array();
 
         if (empty($attrs['file'])) {
-            $this->_syntax_error("missing 'file' attribute in include tag");
+            $this->_syntax_error("missing 'file' attribute in include tag", E_USER_ERROR, __FILE__, __LINE__);
         }
 
         foreach ($attrs as $arg_name => $arg_value) {
@@ -607,39 +852,52 @@ class Smarty_Compiler extends Smarty {
 
     }
 
-/*======================================================================*\
-    Function: _compile_include_php_tag
-    Purpose:  Compile {include ...} tag
-\*======================================================================*/
+	/**
+	 * Compile {include ...} tag
+	 *
+	 * @param string $tag_args
+	 */
     function _compile_include_php_tag($tag_args)
     {
         $attrs = $this->_parse_attrs($tag_args);
 
         if (empty($attrs['file'])) {
-            $this->_syntax_error("missing 'file' attribute in include_php tag");
+            $this->_syntax_error("missing 'file' attribute in include_php tag", E_USER_ERROR, __FILE__, __LINE__);
         }
 
-        $assign_var = $this->_dequote($attrs['assign']);
+        $assign_var = $this->_dequote($attrs['assign']);		
+		$once_var = ( $attrs['once'] == 'false' ) ? 'false' : 'true';
+		
+    	foreach($attrs as $arg_name => $arg_value) {
+        	if($arg_name != 'file' AND $arg_name != 'once' AND $arg_name != 'assign') {
+            	if(is_bool($arg_value))
+                	$arg_value = $arg_value ? 'true' : 'false';
+            	$arg_list[] = "'$arg_name' => $arg_value";
+        	}
+    	}
 
-		$once_var = ( $attrs['once'] === false ) ? 'false' : 'true';
+    	$output =
+        	"<?php \$this->_smarty_include_php($attrs[file], '$assign_var', $once_var, " .
+        	"array(".implode(',', (array)$arg_list).")); ?>";
 				
-		return "<?php \$this->_smarty_include_php($attrs[file], '$assign_var', $once_var); ?>";
+		return $output;
     }
 	
 
-/*======================================================================*\
-    Function: _compile_section_start
-    Purpose:  Compile {section ...} tag
-\*======================================================================*/
+	/**
+	 * Compile {section ...} tag
+	 *
+	 * @param string $tag_args
+	 */
     function _compile_section_start($tag_args)
     {
         $attrs = $this->_parse_attrs($tag_args);
         $arg_list = array();
 
-        $output = "<?php ";
+        $output = '<?php ';
         $section_name = $attrs['name'];
         if (empty($section_name)) {
-            $this->_syntax_error("missing section name");
+            $this->_syntax_error("missing section name", E_USER_ERROR, __FILE__, __LINE__);
         }
 
         $output .= "if (isset(\$this->_sections[$section_name])) unset(\$this->_sections[$section_name]);\n";
@@ -673,7 +931,7 @@ class Smarty_Compiler extends Smarty {
                     break;
 
                 default:
-                    $this->_syntax_error("unknown section attribute - '$attr_name'");
+                    $this->_syntax_error("unknown section attribute - '$attr_name'", E_USER_ERROR, __FILE__, __LINE__);
                     break;
             }
         }
@@ -730,21 +988,22 @@ class Smarty_Compiler extends Smarty {
     }
 
     
-/*======================================================================*\
-    Function: _compile_foreach_start
-    Purpose:  Compile {foreach ...} tag
-\*======================================================================*/
+	/**
+	 * Compile {foreach ...} tag.
+	 *
+	 * @param string $tag_args
+	 */
     function _compile_foreach_start($tag_args)
     {
         $attrs = $this->_parse_attrs($tag_args);
         $arg_list = array();
 
         if (empty($attrs['from'])) {
-            $this->_syntax_error("missing 'from' attribute");
+            $this->_syntax_error("missing 'from' attribute", E_USER_ERROR, __FILE__, __LINE__);
         }
 
         if (empty($attrs['item'])) {
-            $this->_syntax_error("missing 'item' attribute");
+            $this->_syntax_error("missing 'item' attribute", E_USER_ERROR, __FILE__, __LINE__);
         }
 
         $from = $attrs['from'];
@@ -792,10 +1051,12 @@ class Smarty_Compiler extends Smarty {
     }
 
 
-/*======================================================================*\
-    Function: _compile_capture_tag
-    Purpose:  Compile {capture} .. {/capture} tags
-\*======================================================================*/
+	/**
+	 * Compile {capture} .. {/capture} tags
+	 *
+	 * @param boolean $start true if this is the {capture} tag
+	 * @param string $tag_args
+	 */
     function _compile_capture_tag($start, $tag_args = '')
     {
         $attrs = $this->_parse_attrs($tag_args);
@@ -816,30 +1077,67 @@ class Smarty_Compiler extends Smarty {
         return $output;
     }
 
-
-/*======================================================================*\
-    Function: _compile_if_tag
-    Purpose:  Compile {if ...} tag
-\*======================================================================*/
+	/**
+	 * Compile {if ...} tag
+	 *
+	 * @param string $tag_args
+	 * @param boolean $elseif if true, uses elseif instead of if
+	 */
     function _compile_if_tag($tag_args, $elseif = false)
     {
+
         /* Tokenize args for 'if' tag. */
-        preg_match_all('/(?:
-                         "[^"\\\\]*(?:\\\\.[^"\\\\]*)*"         | # match all double quoted strings allowing escaped double quotes
-                         \'[^\'\\\\]*(?:\\\\.[^\'\\\\]*)*\'     | # match all single quoted strings allowing escaped single quotes
-                         [(),]                                  | # match parentheses and commas
-                         [^\s(),]+                                # match any other token that is not any of the above
-                        )/x', $tag_args, $match);
+        preg_match_all('/(?>
+				' . $this->_obj_call_regexp . '(?:' . $this->_mod_regexp . '*)? | # valid object call
+				' . $this->_var_regexp . '(?:' . $this->_mod_regexp . '*)?	| # var or quoted string
+				\-?\d+(?:\.\d+)?|\.\d+|!==|===|==|!=|<>|<<|>>|<=|>=|\&\&|\|\||\(|\)|,|\!|\^|=|\&|\~|<|>|\||\%|\+|\-|\/|\*|\@	| # valid non-word token
+				\b\w+\b														| # valid word token
+				\S+                                                           # anything else
+				)/x', $tag_args, $match);
+				
         $tokens = $match[0];
-
-        $this->_parse_vars_props($tokens);
-
+				
+		// make sure we have balanced parenthesis
+		$token_count = array_count_values($tokens);
+		if(isset($token_count['(']) && $token_count['('] != $token_count[')']) {
+			$this->_syntax_error("unbalanced parenthesis in if statement", E_USER_ERROR, __FILE__, __LINE__);
+		}
+												
         $is_arg_stack = array();
 
-        for ($i = 0, $for_max = count($tokens); $i < $for_max; $i++) {
+        for ($i = 0; $i < count($tokens); $i++) {
 
             $token = &$tokens[$i];
-            switch ($token) {
+			
+            switch (strtolower($token)) {
+                case '!':
+                case '%':
+                case '!==':
+                case '==':
+                case '===':
+                case '>':
+                case '<':
+                case '!=':
+                case '<>':
+                case '<<':
+                case '>>':
+                case '<=':
+                case '>=':
+                case '&&':
+                case '||':
+				case '|':
+				case '^':
+				case '&':
+				case '~':
+				case ')':
+				case ',':
+				case '+':
+				case '-':
+				case '*':
+				case '/':
+				case '@':
+					break;					
+
                 case 'eq':
                     $token = '==';
                     break;
@@ -886,7 +1184,7 @@ class Smarty_Compiler extends Smarty {
                 case '(':
                     array_push($is_arg_stack, $i);
                     break;
-
+					
                 case 'is':
                     /* If last token was a ')', we operate on the parenthesized
                        expression. The start of the expression is on the stack.
@@ -898,14 +1196,14 @@ class Smarty_Compiler extends Smarty {
                     /* Construct the argument for 'is' expression, so it knows
                        what to operate on. */
                     $is_arg = implode(' ', array_slice($tokens, $is_arg_start, $i - $is_arg_start));
-
+					
                     /* Pass all tokens from next one until the end to the
                        'is' expression parsing function. The function will
                        return modified tokens, where the first one is the result
                        of the 'is' expression and the rest are the tokens it
-                       didn't touch. */
+                       didn't touch. */					
                     $new_tokens = $this->_parse_is_expr($is_arg, array_slice($tokens, $i+1));
-
+										
                     /* Replace the old tokens with the new ones. */
                     array_splice($tokens, $is_arg_start, count($tokens), $new_tokens);
 
@@ -913,19 +1211,26 @@ class Smarty_Compiler extends Smarty {
                        current position for the next iteration. */
                     $i = $is_arg_start;
                     break;
-
+					
                 default:
-                    if($this->security &&
-                       $i+1 < count($tokens) &&
-                       $tokens[$i+1] == '(' &&
-                       preg_match('!^[a-zA-Z_]\w+$!', $tokens[$i]) &&
-                       !in_array($tokens[$i], $this->security_settings['IF_FUNCS'])) {
-                        $this->_syntax_error("(secure mode) '".$tokens[$i]."' not allowed in if statement");
-                    }
+					if(preg_match('!^' . $this->_func_regexp . '$!', $token) ) {
+							// function call	
+                    		if($this->security &&
+                    		   !in_array($token, $this->security_settings['IF_FUNCS'])) {
+                        		$this->_syntax_error("(secure mode) '$token' not allowed in if statement", E_USER_ERROR, __FILE__, __LINE__);
+							}							
+					} elseif(preg_match('!^' . $this->_obj_call_regexp . '|' . $this->_var_regexp . '(?:' . $this->_mod_regexp . '*)$!', $token)) {
+						// object or variable
+        				$token = $this->_parse_var_props($token);
+					} elseif(is_numeric($token)) {
+						// number, skip it
+					} else {
+                		$this->_syntax_error("unidentified token '$token'", E_USER_ERROR, __FILE__, __LINE__);
+					}
                     break;
             }
         }
-
+				
         if ($elseif)
             return '<?php elseif ('.implode(' ', $tokens).'): ?>';
         else
@@ -933,10 +1238,12 @@ class Smarty_Compiler extends Smarty {
     }
 
 
-/*======================================================================*\
-    Function: _parse_is_expr
-    Purpose:  Parse is expression
-\*======================================================================*/
+	/**
+	 * Parse is expression
+	 *
+	 * @param string $is_arg
+	 * @param array $tokens
+	 */
     function _parse_is_expr($is_arg, $tokens)
     {
         $expr_end = 0;
@@ -953,7 +1260,7 @@ class Smarty_Compiler extends Smarty {
                 if (@$tokens[$expr_end] == 'by') {
                     $expr_end++;
                     $expr_arg = $tokens[$expr_end++];
-                    $expr = "!(($is_arg / $expr_arg) % $expr_arg)";
+                    $expr = "!(($is_arg / $expr_arg) % " . $this->_parse_var_props($expr_arg) . ")";
                 } else
                     $expr = "!($is_arg % 2)";
                 break;
@@ -962,7 +1269,7 @@ class Smarty_Compiler extends Smarty {
                 if (@$tokens[$expr_end] == 'by') {
                     $expr_end++;
                     $expr_arg = $tokens[$expr_end++];
-                    $expr = "(($is_arg / $expr_arg) % $expr_arg)";
+                    $expr = "(($is_arg / $expr_arg) % ". $this->_parse_var_props($expr_arg) . ")";
                 } else
                     $expr = "($is_arg % 2)";
                 break;
@@ -971,49 +1278,50 @@ class Smarty_Compiler extends Smarty {
                 if (@$tokens[$expr_end] == 'by') {
                     $expr_end++;
                     $expr_arg = $tokens[$expr_end++];
-                    $expr = "!($is_arg % $expr_arg)";
+                    $expr = "!($is_arg % " . $this->_parse_var_props($expr_arg) . ")";
                 } else {
-                    $this->_syntax_error("expecting 'by' after 'div'");
+                    $this->_syntax_error("expecting 'by' after 'div'", E_USER_ERROR, __FILE__, __LINE__);
                 }
                 break;
 
             default:
-                $this->_syntax_error("unknown 'is' expression - '$expr_type'");
+                $this->_syntax_error("unknown 'is' expression - '$expr_type'", E_USER_ERROR, __FILE__, __LINE__);
                 break;
         }
 
         if ($negate_expr) {
             $expr = "!($expr)";
         }
-
-        array_splice($tokens, 0, $expr_end, $expr);
-
+		
+        array_splice($tokens, 0, $expr_end, $expr);		
+		
         return $tokens;
     }
 
 
-/*======================================================================*\
-    Function: _parse_attrs
-    Purpose:  Parse attribute string
-\*======================================================================*/
+	/**
+	 * Parse attribute string
+	 *
+	 * @param string $tag_args
+	 * @param true $quote unused?
+	 */
     function _parse_attrs($tag_args, $quote = true)
     {
+				
         /* Tokenize tag attributes. */
-        preg_match_all('/(?:"[^"\\\\]*(?:\\\\.[^"\\\\]*)*"       |
-                          \'[^\'\\\\]*(?:\\\\.[^\'\\\\]*)*\'     | (?>[^"\'=\s]+)
+        preg_match_all('/(?:' . $this->_obj_call_regexp . '|' . $this->_qstr_regexp . ' | (?>[^"\'=\s]+)
                          )+ |
                          [=]
                         /x', $tag_args, $match);
-        $tokens       = $match[0];
-        $var_delims   = array('$', '#', '%');
-
+        $tokens       = $match[0];		
+						
         $attrs = array();
         /* Parse state:
             0 - expecting attribute name
             1 - expecting '='
             2 - expecting attribute value (not '=') */
         $state = 0;
-
+				
         foreach ($tokens as $token) {
             switch ($state) {
                 case 0:
@@ -1023,7 +1331,7 @@ class Smarty_Compiler extends Smarty {
                         $attr_name = $token;
                         $state = 1;
                     } else
-                        $this->_syntax_error("invalid attribute name - '$token'");
+                        $this->_syntax_error("invalid attribute name: '$token'", E_USER_ERROR, __FILE__, __LINE__);
                     break;
 
                 case 1:
@@ -1031,7 +1339,7 @@ class Smarty_Compiler extends Smarty {
                     if ($token == '=') {
                         $state = 2;
                     } else
-                        $this->_syntax_error("expecting '=' after attribute name");
+                        $this->_syntax_error("expecting '=' after attribute name '$last_token'", E_USER_ERROR, __FILE__, __LINE__);
                     break;
 
                 case 2:
@@ -1040,84 +1348,149 @@ class Smarty_Compiler extends Smarty {
                     if ($token != '=') {
                         /* We booleanize the token if it's a non-quoted possible
                            boolean value. */
-                        if (preg_match('!^(on|yes|true)$!', $token))
-                            $token = true;
-                        else if (preg_match('!^(off|no|false)$!', $token))
-                            $token = false;
-                        /* If the token is not variable (doesn't start with
-                           '$', '#', or '%') and not enclosed in single or
-                           double quotes we single-quote it. */
-                        else if ($quote && !in_array($token{0}, $var_delims) &&
-                                 !(($token{0} == '"' || $token{0} == "'") &&
-                                 $token{strlen($token)-1} == $token{0}))
-                            $token = '"'.$token.'"';
+                        if (preg_match('!^(on|yes|true)$!', $token)) {
+                            $token = 'true';
+						} else if (preg_match('!^(off|no|false)$!', $token)) {
+                            $token = 'false';
+						} else if ($token == 'null') {
+                            $token = 'null';
+						} else if (preg_match('!^-?[0-9]+$!', $token)) {
+                            /* treat integer literally */
+						} else if (!preg_match('!^' . $this->_obj_call_regexp . '|' . $this->_var_regexp . '(?:' . $this->_mod_regexp . ')*$!', $token)) {
+                        	/* treat as a string, double-quote it escaping quotes */
+                            $token = '"'.addslashes($token).'"';
+						}
 
                         $attrs[$attr_name] = $token;
                         $state = 0;
                     } else
-                        $this->_syntax_error("'=' cannot be an attribute value");
+                        $this->_syntax_error("'=' cannot be an attribute value", E_USER_ERROR, __FILE__, __LINE__);
                     break;
             }
+			$last_token = $token;
         }
 
+		if($state != 0) {
+			if($state == 1) {
+				$this->_syntax_error("expecting '=' after attribute name '$last_token'", E_USER_ERROR, __FILE__, __LINE__);				
+			} else {
+				$this->_syntax_error("missing attribute value", E_USER_ERROR, __FILE__, __LINE__);								
+			}
+		}
+		
         $this->_parse_vars_props($attrs);
-
+		
         return $attrs;
     }
 
-
-/*======================================================================*\
-    Function: _parse_vars_props
-    Purpose:  compile variables and section properties tokens into
-              PHP code
-\*======================================================================*/
+	/**
+	 * compile multiple variables and section properties tokens into
+	 * PHP code
+	 *
+	 * @param array $tokens
+	 */
     function _parse_vars_props(&$tokens)
     {
-        $qstr_regexp = '"[^"\\\\]*(?:\\\\.[^"\\\\]*)*"|\'[^\'\\\\]*(?:\\\\.[^\'\\\\]*)*\'';
+		foreach($tokens as $key => $val) {			
+    		$tokens[$key] = $this->_parse_var_props($val);
+		}
+	}
+		
+	/**
+	 * compile single variable and section properties token into
+	 * PHP code
+	 *
+	 * @param string $val
+	 * @param string $tag_attrs
+	 */
+    function _parse_var_props($val, $tag_attrs = null)
+    {					
 
-        $var_exprs = preg_grep('!^\$\w+(?>(\[(\d+|\$\w+|\w+(\.\w+)?)\])|((\.|->)\$?\w+))*(?>\|@?\w+(:(?>' .  $qstr_regexp . '|[^|]+))*)*$!', $tokens);
-        $conf_var_exprs = preg_grep('!^#(\w+)#(?>\|@?\w+(:(?>' . $qstr_regexp . '|[^|]+))*)*$!', $tokens);
-        $sect_prop_exprs = preg_grep('!^%\w+\.\w+%(?>\|@?\w+(:(?>' .  $qstr_regexp .  '|[^|]+))*)*$!', $tokens);
+		$val = trim($val);
 
-        if (count($var_exprs)) {
-            foreach ($var_exprs as $expr_index => $var_expr) {
-                $tokens[$expr_index] = $this->_parse_var($var_expr);
-            }
-        }
-
-        if (count($conf_var_exprs)) {
-            foreach ($conf_var_exprs as $expr_index => $var_expr) {
-                $tokens[$expr_index] = $this->_parse_conf_var($var_expr);
-            }
-        }
-
-        if (count($sect_prop_exprs)) {
-            foreach ($sect_prop_exprs as $expr_index => $section_prop_expr) {
-                $tokens[$expr_index] = $this->_parse_section_prop($section_prop_expr);
-            }
-        }
+        if(preg_match('!^(' . $this->_obj_call_regexp . '|' . $this->_dvar_regexp . ')(?:' . $this->_mod_regexp . '*)$!', $val)) {
+				// $ variable or object
+                return $this->_parse_var($val);
+			}			
+        elseif(preg_match('!^' . $this->_db_qstr_regexp . '(?:' . $this->_mod_regexp . '*)$!', $val)) {
+				// double quoted text
+				preg_match('!^(' . $this->_db_qstr_regexp . ')('. $this->_mod_regexp . '*)$!', $val, $match);
+                $return = $this->_expand_quoted_text($match[1]);
+				if($match[2] != '') {
+					$this->_parse_modifiers($return, $match[2]);
+				}
+				return $return;
+			}			
+        elseif(preg_match('!^' . $this->_si_qstr_regexp . '(?:' . $this->_mod_regexp . '*)$!', $val)) {
+				// single quoted text
+				preg_match('!^(' . $this->_si_qstr_regexp . ')('. $this->_mod_regexp . '*)$!', $val, $match);
+				if($match[2] != '') {
+					$this->_parse_modifiers($match[1], $match[2]);
+                	return $match[1];
+				}	
+			}			
+        elseif(preg_match('!^' . $this->_cvar_regexp . '(?:' . $this->_mod_regexp . '*)$!', $val)) {
+				// config var
+                return $this->_parse_conf_var($val);
+			}			
+        elseif(preg_match('!^' . $this->_svar_regexp . '(?:' . $this->_mod_regexp . '*)$!', $val)) {
+				// section var
+                return $this->_parse_section_prop($val);
+			}
+		elseif(!in_array($val, $this->_permitted_tokens) && !is_numeric($val)) {
+			// literal string
+			return $this->_expand_quoted_text('"' . $val .'"');
+		}
+		return $val;
     }
 
-
-/*======================================================================*\
-    Function: _parse_var
-    Purpose:  parse variable expression into PHP code
-\*======================================================================*/
+	/**
+	 * expand quoted text with embedded variables
+	 *
+	 * @param string $var_expr
+	 */
+    function _expand_quoted_text($var_expr)
+    {
+		// if contains unescaped $, expand it
+		if(preg_match_all('%(?:\`(?<!\\\\)\$' . $this->_dvar_guts_regexp . '\`)|(?:(?<!\\\\)\$\w+(\[[a-zA-Z0-9]+\])*)%', $var_expr, $_match)) {
+			$_match = $_match[0];
+			rsort($_match);
+			reset($_match);
+			foreach($_match as $_var) {
+                $var_expr = str_replace ($_var, '".' . $this->_parse_var(str_replace('`','',$_var)) . '."', $var_expr);
+			}
+            $_return = preg_replace('%\.""|(?<!\\\\)""\.%', '', $var_expr);
+		} else {
+			$_return = $var_expr;
+		}
+		// replace double quoted literal string with single quotes
+		$_return = preg_replace('!^"([\s\w]+)"$!',"'\\1'",$_return);
+		return $_return;
+	}
+	
+	/**
+	 * parse variable expression into PHP code
+	 *
+	 * @param string $var_expr
+	 */
     function _parse_var($var_expr)
     {
-        $parts = explode('|', substr($var_expr, 1), 2);
-        $var_ref = $parts[0];
-        $modifiers = isset($parts[1]) ? $parts[1] : '';
-		
+		preg_match('!(' . $this->_obj_call_regexp . '|' . $this->_var_regexp . ')(' . $this->_mod_regexp . '*)$!', $var_expr, $match);
+						
+        $var_ref = substr($match[1],1);
+        $modifiers = $match[2];
+						
 		if(!empty($this->default_modifiers) && !preg_match('!(^|\|)smarty:nodefaults($|\|)!',$modifiers)) {
 			$_default_mod_string = implode('|',(array)$this->default_modifiers);
 			$modifiers = empty($modifiers) ? $_default_mod_string : $_default_mod_string . '|' . $modifiers;
 		}
-			
-        preg_match_all('!\[(?:\$\w+|\w+(\.\w+)?)\]|(->|\.)\$?\w+|^\w+!', $var_ref, $match);
+
+		// get [foo] and .foo and ->foo and (...) pieces			
+        preg_match_all('!(?:^\w+)|' . $this->_obj_params_regexp . '|(?:' . $this->_var_bracket_regexp . ')|->\w+|\.\$?\w+|\S+!', $var_ref, $match);		
+				
         $indexes = $match[0];
         $var_name = array_shift($indexes);
-
+		
         /* Handle $smarty.* variable references as a special case. */
         if ($var_name == 'smarty') {
             /*
@@ -1134,8 +1507,8 @@ class Smarty_Compiler extends Smarty {
         } else {
             $output = "\$this->_tpl_vars['$var_name']";
         }
-
-        foreach ($indexes as $index) {
+		
+        foreach ($indexes as $index) {			
             if ($index{0} == '[') {
                 $index = substr($index, 1, -1);
                 if (is_numeric($index)) {
@@ -1153,21 +1526,47 @@ class Smarty_Compiler extends Smarty {
                     $output .= "[\$this->_tpl_vars['" . substr($index, 2) . "']]";
                 else
                     $output .= "['" . substr($index, 1) . "']";
+            } else if (substr($index,0,2) == '->') {
+				if(substr($index,2,2) == '__') {
+					$this->_syntax_error('call to internal object members is not allowed', E_USER_ERROR, __FILE__, __LINE__);
+				} elseif($this->security && substr($index,2,1) == '_') {
+					$this->_syntax_error('(secure) call to private object member is not allowed', E_USER_ERROR, __FILE__, __LINE__);
+				}
+                $output .= $index;
+			} elseif ($index{0} == '(') {
+				$index = $this->_parse_parenth_args($index);
+                $output .= $index;
             } else {
                 $output .= $index;
             }
         }
-
+		
         $this->_parse_modifiers($output, $modifiers);
 
         return $output;
     }
 
-
-/*======================================================================*\
-    Function: _parse_conf_var
-    Purpose:  parse configuration variable expression into PHP code
-\*======================================================================*/
+	/**
+	 * parse arguments in function call parenthesis
+	 *
+	 * @param string $parenth_args
+	 */
+    function _parse_parenth_args($parenth_args)
+    {
+		preg_match_all('!' . $this->_param_regexp . '!',$parenth_args, $match);
+		$match = $match[0];
+		rsort($match);
+		reset($match);						
+		$orig_vals = $match;
+		$this->_parse_vars_props($match);
+		return str_replace($orig_vals, $match, $parenth_args);
+	}	
+		
+	/**
+	 * parse configuration variable expression into PHP code
+	 *
+	 * @param string $conf_var_expr
+	 */
     function _parse_conf_var($conf_var_expr)
     {
         $parts = explode('|', $conf_var_expr, 2);
@@ -1184,10 +1583,11 @@ class Smarty_Compiler extends Smarty {
     }
 
 
-/*======================================================================*\
-    Function: _parse_section_prop
-    Purpose:  parse section property expression into PHP code
-\*======================================================================*/
+	/**
+	 * parse section property expression into PHP code
+	 *
+	 * @param string $section_prop_expr
+	 */
     function _parse_section_prop($section_prop_expr)
     {
         $parts = explode('|', $section_prop_expr, 2);
@@ -1206,52 +1606,65 @@ class Smarty_Compiler extends Smarty {
     }
 
 
-/*======================================================================*\
-    Function: _parse_modifiers
-    Purpose:  parse modifier chain into PHP code
-\*======================================================================*/
+	/**
+	 * parse modifier chain into PHP code
+	 *
+     * sets $output to parsed modified chain
+	 * @param string $output
+	 * @param string $modifier_string
+	 */
     function _parse_modifiers(&$output, $modifier_string)
     {
-        $qstr_regexp = '"[^"\\\\]*(?:\\\\.[^"\\\\]*)*"|\'[^\'\\\\]*(?:\\\\.[^\'\\\\]*)*\'';
-        preg_match_all('!\|(@?\w+)((?>:(?:'. $qstr_regexp . '|[^|]+))*)!', '|' . $modifier_string, $match);
-        list(, $modifiers, $modifier_arg_strings) = $match;
+        preg_match_all('!\|(@?\w+)((?>:(?:'. $this->_qstr_regexp . '|[^|]+))*)!', '|' . $modifier_string, $_match);
+        list(, $_modifiers, $modifier_arg_strings) = $_match;
 
-        for ($i = 0, $for_max = count($modifiers); $i < $for_max; $i++) {
-            $modifier_name = $modifiers[$i];
+        for ($_i = 0, $_for_max = count($_modifiers); $_i < $_for_max; $_i++) {
+            $_modifier_name = $_modifiers[$_i];
 			
-			if($modifier_name == 'smarty') {
+			if($_modifier_name == 'smarty') {
 				// skip smarty modifier
 				continue;
 			}
 			
-            preg_match_all('!:(' . $qstr_regexp . '|[^:]+)!', $modifier_arg_strings[$i], $match);
-            $modifier_args = $match[1];
+            preg_match_all('!:(' . $this->_qstr_regexp . '|[^:]+)!', $modifier_arg_strings[$_i], $_match);
+            $_modifier_args = $_match[1];
 
-            if ($modifier_name{0} == '@') {
-                $map_array = 'false';
-                $modifier_name = substr($modifier_name, 1);
+            if ($_modifier_name{0} == '@') {
+                $_map_array = 'false';
+                $_modifier_name = substr($_modifier_name, 1);
             } else {
-                $map_array = 'true';
+                $_map_array = 'true';
             }
 			
-            $this->_add_plugin('modifier', $modifier_name);
+            $this->_add_plugin('modifier', $_modifier_name);
+            $this->_parse_vars_props($_modifier_args);
 
-            $this->_parse_vars_props($modifier_args);
-
-            if (count($modifier_args) > 0)
-                $modifier_args = ', '.implode(', ', $modifier_args);
+			if($_modifier_name == 'default') {
+				// supress notifications of default modifier vars and args
+				if($output{0} == '$') {
+					$output = '@' . $output;
+				}
+				if(isset($_modifier_args[0]) && $_modifier_args[0]{0} == '$') {
+					$_modifier_args[0] = '@' . $_modifier_args[0];
+				}
+			}
+            if (count($_modifier_args) > 0)
+                $_modifier_args = ', '.implode(', ', $_modifier_args);
             else
-                $modifier_args = '';
+                $_modifier_args = '';
 
-            $output = "\$this->_run_mod_handler('$modifier_name', $map_array, $output$modifier_args)";
+            $output = "\$this->_run_mod_handler('$_modifier_name', $_map_array, $output$_modifier_args)";
         }
     }
 
 
-/*======================================================================*\
-    Function: _add_plugin
-    Purpose:  
-\*======================================================================*/
+	/**
+	 * add plugin
+	 *
+	 * @param string $type
+	 * @param string $name
+	 * @param boolean? $delayed_loading
+	 */
     function _add_plugin($type, $name, $delayed_loading = null)
     {
         if (!isset($this->_plugin_info[$type])) {
@@ -1265,70 +1678,60 @@ class Smarty_Compiler extends Smarty {
     }
     
 
-/*======================================================================*\
-    Function: _compile_smarty_ref
-    Purpose:  Compiles references of type $smarty.foo
-\*======================================================================*/
+	/**
+	 * Compiles references of type $smarty.foo
+	 *
+	 * @param string $indexes
+	 */
     function _compile_smarty_ref(&$indexes)
     {
         /* Extract the reference name. */
-        $ref = substr($indexes[0], 1);
+        $_ref = substr($indexes[0], 1);
 
-        switch ($ref) {
+		foreach($indexes as $_index) {		
+        	if ($_index{0} != '.') {
+            	$this->_syntax_error('$smarty' . implode('', array_slice($indexes, 0, 2)) . ' is an invalid reference', E_USER_ERROR, __FILE__, __LINE__);
+        	}
+		}
+		
+        switch ($_ref) {
             case 'now':
                 $compiled_ref = 'time()';
-                if (count($indexes) > 1) {
-                    $this->_syntax_error('$smarty' . implode('', $indexes) .' is an invalid reference');
-                }
+				$_max_index = 1;
                 break;
 
             case 'foreach':
             case 'section':
-                if ($indexes[1]{0} != '.') {
-                    $this->_syntax_error('$smarty' . implode('', array_slice($indexes, 0, 2)) . ' is an invalid reference');
-                }
-                $name = substr($indexes[1], 1);
                 array_shift($indexes);
-                if ($ref == 'foreach')
-                    $compiled_ref = "\$this->_foreach['$name']";
+                $_var = $this->_parse_var_props(substr($indexes[0], 1));
+                if ($_ref == 'foreach')
+                    $compiled_ref = "\$this->_foreach[$_var]";
                 else
-                    $compiled_ref = "\$this->_sections['$name']";
+                    $compiled_ref = "\$this->_sections[$_var]";
                 break;
 
             case 'get':
-                array_shift($indexes);
-                $name = substr($indexes[0], 1);
-                $compiled_ref = "\$GLOBALS['HTTP_GET_VARS']['$name']";
+                $compiled_ref = "\$GLOBALS['HTTP_GET_VARS']";
                 break;
 
             case 'post':
-                array_shift($indexes);
-                $name = substr($indexes[0], 1);
-                $compiled_ref = "\$GLOBALS['HTTP_POST_VARS']['$name']";
+                $compiled_ref = "\$GLOBALS['HTTP_POST_VARS']";
                 break;
 
             case 'cookies':
-                array_shift($indexes);
-                $name = substr($indexes[0], 1);
-                $compiled_ref = "\$GLOBALS['HTTP_COOKIE_VARS']['$name']";
+                $compiled_ref = "\$GLOBALS['HTTP_COOKIE_VARS']";
                 break;
 
             case 'env':
-                array_shift($indexes);
-                $name = substr($indexes[0], 1);
-                $compiled_ref = "\$GLOBALS['HTTP_ENV_VARS']['$name']";
+                $compiled_ref = "\$GLOBALS['HTTP_ENV_VARS']";
                 break;
 
             case 'server':
-                array_shift($indexes);
-                $name = substr($indexes[0], 1);
-                $compiled_ref = "\$GLOBALS['HTTP_SERVER_VARS']['$name']";
+                $compiled_ref = "\$GLOBALS['HTTP_SERVER_VARS']";
                 break;
 
             case 'session':
-                array_shift($indexes);
-                $name = substr($indexes[0], 1);
-                $compiled_ref = "\$GLOBALS['HTTP_SESSION_VARS']['$name']";
+                $compiled_ref = "\$GLOBALS['HTTP_SESSION_VARS']";
                 break;
 
             /*
@@ -1344,18 +1747,33 @@ class Smarty_Compiler extends Smarty {
 
             case 'template':
                 $compiled_ref = "'$this->_current_file'";
-                if (count($indexes) > 1) {
-                    $this->_syntax_error('$smarty' . implode('', $indexes) .' is an invalid reference');
-                }
+				$_max_index = 1;
                 break;
 				
 			case 'version':
 				$compiled_ref = "'$this->_version'";
+				$_max_index = 1;
 				break;
 
-            default:
-                $this->_syntax_error('$smarty.' . $ref . ' is an unknown reference');
+			case 'const':
+                array_shift($indexes);
+				$_val = $this->_parse_var_props(substr($indexes[0],1));
+				$compiled_ref = '@constant(' . $_val . ')';
+				$_max_index = 1;
                 break;
+
+            case 'config':
+                $compiled_ref = "\$this->_config[0]['vars']";
+				$_max_index = 2;
+                break;
+
+            default:
+                $this->_syntax_error('$smarty.' . $_ref . ' is an unknown reference', E_USER_ERROR, __FILE__, __LINE__);
+                break;
+        }
+
+        if (isset($_max_index) && count($indexes) > $_max_index) {
+            $this->_syntax_error('$smarty' . implode('', $indexes) .' is an invalid reference', E_USER_ERROR, __FILE__, __LINE__);
         }
 
         array_shift($indexes);
@@ -1363,10 +1781,9 @@ class Smarty_Compiler extends Smarty {
     }
 
 
-/*======================================================================*\
-    Function: _load_filters
-    Purpose:  load pre- and post-filters
-\*======================================================================*/
+	/**
+	 * load pre- and post-filters
+	 */
     function _load_filters()
     {
         if (count($this->_plugins['prefilter']) > 0) {
@@ -1388,16 +1805,44 @@ class Smarty_Compiler extends Smarty {
     }
 
 
-/*======================================================================*\
-    Function: _syntax_error
-    Purpose:  display Smarty syntax error
-\*======================================================================*/
-    function _syntax_error($error_msg, $error_type = E_USER_ERROR)
+	/**
+	 * display Smarty syntax error
+	 *
+	 * @param string $error_msg
+	 * @param integer $error_type
+	 * @param string $file
+	 * @param integer $line
+	 */
+    function _syntax_error($error_msg, $error_type = E_USER_ERROR, $file=null, $line=null)
     {
-        trigger_error("Smarty: [in " . $this->_current_file . " line " .
-                      $this->_current_line_no . "]: syntax error: $error_msg", $error_type);
+		if(isset($file) && isset($line)) {
+			$info = ' ('.basename($file).", line $line)";
+		} else {
+			$info = null;
+		}
+        trigger_error('Smarty: [in ' . $this->_current_file . ' line ' .
+                      $this->_current_line_no . "]: syntax error: $error_msg$info", $error_type);
     }
 }
+
+/**
+ * compare to values by their string length
+ *
+ * @access private
+ * @param string $a
+ * @param string $b
+ */
+function _smarty_sort_length($a, $b)
+{
+	if($a == $b)
+		return 0;
+
+	if(strlen($a) == strlen($b))
+		return ($a > $b) ? -1 : 1;
+
+	return (strlen($a) > strlen($b)) ? -1 : 1;
+}
+
 
 /* vim: set et: */
 

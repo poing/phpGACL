@@ -1,6 +1,8 @@
 Thu Aug 21 2003
 	- Added Help / About page.
 	- Fixed up the ACL Sections, to use values instead of IDs for consistency sake
+	- Upgraded to Smarty 2.5.0
+	- Released phpGACL v3.2.0b
 Mon Aug 18 2003
 	- Merged table prefix patch from Ben Margolin (ben@prince.org), did some minor clean-ups/fixes.
 	- Upgraded to ADODB 3.72
