@@ -36,12 +36,12 @@ if ( !defined('ADODB_DIR') ) {
 }
 
 class gacl {
-	
+
 	// --- Private properties ---
 
 	/*
 	 * Enable Debug output.
-	 */	
+	 */
 	var $_debug = FALSE;
 
 	/*
@@ -57,16 +57,16 @@ class gacl {
 
 	/*
 	 * NOTE: 	This cache must be manually cleaned each time ACL's are modified.
-	 * 		Alternatively you could wait for the cache to expire.	
+	 * 		Alternatively you could wait for the cache to expire.
 	 */
 	var $_caching = FALSE;
-	var $_force_cache_expire = TRUE; 
+	var $_force_cache_expire = TRUE;
 	var $_cache_dir = '/tmp/phpgacl_cache'; // NO trailing slash
-	var $_cache_expire_time=600; //600 == Ten Minutes	
-	
+	var $_cache_expire_time=600; //600 == Ten Minutes
+
 	// switch to put acl_check into '_group_' mode
 	var $_group_switch = '_group_';
-	
+
 	/*
 	 * Constructor
 	 */
@@ -224,14 +224,14 @@ class gacl {
 			 * Grab all groups mapped to this ARO/AXO
 			 */
 			$aro_group_ids = $this->acl_get_groups($aro_section_value, $aro_value, $root_aro_group_id, 'ARO');
-			
+
 			if (is_array($aro_group_ids) AND !empty($aro_group_ids)) {
 				$sql_aro_group_ids = implode(',', $aro_group_ids);
 			}
-			
+
 			if ($axo_section_value != '' AND $axo_value != '') {
 				$axo_group_ids = $this->acl_get_groups($axo_section_value, $axo_value, $root_axo_group_id, 'AXO');
-				
+
 				if (is_array($axo_group_ids) AND !empty($axo_group_ids)) {
 					$sql_axo_group_ids = implode(',', $axo_group_ids);
 				}
@@ -245,24 +245,24 @@ class gacl {
 			 *
 			 * This is probably where the most optimizations can be made.
 			 */
-			
+
 			$order_by = array();
 
 			$query = '
 					SELECT		a.id,a.allow,a.return_value
 					FROM		'. $this->_db_table_prefix .'acl a
 					LEFT JOIN 	'. $this->_db_table_prefix .'aco_map ac ON ac.acl_id=a.id';
-			
+
 			if ($aro_section_value != $this->_group_switch) {
 				$query .= '
 					LEFT JOIN	'. $this->_db_table_prefix .'aro_map ar ON ar.acl_id=a.id';
 			}
-			
+
 			if ($axo_section_value != $this->_group_switch) {
 				$query .= '
 					LEFT JOIN	'. $this->_db_table_prefix .'axo_map ax ON ax.acl_id=a.id';
 			}
-			
+
 			/*
 			 * if there are no aro groups, don't bother doing the join.
 			 */
@@ -271,11 +271,11 @@ class gacl {
 					LEFT JOIN	'. $this->_db_table_prefix .'aro_groups_map arg ON arg.acl_id=a.id
 					LEFT JOIN	'. $this->_db_table_prefix .'aro_groups rg ON rg.id=arg.group_id';
 			}
-			
+
 			// this join is necessary to weed out rules associated with axo groups
 			$query .= '
 					LEFT JOIN	'. $this->_db_table_prefix .'axo_groups_map axg ON axg.acl_id=a.id';
-			
+
 			/*
 			 * if there are no axo groups, don't bother doing the join.
 			 * it is only used to rank by the level of the group.
@@ -290,7 +290,7 @@ class gacl {
 			$query .= '
 					WHERE		a.enabled=1
 						AND		(ac.section_value='. $this->db->quote($aco_section_value) .' AND ac.value='. $this->db->quote($aco_value) .')';
-			
+
 			// if we are querying an aro group
 			if ($aro_section_value == $this->_group_switch) {
 				// if acl_get_groups did not return an array
@@ -298,25 +298,25 @@ class gacl {
 					$this->debug_text ('acl_query(): Invalid ARO Group: '. $aro_value);
 					return FALSE;
 				}
-				
+
 				$query .= '
 						AND		rg.id IN ('. $sql_aro_group_ids .')';
-				
+
 				$order_by[] = '(rg.rgt-rg.lft) ASC';
 			} else {
 				$query .= '
 						AND		((ar.section_value='. $this->db->quote($aro_section_value) .' AND ar.value='. $this->db->quote($aro_value) .')';
-				
+
 				if ( isset ($sql_aro_group_ids) ) {
 					$query .= ' OR rg.id IN ('. $sql_aro_group_ids .')';
-					
-					$order_by[] = '(ar.value IS NOT NULL) DESC';
+
+					$order_by[] = '(CASE WHEN ar.value IS NULL THEN 0 ELSE 1 END) DESC';
 					$order_by[] = '(rg.rgt-rg.lft) ASC';
 				}
-				
+
 				$query .= ')';
 			}
-			
+
 
 			// if we are querying an axo group
 			if ($axo_section_value == $this->_group_switch) {
@@ -325,15 +325,15 @@ class gacl {
 					$this->debug_text ('acl_query(): Invalid AXO Group: '. $axo_value);
 					return FALSE;
 				}
-				
+
 				$query .= '
 						AND		xg.id IN ('. $sql_axo_group_ids .')';
-				
+
 				$order_by[] = '(xg.rgt-xg.lft) ASC';
 			} else {
 				$query .= '
 						AND		(';
-				
+
 				if ($axo_section_value == '' AND $axo_value == '') {
 					$query .= '(ax.section_value IS NULL AND ax.value IS NULL)';
 				} else {
@@ -342,24 +342,24 @@ class gacl {
 
 				if (isset($sql_axo_group_ids)) {
 					$query .= ' OR xg.id IN ('. $sql_axo_group_ids .')';
-					
-					$order_by[] = '(ax.value IS NOT NULL) DESC';
+
+					$order_by[] = '(CASE WHEN ax.value IS NULL THEN 0 ELSE 1 END) DESC';
 					$order_by[] = '(xg.rgt-xg.lft) ASC';
 				} else {
 					$query .= ' AND axg.group_id IS NULL';
 				}
-				
+
 				$query .= ')';
 			}
-			
+
 			/*
 			 * The ordering is always very tricky and makes all the difference in the world.
 			 * Order (ar.value IS NOT NULL) DESC should put ACLs given to specific AROs
 			 * ahead of any ACLs given to groups. This works well for exceptions to groups.
 			 */
-			
+
 			$order_by[] = 'a.updated_date DESC';
-			
+
 			$query .= '
 					ORDER BY	'. implode (',', $order_by) . '
 					';
@@ -381,7 +381,7 @@ class gacl {
 				// Permission granted?
 				// This below oneliner is very confusing.
 				//$allow = (isset($row[1]) AND $row[1] == 1);
-				
+
 				//Prefer this.
 				if ( isset($row[1]) AND $row[1] == 1 ) {
 					$allow = TRUE;
@@ -443,17 +443,17 @@ class gacl {
 			// Make sure we get the groups
 			$query = '
 					SELECT 		DISTINCT g2.id';
-			
+
 			if ($section_value == $this->_group_switch) {
 				$query .= '
 					FROM		' . $group_table . ' g1,' . $group_table . ' g2';
-				
+
 				$where = '
 					WHERE		g1.id=' . $value;
 			} else {
 				$query .= '
 					FROM		'. $object_table .' o,'. $group_map_table .' gm,'. $group_table .' g1,'. $group_table .' g2';
-				
+
 				$where = '
 					WHERE		(o.section_value='. $this->db->quote($section_value) .' AND o.value='. $this->db->quote($value) .')
 						AND		gm.'. $group_type .'_id=o.id
@@ -470,7 +470,7 @@ class gacl {
 				//It is important to note the below line modifies the tables being selected.
 				//This is the reason for the WHERE variable.
 				$query .= ','. $group_table .' g3';
-				
+
 				$where .= '
 						AND		g3.id='. $root_group_id .'
 						AND		((g2.lft BETWEEN g3.lft AND g1.lft) AND (g2.rgt BETWEEN g1.rgt AND g3.rgt))';
@@ -478,9 +478,9 @@ class gacl {
 				$where .= '
 						AND		(g2.lft <= g1.lft AND g2.rgt >= g1.rgt)';
 			}
-			
+
 			$query .= $where;
-			
+
 			// $this->debug_text($query);
 			$rs = $this->db->Execute($query);
 
@@ -488,9 +488,9 @@ class gacl {
 				$this->debug_db('acl_get_groups');
 				return FALSE;
 			}
-			
+
 			$retarr = array();
-			
+
 			//Unbuffered query?
 			while (!$rs->EOF) {
 				$retarr[] = reset($rs->fields);
