@@ -46,7 +46,7 @@
              </td>
 
             <td valign="top" bgcolor="#cccccc" align="center">
-                <input type="text" size="10" name="sections[{$sections[x].id}][]" value="{$sections[x].name}">                
+                <input type="text" size="40" name="sections[{$sections[x].id}][]" value="{$sections[x].name}">                
              </td>
             <td valign="top" bgcolor="#cccccc" align="center">
                 <input type="checkbox" name="delete_sections[]" value="{$sections[x].id}">                

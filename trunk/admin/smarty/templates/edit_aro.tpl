@@ -50,7 +50,7 @@
              </td>
 
             <td valign="top" bgcolor="#cccccc" align="center">
-                <input type="text" size="10" name="aro[{$aro[x].id}][]" value="{$aro[x].name}">                
+                <input type="text" size="40" name="aro[{$aro[x].id}][]" value="{$aro[x].name}">                
              </td>
             <td valign="top" bgcolor="#cccccc" align="center">
                 <input type="checkbox" name="delete_aro[]" value="{$aro[x].id}">                
@@ -77,7 +77,7 @@
              </td>
 
             <td valign="top" bgcolor="#cccccc" align="center">
-                <input type="text" size="10" name="new_aro[{$new_aro[y].id}][]" value="">                
+                <input type="text" size="40" name="new_aro[{$new_aro[y].id}][]" value="">                
              </td>
             <td valign="top" bgcolor="#cccccc" align="center">
                 &nbsp;
