@@ -245,7 +245,7 @@
 	</td>
   </tr>
 	  <tr>
-		<td valign="top" bgcolor="#999999" colspan="8">
+		<td valign="top" bgcolor="#999999" colspan="7">
 		</td>
 		<td valign="top" bgcolor="#999999" colspan="2">
 		  <div align="center">
