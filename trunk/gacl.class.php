@@ -243,53 +243,60 @@ class gacl {
 			 * This is probably where the most optimizations can be made.
 			 */
 
-			$query = '		SELECT		a.id,a.allow,a.return_value
-						FROM		'. $this->_db_table_prefix .'acl a,'. $this->_db_table_prefix .'aco_map ac
-						LEFT JOIN	'. $this->_db_table_prefix .'aro_map ar ON ar.acl_id=a.id
-						LEFT JOIN	'. $this->_db_table_prefix .'axo_map ax ON ax.acl_id=a.id';
+			$query = '
+					SELECT		a.id,a.allow,a.return_value
+					FROM		'. $this->_db_table_prefix .'acl a,'. $this->_db_table_prefix .'aco_map ac
+					LEFT JOIN	'. $this->_db_table_prefix .'aro_map ar ON ar.acl_id=a.id
+					LEFT JOIN	'. $this->_db_table_prefix .'axo_map ax ON ax.acl_id=a.id';
 			
 			/*
 			 * if there are no aro groups, don't bother doing the join.
 			 */
 			if (isset($sql_aro_group_ids)) {
-				$query .= '	LEFT JOIN	'. $this->_db_table_prefix .'aro_groups_map arg ON arg.acl_id=a.id
-						LEFT JOIN	'. $this->_db_table_prefix .'aro_groups rg ON rg.id=arg.group_id';
+				$query .= '
+					LEFT JOIN	'. $this->_db_table_prefix .'aro_groups_map arg ON arg.acl_id=a.id
+					LEFT JOIN	'. $this->_db_table_prefix .'aro_groups rg ON rg.id=arg.group_id';
 			}
 			
 			// this join is necessary to weed out rules associated with axo groups
-			$query .= '		LEFT JOIN	'. $this->_db_table_prefix .'axo_groups_map axg ON axg.acl_id=a.id';
+			$query .= '
+					LEFT JOIN	'. $this->_db_table_prefix .'axo_groups_map axg ON axg.acl_id=a.id';
 			
 			/*
 			 * if there are no axo groups, don't bother doing the join.
 			 * it is only used to rank by the level of the group.
 			 */
 			if (isset($sql_axo_group_ids)) {
-				$query .= '	LEFT JOIN	'. $this->_db_table_prefix .'axo_groups xg ON xg.id=axg.group_id';
+				$query .= '
+					LEFT JOIN	'. $this->_db_table_prefix .'axo_groups xg ON xg.id=axg.group_id';
 			}
 			
-			$query .= '		WHERE		a.enabled=1 AND	ac.acl_id=a.id
-							AND	(ac.section_value=\''. $aco_section_value .'\' AND ac.value=\''. $aco_value .'\')
-							AND	((ar.section_value=\''. $aro_section_value .'\' AND ar.value=\''. $aro_value .'\')';
+			$query .= '
+					WHERE		a.enabled=1 AND	ac.acl_id=a.id
+						AND		(ac.section_value=\''. $aco_section_value .'\' AND ac.value=\''. $aco_value .'\')
+						AND		((ar.section_value=\''. $aro_section_value .'\' AND ar.value=\''. $aro_value .'\')';
 			
 			if ( isset ($sql_aro_group_ids) ) {
-				$query .= '		OR 	rg.id IN ('. $sql_aro_group_ids .')';
+				$query .= ' OR rg.id IN ('. $sql_aro_group_ids .')';
 			}
 			
-			$query .= ') 			AND 	(';
+			$query .= ')
+						AND		(';
 
 			if ($axo_section_value == '' AND $axo_value == '') {
-				$query .= '			(ax.section_value IS NULL AND ax.value IS NULL)';
+				$query .= '(ax.section_value IS NULL AND ax.value IS NULL)';
 			} else {
-				$query .= '			(ax.section_value=\''. $axo_section_value .'\' AND ax.value=\''. $axo_value .'\')';
+				$query .= '(ax.section_value=\''. $axo_section_value .'\' AND ax.value=\''. $axo_value .'\')';
 			}
 
 			if (isset($sql_axo_group_ids)) {
-				$query .= ' 		OR 	xg.id IN ('. $sql_axo_group_ids .')';
+				$query .= ' OR xg.id IN ('. $sql_axo_group_ids .')';
 			} else {
-				$query .= '		AND 	axg.group_id IS NULL';
+				$query .= ' AND axg.group_id IS NULL';
 			}
 			
-			$query .= ')		ORDER BY ';
+			$query .= ')
+					ORDER BY	';
 			
 			/*
 			 * The ordering is always very tricky and makes all the difference in the world.
@@ -297,14 +304,17 @@ class gacl {
 			 * ahead of any ACLs given to groups. This works well for exceptions to groups.
 			 */
 			if (isset($sql_aro_group_ids)) {
-				$query .= '		(ar.value IS NOT NULL) DESC,(rg.rgt-rg.lft) ASC, ';
+				$query .= '(ar.value IS NOT NULL) DESC,(rg.rgt-rg.lft) ASC,
+								';
 			}
 			
 			if (isset($sql_axo_group_ids)) {
-				$query .= '		(ax.value IS NOT NULL) DESC,(xg.rgt-xg.lft) ASC, ';
+				$query .= '(ax.value IS NOT NULL) DESC,(xg.rgt-xg.lft) ASC,
+								';
 			}
 
-			$query .= '			a.updated_date DESC ';
+			$query .= 'a.updated_date DESC
+								';
 
 			// we are only interested in the first row
 			$rs = $this->db->SelectLimit($query, 1);
@@ -325,7 +335,7 @@ class gacl {
 				//$allow = (isset($row[1]) AND $row[1] == 1);
 				
 				//Prefer this.
-				if ( isset($row[0][1]) AND $row[0][1] == 1 ) {
+				if ( isset($row[1]) AND $row[1] == 1 ) {
 					$allow = TRUE;
 				} else {
 					$allow = FALSE;
@@ -383,12 +393,14 @@ class gacl {
 		if (!$retarr) {
 
 			// Make sure we get the groups
-			$query = '	SELECT 		DISTINCT g2.id
+			$query = '
+					SELECT 		DISTINCT g2.id
 					FROM		'. $object_table .' o,'. $group_map_table .' gm,'. $group_table .' g1,'. $group_table .' g2';
 			
-			$where = '	WHERE		(o.section_value='. $this->db->quote($section_value) .' AND o.value='. $this->db->quote($value) .')
-						AND	gm.'. $group_type .'_id=o.id
-						AND	g1.id=gm.group_id';
+			$where = '
+					WHERE		(o.section_value='. $this->db->quote($section_value) .' AND o.value='. $this->db->quote($value) .')
+						AND		gm.'. $group_type .'_id=o.id
+						AND		g1.id=gm.group_id';
 
 			/*
 			 * If root_group_id is specified, we have to narrow this query down
@@ -401,10 +413,12 @@ class gacl {
 				//This is the reason for the WHERE variable.
 				$query .= ','. $group_table .' g3';
 				
-				$where .= '	AND	g3.id='. $root_group_id .'
-						AND	((g2.lft BETWEEN g3.lft AND g1.lft) AND (g2.rgt BETWEEN g1.rgt AND g3.rgt))';
+				$where .= '
+						AND		g3.id='. $root_group_id .'
+						AND		((g2.lft BETWEEN g3.lft AND g1.lft) AND (g2.rgt BETWEEN g1.rgt AND g3.rgt))';
 			} else {
-				$where .= '	AND	(g2.lft <= g1.lft AND g2.rgt >= g1.rgt)';
+				$where .= '
+						AND		(g2.lft <= g1.lft AND g2.rgt >= g1.rgt)';
 			}
 			
 			$query .= $where;

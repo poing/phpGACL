@@ -159,13 +159,13 @@ class gacl_api extends gacl {
 	/*======================================================================*\
 		Function:	consolidated_edit_acl()
 		Purpose:	Add's an ACL but checks to see if it can consolidate it with another one first.
-                                This ONLY works with ACO's and ARO's. Groups, and AXO are excluded.
-                                As well this function is designed for handling ACLs with return values,
-                                and consolidating on the return_value, in hopes of keeping the ACL count to a minimum.
+					This ONLY works with ACO's and ARO's. Groups, and AXO are excluded.
+					As well this function is designed for handling ACLs with return values,
+					and consolidating on the return_value, in hopes of keeping the ACL count to a minimum.
 
-                                A return value of false must _always_ be handled outside this function.
-                                As this function will remove AROs from ACLs and return false, in most cases
-                                you will need to a create a completely new ACL on a false return.
+					A return value of false must _always_ be handled outside this function.
+					As this function will remove AROs from ACLs and return false, in most cases
+					you will need to a create a completely new ACL on a false return.
 	\*======================================================================*/
 	function consolidated_edit_acl($aco_section_value, $aco_value, $aro_section_value, $aro_value, $return_value) {
 
@@ -290,14 +290,15 @@ class gacl_api extends gacl {
 			$this->debug_text("add_consolidated_acl(): No existing ACLs found, create a new one.");
 
 			if (!$this->add_acl(	array( $aco_section_value => array($aco_value) ),
-                                                array( $aro_section_value => array($aro_value) ),
-                                                NULL,
-                                                NULL,
-                                                NULL,
-                                                TRUE,
-                                                TRUE,
-                                                $return_value,
-                                                NULL) ) {
+									array( $aro_section_value => array($aro_value) ),
+									NULL,
+									NULL,
+									NULL,
+									TRUE,
+									TRUE,
+									$return_value,
+									NULL)
+								) {
 				$this->debug_text("add_consolidated_acl(): Error adding new ACL for ACO Section: $aco_section_value ACO Value: $aco_value Return Value: $return_value");
 				return false;
 			}
@@ -313,20 +314,22 @@ class gacl_api extends gacl {
 	/*======================================================================*\
 		Function:	search_acl()
 		Purpose:	Searches for ACL's with specified objects mapped to them.
-                                NULL values are included in the search, if you want to ignore
-                                for instance aro_groups use FALSE instead of NULL.
+					NULL values are included in the search, if you want to ignore
+					for instance aro_groups use FALSE instead of NULL.
 	\*======================================================================*/
 	function search_acl($aco_section_value=NULL, $aco_value=NULL, $aro_section_value=NULL, $aro_value=NULL, $aro_group_name=NULL, $axo_section_value=NULL, $axo_value=NULL, $axo_group_name=NULL, $return_value=NULL) {
 		$this->debug_text("search_acl(): aco_section_value: $aco_section_value aco_value: $aco_value, aro_section_value: $aro_section_value, aro_value: $aro_value, aro_group_name: $aro_group_name, axo_section_value: $axo_section_value, axo_value: $axo_value, axo_group_name: $axo_group_name, return_value: $return_value");
 		
-		$query = '		SELECT		a.id
-					FROM		'. $this->_db_table_prefix .'acl a';
+		$query = '
+				SELECT		a.id
+				FROM		'. $this->_db_table_prefix .'acl a';
 		
 		$where_query = array ();
 		
 		// ACO
 		if ($aco_section_value !== FALSE AND $aco_value !== FALSE) {
-			$query .= '	LEFT JOIN	'. $this->_db_table_prefix .'aco_map ac ON a.id=ac.acl_id';
+			$query .= '
+				LEFT JOIN	'. $this->_db_table_prefix .'aco_map ac ON a.id=ac.acl_id';
 			
 			if ($aco_section_value == NULL AND $aco_value == NULL) {
 				$where_query[] = '(ac.section_value IS NULL AND ac.value IS NULL)';
@@ -337,7 +340,8 @@ class gacl_api extends gacl {
 		
 		// ARO
 		if ($aro_section_value !== FALSE AND $aro_value !== FALSE) {
-			$query .= '	LEFT JOIN	'. $this->_db_table_prefix .'aro_map ar ON a.id=ar.acl_id';
+			$query .= '
+				LEFT JOIN	'. $this->_db_table_prefix .'aro_map ar ON a.id=ar.acl_id';
 			
 			if ($aro_section_value == NULL AND $aro_value == NULL) {
 				$where_query[] = '(ar.section_value IS NULL AND ar.value IS NULL)';
@@ -348,7 +352,8 @@ class gacl_api extends gacl {
 		
 		// AXO
 		if ($axo_section_value !== FALSE AND $axo_value !== FALSE) {
-			$query .= '	LEFT JOIN	'. $this->_db_table_prefix .'axo_map ax ON a.id=ax.acl_id';
+			$query .= '
+				LEFT JOIN	'. $this->_db_table_prefix .'axo_map ax ON a.id=ax.acl_id';
 			
 			if ($axo_section_value == NULL AND $axo_value == NULL) {
 				$where_query[] = '(ax.section_value IS NULL AND ax.value IS NULL)';
@@ -359,8 +364,9 @@ class gacl_api extends gacl {
 		
 		// ARO Group
 		if ($aro_group_name !== FALSE) {
-			$query .= '	LEFT JOIN	'. $this->_db_table_prefix .'aro_groups_map arg ON a.id=arg.acl_id
-					LEFT JOIN	'. $this->_db_table_prefix .'aro_groups rg ON arg.group_id=rg.id';
+			$query .= '
+				LEFT JOIN	'. $this->_db_table_prefix .'aro_groups_map arg ON a.id=arg.acl_id
+				LEFT JOIN	'. $this->_db_table_prefix .'aro_groups rg ON arg.group_id=rg.id';
 			
 			if ($aro_group_name == NULL) {
 				$where_query[] = '(rg.name IS NULL)';
@@ -371,8 +377,9 @@ class gacl_api extends gacl {
 		
 		// AXO Group
 		if ($axo_group_name !== FALSE) {
-			$query .= '	LEFT JOIN	'. $this->_db_table_prefix .'axo_groups_map axg ON a.id=axg.acl_id
-					LEFT JOIN	'. $this->_db_table_prefix .'axo_groups xg ON axg.group_id=xg.id';
+			$query .= '
+				LEFT JOIN	'. $this->_db_table_prefix .'axo_groups_map axg ON a.id=axg.acl_id
+				LEFT JOIN	'. $this->_db_table_prefix .'axo_groups xg ON axg.group_id=xg.id';
 			
 			if ($axo_group_name == NULL) {
 				$where_query[] = '(xg.name IS NULL)';
@@ -388,7 +395,8 @@ class gacl_api extends gacl {
 			}
 		}
 		
-		$query .= '		WHERE		'. implode (' AND ', $where_query);
+		$query .= '
+				WHERE		'. implode (' AND ', $where_query);
 		
 		return $this->db->GetCol($query);
 	}
@@ -832,14 +840,15 @@ class gacl_api extends gacl {
 			$result = $this->db->Execute($query);
 		} else {
 			//Update ACL row, and remove all mappings so they can be re-inserted.
-			$query  = '	UPDATE	'. $this->_db_table_prefix .'acl
-					SET	section_value='. $this->db->quote ($section_value) .',
+			$query  = '
+				UPDATE	'. $this->_db_table_prefix .'acl
+				SET		section_value='. $this->db->quote ($section_value) .',
 						allow='. $allow .',
 						enabled='. $enabled .',
 						return_value='. $this->db->quote($return_value) .',
 						note='. $this->db->quote($note) .',
 						updated_date='. time() .'
-					WHERE	id='. $acl_id;
+				WHERE	id='. $acl_id;
 			$result = $this->db->Execute($query);
 
 			if ($result) {
@@ -1243,14 +1252,15 @@ class gacl_api extends gacl {
 			return FALSE;
 		}
 		
-		$query  = '	SELECT		g1.id
+		$query  = '
+				SELECT		g1.id
 				FROM		'. $table .' g1';
 		
 		//FIXME-mikeb: Why is group_id in quotes?
 		switch (strtoupper($recurse)) {
 			case 'RECURSE':
 				$query .= '
-				LEFT JOIN 	'. $table .' g2 ON g2.lft < g1.lft AND g2.rgt > g1.rgt
+				LEFT JOIN 	'. $table .' g2 ON g2.lft<g1.lft AND g2.rgt>g1.rgt
 				WHERE		g2.id='. $group_id;
 				break;
 			default:
@@ -1464,7 +1474,7 @@ class gacl_api extends gacl {
 			}
 		}
 		
-		$query = 'INSERT INTO '. $table .' (id,parent_id,name,lft,rgt) VALUES ('. $insert_id .','. $parent_id . ",'" . addslashes ($name) . "'," . $parent_rgt .','. ($parent_rgt + 1) .')';
+		$query = 'INSERT INTO '. $table .' (id,parent_id,name,lft,rgt) VALUES ('. $insert_id .','. $parent_id .','. $this->db->quote($name) .','. $parent_rgt .','. ($parent_rgt + 1) .')';
 		$rs = $this->db->Execute($query);
 		
 		if (!is_object($rs)) {
@@ -1509,18 +1519,19 @@ class gacl_api extends gacl {
 			return false;
 		}
 		
-		$query  = '	SELECT		o.section_value,o.value
+		$query  = '
+				SELECT		o.section_value,o.value
 				FROM		'. $object_table .' o
 				LEFT JOIN	'. $map_table .' gm ON o.id=gm.'. $group_type .'_id';
 		
 		if ($option == 'RECURSE') {
 		    $query .= '
-			LEFT JOIN	'. $group_table .' g1 ON g1.id=gm.group_id
-			LEFT JOIN	'. $group_table .' g2 ON g2.lft<=g1.lft AND g2.rgt>=g1.rgt
-			WHERE		g2.id='. $group_id;
+				LEFT JOIN	'. $group_table .' g1 ON g1.id=gm.group_id
+				LEFT JOIN	'. $group_table .' g2 ON g2.lft<=g1.lft AND g2.rgt>=g1.rgt
+				WHERE		g2.id='. $group_id;
 		} else {
 			$query .= '
-			WHERE		gm.id='. $group_id;
+				WHERE		gm.id='. $group_id;
 		}
 		
 		$rs = $this->db->Execute($query);
@@ -1822,7 +1833,7 @@ class gacl_api extends gacl {
 		
 		// we've got the left value, and now that we've processed
 		// the children of this node we also know the right value
-		$query  = 'UPDATE '. $table .' SET lft='. $left .',  rgt='. $right .' WHERE id='. $parent_id;
+		$query  = 'UPDATE '. $table .' SET lft='. $left .', rgt='. $right .' WHERE id='. $parent_id;
 		$rs = $this->db->Execute($query);
 		
 		if (!is_object($rs)) {
@@ -2417,10 +2428,11 @@ class gacl_api extends gacl {
 		}
 
 		// Test to see if the section is invalid or object already exists.
-		$query  = '	SELECT		(o.id IS NOT NULL) AS object_exists
-				FROM		'. $object_sections_table .' s
-				LEFT JOIN	'. $table .' o ON (s.value=o.section_value AND o.value='. $this->db->quote($value) .')
-				WHERE		s.value='. $this->db->quote($section_value);
+		$query  = '
+			SELECT		(o.id IS NOT NULL) AS object_exists
+			FROM		'. $object_sections_table .' s
+			LEFT JOIN	'. $table .' o ON (s.value=o.section_value AND o.value='. $this->db->quote($value) .')
+			WHERE		s.value='. $this->db->quote($section_value);
 		$rs = $this->db->Execute($query);
 
 		if (!is_object($rs)) {
@@ -2504,13 +2516,14 @@ class gacl_api extends gacl {
 		$query = 'SELECT value, section_value FROM '. $table .' WHERE id='. $object_id;
 		$old = $this->db->GetRow($query);
 
-		$query  = '	UPDATE		'. $table .'
-				SET		section_value='. $this->db->quote($section_value) .',
-						value='. $this->db->quote($value) .',
-						order_value='. $this->db->quote($order) .',
-						name='. $this->db->quote($name) .',
-						hidden='. $hidden .'
-				WHERE	id='. $object_id;
+		$query  = '
+			UPDATE	'. $table .'
+			SET		section_value='. $this->db->quote($section_value) .',
+					value='. $this->db->quote($value) .',
+					order_value='. $this->db->quote($order) .',
+					name='. $this->db->quote($name) .',
+					hidden='. $hidden .'
+			WHERE	id='. $object_id;
 		$rs = $this->db->Execute($query);
 
 		if (!is_object($rs)) {
@@ -2523,11 +2536,12 @@ class gacl_api extends gacl {
 		if ($old[0] != $value OR $old[1] != $section_value) {
 			$this->debug_text("edit_object(): Value OR Section Value Changed, update other tables.");
 			
-			$query  = '	UPDATE		'. $object_map_table .'
-					SET		value='. $this->db->quote($value) .',
-							section_value='. $this->db->quote($section_value) .'
-					WHERE		section_value='. $this->db->quote($old[1]) .'
-					AND		value='. $this->db->quote($old[0]);
+			$query  = '
+				UPDATE	'. $object_map_table .'
+				SET		value='. $this->db->quote($value) .',
+						section_value='. $this->db->quote($section_value) .'
+				WHERE	section_value='. $this->db->quote($old[1]) .'
+					AND	value='. $this->db->quote($old[0]);
 			$rs = $this->db->Execute($query);
 			
 			if (!is_object($rs)) {
@@ -2698,6 +2712,7 @@ class gacl_api extends gacl {
 
 		} // End of "if ($erase)"
 
+		$groups_ids = FALSE;
 
 		if ($object_type == 'axo' OR $object_type == 'aro') {
 			// If the object is "groupable" (may become unnecessary,
@@ -2791,7 +2806,7 @@ class gacl_api extends gacl {
 		
 		// only use name if asked, this is SLOW
 		if (!empty($name)) {
-			$query .= ' OR name='. $this->db->quote($name) .'';
+			$query .= ' OR name='. $this->db->quote($name);
 		}
 		$rs = $this->db->Execute($query);
 
