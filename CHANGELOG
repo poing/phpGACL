@@ -1,3 +1,9 @@
+Mon Jan 27 2003
+	- Added ACL searching.
+	- Added ACL debug page.
+	- Added sanity checks to add_acl()/edit_acl() to make sure the objects mapped to ACLs actually exist.
+	- Transactionalized most API functions.
+	
 Fri Jan 24 2003
 	- Fixed JS UnSelect button bug for AXO groups.
 	- Added Object searching to help the admin interface handle an unlimited number of objects.

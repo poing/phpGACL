@@ -1,21 +1,25 @@
 <?php
 $debug=1;
 require_once("gacl_admin.inc.php");
-include('../adodb/tohtml.inc.php');
-//require_once("../gacl.inc.php");
-/*
-function acl_query($aco_section_value, $aco_value,
-				   $aro_section_value, $aro_value,
-				   $axo_section_value=NULL, $axo_value=NULL,
-				   $root_aro_group_id=NULL, $root_axo_group_id=NULL, $debug=NULL) {
-*/					   
-$result = $gacl_api->acl_query('system', 'email_pw', 'users', '1', NULL, NULL, NULL, NULL, TRUE);
 
-$result['query'] = str_replace("\n","",$result['query']);
-$result['query'] = str_replace("a.id,a.allow,a.return_value","*",$result['query']);
-showarray($result);
-$rs = $gacl_api->db->Execute($result['query']);
-rs2html($rs);
+//$gacl_api->add_consolidated_acl('system', 'add_pop','accounts',1, 98);
+
+//$gacl_api->add_consolidated_acl('system', 'add_pop','accounts',2, 99);
+///$gacl_api->add_consolidated_acl('system', 'add_pop','accounts',3, 99);
+//$gacl_api->add_consolidated_acl('system', 'add_pop','accounts',4, 99);
+
+//$gacl_api->add_consolidated_acl('system', 'add_pop','accounts',6, 99);
+
+$gacl_api->add_acl(	array('system' => array(99)),
+								array('accounts' => array(99)),
+								array(99),
+								array('projects' => array(99)),
+								array(99),
+								TRUE,
+								TRUE,
+								666,
+								'NOTE');
+
 
 //$rows = $rs->GetRows();
 //showarray($rows);
