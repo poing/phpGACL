@@ -1,7 +1,9 @@
+* Add filters/AXO's to ACL Test page.
+
 * Try to use paths more when including files, so require_once works
 correctly if they already included Smarty or something.
 
-* Figure out how to do ACLs on select boxes.
+* Figure out best way to do ACLs on select boxes.
 
 
 * Add visual notification when a section has hit the $max_select_box_items.
