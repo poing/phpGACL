@@ -1,7 +1,8 @@
 Tue Jan 14 2003
 	- Upgraded ADODB to v3.00
-	- Added user definable ACL return values
+	- Added user definable ACL return values, along with the acl_return_value() function.
 	- Added ACL notes which serve no other purpose other than to help the administrator keep track of ACL's
+	- Added paging for large record sets.
 
 Sun Dec 15 2002
 	- Moved to a completely OO structure.

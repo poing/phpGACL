@@ -1135,6 +1135,10 @@ class gacl_api extends gacl {
 		$name = trim($name);
 		$value = trim($value);
 		$order = trim($order);
+
+		if ($order == NULL OR $order == '') {
+			$order = 0;
+		}
 		
 		if (empty($name) OR empty($section_value) ) {
 			$this->debug_text("add_object(): name ($name) OR section value ($section_value) is empty, this is required");
@@ -1492,6 +1496,10 @@ class gacl_api extends gacl {
 		$name = trim($name);
 		$value = trim($value);
 		$order = trim($order);
+
+		if ($order == NULL OR $order == '') {
+			$order = 0;
+		}
 		
 		if (empty($name) ) {
 			$this->debug_text("add_object_section(): name ($name) is empty, this is required");

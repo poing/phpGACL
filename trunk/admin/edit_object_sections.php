@@ -72,7 +72,8 @@ switch ($_POST[action]) {
         break;    
     default:
         $query = "select id,value,order_value,name from $object_sections_table order by order_value";
-        $rs = $db->Execute($query);
+        //$rs = $db->Execute($query);
+        $rs = $db->pageexecute($query, $gacl_api->_items_per_page, $_GET['page']);
         $rows = $rs->GetRows();
 
         //showarray($rows);
@@ -100,11 +101,13 @@ switch ($_POST[action]) {
         $smarty->assign('sections', $sections);
         $smarty->assign('new_sections', $new_sections);
 
+        $smarty->assign("paging_data", get_paging_data($rs));
+
         break;
 }
 
 $smarty->assign('object_type', $object_type);
-$smarty->assign('return_page', $_GET[return_page]);
+$smarty->assign('return_page', $_SERVER['REQUEST_URI']);
 
 $smarty->display('edit_object_sections.tpl');
 ?>

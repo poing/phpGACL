@@ -58,7 +58,7 @@ switch ($_POST[action]) {
         while (list(,$row) = @each($_POST[new_objects])) {
             list($value, $order, $name) = $row;
             
-            if (!empty($value) AND $order != "" AND !empty($name)) {
+            if (!empty($value) AND !empty($name)) {
                 $object_id= $gacl_api->add_object($_POST['section_value'], $name, $value, $order, 0, $object_type);
             }
         }
@@ -80,7 +80,8 @@ switch ($_POST[action]) {
                         from    $object_type
                         where   section_value='$_GET[section_value]'
                         order by order_value";
-        $rs = $db->Execute($query);
+        //$rs = $db->Execute($query);
+        $rs = $db->pageexecute($query, $gacl_api->_items_per_page, $_GET['page']);        
         $rows = $rs->GetRows();
 
         //showarray($rows);
@@ -109,14 +110,17 @@ switch ($_POST[action]) {
 
         $smarty->assign('objects', $objects);
         $smarty->assign('new_objects', $new_objects);
-
+        
+        $smarty->assign("paging_data", get_paging_data($rs));
+        
         break;
 }
 
 $smarty->assign('section_value', $_GET[section_value]);
 $smarty->assign('section_name', $section_name);
 $smarty->assign('object_type', $object_type);
-$smarty->assign('return_page', $_GET[return_page]);
+//$smarty->assign('return_page', $_GET[return_page]);
+$smarty->assign('return_page', $_SERVER['REQUEST_URI']);
 
 $smarty->display('edit_objects.tpl');
 ?>

@@ -15,54 +15,71 @@
 		<br>
 	 </td>
   </tr>
+  <tr>
+	<td valign="top" colspan="11" bgcolor="#cccccc">
+		{include file="pager.tpl" pager_data=$paging_data link="?"}
+	</td>
+  </tr>
 
   <tr>
     <td valign="top" bgcolor="#cccccc" align="center">
         <b>#</b>
-     </td>
+    </td>
     <td valign="top" bgcolor="#cccccc" align="center">
         <b>Section > ACO</b>
      </td>
     <td valign="top" bgcolor="#cccccc" align="center">
         <b>Section > ARO</b>
+    </td>
+    <td valign="top" bgcolor="#cccccc" align="center">
+        <b>Return Value</b>
      </td>
     <td valign="top" bgcolor="#cccccc" align="center">
         <b>ACL_CHECK() Code</b>
      </td>
     <td valign="top" bgcolor="#cccccc" align="center">
         <b>Time (ms)</b>
-     </td>
+    </td>
     <td valign="top" bgcolor="#cccccc" align="center">
         <b>Access</b>
-     </td>
+    </td>
   </tr>
 
   {section name=x loop=$acls}
   <tr>
     <td valign="middle" bgcolor="#cccccc" align="center">
 		{$smarty.section.x.iteration}
-     </td>
+    </td>
     <td valign="middle" bgcolor="#cccccc" align="center">
 		{$acls[x].display_aco_name}
-     </td>
+    </td>
     <td valign="top" bgcolor="#cccccc" align="left">
         {$acls[x].aro_section_name} > {$acls[x].aro_name}
+    </td>
+    <td valign="top" bgcolor="#cccccc" align="center">
+        {$acls[x].return_value}<br>
      </td>
     <td valign="top" bgcolor="#cccccc" align="left">
 		acl_check('{$acls[x].aco_section_value}', '{$acls[x].aco_value}', '{$acls[x].aro_section_value}', '{$acls[x].aro_value}')	
-     </td>  
+    </td>  
     <td valign="top" bgcolor="#cccccc" align="center">
 		{$acls[x].acl_check_time}
-     </td>
+    </td>
     <td valign="middle" bgcolor="{if $acls[x].access}green{else}red{/if}" align="center">
 		{if $acls[x].access}
 			ALLOW
 		{else}
 			DENY
 		{/if}
-     </td>
+    </td>
   </tr>
   {/section}
+  <tr>
+	<td valign="top" colspan="11" bgcolor="#cccccc">
+		{include file="pager.tpl" pager_data=$paging_data link="?"}
+	</td>
+  </tr>
+
 </form>
 </table>
 

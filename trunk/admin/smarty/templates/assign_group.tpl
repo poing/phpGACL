@@ -82,6 +82,11 @@
 	 </td>
   </tr>
   <tr>
+    <td valign="top" colspan="11" bgcolor="#cccccc">
+        {include file="pager.tpl" pager_data=$paging_data link="?group_type=$group_type&group_id=$group_id&"}
+    </td>
+  </tr>
+  <tr>
 	<td valign="top" align="center" bgcolor="#d3dce3"><b>Value</b><br>
 	 </td>
 
@@ -115,6 +120,11 @@
 
   </tr>
     {/section}
+    <tr>
+        <td valign="top" colspan="11" bgcolor="#cccccc">
+            {include file="pager.tpl" pager_data=$paging_data link="?"}
+        </td>
+    </tr>
 	  <tr>
 		<td valign="top" bgcolor="#999999" colspan="3">
 		</td>

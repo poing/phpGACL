@@ -40,7 +40,7 @@ class gacl {
 	/*
 	 * Enable Debug output.
 	 */	
-	var $_debug = TRUE;
+	var $_debug = FALSE;
 
 	/*
 	 * Database configuration.
@@ -51,7 +51,11 @@ class gacl {
 	var $_db_password = '';
 	var $_db_name = 'gacl';
 
-	var $_caching = FALSE; //NOTE: This cache must be manually cleaned when ACL's are modified. 
+	/*
+	 * NOTE: 	This cache must be manually cleaned each time ACL's are modified.
+	 * 			Alternatively you could wait for the cache to expire.	
+	 */
+	var $_caching = FALSE; 
 	var $_cache_dir = '/tmp/phpgacl_cache'; // NO trailing slash
 	var $_cache_expire_time=600; //600 == Ten Minutes	
 	
@@ -63,7 +67,7 @@ class gacl {
 			$this->_debug=TRUE;
 		}
 			
-		$available_options = array('db_type','db_host','db_user','db_password','db_name','caching','cache_dir','cache_expire_time');
+		$available_options = array('debug','items_per_page','db_type','db_host','db_user','db_password','db_name','caching','cache_dir','cache_expire_time');
 		if (is_array($options)) {
 			foreach ($options as $key => $value) {
 					$this->debug_text("Option: $key - $value");
@@ -79,12 +83,13 @@ class gacl {
 		}
 		
 		require_once( ADODB_DIR .'/adodb.inc.php');
-		//Set to BOTH to be compatible with other applications such as phpMoreGroupWares
-		$ADODB_FETCH_MODE = ADODB_FETCH_BOTH;
-
-		$this->db->debug = $this->_debug;
+		require_once( ADODB_DIR .'/adodb-pager.inc.php');
+		
+		//Use NUM for slight performance/memory reasons.
+		$ADODB_FETCH_MODE = ADODB_FETCH_NUM;
 		$this->db = ADONewConnection($this->_db_type);		
 		$this->db->PConnect($this->_db_host, $this->_db_user, $this->_db_password, $this->_db_name);
+		$this->db->debug = $this->_debug;
 
 		require_once(dirname(__FILE__) .'/Cache_Lite/Hashed_Cache_Lite.php');
 
@@ -101,6 +106,8 @@ class gacl {
 			'readControl' => false,
 		);
 		$this->Cache_Lite = new Hashed_Cache_Lite($cache_options);
+
+		return true;
 	}
 
 	/*======================================================================*\
@@ -125,6 +132,17 @@ class gacl {
 		$acl_result = $this->acl_query($aco_section_value, $aco_value, $aro_section_value, $aro_value, $axo_section_value, $axo_value, $root_aro_group_id, $root_axo_group_id);
 
 		return $acl_result['allow'];    
+	}
+
+	/*======================================================================*\
+		Function:   acl_return_value()
+		Purpose:	Function that wraps the actual acl_query() function.
+						Quick access to the return value of an ACL.
+	\*======================================================================*/
+	function acl_return_value($aco_section_value, $aco_value, $aro_section_value, $aro_value, $axo_section_value=NULL, $axo_value=NULL, $root_aro_group_id=NULL, $root_axo_group_id=NULL) {
+		$acl_result = $this->acl_query($aco_section_value, $aco_value, $aro_section_value, $aro_value, $axo_section_value, $axo_value, $root_aro_group_id, $root_axo_group_id);
+
+		return $acl_result['return_value'];
 	}
 
 	/*======================================================================*\
@@ -198,7 +216,8 @@ class gacl {
 			$query ="
 								select
 												a.id,
-												a.allow
+												a.allow,
+												a.return_value
 									from    acl a
 										LEFT JOIN aco_map b ON a.id=b.acl_id 
 										LEFT JOIN aro_map c ON a.id=c.acl_id 
@@ -292,7 +311,7 @@ class gacl {
 			/*
 			* Return ACL ID. This is the key to "hooking" extras like pricing assigned to ACLs etc... Very useful.
 			*/
-			$retarr = array('acl_id' => &$row[0], 'allow' => &$allow);    
+			$retarr = array('acl_id' => &$row[0], 'return_value' => &$row[2], 'allow' => &$allow);    
 
 			//Cache data.
 			$this->put_cache($retarr, $cache_id);

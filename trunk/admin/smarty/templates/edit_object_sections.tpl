@@ -12,18 +12,21 @@
           <tr align="center">
             <td valign="top" colspan="5" bgcolor="#cccccc"><b>phpGACL</b> <b>{$object_type|upper} Section
             Administrator</b>
-            <b>[ <a href="acl_admin.php?return_page={$return_page}">ACL Admin</a> ] </b>
+            <b>[ <a href="acl_admin.php">ACL Admin</a> ] </b>
             <br>
              </td>
           </tr>
 
           <tr>
-            <td valign="top" bgcolor="#d3dce3" align="center"><b>&nbsp;ID</b> </td>
+            <td valign="top" colspan="11" bgcolor="#cccccc">
+                {include file="pager.tpl" pager_data=$paging_data link="?object_type=$object_type&"}
+            </td>
+          </tr>
 
+          <tr>
+            <td valign="top" bgcolor="#d3dce3" align="center"><b>ID</b> </td>
             <td valign="top" bgcolor="#d3dce3" align="center"><b>Value</b> </td>
-
             <td valign="top" bgcolor="#d3dce3" align="center"><b>Order</b> </td>
-
             <td valign="top" bgcolor="#d3dce3" align="center"><b>Name</b> </td>
             <td valign="top" bgcolor="#d3dce3" align="center"><b>Functions</b> </td>
           </tr>
@@ -51,6 +54,21 @@
 
           </tr>
             {/section}
+          <tr>
+            <td valign="top" colspan="11" bgcolor="#cccccc">
+                {include file="pager.tpl" pager_data=$paging_data link="?object_type=$object_type&"}
+            </td>
+          </tr>
+          <tr>
+            <td colspan="6" valign="top" bgcolor="#d3dce3" align="center"><b>Add {$object_type|upper} Section's</b> </td>
+          </tr>
+          <tr>
+            <td valign="top" bgcolor="#d3dce3" align="center"><b>ID</b> </td>
+            <td valign="top" bgcolor="#d3dce3" align="center"><b>Value</b> </td>
+            <td valign="top" bgcolor="#d3dce3" align="center"><b>Order</b> </td>
+            <td valign="top" bgcolor="#d3dce3" align="center"><b>Name</b> </td>
+            <td valign="top" bgcolor="#d3dce3" align="center"><b>Functions</b> </td>
+          </tr>
             {section name=y loop=$new_sections}
           <tr>
             <td valign="top" bgcolor="#cccccc" align="center">
