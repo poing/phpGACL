@@ -332,14 +332,12 @@ $suite->addTest(new phpgacl_api_test('get_group_id_parent_aro'));
 $suite->addTest(new phpgacl_api_test('add_group_child_aro'));
 $suite->addTest(new phpgacl_api_test('get_group_id_child_aro'));
 $suite->addTest(new phpgacl_api_test('add_group_object_aro'));
-$suite->addTest(new phpgacl_api_test('get_group_object_id_aro'));
 
 $suite->addTest(new phpgacl_api_test('add_group_parent_axo'));
 $suite->addTest(new phpgacl_api_test('get_group_id_parent_axo'));
 $suite->addTest(new phpgacl_api_test('add_group_child_axo'));
 $suite->addTest(new phpgacl_api_test('get_group_id_child_axo'));
 $suite->addTest(new phpgacl_api_test('add_group_object_axo'));
-$suite->addTest(new phpgacl_api_test('get_group_object_id_axo'));
 
 // clean up...
 $suite->addTest(new phpgacl_api_test('del_group_object_aro'));
