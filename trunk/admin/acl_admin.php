@@ -252,7 +252,7 @@ switch ($_POST['action']) {
             }
 
             //Add each select option for the section
-            $js_aco_array .= "options['$js_aco_array_name']['$section_value'][$i] = new Array('$value', '$name');\n";
+            $js_aco_array .= "options['$js_aco_array_name']['$section_value'][$i] = new Array('".addslashes($value)."', '".addslashes($name)."');\n";
 
             $tmp_section_value = $section_value;
             $i++;
@@ -282,7 +282,7 @@ switch ($_POST['action']) {
             }
 
             //Add each select option for the section
-            $js_aro_array .= "options['$js_aro_array_name']['$section_value'][$i] = new Array('$value', '$name');\n";
+            $js_aro_array .= "options['$js_aro_array_name']['$section_value'][$i] = new Array('".addslashes($value)."', '".addslashes($name)."');\n";
 
             $tmp_section_value = $section_value;
             $i++;
@@ -312,7 +312,7 @@ switch ($_POST['action']) {
             }
 
             //Add each select option for the section
-            $js_axo_array .= "options['$js_axo_array_name']['$section_value'][$i] = new Array('$value', '$name');\n";
+            $js_axo_array .= "options['$js_axo_array_name']['$section_value'][$i] = new Array('".addslashes($value)."', '".addslashes($name)."');\n";
 
             $tmp_section_value = $section_value;
             $i++;
