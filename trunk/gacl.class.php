@@ -31,7 +31,9 @@
 /*
  * Path to ADODB.
  */
-define('ADODB_DIR', dirname(__FILE__).'/adodb');
+if ( !defined(ADODB_DIR) ) {
+	define('ADODB_DIR', dirname(__FILE__).'/adodb');
+}
 
 class gacl {
 	
@@ -183,19 +185,19 @@ class gacl {
 			/*
 			 * Generate SQL text for SQL's in () statements
 			 */
-			if ( isset($aro_group_ids['group_ids']) AND !empty($aro_group_ids['group_ids']) ) {
+			if ( isset($aro_group_ids['group_ids']) AND is_array($aro_group_ids['group_ids']) ) {
 				$sql_aro_group_ids = implode(",", $aro_group_ids['group_ids']);   
 			}
 
-			if ( isset($aro_path_ids) AND !empty($aro_path_ids) ) {		
+			if ( isset($aro_path_ids) AND is_array($aro_path_ids) ) {		
 				$sql_aro_path_ids = implode(",", $aro_path_ids);   
 			}
 
-			if ( isset($axo_group_ids['group_ids']) AND !empty($axo_group_ids['group_ids']) ) {
+			if ( isset($axo_group_ids['group_ids']) AND is_array($axo_group_ids['group_ids']) ) {
 				$sql_axo_group_ids = implode(",", $axo_group_ids['group_ids']);   
 			}
 
-			if ( isset($axo_path_ids) AND !empty($axo_path_ids) ) {
+			if ( isset($axo_path_ids) AND is_array($axo_path_ids) ) {
 				$sql_axo_path_ids = implode(",", $axo_path_ids);   
 			}
 
@@ -313,8 +315,11 @@ class gacl {
 			/*
 			 * Return ACL ID. This is the key to "hooking" extras like pricing assigned to ACLs etc... Very useful.
 			 */
-			$retarr = array('acl_id' => &$row[0][0], 'return_value' => &$row[0][2], 'allow' => &$allow);
-
+			if (is_array($row)) {
+				$retarr = array('acl_id' => &$row[0][0], 'return_value' => &$row[0][2], 'allow' => &$allow);
+			} else {
+				$retarr = array('acl_id' => NULL, 'return_value' => NULL, 'allow' => &$allow);
+			}
 			/*
 			 * Return the query that we ran if in debug mode. 
 			 */		

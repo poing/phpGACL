@@ -2,7 +2,7 @@
 require_once("gacl_admin.inc.php");
 
 switch ($_GET['action']) {
-    case Submit:
+    case 'Submit':
         $gacl_api->debug_text("Submit!!");
 		//$result = $gacl_api->acl_query('system', 'email_pw', 'users', '1', NULL, NULL, NULL, NULL, TRUE);
 		$result = $gacl_api->acl_query(	$_GET['aco_section_value'],
@@ -15,7 +15,7 @@ switch ($_GET['action']) {
 															$_GET['root_axo_group_id'],
 															TRUE);
 
-		//Grab all relavent columsn
+		//Grab all relavent columns
 		$result['query'] = str_replace(	"a.id,a.allow,a.return_value",
 														"	a.id,
 															a.allow,
@@ -31,10 +31,8 @@ switch ($_GET['action']) {
 															",$result['query']);
 //															d.group_id aro_group_id,
 //															e.tree_level aro_tree_level
-															
-															//f.group_id axo_group_id,
-															//g.tree_level axo_tree_level
-		
+//															f.group_id axo_group_id,
+//															g.tree_level axo_tree_level
 
 		$rs = $gacl_api->db->Execute($result['query']);
 		$rows = $rs->GetRows();
@@ -61,23 +59,23 @@ switch ($_GET['action']) {
 				) = $row;
 			
 			$acls[] = array(
-								id => $id,
-								allow => $allow,
-								return_value => $return_value,
-								note => $note,
-								updated_date => date("d-M-y H:m:i",$updated_date),
+								'id' => $id,
+								'allow' => $allow,
+								'return_value' => $return_value,
+								'note' => $note,
+								'updated_date' => date("d-M-y H:m:i",$updated_date),
 								
-								aco_section_value => $aco_section_value,
-								aco_value => $aco_value,
+								'aco_section_value' => $aco_section_value,
+								'aco_value' => $aco_value,
 
-								aro_section_value => $aro_section_value,
-								aro_value => $aro_value,
+								'aro_section_value' => $aro_section_value,
+								'aro_value' => $aro_value,
 
-								axo_section_value => $axo_section_value,
-								axo_value => $axo_value,
+								'axo_section_value' => $axo_section_value,
+								'axo_value' => $axo_value,
 
-								aro_group_id => $aro_group_id,
-								aro_tree_level =>$aro_tree_level
+								'aro_group_id' => $aro_group_id,
+								'aro_tree_level' =>$aro_tree_level
 							);
 		}
 

@@ -71,7 +71,7 @@ switch ($_POST['action']) {
 			}
 		}       
 
-        $gacl_api->return_page($_POST[return_page]);
+        $gacl_api->return_page($_POST['return_page']);
         
         break;    
     default:

@@ -1,5 +1,11 @@
 Mike Benoit <ipso@snappymail.ca>:
     Wrote initial "proof of concept" implementation, and maintains documentation & code base.
+
+R. Kunoth <R.Kunoth@web.de>
+    Caught and fixed several bugs. 
+    
+Karsten Dambekalns <k.dambekalns@fishfarm.de>
+    Sent in several patches to fix PHP warnings, and helped with the documentation.     
     
 Martino Piccinato <martino@nexus.it>
     Modified several API functions to help keep data in sync across tables.    

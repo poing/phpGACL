@@ -1,9 +1,11 @@
+Mon May 26 2003
+	- Fixed a few PHP warnings in gacl.class.php
 Wed May 21 2003
 	- Fixed add_acl() for AXOs, as it was previously completely broken.
 Mon May 19 2003
 	- Fixed ACL List filtering so it returns all ACL rows, not just the ones matching the LIKE query.
 Fri May 16 2003
-	- Fixed a few PHP warnings phpgacl.class.php
+	- Fixed a few PHP warnings gacl.class.php
 	- Removed an else condition from an if statement that didn't do anything anyways.
 	
 Sun Mar 09 2003

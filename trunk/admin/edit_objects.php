@@ -27,24 +27,24 @@ switch(strtolower(trim($object_type))) {
         break;
 }
 
-switch ($_POST[action]) {
-    case Delete:
+switch ($_POST['action']) {
+    case 'Delete':
    
-        if (count($_POST[delete_object]) > 0) {
-            foreach($_POST[delete_object] as $id) {
+        if (count($_POST['delete_object']) > 0) {
+            foreach($_POST['delete_object'] as $id) {
                 $gacl_api->del_object($id, $object_type, TRUE);
             }
         }   
             
         //Return page.
-        $gacl_api->return_page($_POST[return_page]);
+        $gacl_api->return_page($_POST['return_page']);
         
         break;
-    case Submit:
+    case 'Submit':
         $gacl_api->debug_text("Submit!!");
     
         //Update objects
-        while (list(,$row) = @each($_POST[objects])) {
+        while (list(,$row) = @each($_POST['objects'])) {
             list($id, $value, $order, $name) = $row;
             $gacl_api->edit_object($id, $_POST['section_value'], $name, $value, $order, 0, $object_type);
         }
@@ -55,20 +55,20 @@ switch ($_POST[action]) {
         unset($name);
 
         //Insert new sections
-        while (list(,$row) = @each($_POST[new_objects])) {
+        while (list(,$row) = @each($_POST['new_objects'])) {
             list($value, $order, $name) = $row;
             
             if (!empty($value) AND !empty($name)) {
                 $object_id= $gacl_api->add_object($_POST['section_value'], $name, $value, $order, 0, $object_type);
             }
         }
-        $gacl_api->debug_text("return_page: $_POST[return_page]");
-        $gacl_api->return_page("$_POST[return_page]");
+        $gacl_api->debug_text("return_page: ". $_POST['return_page']);
+        $gacl_api->return_page($_POST['return_page']);
         
         break;    
     default:
         //Grab section name
-        $query = "select name from $object_sections_table where value = '$_GET[section_value]'";
+        $query = "select name from $object_sections_table where value = '". $_GET['section_value'] ."'";
         $section_name = $db->GetOne($query);
         
         $query = "select
@@ -78,33 +78,30 @@ switch ($_POST[action]) {
                                     order_value,
                                     name
                         from    $object_type
-                        where   section_value='$_GET[section_value]'
+                        where   section_value='". $_GET['section_value'] ."'
                         order by order_value";
-        //$rs = $db->Execute($query);
         $rs = $db->pageexecute($query, $gacl_api->_items_per_page, $_GET['page']);        
         $rows = $rs->GetRows();
-
-        //showarray($rows);
 
         while (list(,$row) = @each($rows)) {
             list($id, $section_value, $value, $order_value, $name) = $row;
             
                 $objects[] = array(
-                                                id => $id,
-                                                section_value => $section_value,
-                                                value => $value,
-                                                order => $order_value,
-                                                name => $name            
+                                                'id' => $id,
+                                                'section_value' => $section_value,
+                                                'value' => $value,
+                                                'order' => $order_value,
+                                                'name' => $name            
                                             );
         }
 
         for($i=0; $i < 5; $i++) {
                 $new_objects[] = array(
-                                                id => $i,
-                                                section_value => NULL,
-                                                value => NULL,
-                                                order => NULL,
-                                                name => NULL
+                                                'id' => $i,
+                                                'section_value' => NULL,
+                                                'value' => NULL,
+                                                'order' => NULL,
+                                                'name' => NULL
                                             );
         }
 
@@ -116,10 +113,9 @@ switch ($_POST[action]) {
         break;
 }
 
-$smarty->assign('section_value', $_GET[section_value]);
+$smarty->assign('section_value', $_GET['section_value']);
 $smarty->assign('section_name', $section_name);
 $smarty->assign('object_type', $object_type);
-//$smarty->assign('return_page', $_GET[return_page]);
 $smarty->assign('return_page', $_SERVER['REQUEST_URI']);
 
 $smarty->display('phpgacl/edit_objects.tpl');

@@ -22,7 +22,7 @@ switch(strtolower(trim($group_type))) {
 }
 
 switch ($_POST['action']) {
-    case Delete:
+    case 'Delete':
         //See edit_group.php    
         break;
     default:
@@ -44,11 +44,11 @@ switch ($_POST['action']) {
             //list($id, $name) = $row;
             
                 $groups[] = array(
-                                                id => $id,
-                                                parent_id => $parent_id,
-                                                family_id => $family_id,
-                                                name => $name,
-                                                object_count => $object_count[$id] + 0
+                                                'id' => $id,
+                                                'parent_id' => $parent_id,
+                                                'family_id' => $family_id,
+                                                'name' => $name,
+                                                'object_count' => $object_count[$id] + 0
                                             );
         }
 
@@ -58,7 +58,7 @@ switch ($_POST['action']) {
 }
 
 $smarty->assign('group_type', $group_type);
-$smarty->assign('return_page', $_SERVER[REQUEST_URI]);
+$smarty->assign('return_page', $_SERVER['REQUEST_URI']);
 
 $smarty->display('phpgacl/group_admin.tpl');
 ?>

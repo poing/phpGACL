@@ -60,21 +60,21 @@ while (list(,$row) = @each(&$rows)) {
 	}
 	
 	$acls[] = array(
-						aco_section_value => $aco_section_value,
-						aco_section_name => $aco_section_name,
-						aco_value => $aco_value,
-						aco_name => $aco_name,
+						'aco_section_value' => $aco_section_value,
+						'aco_section_name' => $aco_section_name,
+						'aco_value' => $aco_value,
+						'aco_name' => $aco_name,
 						
-						aro_section_value => $aro_section_value,
-						aro_section_name => $aro_section_name,
-						aro_value => $aro_value,
-						aro_name => $aro_name,
+						'aro_section_value' => $aro_section_value,
+						'aro_section_name' => $aro_section_name,
+						'aro_value' => $aro_value,
+						'aro_name' => $aro_name,
 						
-						access => $access,
-						return_value => $return_value,
-						acl_check_time => number_format($acl_check_time, 2),
+						'access' => $access,
+						'return_value' => $return_value,
+						'acl_check_time' => number_format($acl_check_time, 2),
 						
-						display_aco_name => $display_aco_name,
+						'display_aco_name' => $display_aco_name,
 					);
 	
 	$tmp_aco_section_name = $aco_section_name;
@@ -95,7 +95,7 @@ $smarty->assign("avg_acl_check_time", number_format( ($avg_acl_check_time + 0) ,
 
 $smarty->assign("paging_data", $gacl_api->get_paging_data($rs));
 
-$smarty->assign("return_page", $_SERVER[PHP_SELF] );
+$smarty->assign("return_page", $_SERVER['PHP_SELF'] );
 
 $smarty->display('phpgacl/acl_test.tpl');
 ?>
