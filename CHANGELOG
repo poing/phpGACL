@@ -4,6 +4,7 @@ Fri July 04 2003
 		For example, you may want to differentiate between automatically created ACLs (System ACLs) and
 		manually created ACLs (User ACLs). As some installations may have several thousand automatically created
 		ACLs, its nice to filter these out.
+	- add_group_object() now returns TRUE if the object is already assigned to the group.
 Tue July 01 2003
 	- Fixed security bug that could allow someone to see your database password.
 	

@@ -2,8 +2,17 @@
 $debug=1;
 require_once("gacl_admin.inc.php");
 
-$test = $gacl->reverse_acl_query('system','login');
-showarray($test);
+$test = $gacl->add_group_object(10, 'user','10');
+$gacl->showarray($test);
+
+$test = $gacl->add_group_object(10, 'user','10');
+$gacl->showarray($test);
+
+$test = $gacl->del_group_object(10, 'user','10');
+$gacl->showarray($test);
+
+$test = $gacl->del_group_object(10, 'user','10');
+$gacl->showarray($test);
 
 
 //$test = $gacl->acl_query('system','login','users','john_doe',NULL, NULL, NULL, NULL, TRUE);
