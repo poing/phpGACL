@@ -1,8 +1,25 @@
 <?php
 $debug=1;
-require_once("gacl_admin.inc.php");
+//require_once("gacl_admin.inc.php");
+require_once("../gacl.inc.php");
 
+//Test subtree'ing
 
+$aco_id=10;
+$aro_id=22;
+$root_group_id=30;
+
+$test=acl_query($aco_id,$aro_id,$root_group_id);
+showarray($test);
+
+$aco_id=10;
+$aro_id=22;
+$root_group_id=33;
+
+$test=acl_query($aco_id,$aro_id,$root_group_id);
+showarray($test);
+
+/*
 //Populate the ARO's
 $max_aros = 100;
 for ($i=0; $i < $max_aros; $i++) {
@@ -15,5 +32,5 @@ for ($i=0; $i < $max_aros; $i++) {
 		debug("Insert ARO ID FAILED!");
 	}
 }
-
+*/
 ?>

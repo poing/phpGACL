@@ -1,3 +1,10 @@
+* Ponder subtree support. This is a feature that would allow the developer to basically "chroot" to a specific
+group before an ACL check is performed. Useful if you have overlapping ACO's.
+
+* Add feature to turn off group inheritance.
+
+* Write "mock" implementations to show off some of phpGACL's benefits.
+
 * Write API documentation.
 
 * Move sort_groups() and format_groups() to the API. Confirm format_groups works properly when given a starting group_id.

@@ -563,8 +563,8 @@ class gacl_api {
 		 */
 		
 		$query = "update groups set
-																parent_id = $parent_id,
-																name = '$name'
+																name = '$name',
+																parent_id = $parent_id
 													where   id=$group_id";
 		$rs = $db->Execute($query);                   
 
@@ -1003,6 +1003,9 @@ class gacl_api {
 			return false;	
 		}
 
+		/*
+		 * FIXME: Should we delete all AROs in this section as well?
+		 */
 		$query = "delete from aro_sections where id=$aro_section_id";
 		$db->Execute($query);
 	
