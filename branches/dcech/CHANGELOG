@@ -1,3 +1,5 @@
+Tue Nov 18 2003
+	mikeb - Added more tests to the test suite. Fixed up a couple SQL syntax errors in del_group().
 Fri Nov 14 2003
 	mikeb - Fixed minor bug in get_group_objects() to do with the SQL query, and table prefixes.
 	dcech - improved count_all function and documentation
