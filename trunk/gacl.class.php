@@ -151,6 +151,8 @@ class gacl {
 			'fileLocking' => true,
 			'writeControl' => false,
 			'readControl' => false,
+			'memoryCaching' => TRUE,
+			'automaticSerialization' => FALSE
 		);
 		$this->Cache_Lite = new Hashed_Cache_Lite($cache_options);
 
