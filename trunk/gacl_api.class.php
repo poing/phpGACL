@@ -1727,7 +1727,7 @@ class gacl_api extends gacl {
 
 	/*======================================================================*\
 		Function:	add_group_object()
-		Purpose:	Assigns an ARO to a group
+		Purpose:	Assigns an Object to a group
 	\*======================================================================*/
 	function add_group_object($group_id, $object_section_value, $object_value, $group_type='ARO') {
 
@@ -1744,41 +1744,50 @@ class gacl_api extends gacl {
 
 		$object_section_value = trim($object_section_value);
 		$object_value = trim($object_value);
-		
+
 		if (empty($group_id) OR empty($object_value) OR empty($object_section_value)) {
 			$this->debug_text("add_group_object(): Group ID:  ($group_id) OR Value ($object_value) OR Section value ($object_section_value) is empty, this is required");
-			return false;	
+			return false;
 		}
-			
+
 		if(!$this->get_object_id($object_section_value, $object_value, $group_type)) {
 			$this->debug_text("add_group_object(): Group ID:  ($group_id) OR Value ($object_value) OR Section value ($object_section_value) is invalid. Does this object exist?");
 			return false;
 		}
 
-        $query = "insert into $table (group_id,section_value, value) VALUES($group_id, '$object_section_value', '$object_value')";
-		$rs = $this->db->Execute($query);                   
+		//Test to see if the object already exists.
+		$query = "select group_id from $table where group_id=$group_id AND section_value='$object_section_value' AND value='$object_value'";
+		$rs = $this->db->Execute($query);
+
+		if ($rs->RecordCount() == 1) {
+			//Object is already assigned to group. Return true.
+			return true;
+		}
+
+		$query = "insert into $table (group_id,section_value, value) VALUES($group_id, '$object_section_value', '$object_value')";
+		$rs = $this->db->Execute($query);
 
 		if ( is_string( $this->db->ErrorNo() ) ) {
 			$this->debug_text("add_group_object(): database error: ". $this->db->ErrorMsg() ." (". $this->db->ErrorNo() .")");
-			return false;	
+			return false;
 		} else {
-			$this->debug_text("add_group_object(): Added Value: $object_value to Group ID: $group_id");			
+			$this->debug_text("add_group_object(): Added Value: $object_value to Group ID: $group_id");
 
 			if ($this->_caching == TRUE AND $this->_force_cache_expire == TRUE) {
-				//Expire all cache.	
+				//Expire all cache.
 				$this->Cache_Lite->clean('default');
 			}
 
 			return true;
-		}		
+		}
 	}
 
 	/*======================================================================*\
 		Function:	del_group_object()
-		Purpose:	Removes an Object to group assignment
+		Purpose:	Removes an Object from a group.
 	\*======================================================================*/
 	function del_group_object($group_id, $object_section_value, $object_value, $group_type='ARO') {
-		
+
 		switch(strtolower($group_type)) {
 			case 'axo':
 				$table = 'groups_axo_map';
@@ -1789,31 +1798,31 @@ class gacl_api extends gacl {
 		}
 
 		$this->debug_text("del_group_object(): Group ID: $group_id Section value: $object_section_value Value: $object_value");
-		
+
 		$object_section_value = trim($object_section_value);
 		$object_value = trim($object_value);
 
 		if (empty($group_id) OR empty($object_value) OR empty($object_section_value)) {
 			$this->debug_text("del_group_object(): Group ID:  ($group_id) OR Section value: $object_section_value OR Value ($object_value) is empty, this is required");
-			return false;	
+			return false;
 		}
-				
+
         $query = "delete from $table where group_id=$group_id AND ( section_value='$object_section_value' AND value='$object_value')";
-		$rs = $this->db->Execute($query);                   
+		$rs = $this->db->Execute($query);
 
 		if ( is_string( $this->db->ErrorNo() ) ) {
 			$this->debug_text("del_group_object(): database error: ". $this->db->ErrorMsg() ." (". $this->db->ErrorNo() .")");
-			return false;	
+			return false;
 		} else {
-			$this->debug_text("del_group_object(): Deleted Value: $object_value to Group ID: $group_id assignment");			
+			$this->debug_text("del_group_object(): Deleted Value: $object_value to Group ID: $group_id assignment");
 
 			if ($this->_caching == TRUE AND $this->_force_cache_expire == TRUE) {
-				//Expire all cache.	
+				//Expire all cache.
 				$this->Cache_Lite->clean('default');
 			}
 
 			return true;
-		}		
+		}
 	}
 
 	/*======================================================================*\
@@ -1821,7 +1830,7 @@ class gacl_api extends gacl {
 		Purpose:	Edits a group
 	\*======================================================================*/
 	function edit_group($group_id, $name=NULL, $parent_id=0, $group_type='ARO') {
-		
+
 		switch(strtolower($group_type)) {
 			case 'axo':
 				$table = 'axo_groups';
