@@ -26,7 +26,7 @@ require_once('../'.$adodb_dir.'/adodb.inc.php');
 $ADODB_FETCH_MODE = ADODB_FETCH_NUM;
 
 $db = ADONewConnection($db_type);
-if ($debug) {
+if (isset($debug)) {
     $db->debug = true;
 }
 $db->Connect($db_host, $db_user, $db_password, $db_name);
@@ -208,7 +208,7 @@ function sort_groups() {
     Function:	format_groups()
     Purpose:	Takes the array returned by sort_groups() and formats for human consumption.
 \*======================================================================*/
-function format_groups($sorted_groups, $type=TEXT, $root_id=0, $level=0) {
+function format_groups($sorted_groups, $type='TEXT', $root_id=0, $level=0) {
 	/*
 	 * Recursing with a global array, not the most effecient or safe way to do it, but it will work for now.
 	 */
@@ -216,14 +216,14 @@ function format_groups($sorted_groups, $type=TEXT, $root_id=0, $level=0) {
     
     while (list($id,$name) = @each($sorted_groups[$root_id])) {
         switch ($type) {
-            case TEXT:
+            case 'TEXT':
 				/*
 				 * Formatting optimized for TEXT (combo box) output.
 				 */
                 $spacing = str_repeat("|&nbsp;&nbsp;", $level * 1);
                 $text = $spacing.$name;
                 break;
-            case HTML:
+            case 'HTML':
 				/*
 				 * Formatting optimized for HTML (tables) output.
 				 */
@@ -237,7 +237,7 @@ function format_groups($sorted_groups, $type=TEXT, $root_id=0, $level=0) {
 		/*
 		 * Recurse if we can.
 		 */
-        if (count($sorted_groups[$id]) > 0) {
+        if (isset($sorted_groups[$id]) AND count($sorted_groups[$id]) > 0) {
             debug("Recursing! Level: $level");
             format_groups($sorted_groups, $type, $id, $level + 1);
         } else {

@@ -1,33 +1,41 @@
 <?php
 require_once("gacl_admin.inc.php");
 
-switch ($_POST[action]) {
-    case Delete:
+if (!isset($_POST['action']) ) {
+	$_POST['action'] = FALSE;
+}
+
+if (!isset($_GET['action']) ) {
+	$_GET['action'] = FALSE;
+}
+
+switch ($_POST['action']) {
+    case 'Delete':
         break;
-    case Submit:
+    case 'Submit':
         debug("Submit!!");
 	
 		//Some sanity checks.
-		if (count($_POST[selected_aco]) == 0) {
+		if (count($_POST['selected_aco']) == 0) {
 			echo "Must select at least one Access Control Object<br>\n";
 			exit;
 		}
 		
-		if (count($_POST[selected_aro]) == 0 AND count($_POST[groups]) == 0) {
+		if (count($_POST['selected_aro']) == 0 AND count($_POST['groups']) == 0) {
 			echo "Must select at least one Access Request Object or Group<br>\n";
 			exit;
 		}
 		
-		$enabled = $_POST[enabled];
+		$enabled = $_POST['enabled'];
 		if (empty($enabled)) {
 			$enabled=0;	
 		}
 
-		if (!empty($_POST[acl_id]) ) {
+		if (!empty($_POST['acl_id']) ) {
 			//Update existing ACL
-			$acl_id = $_POST[acl_id];
+			$acl_id = $_POST['acl_id'];
 
-			$query = "update acl set allow=$_POST[allow], enabled=$enabled, updated_date=".time()." where id=$acl_id";
+			$query = "update acl set allow=".$_POST['allow'].", enabled=$enabled, updated_date=".time()." where id=$acl_id";
 			$rs = $db->Execute($query);
 
 			if ($rs) {
@@ -47,14 +55,14 @@ switch ($_POST[action]) {
 
 			//Create ACL row first, so we have the acl_id
 			$acl_id = $db->GenID('acl_seq',10);
-			$query = "insert into acl (id,allow,enabled,updated_date) VALUES($acl_id, $_POST[allow], $enabled, ".time().")";
+			$query = "insert into acl (id,allow,enabled,updated_date) VALUES($acl_id, ".$_POST['allow'].", $enabled, ".time().")";
 			$rs = $db->Execute($query);
 		}       
 
 		if ($rs) {
 			debug("Insert or Update completed without error, insert new mappings.");
 			//Insert ACO mappings
-			while (list(,$aco_id) = @each($_POST[selected_aco])) {
+			while (list(,$aco_id) = @each($_POST['selected_aco'])) {
 				debug("Insert: ACO ID: $aco_id");   
 
 				$query = "insert into aco_map (acl_id,aco_id) VALUES($acl_id, $aco_id)";
@@ -62,7 +70,7 @@ switch ($_POST[action]) {
 			}
 
 			//Insert ARO mappings
-			while (list(,$aro_id) = @each($_POST[selected_aro])) {
+			while (list(,$aro_id) = @each($_POST['selected_aro'])) {
 				debug("Insert: ARO ID: $aro_id");   
 
 				$query = "insert into aro_map (acl_id,aro_id) VALUES($acl_id, $aro_id)";
@@ -70,7 +78,7 @@ switch ($_POST[action]) {
 			}
 			
 			//Insert GROUP mappings
-			while (list(,$group_id) = @each($_POST[groups])) {
+			while (list(,$group_id) = @each($_POST['groups'])) {
 				debug("Insert: GROUP ID: $group_id");   
 
 				$query = "insert into groups_map (acl_id,group_id) VALUES($acl_id, $group_id)";
@@ -82,11 +90,11 @@ switch ($_POST[action]) {
         break;    
     default:
 		//showarray($_GET);
-		if ($_GET[action] == 'edit' AND !empty($_GET[acl_id]) ) {
+		if ($_GET['action'] == 'edit' AND !empty($_GET['acl_id']) ) {
 			debug("EDITING ACL");	
 
 			//Grab ACL information
-			$query = "select id, allow, enabled from acl where id = $_GET[acl_id]";
+			$query = "select id, allow, enabled from acl where id = ".$_GET['acl_id']."";
 			$acl_row = $db->GetRow($query);
 			list($acl_id, $allow, $enabled) = $acl_row;
 
@@ -188,7 +196,7 @@ switch ($_POST[action]) {
             
             //Prepare javascript code for dynamic select box.
             //Init the javascript sub-array.
-            if ($section_id != $tmp_section_id) {
+            if (!isset($tmp_section_id) OR $section_id != $tmp_section_id) {
                 $i=0;
 
                 $js_aco_array .= "options['$js_aco_array_name'][$section_id] = new Array();\n";
@@ -202,7 +210,7 @@ switch ($_POST[action]) {
         }
         unset($section_id);
         unset($tmp_section_id);
-
+	
         //
         //Grab all ARO's for select box
         //
@@ -218,7 +226,7 @@ switch ($_POST[action]) {
             
             //Prepare javascript code for dynamic select box.
             //Init the javascript sub-array.
-            if ($section_id != $tmp_section_id) {
+            if (!isset($tmp_section_id) OR $section_id != $tmp_section_id) {
                 $i=0;
 
                 $js_aro_array .= "options['$js_aro_array_name'][$section_id] = new Array();\n";
@@ -250,22 +258,34 @@ switch ($_POST[action]) {
 		$smarty->assign("allow", $allow);
 		$smarty->assign("enabled", $enabled);
 
-		$smarty->assign("options_selected_aco", $options_selected_aco);
+		if (isset($options_selected_aco)) {
+			$smarty->assign("options_selected_aco", $options_selected_aco);
+		}
 		$smarty->assign("selected_aco", @array_keys($options_selected_aco));
 
-		$smarty->assign("options_selected_aro", $options_selected_aro);
+		if (isset($options_selected_aro)) {
+			$smarty->assign("options_selected_aro", $options_selected_aro);
+		}
 		$smarty->assign("selected_aro", @array_keys($options_selected_aro));
 
-		$smarty->assign("selected_groups", $selected_groups);
+		if (isset($options_selected_aro)) {
+			$smarty->assign("selected_groups", $selected_groups);
+		}
 
-		$smarty->assign("acl_id", $_GET[acl_id] );
+		if (isset($_GET['acl_id'])) {
+			$smarty->assign("acl_id", $_GET['acl_id'] );
+		}
 
         break;
 }
 
 //$smarty->assign("return_page", urlencode($_SERVER[REQUEST_URI]) );
-$smarty->assign("return_page", $_GET[return_page]);
-$smarty->assign("action", $_GET[action]);
+if (isset($_GET['return_page'])) {
+	$smarty->assign("return_page", $_GET['return_page']);
+}
+if (isset($_GET['action'])) {
+	$smarty->assign("action", $_GET['action']);
+}
 
 $smarty->display('acl_admin.tpl');
 ?>
