@@ -980,7 +980,7 @@ class gacl_api extends gacl {
 
 				if (!empty($aro_group_data)) {
 
-					$query = "insert into this->_db_table_prefix}aro_groups_map (acl_id,group_id) VALUES($acl_id, $aro_group_id)";
+					$query = "insert into ".$this->_db_table_prefix."aro_groups_map (acl_id,group_id) VALUES($acl_id, $aro_group_id)";
 					$rs = $this->db->Execute($query);
 
 					if ( is_string( $this->db->ErrorNo() ) ) {

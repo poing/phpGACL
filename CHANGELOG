@@ -1,3 +1,5 @@
+Sat Sep 06 2003
+	- Fixed minor bug when assigning objects to groups. Thanks Jos Vanlanduyt <jos.vanlanduyt@higis.eu.org> for pointing this out.
 Mon Aug 25 2003
 	- Added SOAP server and clients for PHP, Perl, and Python.
 	- Updated README regarding upgrading and PostgreSQL. 
