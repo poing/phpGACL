@@ -1,6 +1,6 @@
 <?php
 /** 
- * @version V3.72 9 Aug 2003 (c) 2000-2003 John Lim (jlim@natsoft.com.my). All rights reserved.
+ * @version V3.90 5 Sep 2003 (c) 2000-2003 John Lim (jlim@natsoft.com.my). All rights reserved.
  * Released under both BSD license and Lesser GPL library license. 
  * Whenever there is any discrepancy between the two licenses, 
  * the BSD license will take precedence. 
@@ -102,9 +102,9 @@ class DB
 	{
 		include_once(ADODB_DIR."/drivers/adodb-$type.inc.php");
 		$obj = &NewADOConnection($type);
-		if (!is_object($obj)) return new PEAR_Error('Unknown Database Driver: '.$dsninfo['phptype'],-1);
+		if (!is_object($obj)) $obj =& new PEAR_Error('Unknown Database Driver: '.$dsninfo['phptype'],-1);
 		return $obj;
-}
+	}
 
 	/**
 	 * Create a new DB object and connect to the specified database
@@ -146,9 +146,11 @@ class DB
 			 @include_once("adodb-$type.inc.php");
 		}
 
-		@$obj =&NewADOConnection($type);
-		if (!is_object($obj)) return new PEAR_Error('Unknown Database Driver: '.$dsninfo['phptype'],-1);
-
+		@$obj =& NewADOConnection($type);
+		if (!is_object($obj)) {
+			$obj =& new PEAR_Error('Unknown Database Driver: '.$dsninfo['phptype'],-1);
+			return $obj;
+		}
 		if (is_array($options)) {
 			foreach($options as $k => $v) {
 				switch(strtolower($k)) {

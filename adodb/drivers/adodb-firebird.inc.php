@@ -1,6 +1,6 @@
 <?php
 /* 
-V3.72 9 Aug 2003  (c) 2000-2003 John Lim (jlim@natsoft.com.my). All rights reserved.
+V3.90 5 Sep 2003  (c) 2000-2003 John Lim (jlim@natsoft.com.my). All rights reserved.
   Released under both BSD license and Lesser GPL library license. 
   Whenever there is any discrepancy between the two licenses, 
   the BSD license will take precedence. 
@@ -38,7 +38,7 @@ class ADODB_firebird extends ADODB_ibase {
 	// Note that Interbase 6.5 uses this ROWS instead - don't you love forking wars!
 	// 		SELECT col1, col2 FROM table ROWS 5 -- get 5 rows 
 	//		SELECT col1, col2 FROM TABLE ORDER BY col1 ROWS 3 TO 7 -- first 5 skip 2
-	function &SelectLimit($sql,$nrows=-1,$offset=-1,$inputarr=false, $arg3=false,$secs=0)
+	function &SelectLimit($sql,$nrows=-1,$offset=-1,$inputarr=false, $secs=0)
 	{
 		$str = 'SELECT ';
 		if ($nrows >= 0) $str .= "FIRST $nrows "; 
@@ -46,9 +46,9 @@ class ADODB_firebird extends ADODB_ibase {
 		
 		$sql = preg_replace('/^[ \t]*select/i',$str,$sql); 
 		return ($secs) ? 
-				$this->CacheExecute($secs,$sql,$inputarr,$arg3)
+				$this->CacheExecute($secs,$sql,$inputarr)
 			: 	
-				$this->Execute($sql,$inputarr,$arg3);
+				$this->Execute($sql,$inputarr);
 	}
 	
 	

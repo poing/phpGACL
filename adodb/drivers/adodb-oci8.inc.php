@@ -1,7 +1,7 @@
 <?php
 /*
 
-  version V3.72 9 Aug 2003 (c) 2000-2003 John Lim. All rights reserved.
+  version V3.90 5 Sep 2003 (c) 2000-2003 John Lim. All rights reserved.
 
   Released under both BSD license and Lesser GPL library license. 
   Whenever there is any discrepancy between the two licenses, 
@@ -238,6 +238,21 @@ NATSOFT.DOMAIN =
 		return $this->GetOne("select 1 as ignore from $tables where $where for update");
 	}
 	
+	function &MetaTables($ttype=false,$showSchema=false,$mask=false) 
+	{
+		if ($mask) {
+			$save = $this->metaTablesSQL;
+			$mask = $this->qstr(strtoupper($mask));
+			$this->metaTablesSQL .= " AND table_name like $mask";
+		}
+		$ret =& ADOConnection::MetaTables($ttype,$showSchema);
+		
+		if ($mask) {
+			$this->metaTablesSQL = $save;
+		}
+		return $ret;
+	}
+	
 	function BeginTrans()
 	{	
 		if ($this->transOff) return true;
@@ -389,7 +404,7 @@ NATSOFT.DOMAIN =
 	 This implementation does not appear to work with oracle 8.0.5 or earlier. Comment
 	 out this function then, and the slower SelectLimit() in the base class will be used.
 	*/
-	function &SelectLimit($sql,$nrows=-1,$offset=-1, $inputarr=false,$arg3=false,$secs2cache=0)
+	function &SelectLimit($sql,$nrows=-1,$offset=-1, $inputarr=false,$secs2cache=0)
 	{
 		// seems that oracle only supports 1 hint comment in 8i
 		if ($this->firstrows) {
@@ -413,7 +428,7 @@ NATSOFT.DOMAIN =
 			}
 			// note that $nrows = 0 still has to work ==> no rows returned
 
-			return ADOConnection::SelectLimit($sql,$nrows,$offset,$inputarr,$arg3,$secs2cache);
+			return ADOConnection::SelectLimit($sql,$nrows,$offset,$inputarr,$secs2cache);
 		} else {
 			 // Algorithm by Tomas V V Cox, from PEAR DB oci8.php
 			
@@ -471,8 +486,8 @@ NATSOFT.DOMAIN =
 				$inputarr['adodb_nrows'] = $nrows;
 				$inputarr['adodb_offset'] = $offset;
 				
-			if ($secs2cache>0) return $this->CacheExecute($secs2cache, $sql,$inputarr,$arg3);
-			else return $this->Execute($sql,$inputarr,$arg3);
+			if ($secs2cache>0) return $this->CacheExecute($secs2cache, $sql,$inputarr);
+			else return $this->Execute($sql,$inputarr);
 		}
 	
 	}
@@ -499,6 +514,9 @@ NATSOFT.DOMAIN =
 
 	function UpdateBlob($table,$column,$val,$where,$blobtype='BLOB')
 	{
+		
+		//if (strlen($val) < 4000) return $this->Execute("UPDATE $table SET $column=:blob WHERE $where",array('blob'=>$val)) != false;
+		
 		switch(strtoupper($blobtype)) {
 		default: ADOConnection::outp("<b>UpdateBlob</b>: Unknown blobtype=$blobtype"); return false;
 		case 'BLOB': $type = OCI_B_BLOB; break;
@@ -512,7 +530,6 @@ NATSOFT.DOMAIN =
 		
 		$desc = OCINewDescriptor($this->_connectionID, OCI_D_LOB);
 		$arr['blob'] = array($desc,-1,$type);
-		
 		if ($this->session_sharing_force_blob) $this->Execute('ALTER SESSION SET CURSOR_SHARING=EXACT');
 		$commit = $this->autoCommit;
 		if ($commit) $this->BeginTrans();
@@ -735,6 +752,8 @@ NATSOFT.DOMAIN =
 						OCIBindByName($stmt,":$k",$inputarr[$k][0],$v[1]);
 					else
 						OCIBindByName($stmt,":$k",$inputarr[$k][0],$v[1],$v[2]);
+					
+					if ($this->debug==99) echo "name=:$k",' var='.$inputarr[$k][0],' len='.$v[1],' type='.$v[2],'<br>';
 				} else {
 					$len = -1;
 					if ($v === ' ') $len = 1;
@@ -774,7 +793,7 @@ NATSOFT.DOMAIN =
                     }
                     break;
                 default :
-					// ociclose?
+					// ociclose -- no because it could be used in a LOB?
                     return true;
             }
 		}

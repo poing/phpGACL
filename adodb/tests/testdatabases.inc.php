@@ -1,7 +1,7 @@
 <?php
   
 /*
-V3.72 9 Aug 2003  (c) 2000-2003 John Lim (jlim@natsoft.com.my). All rights reserved.
+V3.90 5 Sep 2003  (c) 2000-2003 John Lim (jlim@natsoft.com.my). All rights reserved.
   Released under both BSD license and Lesser GPL library license. 
   Whenever there is any discrepancy between the two licenses, 
   the BSD license will take precedence.
@@ -73,7 +73,9 @@ if (!empty($testaccess)) {
 	$db = &ADONewConnection('access');
 	print "<h1>Connecting $db->databaseType...</h1>";
 	
-	if (@$db->PConnect("nwind", "", "", ""))
+	$dsn = "nwind";
+	$driver = "Driver={Microsoft Access Driver (*.mdb)};Dbq=d:\inetpub\adodb\northwind.mdb;Uid=Admin;Pwd=;";
+	if (@$db->PConnect($dsn, "", "", ""))
 		testdb($db,"create table ADOXYZ (id int, firstname char(24), lastname char(24),created datetime)");
 	else print "ERROR: Access test requires a Windows ODBC DSN=nwind, Access driver";
 	
@@ -114,7 +116,7 @@ if (!empty($testmysql)) { // MYSQL
 	print "<h1>Connecting $db->databaseType...</h1>";
 	if ($HTTP_SERVER_VARS['HTTP_HOST'] == 'localhost') $server = 'localhost';
 	else $server = "mangrove";
-	if ($db->PConnect($server, "root", "", "test")) {
+	if ($db->PConnect($server, "root", "", "northwind")) {
 		//$db->debug=1;$db->Execute('drop table ADOXYZ');
 		testdb($db,
 		"create table ADOXYZ (id int, firstname char(24), lastname char(24), created date)");
@@ -175,7 +177,7 @@ if (!empty($testdb2)) {
 	
 	$db = ADONewConnection();
 	print "<h1>Connecting $db->databaseType...</h1>";
-	if ($db->Connect("db2_sample", "", "", ""))
+	if ($db->Connect("db2_sample", "root", "natsoft", ""))
 		testdb($db,"create table ADOXYZ (id int, firstname varchar(24), lastname varchar(24),created date)");
 	else print "ERROR: DB2 test requires an server setup with odbc data source db2_sample".'<BR>'.$db->ErrorMsg();
 
@@ -189,7 +191,11 @@ if (!empty($testmssql)) { // MS SQL Server via ODBC
 	$db = ADONewConnection();
 	
 	print "<h1>Connecting $db->databaseType...</h1>";
-	if (@$db->PConnect("mssql-northwind", "adodb", "natsoft", ""))  {
+	
+	$dsn = "mssql-northwind";
+	$dsn = "Driver={SQL Server};Server=localhost;Database=northwind;";
+	
+	if (@$db->PConnect($dsn, "adodb", "natsoft", ""))  {
 		testdb($db,"create table ADOXYZ (id int, firstname char(24) null, lastname char(24) null,created datetime null)");
 	}
 	else print "ERROR: MSSQL test 1 requires a MS SQL 7 server setup with DSN setup";

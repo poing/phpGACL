@@ -1,6 +1,6 @@
 <?php
 /* 
-V3.72 9 Aug 2003  (c) 2000-2003 John Lim (jlim@natsoft.com.my). All rights reserved.
+V3.90 5 Sep 2003  (c) 2000-2003 John Lim (jlim@natsoft.com.my). All rights reserved.
   Released under both BSD license and Lesser GPL library license. 
   Whenever there is any discrepancy between the two licenses, 
   the BSD license will take precedence. See License.txt. 
@@ -170,7 +170,7 @@ function _adodb_getcount(&$zthis, $sql,$inputarr=false,$secs2cache=0)
 	rarely change.
 */
 function &_adodb_pageexecute_all_rows(&$zthis, $sql, $nrows, $page, 
-						$inputarr=false, $arg3=false, $secs2cache=0) 
+						$inputarr=false, $secs2cache=0) 
 {
 	$atfirstpage = false;
 	$atlastpage = false;
@@ -203,9 +203,9 @@ function &_adodb_pageexecute_all_rows(&$zthis, $sql, $nrows, $page,
 	// We get the data we want
 	$offset = $nrows * ($page-1);
 	if ($secs2cache > 0) 
-		$rsreturn = &$zthis->CacheSelectLimit($secs2cache, $sql, $nrows, $offset, $inputarr, $arg3);
+		$rsreturn = &$zthis->CacheSelectLimit($secs2cache, $sql, $nrows, $offset, $inputarr);
 	else 
-		$rsreturn = &$zthis->SelectLimit($sql, $nrows, $offset, $inputarr, $arg3, $secs2cache);
+		$rsreturn = &$zthis->SelectLimit($sql, $nrows, $offset, $inputarr, $secs2cache);
 
 	
 	// Before returning the RecordSet, we set the pagination properties we need
@@ -221,7 +221,7 @@ function &_adodb_pageexecute_all_rows(&$zthis, $sql, $nrows, $page,
 }
 
 // Iván Oliva version
-function &_adodb_pageexecute_no_last_page(&$zthis, $sql, $nrows, $page, $inputarr=false, $arg3=false, $secs2cache=0) 
+function &_adodb_pageexecute_no_last_page(&$zthis, $sql, $nrows, $page, $inputarr=false, $secs2cache=0) 
 {
 
 	$atfirstpage = false;
@@ -237,16 +237,16 @@ function &_adodb_pageexecute_no_last_page(&$zthis, $sql, $nrows, $page, $inputar
 	// the last page number.
 	$pagecounter = $page + 1;
 	$pagecounteroffset = ($pagecounter * $nrows) - $nrows;
-	if ($secs2cache>0) $rstest = &$zthis->CacheSelectLimit($secs2cache, $sql, $nrows, $pagecounteroffset, $inputarr, $arg3);
-	else $rstest = &$zthis->SelectLimit($sql, $nrows, $pagecounteroffset, $inputarr, $arg3, $secs2cache);
+	if ($secs2cache>0) $rstest = &$zthis->CacheSelectLimit($secs2cache, $sql, $nrows, $pagecounteroffset, $inputarr);
+	else $rstest = &$zthis->SelectLimit($sql, $nrows, $pagecounteroffset, $inputarr, $secs2cache);
 	if ($rstest) {
 		while ($rstest && $rstest->EOF && $pagecounter>0) {
 			$atlastpage = true;
 			$pagecounter--;
 			$pagecounteroffset = $nrows * ($pagecounter - 1);
 			$rstest->Close();
-			if ($secs2cache>0) $rstest = &$zthis->CacheSelectLimit($secs2cache, $sql, $nrows, $pagecounteroffset, $inputarr, $arg3);
-			else $rstest = &$zthis->SelectLimit($sql, $nrows, $pagecounteroffset, $inputarr, $arg3, $secs2cache);
+			if ($secs2cache>0) $rstest = &$zthis->CacheSelectLimit($secs2cache, $sql, $nrows, $pagecounteroffset, $inputarr);
+			else $rstest = &$zthis->SelectLimit($sql, $nrows, $pagecounteroffset, $inputarr, $secs2cache);
 		}
 		if ($rstest) $rstest->Close();
 	}
@@ -258,8 +258,8 @@ function &_adodb_pageexecute_no_last_page(&$zthis, $sql, $nrows, $page, $inputar
 	
 	// We get the data we want
 	$offset = $nrows * ($page-1);
-	if ($secs2cache > 0) $rsreturn = &$zthis->CacheSelectLimit($secs2cache, $sql, $nrows, $offset, $inputarr, $arg3);
-	else $rsreturn = &$zthis->SelectLimit($sql, $nrows, $offset, $inputarr, $arg3, $secs2cache);
+	if ($secs2cache > 0) $rsreturn = &$zthis->CacheSelectLimit($secs2cache, $sql, $nrows, $offset, $inputarr);
+	else $rsreturn = &$zthis->SelectLimit($sql, $nrows, $offset, $inputarr, $secs2cache);
 	
 	// Before returning the RecordSet, we set the pagination properties we need
 	if ($rsreturn) {
@@ -378,6 +378,15 @@ function _adodb_getupdatesql(&$zthis,&$rs, $arrFields,$forceUpdate=false,$magicq
    		};
 }
 
+function adodb_key_exists(&$arr,$key)
+{
+	if (isset($arr[$key])) return true;
+	
+	## null check below
+	if (ADODB_PHPVER >= 0x4010) return array_key_exists($arr,$key);
+	return false;
+}
+
 function _adodb_getinsertsql(&$zthis,&$rs,$arrFields,$magicq=false)
 {
 	$values = '';
@@ -399,7 +408,7 @@ function _adodb_getinsertsql(&$zthis,&$rs,$arrFields,$magicq=false)
 			// If the recordset field is one
 			// of the fields passed in then process.
 			$upperfname = strtoupper($field->name);
-			if (key_exists($upperfname,$arrFields)) {
+			if (adodb_key_exists($upperfname,$arrFields)) {
 	
 				// Set the counter for the number of fields that will be inserted.
 				$fieldInsertedCount++;
@@ -415,7 +424,7 @@ function _adodb_getinsertsql(&$zthis,&$rs,$arrFields,$magicq=false)
 
 				// Based on the datatype of the field
 				// Format the value properly for the database
-				if ((defined('ADODB_FORCE_NULLS') && is_null($arrFields[$fieldname])) || $arrFields[$upperfname] === 'null') 
+				if ((defined('ADODB_FORCE_NULLS') && is_null($arrFields[$upperfname])) || $arrFields[$upperfname] === 'null') 
 						$values .= "null, ";
 				else		
 				switch($mt) {

@@ -174,6 +174,11 @@ c. Implement daylight savings, which looks awfully complicated, see
 
 
 CHANGELOG
+
+- 9 Aug 2003 0.10
+Fixed bug with dates after 2038. 
+See http://phplens.com/lens/lensforum/msgs.php?id=6980
+
 - 1 July 2003 0.09
 Added support for Q (Quarter).
 Added adodb_date2(), which accepts ISO date in 2nd param

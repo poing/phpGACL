@@ -285,7 +285,7 @@ function adodb_sess_write($key, $val)
 
 		// do we insert or update? => as for sesskey
 		$res = $ADODB_SESS_CONN->Execute("select count(*) as cnt from $ADODB_SESSION_TBL where sesskey = '$key'");
-		if ($res && ($res->fields["CNT"] > 0)) {
+		if ($res && reset($res->fields) > 0)) {
 			$qry = sprintf("update %s set expiry = %d, data = %s where sesskey = '%s'", $ADODB_SESSION_TBL, $expiry, $lob_value, $key);
 		} else {
 			// insert

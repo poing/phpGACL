@@ -1,6 +1,6 @@
 <?php
 /* 
-V3.72 9 Aug 2003  (c) 2000-2003 John Lim (jlim@natsoft.com.my). All rights reserved.
+V3.90 5 Sep 2003  (c) 2000-2003 John Lim (jlim@natsoft.com.my). All rights reserved.
   Released under both BSD license and Lesser GPL library license. 
   Whenever there is any discrepancy between the two licenses, 
   the BSD license will take precedence. 
@@ -96,6 +96,7 @@ class ADODB_mssql extends ADOConnection {
 	var $poorAffectedRows = true;
 	var $identitySQL = 'select @@IDENTITY'; // 'select SCOPE_IDENTITY'; # for mssql 2000
 	var $uniqueOrderBy = true;
+	var $_bindInputArray = true;
 	
 	function ADODB_mssql() 
 	{		
@@ -184,14 +185,14 @@ class ADODB_mssql extends ADOConnection {
 	}
 	
 
-	function &SelectLimit($sql,$nrows=-1,$offset=-1, $inputarr=false,$arg3=false,$secs2cache=0)
+	function &SelectLimit($sql,$nrows=-1,$offset=-1, $inputarr=false,$secs2cache=0)
 	{
 		if ($nrows > 0 && $offset <= 0) {
 			$sql = preg_replace(
 				'/(^\s*select\s+(distinctrow|distinct)?)/i','\\1 '.$this->hasTop." $nrows ",$sql);
-			return $this->Execute($sql,$inputarr,$arg3);
+			return $this->Execute($sql,$inputarr);
 		} else
-			return ADOConnection::SelectLimit($sql,$nrows,$offset,$inputarr,$arg3,$secs2cache);
+			return ADOConnection::SelectLimit($sql,$nrows,$offset,$inputarr,$secs2cache);
 	}
 	
 	// Format date column in sql string given an input format that understands Y M D
@@ -372,7 +373,21 @@ order by constraint_name, referenced_table_name, keyno";
 		return false;	  
 	}
 
-
+	
+	function &MetaTables($ttype=false,$showSchema=false,$mask=false) 
+	{
+		if ($mask) {
+			$save = $this->metaTablesSQL;
+			$mask = $this->qstr(($mask));
+			$this->metaTablesSQL .= " AND name like $mask";
+		}
+		$ret =& ADOConnection::MetaTables($ttype,$showSchema);
+		
+		if ($mask) {
+			$this->metaTablesSQL = $save;
+		}
+		return $ret;
+	}
  
 	function SelectDB($dbName) 
 	{
@@ -431,7 +446,12 @@ order by constraint_name, referenced_table_name, keyno";
 	
 	function Prepare($sql)
 	{
-		return $sql;
+		$sqlarr = explode('?',$sql);
+		$sql2 = $sqlarr[0];
+		for ($i = 1, $max = sizeof($sqlarr); $i < $max; $i++) {
+			$sql2 .=  '@P'.($i-1) . $sqlarr[$i];
+		} 
+		return array($sql,$this->qstr($sql2),$max);
 	}
 	
 	function PrepareSP($sql)
@@ -508,9 +528,44 @@ order by constraint_name, referenced_table_name, keyno";
 	// returns query ID if successful, otherwise false
 	function _query($sql,$inputarr)
 	{
-		$this->_errorMsg = false; 
-		if (is_array($sql)) $rez = mssql_execute($sql[1]);
-		else $rez = mssql_query($sql,$this->_connectionID);
+		$this->_errorMsg = false;
+		if (is_array($inputarr)) {
+			
+			# bind input params with sp_executesql: 
+			# see http://www.quest-pipelines.com/newsletter-v3/0402_F.htm
+			# works only with sql server 7 and newer
+			if (!is_array($sql)) $sql = $this->Prepare($sql);
+			$params = '';
+			$decl = '';
+			$i = 0;
+			foreach($inputarr as $v) {
+				if ($decl) {
+					$decl .= ', ';
+					$params .= ', ';
+				}	
+				if (is_string($v)) {
+					$decl .= "@P$i NVARCHAR(".strlen($v).")";
+					$params .= "@P$i=N". (strncmp($v,"'",1)==0? $v : $this->qstr($v));
+				} else if (is_integer($v)) {
+					$decl .= "@P$i INT";
+					$params .= "@P$i=".$v;
+				} else {
+					$decl .= "@P$i FLOAT";
+					$params .= "@P$i=".$v;
+				}
+				$i += 1;
+			}
+			$decl = $this->qstr($decl);
+			if ($this->debug) ADOConnection::outp("<font size=-1>sp_executesql N{$sql[1]},N$decl,$params</font>");
+			$rez = mssql_query("sp_executesql N{$sql[1]},N$decl,$params");
+			
+		} else if (is_array($sql)) {
+			# PrepareSP()
+			$rez = mssql_execute($sql[1]);
+			
+		} else {
+			$rez = mssql_query($sql,$this->_connectionID);
+		}
 		return $rez;
 	}
 	
@@ -545,7 +600,7 @@ class ADORecordset_mssql extends ADORecordSet {
 	var $canSeek = true;
 	var $hasFetchAssoc; // see http://phplens.com/lens/lensforum/msgs.php?id=6083
 	// _mths works only in non-localised system
-		
+	
 	function ADORecordset_mssql($id,$mode=false)
 	{
 		// freedts check...

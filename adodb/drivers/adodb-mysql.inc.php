@@ -1,6 +1,6 @@
 <?php
 /*
-V3.72 9 Aug 2003  (c) 2000-2003 John Lim (jlim@natsoft.com.my). All rights reserved.
+V3.90 5 Sep 2003  (c) 2000-2003 John Lim (jlim@natsoft.com.my). All rights reserved.
   Released under both BSD license and Lesser GPL library license. 
   Whenever there is any discrepancy between the two licenses, 
   the BSD license will take precedence.
@@ -45,6 +45,21 @@ class ADODB_mysql extends ADOConnection {
 		$arr['description'] = $this->GetOne("select version()");
 		$arr['version'] = ADOConnection::_findvers($arr['description']);
 		return $arr;
+	}
+	
+	function &MetaTables($ttype=false,$showSchema=false,$mask=false) 
+	{	
+		if ($mask) {
+			$save = $this->metaTablesSQL;
+			$mask = $this->qstr($mask);
+			$this->metaTablesSQL .= " like $mask";
+		}
+		$ret =& ADOConnection::MetaTables($ttype,$showSchema);
+		
+		if ($mask) {
+			$this->metaTablesSQL = $save;
+		}
+		return $ret;
 	}
 	
 	// if magic quotes disabled, use mysql_real_escape_string()
@@ -328,12 +343,12 @@ class ADODB_mysql extends ADOConnection {
 	}
 	
 	// parameters use PostgreSQL convention, not MySQL
-	function &SelectLimit($sql,$nrows=-1,$offset=-1,$inputarr=false, $arg3=false,$secs=0)
+	function &SelectLimit($sql,$nrows=-1,$offset=-1,$inputarr=false,$secs=0)
 	{
 		$offsetStr =($offset>=0) ? "$offset," : '';
 		
-		return ($secs) ? $this->CacheExecute($secs,$sql." LIMIT $offsetStr$nrows",$inputarr,$arg3)
-			: $this->Execute($sql." LIMIT $offsetStr$nrows",$inputarr,$arg3);
+		return ($secs) ? $this->CacheExecute($secs,$sql." LIMIT $offsetStr$nrows",$inputarr)
+			: $this->Execute($sql." LIMIT $offsetStr$nrows",$inputarr);
 		
 	}
 	

@@ -1,6 +1,6 @@
 <?php
 /*
-V3.72 9 Aug 2003  (c) 2000-2003 John Lim. All rights reserved.
+V3.90 5 Sep 2003  (c) 2000-2003 John Lim. All rights reserved.
   Released under both BSD license and Lesser GPL library license. 
   Whenever there is any discrepancy between the two licenses, 
   the BSD license will take precedence.
@@ -54,8 +54,6 @@ class ADODB_oci8po extends ADODB_oci8 {
 		}
 		return ADODB_oci8::_query($sql,$inputarr);
 	}
-	
-
 }
 
 /*--------------------------------------------------------------------------------------
@@ -84,7 +82,7 @@ class ADORecordset_oci8po extends ADORecordset_oci8 {
 			}
 			 return $this->fields[$this->bind[strtoupper($colname)]];
 		}
-	
+		
 		// lowercase field names...
  		function &_FetchField($fieldOffset = -1)
 		{
@@ -138,9 +136,10 @@ class ADORecordset_oci8po extends ADORecordset_oci8 {
 	function _updatefields()
 	{
 		if (ADODB_ASSOC_CASE == 2) return; // native
-		
+	
 		$arr = array();
-		$lowercase = ADODB_ASSOC_CASE == 0;
+		$lowercase = (ADODB_ASSOC_CASE == 0);
+		
 		foreach ($this->fields as $k => $v) {
 			if (is_integer($k)) $arr[$k] = $v;
 			else {

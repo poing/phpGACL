@@ -1,6 +1,6 @@
 <?php
 /* 
-V3.72 9 Aug 2003  (c) 2000-2003 John Lim. All rights reserved.
+V3.90 5 Sep 2003  (c) 2000-2003 John Lim. All rights reserved.
   Released under both BSD license and Lesser GPL library license. 
   Whenever there is any discrepancy between the two licenses, 
   the BSD license will take precedence. 
@@ -136,16 +136,16 @@ class ADODB_sybase extends ADOConnection {
 	}
 	
 	// See http://www.isug.com/Sybase_FAQ/ASE/section6.2.html#6.2.12
-	function &SelectLimit($sql,$nrows=-1,$offset=-1,$inputarr=false,$arg3=false,$secs2cache=0) 
+	function &SelectLimit($sql,$nrows=-1,$offset=-1,$inputarr=false,$secs2cache=0) 
 	{
 		if ($secs2cache > 0) // we do not cache rowcount, so we have to load entire recordset
-			return ADOConnection::SelectLimit($sql,$nrows,$offset,$inputarr,$arg3,$secs2cache);
+			return ADOConnection::SelectLimit($sql,$nrows,$offset,$inputarr,$secs2cache);
 		
 		$cnt = ($nrows > 0) ? $nrows : 0;
 		if ($offset > 0 && $cnt) $cnt += $offset;
 		
 		$this->Execute("set rowcount $cnt"); 
-		$rs = &ADOConnection::SelectLimit($sql,$nrows,$offset,$inputarr,$arg3,$secs2cache);
+		$rs = &ADOConnection::SelectLimit($sql,$nrows,$offset,$inputarr,$secs2cache);
 		$this->Execute("set rowcount 0"); 
 		
 		return $rs;
