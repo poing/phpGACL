@@ -31,7 +31,7 @@ switch ($_POST['action']) {
 		$formatted_groups = $gacl_api->format_groups($gacl_api->sort_groups($group_type), HTML);
 		
 		$query = '
-			SELECT		a.id, a.name, a.value, count(*)
+			SELECT		a.id, a.name, a.value, count(b.axo_id)
 			FROM		'. $group_table .' a
 			LEFT JOIN	'. $group_map_table .' b ON b.group_id=a.id
 			GROUP BY	a.id';
