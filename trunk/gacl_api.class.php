@@ -2866,7 +2866,7 @@ class gacl_api extends gacl {
 				}
 			}
 
-			if ($acl_ids) {
+			if (!empty($acl_ids)) {
 				//There are acls actually referencing the object
 
 				if ($object_type == 'aco') {
@@ -2954,7 +2954,7 @@ class gacl_api extends gacl {
 			$groups_ids = $this->db->GetCol($query);
 		}
 
-		if ( ( isset($acl_ids) AND $acl_ids !== FALSE ) OR ( isset($groups_ids) AND $groups_ids !== FALSE) ) {
+		if ( ( isset($acl_ids) AND !empty($acl_ids) ) OR ( isset($groups_ids) AND !empty($groups_ids) ) ) {
 			// The Object is referenced somewhere (group or acl), can't delete it
 
 			$this->debug_text("del_object(): Can't delete the object as it is being referenced by GROUPs (".@implode($groups_ids).") or ACLs (".@implode($acl_ids,",").")");

@@ -2,6 +2,7 @@ Sat Jan 24 2003
 	mikeb - Minor updates to CREDITS file, README, and footer.tpl
 	mikeb - Upgraded ADODB to v4.10
 	mikeb - Upgraded Smarty to v2.6.1
+	dcech - del_object: fix for new GetCol behaviour in ADOdb 4.10
 Wed Jan 14 2003
 	mikeb - modified TODO list slightly.
 	mikeb - added Navigation bar submitted by: <eddieajau@iprimus.com.au> on Oct 13/2003.
