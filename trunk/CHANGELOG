@@ -1,3 +1,5 @@
+Wed May 05 2004
+	mikeb - Fixed bug in acl_get_groups() where $root_group = '' causes a SQL error. Thanks to Hakan Kuecuekyilmaz <hakan@lisas.de>
 Mon May 03 2004
 	mikeb - Updated comments for add_group() to explain the Root group limitation of our MPTT format.
 Sun May 02 2004
