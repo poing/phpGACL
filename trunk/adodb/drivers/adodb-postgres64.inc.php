@@ -1,6 +1,6 @@
 <?php
 /*
- V3.72 9 Aug 2003  (c) 2000-2003 John Lim (jlim@natsoft.com.my). All rights reserved.
+ V3.90 5 Sep 2003  (c) 2000-2003 John Lim (jlim@natsoft.com.my). All rights reserved.
   Released under both BSD license and Lesser GPL library license. 
   Whenever there is any discrepancy between the two licenses, 
   the BSD license will take precedence.
@@ -22,7 +22,7 @@ function adodb_addslashes($s)
 {
 	$len = strlen($s);
 	if ($len == 0) return "''";
-	if (substr($s,0,1) == "'" && substr(s,$len-1) == "'") return $s; // already quoted
+	if (strncmp($s,"'",1) === 0 && substr(s,$len-1) == "'") return $s; // already quoted
 	
 	return "'".addslashes($s)."'";
 }
@@ -41,15 +41,6 @@ class ADODB_postgres64 extends ADOConnection{
 	var $sysDate = "CURRENT_DATE";
 	var $sysTimeStamp = "CURRENT_TIMESTAMP";
 	var $blobEncodeType = 'C';
-/*
-# show tables and views suggestion
-"SELECT c.relname AS tablename FROM pg_class c 
-	WHERE (c.relhasrules AND (EXISTS (
-		SELECT r.rulename FROM pg_rewrite r WHERE r.ev_class = c.oid AND bpchar(r.ev_type) = '1'
-		))) OR (c.relkind = 'v') AND c.relname NOT LIKE 'pg_%' 
-UNION 
-SELECT tablename FROM pg_tables WHERE tablename NOT LIKE 'pg_%' ORDER BY 1"
-*/
 	var $metaColumnsSQL = "SELECT a.attname,t.typname,a.attlen,a.atttypmod,a.attnotnull,a.atthasdef,a.attnum 
 		FROM pg_class c, pg_attribute a,pg_type t 
 		WHERE relkind = 'r' AND (c.relname='%s' or c.relname = lower('%s'))
@@ -90,24 +81,6 @@ AND a.attnum > 0 AND a.atttypid = t.oid AND a.attrelid = c.oid ORDER BY a.attnum
 		$arr['description'] = $this->GetOne("select version()");
 		$arr['version'] = ADOConnection::_findvers($arr['description']);
 		return $arr;
-	}
-	
-		// format and return date string in database date format
-	function DBDate($d)
-	{
-		if (empty($d) && $d !== 0) return 'null';
-		
-		if (is_string($d)) $d = ADORecordSet::UnixDate($d);
-		return "TO_DATE(".adodb_date($this->fmtDate,$d).",'YYYY-MM-DD')";
-	}
-
-	
-	// format and return date string in database timestamp format
-	function DBTimeStamp($ts)
-	{
-		if (empty($ts) && $ts !== 0) return 'null';
-		if (is_string($ts)) $ts = ADORecordSet::UnixTimeStamp($ts);
-		return 'TO_DATE('.adodb_date($this->fmtTimeStamp,$ts).",'YYYY-MM-DD, HH24:MI:SS')";
 	}
 	
 	// get the last id - never tested
@@ -172,6 +145,24 @@ a different OID if a database must be reloaded. */
 		$this->transCnt -= 1;
 		return @pg_Exec($this->_connectionID, "rollback");
 	}
+	
+	function &MetaTables($ttype=false,$showSchema=false,$mask=false) 
+	{	
+		if ($mask) {
+			$save = $this->metaTablesSQL;
+			$mask = $this->qstr(strtolower($mask));
+			$this->metaTablesSQL = "
+select tablename,'T' from pg_tables where tablename like $mask union 
+select viewname,'V' from pg_views where viewname like $mask";
+		}
+		$ret =& ADOConnection::MetaTables($ttype,$showSchema);
+		
+		if ($mask) {
+			$this->metaTablesSQL = $save;
+		}
+		return $ret;
+	}
+	
 	/*
 	// if magic quotes disabled, use pg_escape_string()
 	function qstr($s,$magic_quotes=false)
@@ -499,7 +490,7 @@ a different OID if a database must be reloaded. */
 		//print_r($rez);
 		// check if no data returned, then no need to create real recordset
 		if ($rez && pg_numfields($rez) <= 0) {
-			if ($this->_resultid) pg_freeresult($this->_resultid);
+			if (is_resource($this->_resultid)) pg_freeresult($this->_resultid);
 			$this->_resultid = $rez;
 			return true;
 		}
@@ -706,6 +697,7 @@ class ADORecordSet_postgres64 extends ADORecordSet{
 			$len = $fieldobj->max_length;
 		}
 		switch (strtoupper($t)) {
+				case 'MONEY': // stupid, postgres expects money to be a string
 				case 'INTERVAL':
 				case 'CHAR':
 				case 'CHARACTER':

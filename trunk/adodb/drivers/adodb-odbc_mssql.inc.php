@@ -1,6 +1,6 @@
 <?php
 /* 
-V3.72 9 Aug 2003  (c) 2000-2003 John Lim (jlim@natsoft.com.my). All rights reserved.
+V3.90 5 Sep 2003  (c) 2000-2003 John Lim (jlim@natsoft.com.my). All rights reserved.
   Released under both BSD license and Lesser GPL library license. 
   Whenever there is any discrepancy between the two licenses, 
   the BSD license will take precedence. 
@@ -22,7 +22,7 @@ class  ADODB_odbc_mssql extends ADODB_odbc {
 	var $fmtDate = "'Y-m-d'";
 	var $fmtTimeStamp = "'Y-m-d h:i:sA'";
 	var $_bindInputArray = true;
-	var $metaTablesSQL="select name,case when type='U' then 'T' else 'V' end from sysobjects where type='U' or type='V' and (name not in ('sysallocations','syscolumns','syscomments','sysdepends','sysfilegroups','sysfiles','sysfiles1','sysforeignkeys','sysfulltextcatalogs','sysindexes','sysindexkeys','sysmembers','sysobjects','syspermissions','sysprotects','sysreferences','systypes','sysusers','sysalternates','sysconstraints','syssegments','REFERENTIAL_CONSTRAINTS','CHECK_CONSTRAINTS','CONSTRAINT_TABLE_USAGE','CONSTRAINT_COLUMN_USAGE','VIEWS','VIEW_TABLE_USAGE','VIEW_COLUMN_USAGE','SCHEMATA','TABLES','TABLE_CONSTRAINTS','TABLE_PRIVILEGES','COLUMNS','COLUMN_DOMAIN_USAGE','COLUMN_PRIVILEGES','DOMAINS','DOMAIN_CONSTRAINTS','KEY_COLUMN_USAGE'))";
+	var $metaTablesSQL="select name,case when type='U' then 'T' else 'V' end from sysobjects where (type='U' or type='V') and (name not in ('sysallocations','syscolumns','syscomments','sysdepends','sysfilegroups','sysfiles','sysfiles1','sysforeignkeys','sysfulltextcatalogs','sysindexes','sysindexkeys','sysmembers','sysobjects','syspermissions','sysprotects','sysreferences','systypes','sysusers','sysalternates','sysconstraints','syssegments','REFERENTIAL_CONSTRAINTS','CHECK_CONSTRAINTS','CONSTRAINT_TABLE_USAGE','CONSTRAINT_COLUMN_USAGE','VIEWS','VIEW_TABLE_USAGE','VIEW_COLUMN_USAGE','SCHEMATA','TABLES','TABLE_CONSTRAINTS','TABLE_PRIVILEGES','COLUMNS','COLUMN_DOMAIN_USAGE','COLUMN_PRIVILEGES','DOMAINS','DOMAIN_CONSTRAINTS','KEY_COLUMN_USAGE'))";
 	var $metaColumnsSQL = "select c.name,t.name,c.length from syscolumns c join systypes t on t.xusertype=c.xusertype join sysobjects o on o.id=c.id where o.name='%s'";
 	var $hasTop = 'top';		// support mssql/interbase SELECT TOP 10 * FROM TABLE
 	var $sysDate = 'GetDate()';
@@ -44,8 +44,12 @@ class  ADODB_odbc_mssql extends ADODB_odbc {
 	// crashes php...
 	function ServerInfo()
 	{
-		//$this->debug=1;
+	global $ADODB_FETCH_MODE;
+		$save = $ADODB_FETCH_MODE;
+		$ADODB_FETCH_MODE = ADODB_FETCH_NUM;
 		$row = $this->GetRow("execute sp_server_info 2");
+		$ADODB_FETCH_MODE = $save;
+		if (!is_array($row)) return false;
 		$arr['description'] = $row[2];
 		$arr['version'] = ADOConnection::_findvers($arr['description']);
 		return $arr;
@@ -102,9 +106,19 @@ order by constraint_name, referenced_table_name, keyno";
 		return $arr2;
 	}
 	
-	function &MetaTables($ttype=false)
+	function &MetaTables($ttype=false,$showSchema=false,$mask=false) 
 	{
-		return ADOConnection::MetaTables($ttype);
+		if ($mask) {$this->debug=1;
+			$save = $this->metaTablesSQL;
+			$mask = $this->qstr($mask);
+			$this->metaTablesSQL .= " AND name like $mask";
+		}
+		$ret =& ADOConnection::MetaTables($ttype,$showSchema);
+		
+		if ($mask) {
+			$this->metaTablesSQL = $save;
+		}
+		return $ret;
 	}
 	
 	function &MetaColumns($table)
@@ -132,14 +146,14 @@ order by constraint_name, referenced_table_name, keyno";
 		return false;	  
 	}
 	
-	function &SelectLimit($sql,$nrows=-1,$offset=-1, $inputarr=false,$arg3=false,$secs2cache=0)
+	function &SelectLimit($sql,$nrows=-1,$offset=-1, $inputarr=false,$secs2cache=0)
 	{
 		if ($nrows > 0 && $offset <= 0) {
 			$sql = preg_replace(
 				'/(^\s*select\s+(distinctrow|distinct)?)/i','\\1 '.$this->hasTop." $nrows ",$sql);
-			return $this->Execute($sql,$inputarr,$arg3);
+			return $this->Execute($sql,$inputarr);
 		} else
-			return ADOConnection::SelectLimit($sql,$nrows,$offset,$inputarr,$arg3,$secs2cache);
+			return ADOConnection::SelectLimit($sql,$nrows,$offset,$inputarr,$secs2cache);
 	}
 	
 	// Format date column in sql string given an input format that understands Y M D

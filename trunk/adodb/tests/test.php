@@ -1,6 +1,6 @@
 <?php
 /* 
-V3.72 9 Aug 2003  (c) 2000-2003 John Lim (jlim@natsoft.com.my). All rights reserved.
+V3.90 5 Sep 2003  (c) 2000-2003 John Lim (jlim@natsoft.com.my). All rights reserved.
   Released under both BSD license and Lesser GPL library license. 
   Whenever there is any discrepancy between the two licenses, 
   the BSD license will take precedence. 
@@ -222,6 +222,14 @@ GLOBAL $ADODB_vers,$ADODB_CACHE_DIR,$ADODB_FETCH_MODE, $HTTP_GET_VARS,$ADODB_COU
 			print '</p>';
 		}
 		
+		$a = $db->MetaTables(false,false,'aDo%');
+		if ($a===false) print "<b>MetaTables not supported</b></p>";
+		else {
+			print "Array of ado%: "; 
+			foreach($a as $v) print " ($v) ";
+			print '</p>';
+		}
+		
 		$a = $db->MetaTables('TABLE');
 		if ($a===false) print "<b>MetaTables not supported</b></p>";
 		else {
@@ -405,6 +413,24 @@ END adodb;
 	default:
 		break;
 	}
+	$arr = array(
+		array(1,'Caroline','Miranda'),
+		array(2,'John','Lim'),
+		array(3,'Wai Hun','See')
+	);
+	$db->debug=1;
+	print "<p>Testing Bulk Insert of 3 rows</p>";
+
+	$sql = "insert into ADOXYZ (id,firstname,lastname) values (?,?,?)";
+	$db->StartTrans();
+	$db->Execute($sql,$arr);
+	$db->CompleteTrans();
+	$rs = $db->Execute('select * from ADOXYZ order by id');
+	if ($rs->RecordCount() != 3) Err("Bad bulk insert");
+	rs2html($rs);
+	
+	$db->Execute('delete from ADOXYZ');
+		
 	print "<p>Inserting 50 rows</p>";
 
 	for ($i = 0; $i < 5; $i++) {	
@@ -928,7 +954,7 @@ END adodb;
 	print "<p>Test CSV</p>";
 	include_once('../toexport.inc.php');
 	//$ADODB_FETCH_MODE = ADODB_FETCH_ASSOC;
-	$rs = $db->SelectLimit('select id,firstname,lastname,created,\'The	"young man", he said\' from adoxyz',10);	
+	$rs = $db->SelectLimit('select id,firstname,lastname,created,\'He, he\' he,\'"\' q  from adoxyz',10);	
 	
 	print "<pre>";
 	print rs2csv($rs);
@@ -1126,6 +1152,8 @@ END adodb;
 			else echo "<p> -- Passed StartTrans test2 - commiting</p>";
 		}
 	}
+	
+	
 	global $TESTERRS;
 	$debugerr = true;
 	

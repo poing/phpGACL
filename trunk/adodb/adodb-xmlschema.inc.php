@@ -184,7 +184,7 @@ class dbTable {
 		// Return the options list
 		return $optlist;
 	}
-
+	
 	/**
 	* Generates the SQL that will create the table in the database
 	*
@@ -194,24 +194,24 @@ class dbTable {
 	* @return array	Array containing table creation SQL
 	*/
 	function create( $dict ) {
-
+	
 		// Loop through the field specifier array, building the associative array for the field options
 		$fldarray = array();
 		$i = 0;
-
+		
 		foreach( $this->fieldSpec as $field => $finfo ) {
 			$i++;
-
+			
 			// Set an empty size if it isn't supplied
 			if( !isset( $finfo['SIZE'] ) ) $finfo['SIZE'] = '';
-
+			
 			// Initialize the field array with the type and size
 			$fldarray[$i] = array( $field, $finfo['TYPE'], $finfo['SIZE'] );
-
-			// Loop through the options array and add the field options.
+			
+			// Loop through the options array and add the field options. 
 			if( isset( $finfo['OPTS'] ) ) {
 				foreach( $finfo['OPTS'] as $opt ) {
-
+					
 					if( is_array( $opt ) ) { // Option has an argument.
 						$key = key( $opt );
 						$value = $opt[key( $opt ) ];
@@ -222,18 +222,17 @@ class dbTable {
 				}
 			}
 		}
-
+		
 		// Check for existing table
 		$legacyTables = $dict->MetaTables();
-
 		if( is_array( $legacyTables ) and count( $legacyTables > 0 ) ) {
 			foreach( $dict->MetaTables() as $table ) {
 				$this->legacyTables[ strtoupper( $table ) ] = $table;
 			}
-			if( in_array( strtolower( $this->tableName ), $legacyTables ) ) {
-				$existingTableName = $this->tableName;
+			if( in_array( strtoupper( $tableName ), $legacyTables ) ) {
+				$existingTableName = $legacyTables[strtoupper( $tableName )];
 			}
-		}
+		} 
 		// Build table array
 		if( !isset( $this->upgradeMethod ) or !isset( $existingTableName ) ) {
 			// Create the new table
@@ -253,11 +252,11 @@ class dbTable {
 				default:
 			}
 		}
-
+		
 		// Return the array containing the SQL to create the table
 		return $sqlArray;
 	}
-
+	
 	/**
 	* Generates the SQL that will replace an existing table in the database
 	*
@@ -602,8 +601,7 @@ class adoSchema {
 				foreach( $this->dict->MetaTables() as $table ) {
 					$this->legacyTables[ strtoupper( $table ) ] = $table;
 				}
-				if( $this->debug ) print "LEGACY table<BR/>\n";
-#				showDebug( $this->legacyTables, "LEGACY table" );
+				showDebug( $this->legacyTables, "LEGACY table" );
 			} 
 			
 			$forceReplace == TRUE ? $this->upgradeMethod = 'REPLACE' : $this->upgradeMethod = 'ALTER';

@@ -1,6 +1,6 @@
 <?php
 /*
- V3.72 9 Aug 2003  (c) 2000-2003 John Lim (jlim@natsoft.com.my). All rights reserved.
+ V3.90 5 Sep 2003  (c) 2000-2003 John Lim (jlim@natsoft.com.my). All rights reserved.
   Released under both BSD license and Lesser GPL library license. 
   Whenever there is any discrepancy between the two licenses, 
   the BSD license will take precedence.
@@ -26,14 +26,14 @@ class ADODB_postgres7 extends ADODB_postgres64 {
 
 	// the following should be compat with postgresql 7.2, 
 	// which makes obsolete the LIMIT limit,offset syntax
-	 function &SelectLimit($sql,$nrows=-1,$offset=-1,$inputarr=false,$arg3=false,$secs2cache=0) 
+	 function &SelectLimit($sql,$nrows=-1,$offset=-1,$inputarr=false,$secs2cache=0) 
 	 {
 	  $offsetStr = ($offset >= 0) ? " OFFSET $offset" : '';
 	  $limitStr  = ($nrows >= 0)  ? " LIMIT $nrows" : '';
 	  return $secs2cache ?
-	   $this->CacheExecute($secs2cache,$sql."$limitStr$offsetStr",$inputarr,$arg3)
+	   $this->CacheExecute($secs2cache,$sql."$limitStr$offsetStr",$inputarr)
 	  :
-	   $this->Execute($sql."$limitStr$offsetStr",$inputarr,$arg3);
+	   $this->Execute($sql."$limitStr$offsetStr",$inputarr);
 	 }
  
  
