@@ -1,3 +1,6 @@
+Thu Feb 20 2003
+	- Fixed bug in get_group_objects() that caused it to return the query record set, not the data itself. Thanks to Thomas <tstruebi@pentacon.ch> for submitting a patch.
+	- Fixed bug in del_group(), as it neglected to remove the object mapping. Thanks to Thomas <tstruebi@pentacon.ch> for pointing this out.
 Tue Feb 18 2003
 	- Added 'force_cache_expire' option, so the cache is automaticalled expired when ACL/Group modifications take place.
 		This should allow the cache_expire_time to be greatly increased (86400?) and still maintain instance updates.
