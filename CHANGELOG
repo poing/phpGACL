@@ -1,3 +1,5 @@
+Mon Oct 4 2004
+	mikeb - Added phpDoc style comments thanks to Gordon Luk <gordon.luk@dfafunds.com>
 Sat Oct 2 2004
 	mikeb - Added get_ungrouped_objects() function, thanks to Gordon Luk <gordon.luk@dfafunds.com>
 Sun Sep 19 2004
