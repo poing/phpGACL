@@ -20,10 +20,10 @@
  * For questions, help, comments, discussion, etc., please join the
  * phpGACL mailing list. http://sourceforge.net/mail/?group_id=57103
  *
- * You may contact the author of Smarty by e-mail at:
+ * You may contact the author of phpGACL by e-mail at:
  * ipso@snappymail.ca
  *
- * The latest version of Smarty can be obtained from:
+ * The latest version of phpGACL can be obtained from:
  * http://phpgacl.sourceforge.net/
  *
  */
