@@ -1566,14 +1566,14 @@ class gacl_api extends gacl {
 		switch(strtolower(trim($group_type))) {
 			case 'axo':
 				$group_type = 'axo';
-				$object_table = $this->_db_prefix .'axo';
-				$group_table = $this->_db_prefix .'axo_groups';
+				$object_table = $this->_db_table_prefix .'axo';
+				$group_table = $this->_db_table_prefix .'axo_groups';
 				$map_table = $this->_db_table_prefix .'groups_axo_map';
 				break;
 			default:
 				$group_type = 'aro';
-				$object_table = $this->_db_prefix .'aro';
-				$group_table = $this->_db_prefix .'aro_groups';
+				$object_table = $this->_db_table_prefix .'aro';
+				$group_table = $this->_db_table_prefix .'aro_groups';
 				$map_table = $this->_db_table_prefix .'groups_aro_map';
 				break;
 		}
