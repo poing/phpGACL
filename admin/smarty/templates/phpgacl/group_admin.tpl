@@ -34,6 +34,7 @@
                 [ <a href="assign_group.php?group_type={$group_type}&group_id={$groups[x].id}&return_page={$return_page}">Assign {$group_type|upper}</a> ]
                 [ <a href="edit_group.php?group_type={$group_type}&parent_id={$groups[x].id}&return_page={$return_page}">Add Child</a> ]
                 [ <a href="edit_group.php?group_type={$group_type}&group_id={$groups[x].id}&return_page={$return_page}">Edit</a> ]
+                [ <a href="acl_list.php?action=Filter&filter_{$group_type}_group_name={$groups[x].raw_name}&return_page={$return_page}">ACLs</a> ]
                 <input type="checkbox" name="delete_group[]" value="{$groups[x].id}">
              </td>
 

@@ -1299,7 +1299,7 @@ class gacl_api extends gacl {
 
 		}
 		
-		$this->debug_text("get_object_data(): Goup does not exist.");
+		$this->debug_text("get_object_data(): Group does not exist.");
 		return false;
 /*
 		if ( is_string( $this->db->ErrorNo() ) ) {
@@ -1563,6 +1563,9 @@ class gacl_api extends gacl {
 			return false;	
 		}
 		
+		//Without this, the last group in any branch of the tree doesn't have a path_id.
+		$path[] = (int)$group_id;
+		
 		/*
 		 * Simply repeat the SQL query until we reach the root (0). Obviously this won't scale that well, but it should do the trick
 		 * up to about 100 levels deep if it needs too. This way will use less memory too.
@@ -1575,7 +1578,7 @@ class gacl_api extends gacl {
 							where id = $parent_id";
 			$parent_id = $this->db->GetOne($query);
 
-			$path[] = $parent_id;
+			$path[] = (int)$parent_id;
 		} 
 		
 		return $path;
@@ -1623,16 +1626,20 @@ class gacl_api extends gacl {
 	
 	/*======================================================================*\
 		Function:	get_group_objects()
-		Purpose:	Gets all objects assigned to a group. 
+		Purpose:	Gets all objects assigned to a group.
+						If $option == 'RECURSE' it will get all objects in child groups as well.
+						defaults to omit child groups.
 	\*======================================================================*/
-	function get_group_objects($group_id, $group_type='ARO') {
+	function get_group_objects($group_id, $group_type='ARO', $option='NO_RECURSE') {
 		
 		switch(strtolower($group_type)) {
 			case 'axo':
 				$table = 'groups_axo_map';
+				$path_table = 'axo_groups_path';
 				break;
 			default:
 				$table = 'groups_aro_map';
+				$path_table = 'aro_groups_path';
 				break;
 		}
 
@@ -1642,8 +1649,35 @@ class gacl_api extends gacl {
 			$this->debug_text("get_group_objects(): Group ID:  ($group_id) is empty, this is required");
 			return false;	
 		}
-				
-        $query = "select section_value, value from $table where group_id = $group_id";
+		
+		if ($option == 'RECURSE') {
+			$query = "select id from $path_table where group_id = $group_id order by tree_level desc limit 1";
+			$path_id = $this->db->GetOne($query);
+			
+			if ( is_string( $this->db->ErrorNo() ) ) {
+				$this->debug_text("get_group_objects(): database error: ". $this->db->ErrorMsg() ." (". $this->db->ErrorNo() .")");
+				return false;	
+			}
+
+			if (empty($path_id)) {
+				$this->debug_text("get_group_objects(): Path ID is empty.");
+				return false;	
+			}
+			
+			//Now grab all group_ids in this path.
+			$query = "select group_id from $path_table where id = $path_id AND group_id != 0";
+			//$rs = $this->db->Execute($query);
+			$group_ids = $this->db->GetCol($query);
+			
+			if ( is_string( $this->db->ErrorNo() ) ) {
+				$this->debug_text("get_group_objects(): database error: ". $this->db->ErrorMsg() ." (". $this->db->ErrorNo() .")");
+				return false;	
+			}
+		} else {
+			$group_ids = array($group_id);
+		}
+		
+		$query = "select section_value, value from $table where group_id in ( ". implode($group_ids,",") ." )";
 		$rs = $this->db->Execute($query);
 		$rows = $rs->GetRows();
 
@@ -1651,9 +1685,20 @@ class gacl_api extends gacl {
 			$this->debug_text("get_group_objects(): database error: ". $this->db->ErrorMsg() ." (". $this->db->ErrorNo() .")");
 			return false;	
 		} else {
-			$this->debug_text("get_group_objects(): Got group objects");			
-			return $rows;
-		}		
+			$this->debug_text("get_group_objects(): Got group objects, formatting array.");
+			
+			//format return array.
+			foreach($rows as $row) {
+				$section = &$row[0];
+				$value = &$row[1];
+				
+				$retarr[$section][] = $value;
+			}
+			
+			return $retarr;
+		}
+		
+		return false;
 	}
 
 	/*======================================================================*\

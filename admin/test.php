@@ -2,8 +2,30 @@
 $debug=1;
 require_once("gacl_admin.inc.php");
 
-$gacl_api->clean_path_to_root(ARO);
-$gacl_api->clean_path_to_root(AXO);
+$test = $gacl->reverse_acl_query('system','login');
+showarray($test);
+
+
+//$test = $gacl->acl_query('system','login','users','john_doe',NULL, NULL, NULL, NULL, TRUE);
+//showarray($test);
+
+/*
+$test = $gacl_api->get_group_objects(14,'ARO','RECURSE');
+showarray($test);
+
+$test = $gacl_api->get_group_objects(14,'ARO');
+showarray($test);
+*/
+/*
+$group_ids = array(14);
+$test = $gacl_api->acl_get_group_path($group_ids);
+showarray($test);
+$test = $gacl_api->get_group_objects(14,'ARO');
+showarray($test);
+*/
+
+//$gacl_api->clean_path_to_root(ARO);
+//$gacl_api->clean_path_to_root(AXO);
 
 /*
 $gacl_api->add_acl(	array('system' => array('login', 'enabled', 'login')),

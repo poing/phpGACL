@@ -146,7 +146,6 @@ switch ($_POST['action']) {
         //$rs = $db->Execute($query);
         $rs = $db->pageexecute($query, $gacl_api->_items_per_page, $_GET['page']);
         $rows = $rs->GetRows();
-        //showarray($rows);
 
         $i=0;
         while (list(,$row) = @each($rows)) {
@@ -165,12 +164,12 @@ switch ($_POST['action']) {
         $smarty->assign("rows", $object_rows);
         
 		//Get group name.
-		$query= "select name from $group_table where id = ". $_GET['group_id'] ."";
-		$group_name = $db->GetOne($query);
-		
-        $smarty->assign("group_name", $group_name);
+		$group_data = $gacl_api->get_group_data($_GET['group_id'], $group_type);		
+        $smarty->assign("group_name", $group_data[2]);
         
         $smarty->assign("group_id", $_GET['group_id']);
+        
+        $smarty->assign("total_objects", $rs->_maxRecordCount);
         
         $smarty->assign("paging_data", $gacl_api->get_paging_data($rs));
         
