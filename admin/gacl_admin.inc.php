@@ -43,6 +43,7 @@ $gacl_options = array(
 								'db_password' => '',
 								'db_name' => 'gacl',
 								'caching' => FALSE,
+								'force_cache_expire' => TRUE,
 								'cache_dir' => '/tmp/phpgacl_cache',
 								'cache_expire_time' => 600
 							);
