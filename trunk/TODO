@@ -1,3 +1,5 @@
+* Write API documentation.
+
 * Move sort_groups() and format_groups() to the API. Confirm format_groups works properly when given a starting group_id.
 
 * Write tutorial, some people may find phpGACL difficult to figure out.

@@ -20,7 +20,8 @@
 
 /*
  *
- * NOTE: Currently this API only works for ARO/ACO Sections and ARO's. More will come.
+ *
+ *  == If you find a feature may be missing from this API, please email me: ipso@snappymail.ca and I will be happy to add it. == 
  *
  *
  * Example: 
@@ -723,10 +724,10 @@ class gacl_api {
 	function get_aro_id($name = null, $value = null) {
 		global $db;
 		
-		debug("add_aro(): Value: $value Name: $name");
+		debug("get_aro_id(): Value: $value Name: $name");
 		
 		if (empty($name) AND empty($value) ) {
-			debug("add_aro(): name ($name) OR value ($value) is empty, this is required");
+			debug("get_aro_id(): name ($name) OR value ($value) is empty, this is required");
 			return false;	
 		}
 			
@@ -734,16 +735,16 @@ class gacl_api {
 		$rs = $db->Execute($query);
 
 		if ($db->ErrorNo() != 0) {
-			debug("add_aro(): database error: ". $db->ErrorMsg() ." (". $db->ErrorNo() .")");
+			debug("get_aro_id(): database error: ". $db->ErrorMsg() ." (". $db->ErrorNo() .")");
 			return false;	
 		} else {
 			$row_count = $rs->RecordCount();
 			
 			if ($row_count > 1) {
-				debug("add_aro(): Returned $row_count rows, can only return one. Please search by value not name, or make your names unique.");
+				debug("get_aro_id(): Returned $row_count rows, can only return one. Please search by value not name, or make your names unique.");
 				return false;	
 			} elseif($row_count == 0) {
-				debug("add_aro(): Returned $row_count rows");				
+				debug("get_aro_id(): Returned $row_count rows");				
 				return false;
 			} else {
 				$rows = $rs->GetRows();
@@ -826,15 +827,15 @@ class gacl_api {
 	function edit_aro($aro_id, $section_id, $name, $value=0, $order=0) {
 		global $db;
 		
-		debug("add_aro(): ID: $aro_id Section ID: $section_id Value: $value Order: $order Name: $name");
+		debug("edit_aro(): ID: $aro_id Section ID: $section_id Value: $value Order: $order Name: $name");
 		
 		if (empty($aro_id) OR empty($section_id) ) {
-			debug("add_aro(): ARO ID ($aro_id) OR Section ID ($section_id) is empty, this is required");
+			debug("edit_aro(): ARO ID ($aro_id) OR Section ID ($section_id) is empty, this is required");
 			return false;	
 		}
 
 		if (empty($name) ) {
-			debug("add_aro(): name ($name) is empty, this is required");
+			debug("edit_aro(): name ($name) is empty, this is required");
 			return false;	
 		}
 		
@@ -847,10 +848,10 @@ class gacl_api {
 		$rs = $db->Execute($query);                   
 
 		if ($db->ErrorNo() != 0) {
-			debug("add_aro(): database error: ". $db->ErrorMsg() ." (". $db->ErrorNo() .")");
+			debug("edit_aro(): database error: ". $db->ErrorMsg() ." (". $db->ErrorNo() .")");
 			return false;	
 		} else {
-			debug("add_aro(): Modified aro ID: $aro_id");
+			debug("edit_aro(): Modified aro ID: $aro_id");
 			return true;
 		}
 	}
@@ -862,10 +863,10 @@ class gacl_api {
 	function del_aro($aro_id) {
 		global $db;
 		
-		debug("add_aro(): ID: $aro_id");
+		debug("del_aro(): ID: $aro_id");
 		
 		if (empty($aro_id) ) {
-			debug("add_aro(): ARO_ID ($aro_id) is empty, this is required");
+			debug("del_aro(): ARO_ID ($aro_id) is empty, this is required");
 			return false;	
 		}
 
@@ -873,10 +874,10 @@ class gacl_api {
 		$db->Execute($query);
 	
 		if ($db->ErrorNo() != 0) {
-			debug("add_aro(): database error: ". $db->ErrorMsg() ." (". $db->ErrorNo() .")");
+			debug("del_aro(): database error: ". $db->ErrorMsg() ." (". $db->ErrorNo() .")");
 			return false;	
 		} else {
-			debug("add_aro(): deleted aro ID: $aro_id");
+			debug("del_aro(): deleted aro ID: $aro_id");
 			return true;
 		}
 
@@ -960,15 +961,15 @@ class gacl_api {
 	function edit_aro_section($aro_section_id, $name, $value=0, $order=0) {
 		global $db;
 		
-		debug("add_aro_section(): ID: $aro_section_id Value: $value Order: $order Name: $name");
+		debug("edit_aro_section(): ID: $aro_section_id Value: $value Order: $order Name: $name");
 		
 		if (empty($aro_section_id) ) {
-			debug("add_aro_section(): Section ID ($aro_section_id) is empty, this is required");
+			debug("edit_aro_section(): Section ID ($aro_section_id) is empty, this is required");
 			return false;	
 		}
 
 		if (empty($name) ) {
-			debug("add_aro_section(): name ($name) is empty, this is required");
+			debug("edit_aro_section(): name ($name) is empty, this is required");
 			return false;	
 		}
 				
@@ -980,10 +981,10 @@ class gacl_api {
 		$rs = $db->Execute($query);                   
 
 		if ($db->ErrorNo() != 0) {
-			debug("add_aro_section(): database error: ". $db->ErrorMsg() ." (". $db->ErrorNo() .")");
+			debug("edit_aro_section(): database error: ". $db->ErrorMsg() ." (". $db->ErrorNo() .")");
 			return false;	
 		} else {
-			debug("add_aro_section(): Modified aro_section ID: $aro_section_id");
+			debug("edit_aro_section(): Modified aro_section ID: $aro_section_id");
 			return true;
 		}
 	}
@@ -995,10 +996,10 @@ class gacl_api {
 	function del_aro_section($aro_section_id) {
 		global $db;
 		
-		debug("add_aro_section(): ID: $aro_section_id");
+		debug("del_aro_section(): ID: $aro_section_id");
 		
 		if (empty($aro_section_id) ) {
-			debug("add_aro_section(): Section ID ($aro_section_id) is empty, this is required");
+			debug("del_aro_section(): Section ID ($aro_section_id) is empty, this is required");
 			return false;	
 		}
 
@@ -1006,10 +1007,10 @@ class gacl_api {
 		$db->Execute($query);
 	
 		if ($db->ErrorNo() != 0) {
-			debug("add_aro_section(): database error: ". $db->ErrorMsg() ." (". $db->ErrorNo() .")");
+			debug("del_aro_section(): database error: ". $db->ErrorMsg() ." (". $db->ErrorNo() .")");
 			return false;	
 		} else {
-			debug("add_aro_section(): deleted aro_section ID: $aro_section_id");
+			debug("del_aro_section(): deleted aro_section ID: $aro_section_id");
 			return true;
 		}
 
@@ -1193,15 +1194,15 @@ class gacl_api {
 	function edit_aco($aco_id, $section_id, $name, $value=0, $order=0) {
 		global $db;
 		
-		debug("add_aco(): ID: $aco_id Section ID: $section_id Value: $value Order: $order Name: $name");
+		debug("edit_aco(): ID: $aco_id Section ID: $section_id Value: $value Order: $order Name: $name");
 		
 		if (empty($aco_id) OR empty($section_id) ) {
-			debug("add_aco(): ARO ID ($aco_id) OR Section ID ($section_id) is empty, this is required");
+			debug("edit_aco(): ARO ID ($aco_id) OR Section ID ($section_id) is empty, this is required");
 			return false;	
 		}
 
 		if (empty($name) ) {
-			debug("add_aco(): name ($name) is empty, this is required");
+			debug("edit_aco(): name ($name) is empty, this is required");
 			return false;	
 		}
 		
@@ -1214,10 +1215,10 @@ class gacl_api {
 		$rs = $db->Execute($query);                   
 
 		if ($db->ErrorNo() != 0) {
-			debug("add_aco(): database error: ". $db->ErrorMsg() ." (". $db->ErrorNo() .")");
+			debug("edit_aco(): database error: ". $db->ErrorMsg() ." (". $db->ErrorNo() .")");
 			return false;	
 		} else {
-			debug("add_aco(): Modified aco ID: $aco_id");
+			debug("edit_aco(): Modified aco ID: $aco_id");
 			return true;
 		}
 	}
@@ -1229,10 +1230,10 @@ class gacl_api {
 	function del_aco($aco_id) {
 		global $db;
 		
-		debug("add_aco(): ID: $aco_id");
+		debug("del_aco(): ID: $aco_id");
 		
 		if (empty($aco_id) ) {
-			debug("add_aco(): ACO ID ($aco_id) is empty, this is required");
+			debug("del_aco(): ACO ID ($aco_id) is empty, this is required");
 			return false;	
 		}
 
@@ -1240,10 +1241,10 @@ class gacl_api {
 		$db->Execute($query);
 	
 		if ($db->ErrorNo() != 0) {
-			debug("add_aco(): database error: ". $db->ErrorMsg() ." (". $db->ErrorNo() .")");
+			debug("del_aco(): database error: ". $db->ErrorMsg() ." (". $db->ErrorNo() .")");
 			return false;	
 		} else {
-			debug("add_aco(): deleted aco ID: $aco_id");
+			debug("del_aco(): deleted aco ID: $aco_id");
 			return true;
 		}
 
@@ -1329,15 +1330,15 @@ class gacl_api {
 	function edit_aco_section($aco_section_id, $name, $value=0, $order=0) {
 		global $db;
 		
-		debug("add_aco_section(): ID: $aco_section_id Value: $value Order: $order Name: $name");
+		debug("edit_aco_section(): ID: $aco_section_id Value: $value Order: $order Name: $name");
 		
 		if (empty($aco_section_id) ) {
-			debug("add_aco_section(): Section ID ($aco_section_id) is empty, this is required");
+			debug("edit_aco_section(): Section ID ($aco_section_id) is empty, this is required");
 			return false;	
 		}
 
 		if (empty($name) ) {
-			debug("add_aco_section(): name ($name) is empty, this is required");
+			debug("edit_aco_section(): name ($name) is empty, this is required");
 			return false;	
 		}
 			
@@ -1349,10 +1350,10 @@ class gacl_api {
 		$rs = $db->Execute($query);                   
 
 		if ($db->ErrorNo() != 0) {
-			debug("add_aco_section(): database error: ". $db->ErrorMsg() ." (". $db->ErrorNo() .")");
+			debug("edit_aco_section(): database error: ". $db->ErrorMsg() ." (". $db->ErrorNo() .")");
 			return false;	
 		} else {
-			debug("add_aco_section(): Modified aco_section ID: $aco_section_id");
+			debug("edit_aco_section(): Modified aco_section ID: $aco_section_id");
 			return true;
 		}
 	}
@@ -1364,10 +1365,10 @@ class gacl_api {
 	function del_aco_section($aco_section_id) {
 		global $db;
 		
-		debug("add_aco_section(): ID: $aco_section_id");
+		debug("del_aco_section(): ID: $aco_section_id");
 		
 		if (empty($aco_section_id) ) {
-			debug("add_aco_section(): Section ID ($aco_section_id) is empty, this is required");
+			debug("del_aco_section(): Section ID ($aco_section_id) is empty, this is required");
 			return false;	
 		}
 
@@ -1375,10 +1376,10 @@ class gacl_api {
 		$db->Execute($query);
 	
 		if ($db->ErrorNo() != 0) {
-			debug("add_aco_section(): database error: ". $db->ErrorMsg() ." (". $db->ErrorNo() .")");
+			debug("del_aco_section(): database error: ". $db->ErrorMsg() ." (". $db->ErrorNo() .")");
 			return false;	
 		} else {
-			debug("add_aco_section(): deleted aco_section ID: $aco_section_id");
+			debug("del_aco_section(): deleted aco_section ID: $aco_section_id");
 			return true;
 		}
 
