@@ -768,7 +768,7 @@ Installation Successful!!!<br>\n
 Please make sure you create the <b>&lt;phpGACL root&gt;/admin/smarty/templates_c</b> directory, <br>\n
 and give it <b>write permissions</b> for the user your web server runs as. 
 
-<a href=\"admin/acl_admin.php\"><b>Go here!</b></a> to get started.
+Please read the manual, and example.php, then <a href=\"admin/acl_admin.php\"><b>Go here!</b></a> to get started.
 ");	
 } else {
 	echo_failed("Please fix the above errors and try again.");	

@@ -2,7 +2,7 @@
 require_once("gacl_admin.inc.php");
 
 //GET takes precedence.
-if ( isset($_GET['object_type'] != '') AND $_GET['object_type'] != '' ) {
+if ( isset($_GET['object_type']) AND $_GET['object_type'] != '' ) {
 	$object_type = $_GET['object_type'];
 } else {
 	$object_type = $_POST['object_type'];	

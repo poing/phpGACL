@@ -1,7 +1,7 @@
 <?php
 /*
  * phpGACL - Generic Access Control List
- * Copyright (C) 2002 Mike Benoit
+ * Copyright (C) 2002,2003 Mike Benoit
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
