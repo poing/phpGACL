@@ -1,3 +1,6 @@
+Wed May 28 2003
+	- More minor warning fixes.
+	
 Mon May 26 2003
 	- Fixed many more PHP warnings all over.
 	- Added example.php

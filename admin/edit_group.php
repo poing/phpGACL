@@ -79,7 +79,7 @@ switch ($_POST['action']) {
                                         parent_id,
                                         name
                             from    $group_table
-                            where   id = ". $_GET['group_id'];
+                            where   id = ". (int)$_GET['group_id'];
             $rs = $db->Execute($query);
             $rows = $rs->GetRows();
             
