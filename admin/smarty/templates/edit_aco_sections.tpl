@@ -69,7 +69,7 @@
              </td>
 
             <td valign="top" bgcolor="#cccccc" align="center">
-                <input type="text" size="10" name="new_sections[{$new_sections[y].id}][]" value="">                
+                <input type="text" size="40" name="new_sections[{$new_sections[y].id}][]" value="">                
              </td>
             <td valign="top" bgcolor="#cccccc" align="center">
                 &nbsp;
