@@ -2259,6 +2259,10 @@ class gacl_api extends gacl {
 				$object_type = 'axo';
 				$table = $this->_db_table_prefix .'axo';
 				break;
+			case 'acl':
+				$object_type = 'acl';
+				$table = $this->_db_table_prefix .'acl';
+				break;
 			default:
 				$this->debug_text('get_object(): Invalid Object Type: '. $object_type);
 				return FALSE;
@@ -2274,7 +2278,7 @@ class gacl_api extends gacl {
 			$where[] = 'section_value='. $this->db->quote($section_value);
 		}
 
-		if ($return_hidden==0) {
+		if ($return_hidden==0 AND $object_type != 'acl') {
 			$where[] = 'hidden=0';
 		}
 
