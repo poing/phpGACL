@@ -1,4 +1,6 @@
 Mon Sep 29 2003
+	- Fixed possible bug with re-using database connection objects.
+	- Fixed bug in assign_group.tpl where it was hard coded to reference AROs. 
 	- Fixed major bug with table prefixes and del_object() function, as well as sequences. Thanks to Ian Eure <ieure@debian.org> for reporting this.
 	- Fixed minor bug in generating javascript arrays with values containing quotes. Bug found by: Martino Piccinato <m.piccinato@nexus.it>
 Sat Sep 20 2003
