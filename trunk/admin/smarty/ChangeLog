@@ -1,3 +1,367 @@
+2002-08-01  mohrt  <mohrt@pb1.pair.com>
+
+    * TODO
+      NEWS
+      Smarty.class.php:
+    changed default warning type for plugin errors from E_USER_WARNING to E_USER_ERROR
+
+2002-07-29  mohrt  <mohrt@pb1.pair.com>
+
+    * plugins/function.html_select_time.php
+      docs/designers.sgml
+      NEWS: added paramters to html_select_time plugin
+
+2002-07-25  Andrei Zmievski  <andrei@pb1.pair.com>
+
+    * TODO: *** empty log message ***
+
+2002-07-24  mohrt  <mohrt@pb1.pair.com>
+
+    * QUICKSTART: update QUICKSTART guide
+
+    * NEWS
+      debug.tpl
+      plugins/modifier.debug_print_var.php:
+    update debug console to show objects, fix warning in debug.tpl
+
+2002-07-23  mohrt  <mohrt@pb1.pair.com>
+
+    * docs/programmers.sgml: fix load_filter examples
+
+    * Config_File.class.php
+      NEWS: fix error when there are no sections in config file
+
+2002-07-19  mohrt  <mohrt@pb1.pair.com>
+
+    * docs/getting-started.sgml: fix error in install guide
+
+2002-07-18  mohrt  <mohrt@pb1.pair.com>
+
+    * Smarty_Compiler.class.php:
+    correct the expression match for smarty:nodefaults
+
+2002-07-17  mohrt  <mohrt@pb1.pair.com>
+
+    * Smarty_Compiler.class.php: fix default modifier to work with config vars
+
+    * Smarty_Compiler.class.php: got args to strstr backwards...
+
+    * NEWS
+      Smarty.class.php
+      Smarty_Compiler.class.php:
+    change default modifiers to array instead of string
+
+    * Smarty_Compiler.class.php
+      docs/designers.sgml
+      Smarty.class.php: add default modifier logic, minor doc updates
+
+    * NEWS
+      Smarty.class.php
+      plugins/function.popup_init.php:
+    make popup_init xhtml compliant, minor variable name changes for consistancy
+
+2002-07-16  mohrt  <mohrt@pb1.pair.com>
+
+    * NEWS: update NEWS file
+
+    * plugins/function.debug.php
+      Smarty.class.php
+      debug.tpl
+      NEWS:
+    fix problem with filenames on windows, add ability to supply expire time in seconds when clearing cache or compiled files
+
+2002-07-15  mohrt  <mohrt@pb1.pair.com>
+
+    * Smarty.class.php:
+    fixed problem with insert tags when loading function from script attribute
+    and caching enabled (Monte)
+
+2002-07-14  mohrt  <mohrt@pb1.pair.com>
+
+    * NEWS
+      Smarty.class.php: fix bug with debug_tpl file path for Windows
+
+2002-07-12  Monte Ohrt  <monte@ispi.net>
+
+    * Smarty.class.php: fix append function with array/string issue
+
+2002-07-11  Monte Ohrt  <monte@ispi.net>
+
+    * RELEASE_NOTES: update release notes
+
+    * NEWS
+      README
+      RELEASE_NOTES
+      Smarty.class.php
+      Smarty_Compiler.class.php
+      Config_File.class.php: update files to 2.2.0 tags, get ready for release
+
+2002-07-09  Monte Ohrt  <monte@ispi.net>
+
+    * NEWS
+      Smarty.class.php: make debug.tpl work with any delimiter
+
+    * NEWS
+      Smarty.class.php:
+    change tests in append and assign to != '' instead of empty(), which is more accurate
+
+2002-07-08  Monte Ohrt  <monte@ispi.net>
+
+    * docs/designers.sgml: minor doc update
+
+    * Smarty.class.php:
+    cast var as an array, simplify and get rid of PHP warning messages
+
+2002-07-03  Monte Ohrt  <monte@ispi.net>
+
+    * Smarty.class.php: one more N
+
+    * Smarty.class.php:
+    prepend "N" to filenames to avoid possible OS issues with dir names starting with "-"
+
+    * Smarty.class.php: only set $debug_tpl in constructor if empty
+
+    * Smarty.class.php
+      docs/designers.sgml
+      docs/getting-started.sgml
+      docs/programmers.sgml:
+    make use_sub_dirs go back to crc32 for subdir separation
+
+2002-06-29  Monte Ohrt  <monte@ispi.net>
+
+    * plugins/function.eval.php: do nothing if $val is empty
+
+    * TODO
+      plugins/function.eval.php
+      plugins/function.popup_init.php:
+    add zindex to popup init, fix error message for eval.
+
+2002-06-27  Monte Ohrt  <monte@ispi.net>
+
+    * Smarty.class.php:
+    only loop through relative paths for PHP include_path, remove $_relative variable
+
+    * Smarty_Compiler.class.php: added {$smarty.version} variable
+
+2002-06-26  Monte Ohrt  <monte@ispi.net>
+
+    * docs/appendixes.sgml
+      docs/designers.sgml
+      docs/getting-started.sgml
+      docs/programmers.sgml
+      Smarty.class.php:
+    update plugin loading logic, look in SMARTY_DIR, then cwd. If all fail, then retry all with include_path
+
+    * templates/header.tpl
+      Smarty.class.php: update get_include_path, get _path_array only once
+
+    * Smarty.class.php: fix get_include_path function for windows
+
+    * Smarty.class.php: update plugin search logic
+
+    * Smarty.class.php: only search include_path if relative path
+
+    * plugins/function.html_select_date.php
+      plugins/function.html_select_time.php
+      plugins/modifier.date_format.php
+      Smarty_Compiler.class.php
+      NEWS
+      Smarty.class.php: allow plugins_dir to be an array of directories
+
+2002-06-25  Monte Ohrt  <monte@ispi.net>
+
+    * docs/programmers.sgml
+      docs/getting-started.sgml: update installation docs
+
+    * debug.tpl
+      docs/getting-started.sgml
+      templates/debug.tpl
+      NEWS
+      Smarty.class.php: move debug.tpl to SMARTY_DIR, add to constructor
+
+2002-06-24  Monte Ohrt  <monte@ispi.net>
+
+    * plugins/function.assign_debug_info.php
+      NEWS: fixed warning message in function.assign_debug_info
+
+    * Smarty.class.php: update include_path fixes
+
+    * NEWS:
+    fixed $template_dir, $compile_dir, $cache_dir, $config_dir to respect include_path
+
+2002-06-23  Monte Ohrt  <monte@ispi.net>
+
+    * plugins/shared.make_timestamp.php:
+    update timestamp plugin to work when passed a timestamp
+
+2002-06-19  Monte Ohrt  <monte@ispi.net>
+
+    * NEWS: update NEWS file
+
+    * plugins/modifier.date_format.php
+      docs/designers.sgml:
+    update date_format, allow optional 2nd paramater as default date if passed date is empty. update docs.
+
+    * plugins/modifier.date_format.php:
+    fix date_format modifier, return nothing if given empty string
+
+2002-06-18  Monte Ohrt  <monte@ispi.net>
+
+    * NEWS
+      plugins/function.cycle.php:
+    gave $reset a default value in cycle function
+
+    * plugins/function.html_select_date.php
+      plugins/shared.make_timestamp.php
+      NEWS:
+    corrected warnings in html_select_time function, made make timestamp always return a timestamp
+
+2002-06-17  Monte Ohrt  <monte@ispi.net>
+
+    * Smarty.class.php: swapped around cache_id and compile_id order
+
+2002-06-14  Monte Ohrt  <monte@ispi.net>
+
+    * docs/programmers.sgml
+      plugins/function.popup_init.php
+      Smarty.class.php:
+    change directory delimiter to "^" for cache and compile files
+
+2002-06-13  Andrei Zmievski  <andrei@php.net>
+
+    * TODO: done.
+
+    * Smarty_Compiler.class.php:
+    Optimize the calculation of section 'total' property.
+
+2002-06-11  Monte Ohrt  <monte@ispi.net>
+
+    * NEWS
+      Smarty.class.php:
+    added support for subdir exclusion, deletion by full or partial cache_id and compile_id, change file format to urlencoded values instead of crc32
+
+2002-06-07  Monte Ohrt  <monte@ispi.net>
+
+    * Smarty.class.php: fix bug with last_modified_check code
+
+    * NEWS
+      Smarty.class.php:
+    updated $GLOBALS refererence for HTTP_IF_MODIFIED_SINCE
+
+2002-06-06  Monte Ohrt  <monte@ispi.net>
+
+    * docs/designers.sgml
+      overlib.js:
+    remove overlib.js file from distribution, update plugin and docs
+
+2002-06-05  Monte Ohrt  <monte@ispi.net>
+
+    * docs/designers.sgml
+      NEWS
+      Smarty.class.php: fix 304 Not Modified, don't send content
+
+2002-06-03  Monte Ohrt  <monte@ispi.net>
+
+    * plugins/function.cycle.php: update version number
+
+    * plugins/function.cycle.php
+      NEWS:
+    fixed cycle function to respect delimiter setting after initial setting
+
+    * Smarty.class.php
+      NEWS:
+    update $GLOBALS references to work properly with track_globals settings
+
+    * plugins/function.math.php: fixed bug with call $assign
+
+    * docs/appendixes.sgml
+      docs/designers.sgml
+      plugins/function.html_options.php
+      plugins/function.html_select_time.php
+      NEWS
+      Smarty.class.php
+      Smarty_Compiler.class.php:
+    optimized for loops with count() function calls
+
+2002-06-01  Andrei Zmievski  <andrei@php.net>
+
+    * TODO: *** empty log message ***
+
+2002-05-21  Monte Ohrt  <monte@ispi.net>
+
+    * NEWS: update NEWS file
+
+    * plugins/function.html_select_date.php
+      RESOURCES
+      docs/designers.sgml
+      Config_File.class.php:
+    update html_select_date with month_value_format attribute for controlling the format of the month values.
+
+2002-05-17  Andrei Zmievski  <andrei@php.net>
+
+    * NEWS
+      Smarty_Compiler.class.php:
+    Made it possible to use simple variables inside [] for indexing.
+
+2002-05-16  Monte Ohrt  <monte@ispi.net>
+
+    * docs/designers.sgml
+      docs/getting-started.sgml
+      NEWS
+      Smarty.class.php
+      Smarty_Compiler.class.php
+      TESTIMONIALS: add "once" attribute to php_include, update docs
+
+2002-05-09  Andrei Zmievski  <andrei@ispi.net>
+
+    * NEWS
+      TODO: *** empty log message ***
+
+2002-05-07  Monte Ohrt  <monte@ispi.net>
+
+    * plugins/function.cycle.php: remove \n from cycle function
+
+    * docs/designers.sgml
+      plugins/function.cycle.php
+      README
+      RELEASE_NOTES
+      Smarty.class.php
+      Smarty_Compiler.class.php
+      NEWS:
+    update cycle function to handle array as input, update files to 2.1.1
+
+2002-05-06  Monte Ohrt  <monte@ispi.net>
+
+    * plugins/function.fetch.php:
+    update fetch function with more error checking
+
+2002-05-03  Monte Ohrt  <monte@ispi.net>
+
+    * docs/designers.sgml
+      plugins/function.counter.php:
+    update counter to use name instead of id (id still works though)
+
+    * plugins/function.cycle.php
+      docs/designers.sgml: rename id to name for cycle function
+
+    * plugins/function.cycle.php:
+    update cycle function to allow blank values parameter after initialized
+
+    * plugins/function.cycle.php: fix syntax error
+
+2002-05-02  Monte Ohrt  <monte@ispi.net>
+
+    * plugins/function.cycle.php: ugh, another typo
+
+    * plugins/function.cycle.php: update comments
+
+    * docs/designers.sgml
+      plugins/function.cycle.php
+      NEWS: added function cycle
+
+    * FAQ
+      Smarty.class.php: fix register_outputfilter function
+
 2002-05-01  Monte Ohrt  <monte@ispi.net>
 
     * docs/designers.sgml

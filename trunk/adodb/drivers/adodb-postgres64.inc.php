@@ -1,6 +1,6 @@
 <?php
 /*
- V2.20 09 July 2002 (c) 2000-2002 John Lim (jlim@natsoft.com.my). All rights reserved.
+ V2.40 4 Sept 2002  (c) 2000-2002 John Lim (jlim@natsoft.com.my). All rights reserved.
   Released under both BSD license and Lesser GPL library license. 
   Whenever there is any discrepancy between the two licenses, 
   the BSD license will take precedence.
@@ -171,7 +171,7 @@ a different OID if a database must be reloaded. */
 	{
 	global $ADODB_FETCH_MODE;
 	
-		if (!empty($this->metaColumnsSQL)) {
+		if (!empty($this->metaColumnsSQL)) { 
 			// the following is the only difference -- we lowercase it
 			$save = $ADODB_FETCH_MODE;
 			$ADODB_FETCH_MODE = ADODB_FETCH_NUM;
@@ -221,9 +221,9 @@ a different OID if a database must be reloaded. */
 				}
 				unset($rsdef);
 			}
-
+		
 			$retarr = array();
-			while (!$rs->EOF) { //print_r($rs->fields);
+			while (!$rs->EOF) { 	
 				$fld = new ADOFieldObject();
 				$fld->name = $rs->fields[0];
 				$fld->type = $rs->fields[1];
@@ -343,6 +343,11 @@ a different OID if a database must be reloaded. */
 		if (empty($this->_connectionID)) $this->_errorMsg = @pg_errormessage();
 		else $this->_errorMsg = @pg_errormessage($this->_connectionID);
 		return $this->_errorMsg;
+	}
+	
+	function ErrorNo()
+	{
+		return (strlen($this->ErrorMsg())) ? -1 : 0;
 	}
 
 	// returns true or false

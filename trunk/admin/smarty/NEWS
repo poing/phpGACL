@@ -1,9 +1,73 @@
-Version 2.1.1
+Version 2.3.0
 -------------
 
-    - added cycle function (Monte)
-    - fixed bug with resource testing, and include_path (Monte)
-    - fixed a bug with register_outputfilter function (Monte)
+    - added assign_by_ref() and append_by_ref() functions
+      (Bob Silva, Monte)
+    - changed default warning type for plugin errors from
+      E_USER_WARNING to E_USER_ERROR (Monte)
+    - added $all_extra, $hour_extra, $minute_extra,
+      $second_extra and $meridian_extra parameters to
+      html_select_time function (Rainer Collet, Monte)
+    - update debug console to print objects (Simon Willison,
+      Monte)
+    - fix Config_File class to not error when there are no
+      sections (Peter Kmet, Monte)
+    - add default modifier logic (Monte)
+    - updated popup_init to be xhtml compliant (Tom Oram, Monte)
+    - fix filename bug with windows (Gary Loescher, Monte)
+    - add ability to supply expire time in seconds when clearing
+      cache or compile files (Monte)
+    - add {debug} plugin to distribution (Monte)
+    - fixed bug with insert tags, loading from "script" attribute
+      when caching is enabled (Monte)
+    - fix bug with debug_tpl file path with Windows (.SMK., Monte)
+    - fix append() function with string/array problem (Monte)
+
+Version 2.2.0
+-------------
+
+    - make debug.tpl work with any delimiter (Monte)
+    - change logic in assign() and append() to test var names
+      against != '' instead of empty() (Monte)
+    - fix PHP notice in append() function (Monte)
+    - allow $plugins_dir to be an array of directories
+      (Andreas Kossmeier, Monte)
+    - move debug.tpl to SMARTY_DIR, add to constructor (Monte)
+    - fixed warning message in function.assign_debug_info (Monte)
+    - fixed $template_dir, $compile_dir, $cache_dir, $config_dir,
+      $plugin_dir to respect include_path (Monte)
+    - fixed warning message with output filter array (Monte)
+    - add optional 2nd parameter to date_format, used as
+      the default date if the passed date is empty (Monte)
+    - gave $reset a default value in cycle plugin (Monte)
+    - fixed warnings with html_select_date and timestamp
+      functions (Monte)
+    - added support for sub directory exlusion format (Monte)
+    - added support for grouping by cache_id, compile_id
+      and segments thereof (Monte)
+    - changed cache and compile files to human readable
+      format (Monte)
+    - remove overlib.js file from distribution (Monte)
+    - fixed bug with 304 Not Modified response sending
+      content (Monte)
+    - fixed cycle function to respect delimiter after
+      initial setting (Monte)
+    - update $GLOBALS references to work properly with
+      track_globals settings (Michal Prinke, Monte)
+    - fixed bug in math function with call to assign
+      (Grigory V. Kareev, Monte)
+    - optimized for loops with count() function calls (Monte)
+    - add month_value_format attribute to html_select_date
+      plugin (Gary Loescher, Monte) 
+    - made it possible to use simple variables inside [] for
+      indexing. (Andrei)
+    - added "once" attribute to {include_php}. (Monte)
+
+Version 2.1.1
+-------------
+    - added cycle function. (Monte)
+    - fixed bug with resource testing, and include_path. (Monte)
+    - fixed a bug with register_outputfilter function. (Monte)
 
 Version 2.1.0
 -------------

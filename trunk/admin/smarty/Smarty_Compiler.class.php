@@ -6,7 +6,7 @@
  * Author:      Monte Ohrt <monte@ispi.net>
  *              Andrei Zmievski <andrei@php.net>
  *
- * Version:     2.1.1
+ * Version:     2.3.0
  * Copyright:   2001,2002 ispi of Lincoln, Inc.
  *
  * This library is free software; you can redistribute it and/or
@@ -110,11 +110,11 @@ class Smarty_Compiler extends Smarty {
         $text_blocks = preg_split("!{$ldq}.*?{$rdq}!s", $template_source);
 
         /* loop through text blocks */
-        for ($curr_tb = 0; $curr_tb < count($text_blocks); $curr_tb++) {
+        for ($curr_tb = 0, $for_max = count($text_blocks); $curr_tb < $for_max; $curr_tb++) {
             /* match anything within <? ?> */
             if (preg_match_all('!(<\?[^?]*?\?>|<script\s+language\s*=\s*[\"\']?php[\"\']?\s*>)!is', $text_blocks[$curr_tb], $sp_match)) {
                 /* found at least one match, loop through each one */
-                for ($curr_sp = 0; $curr_sp < count($sp_match[0]); $curr_sp++) {
+                for ($curr_sp = 0, $for_max2 = count($sp_match[0]); $curr_sp < $for_max2; $curr_sp++) {
                     if (preg_match('!^(<\?(php\s|\s|=\s)|<script\s*language\s*=\s*[\"\']?php[\"\']?\s*>)!is', $sp_match[0][$curr_sp])) {
                         /* php tag */
                         if ($this->php_handling == SMARTY_PHP_PASSTHRU) {
@@ -140,7 +140,7 @@ class Smarty_Compiler extends Smarty {
 
         /* Compile the template tags into PHP code. */
         $compiled_tags = array();
-        for ($i = 0; $i < count($template_tags); $i++) {
+        for ($i = 0, $for_max = count($template_tags); $i < $for_max; $i++) {
             $this->_current_line_no += substr_count($text_blocks[$i], "\n");
             $compiled_tags[] = $this->_compile_tag($template_tags[$i]);
             $this->_current_line_no += substr_count($template_tags[$i], "\n");
@@ -149,7 +149,7 @@ class Smarty_Compiler extends Smarty {
         $template_compiled = '';
 
         /* Interleave the compiled contents and text blocks to get the final result. */
-        for ($i = 0; $i < count($compiled_tags); $i++) {
+        for ($i = 0, $for_max = count($compiled_tags); $i < $for_max; $i++) {
             $template_compiled .= $text_blocks[$i].$compiled_tags[$i];
         }
         $template_compiled .= $text_blocks[$i];
@@ -159,7 +159,7 @@ class Smarty_Compiler extends Smarty {
             $strip_tags = $match[0];
             $strip_tags_modified = preg_replace("!{$ldq}/?strip{$rdq}|[\t ]+$|^[\t ]+!m", '', $strip_tags);
             $strip_tags_modified = preg_replace('![\r\n]+!m', '', $strip_tags_modified);
-            for ($i = 0; $i < count($strip_tags); $i++)
+            for ($i = 0, $for_max = count($strip_tags); $i < $for_max; $i++)
                 $template_compiled = preg_replace("!{$ldq}strip{$rdq}.*?{$ldq}/strip{$rdq}!s",
                                                   $this->quote_replace($strip_tags_modified[$i]),
                                                   $template_compiled, 1);
@@ -235,7 +235,7 @@ class Smarty_Compiler extends Smarty {
 
         /* If the tag name matches a variable or section property definition,
            we simply process it. */
-        if (preg_match('!^\$\w+(?>(\[(\d+|\w+(\.\w+)?)\])|((\.|->)\$?\w+))*(?>\|@?\w+(:(?>' . $qstr_regexp . '|[^|]+))*)*$!', $tag_command) ||   // if a variable
+        if (preg_match('!^\$\w+(?>(\[(\d+|\$\w+|\w+(\.\w+)?)\])|((\.|->)\$?\w+))*(?>\|@?\w+(:(?>' . $qstr_regexp . '|[^|]+))*)*$!', $tag_command) ||   // if a variable
             preg_match('!^#(\w+)#(?>\|@?\w+(:(?>' . $qstr_regexp . '|[^|]+))*)*$!', $tag_command)     ||  // or a configuration variable
             preg_match('!^%\w+\.\w+%(?>\|@?\w+(:(?>' . $qstr_regexp . '|[^|]+))*)*$!', $tag_command)) {    // or a section property
             settype($tag_command, 'array');
@@ -348,12 +348,6 @@ class Smarty_Compiler extends Smarty {
         $found = false;
         $have_function = true;
 
-        $plugin_file = SMARTY_DIR .
-                       $this->plugins_dir . DIR_SEP .
-                       'compiler.' .
-                       $tag_command .
-                       '.php';
-
         /*
          * First we check if the compiler function has already been registered
          * or loaded from a plugin file.
@@ -370,7 +364,7 @@ class Smarty_Compiler extends Smarty {
          * Otherwise we need to load plugin file and look for the function
          * inside it.
          */
-        else if (file_exists($plugin_file) && is_readable($plugin_file)) {
+        else if ($plugin_file = $this->_get_plugin_filepath('compiler', $tag_command)) {
             $found = true;
 
             include_once $plugin_file;
@@ -418,12 +412,6 @@ class Smarty_Compiler extends Smarty {
         $found = false;
         $have_function = true;
 
-        $plugin_file = SMARTY_DIR .
-                       $this->plugins_dir . DIR_SEP .
-                       'block.' .
-                       $tag_command .
-                       '.php';
-
         /*
          * First we check if the block function has already been registered
          * or loaded from a plugin file.
@@ -440,7 +428,7 @@ class Smarty_Compiler extends Smarty {
          * Otherwise we need to load plugin file and look for the function
          * inside it.
          */
-        else if (file_exists($plugin_file) && is_readable($plugin_file)) {
+        else if ($plugin_file = $this->_get_plugin_filepath('block', $tag_command)) {
             $found = true;
 
             include_once $plugin_file;
@@ -632,8 +620,10 @@ class Smarty_Compiler extends Smarty {
         }
 
         $assign_var = $this->_dequote($attrs['assign']);
-		
-		return "<?php \$this->_smarty_include_php($attrs[file], '$assign_var'); ?>";
+
+		$once_var = ( $attrs['once'] === false ) ? 'false' : 'true';
+				
+		return "<?php \$this->_smarty_include_php($attrs[file], '$assign_var', $once_var); ?>";
     }
 	
 
@@ -712,9 +702,13 @@ class Smarty_Compiler extends Smarty {
                        "    {$section_props}['start'] = min({$section_props}['start'], {$section_props}['step'] > 0 ? {$section_props}['loop'] : {$section_props}['loop']-1);\n";
         }
 
-        $output .= "if ({$section_props}['show']) {\n" .
-                   "    {$section_props}['total'] = min(ceil(({$section_props}['step'] > 0 ? {$section_props}['loop'] - {$section_props}['start'] : {$section_props}['start']+1)/abs({$section_props}['step'])), {$section_props}['max']);\n" .
-                   "    if ({$section_props}['total'] == 0)\n" .
+        $output .= "if ({$section_props}['show']) {\n";
+        if (!isset($attrs['start']) && !isset($attrs['step']) && !isset($attrs['max'])) {
+            $output .= "    {$section_props}['total'] = {$section_props}['loop'];\n";
+        } else {
+            $output .= "    {$section_props}['total'] = min(ceil(({$section_props}['step'] > 0 ? {$section_props}['loop'] - {$section_props}['start'] : {$section_props}['start']+1)/abs({$section_props}['step'])), {$section_props}['max']);\n";
+        }
+        $output .= "    if ({$section_props}['total'] == 0)\n" .
                    "        {$section_props}['show'] = false;\n" .
                    "} else\n" .
                    "    {$section_props}['total'] = 0;\n";
@@ -842,7 +836,7 @@ class Smarty_Compiler extends Smarty {
 
         $is_arg_stack = array();
 
-        for ($i = 0; $i < count($tokens); $i++) {
+        for ($i = 0, $for_max = count($tokens); $i < $for_max; $i++) {
 
             $token = &$tokens[$i];
             switch ($token) {
@@ -1081,7 +1075,7 @@ class Smarty_Compiler extends Smarty {
     {
         $qstr_regexp = '"[^"\\\\]*(?:\\\\.[^"\\\\]*)*"|\'[^\'\\\\]*(?:\\\\.[^\'\\\\]*)*\'';
 
-        $var_exprs = preg_grep('!^\$\w+(?>(\[(\d+|\w+(\.\w+)?)\])|((\.|->)\$?\w+))*(?>\|@?\w+(:(?>' .  $qstr_regexp . '|[^|]+))*)*$!', $tokens);
+        $var_exprs = preg_grep('!^\$\w+(?>(\[(\d+|\$\w+|\w+(\.\w+)?)\])|((\.|->)\$?\w+))*(?>\|@?\w+(:(?>' .  $qstr_regexp . '|[^|]+))*)*$!', $tokens);
         $conf_var_exprs = preg_grep('!^#(\w+)#(?>\|@?\w+(:(?>' . $qstr_regexp . '|[^|]+))*)*$!', $tokens);
         $sect_prop_exprs = preg_grep('!^%\w+\.\w+%(?>\|@?\w+(:(?>' .  $qstr_regexp .  '|[^|]+))*)*$!', $tokens);
 
@@ -1114,8 +1108,13 @@ class Smarty_Compiler extends Smarty {
         $parts = explode('|', substr($var_expr, 1), 2);
         $var_ref = $parts[0];
         $modifiers = isset($parts[1]) ? $parts[1] : '';
-
-        preg_match_all('!\[\w+(\.\w+)?\]|(->|\.)\$?\w+|^\w+!', $var_ref, $match);
+		
+		if(!empty($this->default_modifiers) && !preg_match('!(^|\|)smarty:nodefaults($|\|)!',$modifiers)) {
+			$_default_mod_string = implode('|',(array)$this->default_modifiers);
+			$modifiers = empty($modifiers) ? $_default_mod_string : $_default_mod_string . '|' . $modifiers;
+		}
+			
+        preg_match_all('!\[(?:\$\w+|\w+(\.\w+)?)\]|(->|\.)\$?\w+|^\w+!', $var_ref, $match);
         $indexes = $match[0];
         $var_name = array_shift($indexes);
 
@@ -1141,6 +1140,8 @@ class Smarty_Compiler extends Smarty {
                 $index = substr($index, 1, -1);
                 if (is_numeric($index)) {
                     $output .= "[$index]";
+                } elseif ($index{0} == '$') {
+                    $output .= "[\$this->_tpl_vars['" . substr($index, 1) . "']]";
                 } else {
                     $parts = explode('.', $index);
                     $section = $parts[0];
@@ -1215,8 +1216,14 @@ class Smarty_Compiler extends Smarty {
         preg_match_all('!\|(@?\w+)((?>:(?:'. $qstr_regexp . '|[^|]+))*)!', '|' . $modifier_string, $match);
         list(, $modifiers, $modifier_arg_strings) = $match;
 
-        for ($i = 0; $i < count($modifiers); $i++) {
+        for ($i = 0, $for_max = count($modifiers); $i < $for_max; $i++) {
             $modifier_name = $modifiers[$i];
+			
+			if($modifier_name == 'smarty') {
+				// skip smarty modifier
+				continue;
+			}
+			
             preg_match_all('!:(' . $qstr_regexp . '|[^:]+)!', $modifier_arg_strings[$i], $match);
             $modifier_args = $match[1];
 
@@ -1226,7 +1233,7 @@ class Smarty_Compiler extends Smarty {
             } else {
                 $map_array = 'true';
             }
-
+			
             $this->_add_plugin('modifier', $modifier_name);
 
             $this->_parse_vars_props($modifier_args);
@@ -1341,6 +1348,10 @@ class Smarty_Compiler extends Smarty {
                     $this->_syntax_error('$smarty' . implode('', $indexes) .' is an invalid reference');
                 }
                 break;
+				
+			case 'version':
+				$compiled_ref = "'$this->_version'";
+				break;
 
             default:
                 $this->_syntax_error('$smarty.' . $ref . ' is an unknown reference');

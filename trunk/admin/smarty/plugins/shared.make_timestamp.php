@@ -22,8 +22,12 @@ function smarty_make_timestamp($string)
         return $time;
     }
 
-    // can't decipher, just return it
-    return $string;
+    // couldn't recognize it, try to return a time
+    $time = (int) $string;
+    if ($time > 0)
+		return $time;
+	else
+		return time();
 }
 
 /* vim: set expandtab: */

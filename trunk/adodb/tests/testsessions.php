@@ -1,6 +1,6 @@
 <?php
 /* 
-V2.20 09 July 2002 (c) 2000-2002 John Lim (jlim@natsoft.com.my). All rights reserved.
+V2.40 4 Sept 2002  (c) 2000-2002 John Lim (jlim@natsoft.com.my). All rights reserved.
   Released under both BSD license and Lesser GPL library license. 
   Whenever there is any discrepancy between the two licenses, 
   the BSD license will take precedence. 
@@ -17,7 +17,7 @@ GLOBAL $HTTP_SESSION_VARS;
 	include('../adodb-session.php');
 	session_start();
 	
-	print "<h3>".PHP_VERSION."</h3>";
+	print "<h3>PHP ".PHP_VERSION."</h3>";
 	
 	$HTTP_SESSION_VARS['MONKEY'] = array('1','abc',44.41);
 	if (!isset($HTTP_GET_VARS['nochange'])) @$HTTP_SESSION_VARS['AVAR'] += 1;

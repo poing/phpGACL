@@ -1,7 +1,6 @@
 <?php
-
 /* 
-V2.20 09 July 2002 (c) 2000-2002 John Lim (jlim@natsoft.com.my). All rights reserved.
+V2.40 4 Sept 2002  (c) 2000-2002 John Lim (jlim@natsoft.com.my). All rights reserved.
   Released under both BSD license and Lesser GPL library license. 
   Whenever there is any discrepancy between the two licenses, 
   the BSD license will take precedence. 
@@ -10,73 +9,37 @@ V2.20 09 July 2002 (c) 2000-2002 John Lim (jlim@natsoft.com.my). All rights rese
   Latest version is available at http://php.weblogs.com/
 */
 
+//--------------------------------------------------------------------------------------
+
 function Err($msg)
 {
 	print "<b>$msg</b><br>";
 }
 
-foreach($HTTP_GET_VARS as $k=>$v)  {
-	global $$k;
-		
-	$$k = $v;
-}	
+function CheckWS($conn)
+{ 
+	include_once('../adodb-session.php');
+	$db = ADONewConnection($conn);
+	if (headers_sent()) {
+		print "<p><b>White space detected in adodb-$conn.inc.php or include file...</b></p>";
+		die();
+	}
+}
 
-if (sizeof($HTTP_GET_VARS) == 0) $testmysql = true;
-?>
-<html>
-<title>ADODB Testing</title>
-<body bgcolor=white>
-<H1>ADODB Test</H1>
+function do_strtolower(&$arr)
+{
+	foreach($arr as $k => $v) {
+		$arr[$k] = strtolower($v);
+	}
+}
 
-This script tests the following databases: Interbase, Oracle, Visual FoxPro, Microsoft Access (ODBC and ADO), MySQL, MSSQL (ODBC, native, ADO). 
-There is also support for Sybase, PostgreSQL.</p>
-For the latest version of ADODB, visit <a href=http://php.weblogs.com/ADODB>php.weblogs.com</a>.</p>
-
-<form method=get>
-<input type=checkbox name="testaccess" value=1 <?php echo !empty($testaccess) ? 'checked' : '' ?>> Access<br>
-<input type=checkbox name="testibase" value=1 <?php echo !empty($testibase) ? 'checked' : '' ?>> Interbase<br>
-<input type=checkbox name="testmssql" value=1 <?php echo !empty($testmssql) ? 'checked' : '' ?>> MSSQL<br>
- <input type=checkbox name="testmysql" value=1 <?php echo !empty($testmysql) ? 'checked' : '' ?>> <b>MySQL</b><br>
-<input type=checkbox name="testoracle" value=1 <?php echo !empty($testoracle) ? 'checked' : '' ?>> <b>Oracle (oci8)</b> <br>
-<input type=checkbox name="testpostgres" value=1 <?php echo !empty($testpostgres) ? 'checked' : '' ?>> <b>PostgreSQL</b><br>
-<input type=checkbox name="testvfp" value=1 <?php echo !empty($testvfp) ? 'checked' : '' ?>> VFP<br>
-<input type=checkbox name="testado" value=1 <?php echo !empty($testado) ? 'checked' : '' ?>> ADO (for mssql and access)<br>
-<input type=submit>
-</form>
-
-Test <a href=test4.php>GetInsertSQL/GetUpdateSQL</a> &nbsp; 
-	<a href=testsessions.php>Sessions</a> &nbsp;
-	<a href=testpaging.php>Paging</a> &nbsp;
-<?php
-
-
-// Set the following control flags to true/false to enable testing for a particular database.
-/*
-$testoracle = true;
-$testibase = true;
-$testaccess = true;
-//testpostgres = true;
-$testmysql = true;
-//$testmssql = true;
-//$testvfp = true;
-//$testado = true;
-*/
-
-error_reporting(E_ALL);
-
-set_time_limit(240); // increase timeout
-
-include("../tohtml.inc.php");
-include("../adodb.inc.php");
-
-if ($ADODB_FETCH_MODE != ADODB_FETCH_DEFAULT) print "<h3>FETCH MODE IS NOT ADODB_FETCH_DEFAULT</h3>";
 
 // the table creation code is specific to the database, so we allow the user 
 // to define their own table creation stuff
 function testdb(&$db,$createtab="create table ADOXYZ (id int, firstname char(24), lastname char(24), created date)")
 {
 GLOBAL $ADODB_vers,$ADODB_CACHE_DIR,$ADODB_FETCH_MODE, $HTTP_GET_VARS,$ADODB_COUNTRECS;
-?>	<form>
+?>	<form method=GET>
 	</p>
 	<table width=100% ><tr><td bgcolor=beige>&nbsp;</td></tr></table>
 	</p>
@@ -95,9 +58,10 @@ GLOBAL $ADODB_vers,$ADODB_CACHE_DIR,$ADODB_FETCH_MODE, $HTTP_GET_VARS,$ADODB_COU
 	print "<i>date1</i> (1969-02-20) = ".$db->DBDate('1969-2-20');
 	print "<br><i>date1</i> (1999-02-20) = ".$db->DBDate('1999-2-20');
 	print "<br><i>date2</i> (1970-1-2) = ".$db->DBDate(24*3600)."<p>";
-	print "<i>ts1</i> (1999-02-20 3:40:50) = ".$db->DBTimeStamp('1999-2-20 3:40:50');
+	print "<i>ts1</i> (1999-02-20 3:40:50) = ".$db->DBTimeStamp('1999-2-20 13:40:50');
 	print "<br><i>ts2</i> (1999-02-20) = ".$db->DBTimeStamp('1999-2-20');
 	print "<br><i>ts3</i> (1970-1-2 +/- timezone) = ".$db->DBTimeStamp(24*3600);
+	print "<br> Fractional TS (1999-2-20 13:40:50.91): ".$db->DBTimeStamp($db->UnixTimeStamp('1999-2-20 13:40:50.91+1'));
 	 $dd = $db->UnixDate('1999-02-20');
 	print "<br>unixdate</i> 1999-02-20 = ".date('Y-m-d',$dd)."<p>";
 	// mssql too slow in failing bad connection
@@ -197,6 +161,7 @@ GLOBAL $ADODB_vers,$ADODB_CACHE_DIR,$ADODB_FETCH_MODE, $HTTP_GET_VARS,$ADODB_COU
 			foreach($a as $v) print " ($v) ";
 			print '</p>';
 		}
+		$db->debug=1;
 		$a = $db->MetaColumns('ADOXYZ');
 		if ($a===false) print "<b>MetaColumns not supported</b></p>";
 		else {
@@ -257,9 +222,45 @@ GO
 		
 		$db->debug = $saved;
 	} else if (substr($db->databaseType,0,4) == 'oci8') {
-		print "<h4>Testing Stored Procedures for oci8</h4>";
 		$saved = $db->debug;
 		$db->debug=true;
+		
+		print "<h4>Testing Cursor Variables</h4>";
+/*
+-- TEST PACKAGE
+CREATE or replace PACKAGE adodb AS
+	TYPE TabType IS REF CURSOR RETURN tab%ROWTYPE;
+	PROCEDURE open_tab (tab IN OUT TabType,param in varchar);
+END adodb;
+/
+
+CREATE or replace PACKAGE BODY adodb AS
+	PROCEDURE open_tab (tab IN OUT TabType,param in varchar) IS
+		BEGIN
+			OPEN tab FOR SELECT * FROM tab;
+		END open_tab;
+END adodb;
+/
+*/		
+		$stmt = $db->Prepare("BEGIN adodb.open_tab(:RS,'A%'); END;");
+		$db->Parameter($stmt, $cur, 'RS', false, -1, OCI_B_CURSOR);
+		$rs = $db->Execute($stmt);
+	
+		if ($rs && !$rs->EOF) {
+			print "Test 1 RowCount: ".$rs->RecordCount()."<p>";
+		} else {
+			print "<b>Error in using Cursor Variables 1</b><p>";
+		}
+		
+		$rs = $db->ExecuteCursor("BEGIN adodb.open_tab(:RS2,'A%'); END;",'RS2');
+		if ($rs && !$rs->EOF) {
+			print "Test 2 RowCount: ".$rs->RecordCount()."<p>";
+		} else {
+			print "<b>Error in using Cursor Variables 2</b><p>";
+		}
+		
+		print "<h4>Testing Stored Procedures for oci8</h4>";
+
 		
 		$tname = 'A%';
 		
@@ -377,6 +378,7 @@ GO
 	$ADODB_FETCH_MODE = ADODB_FETCH_ASSOC;
 	
 	print "<p>CacheSelectLimit  Test</p>";
+	$db->debug=1;
 	$rs = $db->CacheSelectLimit('  select  id, firstname from  ADOXYZ order by id',2);
 	if ($rs && !$rs->EOF) {
 		if ($rs->fields['id'] != 1)  {Err("Error"); print_r($rs->fields);};
@@ -384,7 +386,10 @@ GO
 		$rs->MoveNext();
 		if ($rs->fields['id'] != 2)  {Err("Error 3"); print_r($rs->fields);};
 		$rs->MoveNext();
-		if (!$rs->EOF) Err("Error EOF");
+		if (!$rs->EOF) {
+			Err("Error EOF");
+			print_r($rs);
+		}
 	}
 	
 	print "<p>FETCH_MODE = ASSOC: Should get 1, Caroline</p>";
@@ -473,7 +478,9 @@ GO
 		$rs->MoveNext();
 		if (trim($rs->fields[1]) != 'Steven') Err("Error 2");
 		$rs->MoveNext();
-		if (! $rs->EOF) Err("Error EOF");
+		if (! $rs->EOF) {
+			Err("Error EOF");
+		}
 		//rs2html($rs);
 	}
 	 else Err("Failed SelectLimit Test 3");
@@ -558,9 +565,11 @@ GO
 	print "Testing GetMenu() and CacheExecute<BR>";
 	$db->debug = true;
 	$rs = &$db->CacheExecute(4,"select distinct firstname,lastname from ADOXYZ");
+	
 	if ($rs) print 'With blanks, Steven selected:'. $rs->GetMenu('menu','Steven').'<BR>'; 
 	else print " Fail<BR>";
 	$rs = &$db->CacheExecute(4,"select distinct firstname,lastname from ADOXYZ");
+	
 	if ($rs) print ' No blanks, Steven selected: '. $rs->GetMenu('menu','Steven',false).'<BR>';
 	else print " Fail<BR>";
 	
@@ -719,11 +728,31 @@ GO
 	//print " CacheFlush ";
 	//$db->CacheFlush();
 	
+	
+	print "<p>Test Filter</p>";
+	$rs = $db->SelectLimit('select * from ADOXYZ where id < 3');
+	$rs = RSFilter($rs,'do_strtolower');
+	if ($rs->fields[1] != 'caroline'  && $rs->fields[2] != 'miranda')err('**** RSFilter failed');
+	
+	rs2html($rs);
+	
 	$db->debug=1;
 	
 	
 	print "<p>Test Replace</p>";
 	
+	$ret = $db->Replace('adoxyz', 
+		array('id'=>1,'firstname'=>'Caroline','lastname'=>'Miranda'),
+		array('id'),
+		$autoq = true);
+	if (!$ret) echo "<p>Error in replacing existing record</p>";
+	else {
+		$saved = $db->debug;
+		$db->debug = 0;
+		$rs = $db->Execute('select * FROM ADOXYZ where id=1');
+		$db->debug = $saved;
+		if ($rs->RecordCount() != 1) print "<b>Error - update failed</b><p>";
+	}
 	$ret = $db->Replace('adoxyz', 
 		array('id'=>1000,'firstname'=>'Harun','lastname'=>'Al-Rashid'),
 		array('id','firstname'),
@@ -740,6 +769,15 @@ GO
 		else print "<b>Replace failed: </b>";
 	print "test B return value=$ret (1 or if ibase then 2 expected) <p>";
 	
+	print "<h3>rs2rs Test</h3>";
+	
+	$db->Execute('select * from adoxyz');
+	$rs = $db->_rs2rs($rs);
+	$rs->valueX = 'X';
+	$rs->MoveNext();
+	$rs = $db->_rs2rs($rs);
+	if (!isset($rs->valueX)) err("rs2rs does not preserve array recordsets");
+	if (reset($rs->fields) != 1) err("rs2rs does not move to first row");
 	/////////////////////////////////////////////////////////////
 	include_once('../pivottable.inc.php');
 	print "<h3>Pivot Test</h3>";
@@ -748,7 +786,9 @@ GO
  		$db,  			# adodb connection
  		'adoxyz',  		# tables
 		'firstname',	# row fields
-		'lastname'		# column fields 
+		'lastname',		# column fields 
+		false,			# join
+		'ID' 			# sum
 	);
 	$rs = $db->Execute($sql);
 	if ($rs) rs2html($rs);
@@ -828,8 +868,83 @@ global $TESTERRS;
 	print "<i>** $dbms ($fn): errno=$errno &nbsp; errmsg=$errmsg ($p1,$p2)</i><br>";
 	
 }
-include('./testdatabases.inc.php');
 
+//--------------------------------------------------------------------------------------
+
+
+error_reporting(E_ALL);
+
+set_time_limit(240); // increase timeout
+
+include("../tohtml.inc.php");
+include("../adodb.inc.php");
+include("../rsfilter.inc.php");
+
+/* White Space Check */
+if (@$HTTP_SERVER_VARS['COMPUTERNAME'] == 'JAGUAR') {
+	CheckWS('mysqlt');
+	CheckWS('postgres');
+	CheckWS('oci8po');
+	CheckWS('firebird');
+	CheckWS('sybase');
+	CheckWS('informix');
+	CheckWS('ado_mssql');
+	CheckWS('ado_access');
+	CheckWS('mssql');
+	//
+	CheckWS('vfp');
+	CheckWS('sqlanywhere');
+	CheckWS('db2');
+	CheckWS('access');
+	CheckWS('odbc_mssql');
+	//
+	CheckWS('oracle');
+	CheckWS('proxy');
+	CheckWS('fbsql');
+	print "White Space Check complete<p>";
+}
+if (sizeof($HTTP_GET_VARS) == 0) $testmysql = true;
+
+
+foreach($HTTP_GET_VARS as $k=>$v)  {
+	global $$k;
+		
+	$$k = $v;
+}	
+
+
+?>
+<html>
+<title>ADODB Testing</title>
+<body bgcolor=white>
+<H1>ADODB Test</H1>
+
+This script tests the following databases: Interbase, Oracle, Visual FoxPro, Microsoft Access (ODBC and ADO), MySQL, MSSQL (ODBC, native, ADO). 
+There is also support for Sybase, PostgreSQL.</p>
+For the latest version of ADODB, visit <a href=http://php.weblogs.com/ADODB>php.weblogs.com</a>.</p>
+
+<form method=get>
+<input type=checkbox name="testaccess" value="1" <?php echo !empty($testaccess) ? 'checked' : '' ?>> Access<br>
+<input type=checkbox name="testibase" value="1" <?php echo !empty($testibase) ? 'checked' : '' ?>> Interbase<br>
+<input type=checkbox name="testmssql" value="1" <?php echo !empty($testmssql) ? 'checked' : '' ?>> MSSQL<br>
+ <input type=checkbox name="testmysql" value="1" <?php echo !empty($testmysql) ? 'checked' : '' ?>> <b>MySQL</b><br>
+<input type=checkbox name="testproxy" value=1 <?php echo !empty($testproxy) ? 'checked' : '' ?>> <b>MySQL Proxy</b><br>
+<input type=checkbox name="testoracle" value="1" <?php echo !empty($testoracle) ? 'checked' : '' ?>> <b>Oracle (oci8)</b> <br>
+<input type=checkbox name="testpostgres" value=1 <?php echo !empty($testpostgres) ? 'checked' : '' ?>> <b>PostgreSQL</b><br>
+<input type=checkbox name="testvfp" value=1 <?php echo !empty($testvfp) ? 'checked' : '' ?>> VFP<br>
+<input type=checkbox name="testado" value=1 <?php echo !empty($testado) ? 'checked' : '' ?>> ADO (for mssql and access)<br>
+<input type=submit>
+</form>
+
+Test <a href=test4.php>GetInsertSQL/GetUpdateSQL</a> &nbsp; 
+	<a href=testsessions.php>Sessions</a> &nbsp;
+	<a href=testpaging.php>Paging</a> &nbsp;
+<?php
+
+if ($ADODB_FETCH_MODE != ADODB_FETCH_DEFAULT) print "<h3>FETCH MODE IS NOT ADODB_FETCH_DEFAULT</h3>";
+
+
+include('./testdatabases.inc.php');
 ?>
 <p><i>ADODB Database Library  (c) 2000-2002 John Lim. All rights reserved. Released under BSD and LGPL.</i></p>
 </body>
