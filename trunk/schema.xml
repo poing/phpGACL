@@ -391,7 +391,7 @@
 		</field>
 		<field name="value" type="C" size="255">
 			<NOTNULL/>
-			<KEY/>
+			<UNIQUE/>
 		</field>
 		
 		<index name="parent_id_aro_groups">
@@ -458,7 +458,7 @@
 		</field>
 		<field name="value" type="C" size="255">
 			<NOTNULL/>
-			<KEY/>
+			<UNIQUE/>
 		</field>
 		
 		<index name="parent_id_axo_groups">

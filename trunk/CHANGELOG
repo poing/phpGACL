@@ -1,3 +1,6 @@
+Sat Jul 17 2004
+	mikeb - Fixed group_admin SQL query to be standard complaint so it works on PostgreSQL.
+	mikeb - Made aro_groups/axo_groups value column unique.
 Sat Jul 10 2004
 	mikeb - Released v3.3.2
 	mikeb - upgraded to ADOdb v4.50
