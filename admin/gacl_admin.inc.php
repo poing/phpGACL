@@ -18,7 +18,7 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-//$debug=1;
+$debug=1;
 
 require_once('../config.inc.php');
 
@@ -84,99 +84,6 @@ function return_page($url="") {
         debug("return_page(): URL: $url -- Referer: $_SERVER[HTTP_REFERRER]");   
     }
 }
-
-
-/*======================================================================*\
-    Function:	map_path_to_root()
-    Purpose:	Maps a unique path to root to a specific group. Each group can only have
-					one path to root.
-\*======================================================================*/
-function map_path_to_root($group_id, $path_id) {
-	global $db;
-	
-	$query = "delete from groups_path_map where group_id=$group_id";
-	$db->Execute($query);
-
-	$query = "insert into groups_path_map (path_id, group_id) VALUES($path_id, $group_id)";
-	$db->Execute($query);
-	
-	return true;
-}
-
-/*======================================================================*\
-    Function:	put_path_to_root()
-    Purpose:	Writes the unique path to root to the database. There should really only be
-					one path to root for each level "deep" the groups go. If the groups are branched
-					10 levels deep, there should only be 10 unique path to roots. These of course
-					overlap each other more and more the closer to the root/trunk they get.
-\*======================================================================*/
-function put_path_to_root($path_to_root) {
-	global $db;
-	
-	/*
-	 * See if the path has already been created.
-	 */
-	$query = "select
-								id
-					from    groups_path
-					where group_id = $path_to_root[0]
-							AND level = 0";
-	$path_id = $db->GetOne($query);
-	debug("put_path_to_root(): Path ID: $path_id");
-	
-	if (empty($path_id)) {
-		debug("put_path_to_root(): Unique path not found, inserting...");
-		$insert_id = $db->GenID('groups_path_id_seq',10);
-		
-		$i=0;
-		foreach ($path_to_root as $group_id) {
-
-			$query = "insert into groups_path (id, group_id, level) VALUES($insert_id, $group_id, $i)";
-			$db->Execute($query);
-			
-			$i++;
-		}
-		
-		$retval = $insert_id;
-	} else {
-		debug("put_path_to_root(): Unique path FOUND, returning ID: $path_id");
-		$retval = $path_id;
-	}
-
-	/*
-	 * Return path to root ID.
-	 */
-	return $retval;
-}
-
-/*======================================================================*\
-    Function:	get_path_to_root()
-    Purpose:	Generates the path to root for a given group.
-\*======================================================================*/
-function gen_path_to_root($group_id) {
-	global $db;
-
-	debug("path_to_root():");
-	$parent_id = $group_id;
-	
-	/*
-	 * Simply repeat the SQL query until we reach the root (0). Obviously this won't scale that well, but it should do the trick
-	 * up to about 100 levels deep if it needs too. This way will use less memory too.
-	 * It's only run during group administration so speed is not much of a concern. Its all for a better cause. ;)
-	 */
-	while ($parent_id > 0) {
-		$query = "select
-									parent_id
-						from    groups
-						where id = $parent_id";
-		$parent_id = $db->GetOne($query);
-
-		$path[] = $parent_id;
-	} 
-	
-	return $path;
-}
-
 
 /*======================================================================*\
     Function:	sort_groups()
