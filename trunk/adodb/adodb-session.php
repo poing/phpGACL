@@ -1,6 +1,6 @@
 <?php
 /*
-V2.40 4 Sept 2002  (c) 2000-2002 John Lim (jlim@natsoft.com.my). All rights reserved.
+V3.00 6 Jan 2003  (c) 2000-2003 John Lim (jlim@natsoft.com.my). All rights reserved.
   Released under both BSD license and Lesser GPL library license. 
   Whenever there is any discrepancy between the two licenses, 
   the BSD license will take precedence.
@@ -18,6 +18,17 @@ wrapper library.
  	GLOBAL $HTTP_SESSION_VARS;
 	include('adodb.inc.php');
 	include('adodb-session.php');
+	session_start();
+	session_register('AVAR');
+	$HTTP_SESSION_VARS['AVAR'] += 1;
+	print "<p>\$HTTP_SESSION_VARS['AVAR']={$HTTP_SESSION_VARS['AVAR']}</p>";
+	
+To force non-persistent connections, call adodb_session_open first before session_start():
+
+ 	GLOBAL $HTTP_SESSION_VARS;
+	include('adodb.inc.php');
+	include('adodb-session.php');
+	adodb_session_open(false,false,false);
 	session_start();
 	session_register('AVAR');
 	$HTTP_SESSION_VARS['AVAR'] += 1;
@@ -56,6 +67,9 @@ if (!defined('_ADODB_LAYER')) {
 if (!defined('ADODB_SESSION')) {
 
  define('ADODB_SESSION',1);
+ 
+ /* if database time and system time is difference is greater than this, then give warning */
+ define('ADODB_SESSION_SYNCH_SECS',60); 
 
 /****************************************************************************************\
 	Global definitions
@@ -68,7 +82,6 @@ GLOBAL 	$ADODB_SESSION_CONNECT,
 	$ADODB_SESS_CONN,
 	$ADODB_SESS_LIFE,
 	$ADODB_SESS_DEBUG,
-	$ADODB_SESS_INSERT, 
 	$ADODB_SESSION_CRC;
 	
 	$ADODB_SESS_LIFE = ini_get('session.gc_maxlifetime');
@@ -144,13 +157,11 @@ global $ADODB_SESS_CONN;
 \****************************************************************************************/
 function adodb_sess_read($key) 
 {
-global $ADODB_SESS_CONN,$ADODB_SESS_INSERT,$ADODB_SESSION_TBL,$ADODB_SESSION_CRC;
+global $ADODB_SESS_CONN,$ADODB_SESSION_TBL,$ADODB_SESSION_CRC;
 
-	$ADODB_SESS_INSERT = false;	
 	$rs = $ADODB_SESS_CONN->Execute("SELECT data FROM $ADODB_SESSION_TBL WHERE sesskey = '$key' AND expiry >= " . time());
 	if ($rs) {
 		if ($rs->EOF) {
-			$ADODB_SESS_INSERT = true;
 			$v = '';
 		} else 
 			$v = rawurldecode(reset($rs->fields));
@@ -162,7 +173,6 @@ global $ADODB_SESS_CONN,$ADODB_SESS_INSERT,$ADODB_SESSION_TBL,$ADODB_SESSION_CRC
 		
 		return $v;
 	}
-	else $ADODB_SESS_INSERT = true;
 	
 	return ''; // thx to Jorma Tuomainen, webmaster#wizactive.com
 }
@@ -174,7 +184,7 @@ global $ADODB_SESS_CONN,$ADODB_SESS_INSERT,$ADODB_SESSION_TBL,$ADODB_SESSION_CRC
 \****************************************************************************************/
 function adodb_sess_write($key, $val) 
 {
-	global $ADODB_SESS_INSERT,
+	global
 		$ADODB_SESS_CONN, 
 		$ADODB_SESS_LIFE, 
 		$ADODB_SESSION_TBL,
@@ -187,28 +197,25 @@ function adodb_sess_write($key, $val)
 	// now we only update expiry date, thx to sebastian thom in adodb 2.32
 	if ($ADODB_SESSION_CRC !== false && $ADODB_SESSION_CRC == strlen($val).crc32($val)) {
 		if ($ADODB_SESS_DEBUG) echo "<p>Session: Only updating date - crc32 not changed</p>";
-		$qry = "UPDATE $ADODB_SESSION_TBL SET expiry=$expiry WHERE sesskey='$key'";
+		$qry = "UPDATE $ADODB_SESSION_TBL SET expiry=$expiry WHERE sesskey='$key' AND expiry >= " . time();
 		$rs = $ADODB_SESS_CONN->Execute($qry);	
 		return true;
 	}
 	$val = rawurlencode($val);
-	$qry = "UPDATE $ADODB_SESSION_TBL SET expiry=$expiry,data='$val' WHERE sesskey='$key'";
-	$rs = $ADODB_SESS_CONN->Execute($qry);
-	if (!$rs)
-		ADOConnection::outp( '<p>Session Update: '.$ADODB_SESS_CONN->ErrorMsg().'</p>',false);
 	
-	if ($ADODB_SESS_INSERT || !$rs) {
-		$qry = "INSERT INTO $ADODB_SESSION_TBL(sesskey,expiry,data) VALUES ('$key',$expiry,'$val')";
-		$rs = $ADODB_SESS_CONN->Execute($qry);
-		if (!$rs)
-			ADOConnection::outp('<p>Session Insert: '.$ADODB_SESS_CONN->ErrorMsg().'</p>',false);
+	$rs = $ADODB_SESS_CONN->Replace($ADODB_SESSION_TBL,
+	    array('sesskey' => $key, 'expiry' => $expiry, 'data' => $val),
+    	'sesskey',$autoQuote = true);
+	
+	if (!$rs) {
+		ADOConnection::outp( '<p>Session Replace: '.$ADODB_SESS_CONN->ErrorMsg().'</p>',false);
+	}  else {
+		// bug in access driver (could be odbc?) means that info is not commited
+		// properly unless select statement executed in Win2000
+		if ($ADODB_SESS_CONN->databaseType == 'access') 
+			$rs = $ADODB_SESS_CONN->Execute("select sesskey from $ADODB_SESSION_TBL WHERE sesskey='$key'");
 	}
-	// bug in access driver (could be odbc?) means that info is not commited
-	// properly unless select statement executed in Win2000
-	if ($rs && $ADODB_SESS_CONN->databaseType == 'access') 
-		$rs = $ADODB_SESS_CONN->Execute("select sesskey from $ADODB_SESSION_TBL WHERE sesskey='$key'");
-
-	return isset($rs);
+	return !empty($rs);
 }
 
 function adodb_sess_destroy($key) 
@@ -222,15 +229,17 @@ function adodb_sess_destroy($key)
 
 function adodb_sess_gc($maxlifetime) 
 {
-	global $ADODB_SESS_CONN, $ADODB_SESSION_TBL,$ADODB_SESSION_DRIVER;
+	global $ADODB_SESS_DEBUG, $ADODB_SESS_CONN, $ADODB_SESSION_TBL;
 
 	$qry = "DELETE FROM $ADODB_SESSION_TBL WHERE expiry < " . time();
-	$rs = $ADODB_SESS_CONN->Execute($qry);
-	if ($rs) $rs->Close();
+	$ADODB_SESS_CONN->Execute($qry);
+
+	if ($ADODB_SESS_DEBUG) ADOConnection::outp("<p><b>Garbage Collection</b>: $qry</p>");
 	
 	// suggested by Cameron, "GaM3R" <gamr@outworld.cx>
-	if (defined('ADODB_SESSION_OPTIMIZE'))
-	{
+	if (defined('ADODB_SESSION_OPTIMIZE')) {
+	global $ADODB_SESSION_DRIVER;
+	
 		switch( $ADODB_SESSION_DRIVER ) {
 			case 'mysql':
 			case 'mysqlt':
@@ -240,6 +249,24 @@ function adodb_sess_gc($maxlifetime)
 			case 'postgresql7':
 				$opt_qry = 'VACUUM '.$ADODB_SESSION_TBL;	
 				break;
+		}
+		if (!empty($opt_qry)) {
+			$ADODB_SESS_CONN->Execute($opt_qry);
+		}
+	}
+	
+	$rs = $ADODB_SESS_CONN->SelectLimit('select '.$ADODB_SESS_CONN->sysTimeStamp.' from '. $ADODB_SESSION_TBL,1);
+	if ($rs && !$rs->EOF) {
+	
+		$dbt = $rs->fields[0];
+		$rs->Close();
+		$dbt = $ADODB_SESS_CONN->UnixTimeStamp($dbt);
+		$t = time();
+		if (abs($dbt - $t) >= ADODB_SESSION_SYNCH_SECS) {
+		global $HTTP_SERVER_VARS;
+			$msg = "adodb-session.php: Server time for webserver {$HTTP_SERVER_VARS['HTTP_HOST']} not in synch: database=$dbt, webserver=".$t;
+			error_log($msg);
+			if ($ADODB_SESS_DEBUG) ADOConnection::outp("<p>$msg</p>");
 		}
 	}
 	

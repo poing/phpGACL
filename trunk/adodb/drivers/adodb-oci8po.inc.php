@@ -1,6 +1,6 @@
 <?php
 /*
-V2.40 4 Sept 2002  (c) 2000-2002 John Lim. All rights reserved.
+V3.00 6 Jan 2003  (c) 2000-2003 John Lim. All rights reserved.
   Released under both BSD license and Lesser GPL library license. 
   Whenever there is any discrepancy between the two licenses, 
   the BSD license will take precedence.
@@ -63,9 +63,9 @@ class ADORecordset_oci8po extends ADORecordset_oci8 {
 
 	var $databaseType = 'oci8po';
 	
-		function ADORecordset_oci8po($queryID)
+		function ADORecordset_oci8po($queryID,$mode=false)
 		{
-			$this->ADORecordset_oci8($queryID);
+			$this->ADORecordset_oci8($queryID,$mode);
 		}
 
 		function Fields($colname)
@@ -135,10 +135,17 @@ class ADORecordset_oci8po extends ADORecordset_oci8 {
 	// Uggh - a useless slowdown
 	function _updatefields()
 	{
+		//if (ADODB_ASSOC_CASE == 2) return; // native
+		
 		$arr = array();
 		foreach ($this->fields as $k => $v) {
 			if (is_integer($k)) $arr[$k] = $v;
-			else $arr[strtolower($k)] = $v;
+			else {
+				if (ADODB_ASSOC_CASE != 1)
+					$arr[strtolower($k)] = $v;
+				else // if (ADODB_ASSOC_CASE == 1)
+					$arr[strtoupper($k)] = $v;
+			}
 		}
 		$this->fields = $arr;
 	}

@@ -1,6 +1,6 @@
 <?php
 /* 
-V2.40 4 Sept 2002  (c) 2000-2002 John Lim (jlim@natsoft.com.my). All rights reserved.
+V3.00 6 Jan 2003  (c) 2000-2003 John Lim (jlim@natsoft.com.my). All rights reserved.
   Released under both BSD license and Lesser GPL library license. 
   Whenever there is any discrepancy between the two licenses, 
   the BSD license will take precedence. 
@@ -27,7 +27,7 @@ class ADODB_borland_ibase extends ADODB_ibase {
 	//		SELECT col1, col2 FROM TABLE ORDER BY col1 ROWS 3 TO 7 -- first 5 skip 2
 	// Firebird uses
 	//		SELECT FIRST 5 SKIP 2 col1, col2 FROM TABLE
-	function &SelectLimit($sql,$nrows=-1,$offset=-1,$inputarr=false, $arg3=false,$secs=0)
+	function &SelectLimit($sql,$nrows=-1,$offset=-1,$inputarr=false, $arg3=false,$secs2cache=0)
 	{
 		if ($nrows > 0) {
 			if ($offset <= 0) $str = " ROWS $nrows "; 
@@ -43,8 +43,8 @@ class ADODB_borland_ibase extends ADODB_ibase {
 		}
 		$sql .= $str;
 		
-		return ($secs) ? 
-				$this->CacheExecute($secs,$sql,$inputarr,$arg3)
+		return ($secs2cache) ? 
+				$this->CacheExecute($secs2cache,$sql,$inputarr,$arg3)
 			:
 				$this->Execute($sql,$inputarr,$arg3);
 	}
@@ -56,9 +56,9 @@ class  ADORecordSet_borland_ibase extends ADORecordSet_ibase {
 	
 	var $databaseType = "borland_ibase";		
 	
-	function ADORecordSet_borland_ibase($id)
+	function ADORecordSet_borland_ibase($id,$mode=false)
 	{
-		$this->ADORecordSet_ibase($id);
+		$this->ADORecordSet_ibase($id,$mode);
 	}
 }
 ?>

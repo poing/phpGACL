@@ -1,6 +1,6 @@
 <?php
 /* 
-V2.40 4 Sept 2002  (c) 2000-2002 John Lim (jlim@natsoft.com.my). All rights reserved.
+V3.00 6 Jan 2003  (c) 2000-2003 John Lim (jlim@natsoft.com.my). All rights reserved.
   Released under both BSD license and Lesser GPL library license. 
   Whenever there is any discrepancy between the two licenses, 
   the BSD license will take precedence. See License.txt. 
@@ -24,6 +24,7 @@ class  ADODB_access extends ADODB_odbc {
 	var $_bindInputArray = false; // strangely enough, setting to true does not work reliably
 	var $sysDate = "FORMAT(NOW,'yyyy-mm-dd')";
 	var $sysTimeStamp = 'NOW';
+	var $hasTransactions = false;
 	
 	function ADODB_access()
 	{
@@ -39,8 +40,8 @@ class  ADODB_access extends ADODB_odbc {
 		$savem = $ADODB_FETCH_MODE;
 		$ADODB_FETCH_MODE = ADODB_FETCH_NUM;
 		$qid = odbc_tables($this->_connectionID);
-		$ADODB_FETCH_MODE = $savem;
 		$rs = new ADORecordSet_odbc($qid);
+		$ADODB_FETCH_MODE = $savem;
 		if (!$rs) return false;
 		
 		$rs->_has_stupid_odbc_fetch_api_change = $this->_has_stupid_odbc_fetch_api_change;
@@ -61,9 +62,9 @@ class  ADORecordSet_access extends ADORecordSet_odbc {
 	
 	var $databaseType = "access";		
 	
-	function ADORecordSet_access($id)
+	function ADORecordSet_access($id,$mode=false)
 	{
-		return $this->ADORecordSet_odbc($id);
+		return $this->ADORecordSet_odbc($id,$mode);
 	}
 }
 } // class

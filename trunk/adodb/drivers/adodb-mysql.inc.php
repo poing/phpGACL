@@ -1,6 +1,6 @@
 <?php
 /*
-V2.40 4 Sept 2002  (c) 2000-2002 John Lim (jlim@natsoft.com.my). All rights reserved.
+V3.00 6 Jan 2003  (c) 2000-2003 John Lim (jlim@natsoft.com.my). All rights reserved.
   Released under both BSD license and Lesser GPL library license. 
   Whenever there is any discrepancy between the two licenses, 
   the BSD license will take precedence.
@@ -30,11 +30,22 @@ class ADODB_mysql extends ADOConnection {
 	var $isoDates = true; // accepts dates in ISO format
 	var $sysDate = 'CURDATE()';
 	var $sysTimeStamp = 'NOW()';
+	var $hasTransactions = false;
 	var $forceNewConnect = false;
+	var $poorAffectedRows = true;
+	var $clientFlags = 0;
 	
 	function ADODB_mysql() 
 	{			
 	}
+	
+	function ServerInfo()
+	{
+		$arr['description'] = $this->GetOne("select version()");
+		$arr['version'] = ADOConnection::_findvers($arr['description']);
+		return $arr;
+	}
+	
 	
 	function _insertid()
 	{
@@ -51,10 +62,23 @@ class ADODB_mysql extends ADOConnection {
  	var $_genIDSQL = "update %s set id=LAST_INSERT_ID(id+1);";
 	var $_genSeqSQL = "create table %s (id int not null)";
 	var $_genSeq2SQL = "insert into %s values (%s)";
+	var $_dropSeqSQL = "drop table %s";
+	
+	function CreateSequence($seqname='adodbseq',$startID=1)
+	{
+		if (empty($this->_genSeqSQL)) return false;
+		$u = strtoupper($seqname);
+		
+		$ok = $this->Execute(sprintf($this->_genSeqSQL,$seqname));
+		if (!$ok) return false;
+		return $this->Execute(sprintf($this->_genSeq2SQL,$seqname,$startID-1));
+	}
 	
 	function GenID($seqname='adodbseq',$startID=1)
 	{
-		//if (!$this->hasGenID) return false;
+		// post-nuke sets hasGenID to false
+		if (!$this->hasGenID) return false;
+		
 		$getnext = sprintf($this->_genIDSQL,$seqname);
 		$rs = @$this->Execute($getnext);
 		if (!$rs) {
@@ -82,6 +106,53 @@ class ADODB_mysql extends ADOConnection {
 		}
 		return $arr;
 	}
+	
+		
+	// Format date column in sql string given an input format that understands Y M D
+	function SQLDate($fmt, $col=false)
+	{	
+		if (!$col) $col = $this->sysDate;
+		$s = 'DATE_FORMAT('.$col.",'";
+		$concat = false;
+		$len = strlen($fmt);
+		for ($i=0; $i < $len; $i++) {
+			$ch = $fmt[$i];
+			switch($ch) {
+			case 'Y':
+			case 'y':
+				$s .= '%Y';
+				break;
+			case 'Q':
+			case 'q':
+				$s .= "'),Quarter($col)";
+				
+				if ($len > $i+1) $s .= ",DATE_FORMAT($col,'";
+				else $s .= ",('";
+				$concat = true;
+				break;
+			case 'M':
+			case 'm':
+				$s .= '%m';
+				break;
+			case 'D':
+			case 'd':
+				$s .= '%d';
+				break;
+			default:
+				
+				if ($ch == '\\') {
+					$i++;
+					$ch = substr($fmt,$i,1);
+				}
+				$s .= $ch;
+				break;
+			}
+		}
+		$s.="')";
+		if ($concat) $s = "CONCAT($s)";
+		return $s;
+	}
+	
 
 	// returns concatenated string
 	// much easier to run "mysqld --ansi" or "mysqld --sql-mode=PIPES_AS_CONCAT" and use || operator
@@ -113,10 +184,16 @@ class ADODB_mysql extends ADOConnection {
 	// returns true or false
 	function _connect($argHostname, $argUsername, $argPassword, $argDatabasename)
 	{
-		if ($this->forceNewConnect && (strnatcmp(PHP_VERSION,'4.2.0')>=0))
-			$this->_connectionID = mysql_connect($argHostname,$argUsername,$argPassword,true);
+	global $ADODB_PHPVER;
+		if ($ADODB_PHPVER >= 0x4300)
+			$this->_connectionID = mysql_connect($argHostname,$argUsername,$argPassword,
+												$this->forceNewConnect,$this->clientFlags);
+		else if ($ADODB_PHPVER >= 0x4200)
+			$this->_connectionID = mysql_connect($argHostname,$argUsername,$argPassword,
+												$this->forceNewConnect);
 		else
 			$this->_connectionID = mysql_connect($argHostname,$argUsername,$argPassword);
+	
 		if ($this->_connectionID === false) return false;
 		if ($argDatabasename) return $this->SelectDB($argDatabasename);
 		return true;	
@@ -125,11 +202,21 @@ class ADODB_mysql extends ADOConnection {
 	// returns true or false
 	function _pconnect($argHostname, $argUsername, $argPassword, $argDatabasename)
 	{
-		$this->_connectionID = mysql_pconnect($argHostname,$argUsername,$argPassword);
+	global $ADODB_PHPVER;
+		if ($ADODB_PHPVER >= 0x4300)
+			$this->_connectionID = mysql_pconnect($argHostname,$argUsername,$argPassword,$this->clientFlags);
+		else
+			$this->_connectionID = mysql_pconnect($argHostname,$argUsername,$argPassword);
 		if ($this->_connectionID === false) return false;
 		if ($this->autoRollback) $this->RollbackTrans();
 		if ($argDatabasename) return $this->SelectDB($argDatabasename);
 		return true;	
+	}
+	
+	function _nconnect($argHostname, $argUsername, $argPassword, $argDatabasename)
+	{
+		$this->forceNewConnect = true;
+		$this->_connect($argHostname, $argUsername, $argPassword, $argDatabasename);
 	}
 	
  	function &MetaColumns($table) 
@@ -152,7 +239,7 @@ class ADODB_mysql extends ADOConnection {
 				$fld = new ADOFieldObject();
 				$fld->name = $rs->fields[0];
 				$fld->type = $rs->fields[1];
-					
+				
 				// split type into type(length):
 				if (preg_match("/^(.+)\((\d+)\)$/", $fld->type, $query_array)) {
 					$fld->type = $query_array[1];
@@ -287,10 +374,13 @@ class ADORecordSet_mysql extends ADORecordSet{
 	var $databaseType = "mysql";
 	var $canSeek = true;
 	
-	function ADORecordSet_mysql($queryID) {
-	GLOBAL $ADODB_FETCH_MODE;
-	
-		switch ($ADODB_FETCH_MODE)
+	function ADORecordSet_mysql($queryID,$mode=false) 
+	{
+		if ($mode === false) { 
+			global $ADODB_FETCH_MODE;
+			$mode = $ADODB_FETCH_MODE;
+		}
+		switch ($mode)
 		{
 		case ADODB_FETCH_NUM: $this->fetchMode = MYSQL_NUM; break;
 		case ADODB_FETCH_ASSOC:$this->fetchMode = MYSQL_ASSOC; break;
@@ -352,22 +442,10 @@ class ADORecordSet_mysql extends ADORecordSet{
 	
 	function _seek($row)
 	{
+		if ($this->_numOfRows == 0) return false;
 		return @mysql_data_seek($this->_queryID,$row);
 	}
 	
-	/*function &FetchRow()
-	{
-		if ($this->EOF) return false;
-		
-		$arr = $this->fields;
-		$this->_currentRow++;
-			// using & below slows things down by 20%!
-		$this->fields = @mysql_fetch_array($this->_queryID,$this->fetchMode);
-			
-		if (is_array($this->fields)) return $arr;
-		$this->EOF = true;
-		return false;
-	} */
 	
 	// 10% speedup to move MoveNext to child class
 	function MoveNext() 
@@ -403,6 +481,12 @@ class ADORecordSet_mysql extends ADORecordSet{
 	
 	function MetaType($t,$len=-1,$fieldobj=false)
 	{
+		if (is_object($t)) {
+			$fieldobj = $t;
+			$t = $fieldobj->type;
+			$len = $fieldobj->max_length;
+		}
+		
 		$len = -1; // mysql max_length is not accurate
 		switch (strtoupper($t)) {
 		case 'STRING': 

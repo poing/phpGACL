@@ -1,6 +1,6 @@
 <?php
 /* 
-V2.40 4 Sept 2002  (c) 2000-2002 John Lim. All rights reserved.
+V3.00 6 Jan 2003  (c) 2000-2003 John Lim. All rights reserved.
   Released under both BSD license and Lesser GPL library license. 
   Whenever there is any discrepancy between the two licenses, 
   the BSD license will take precedence. 
@@ -17,13 +17,19 @@ V2.40 4 Sept 2002  (c) 2000-2002 John Lim. All rights reserved.
  
 class ADODB_sybase extends ADOConnection {
 	var $databaseType = "sybase";	
+	var $dataProvider = 'sybase';
 	var $replaceQuote = "''"; // string to use to replace quotes
 	var $fmtDate = "'Y-m-d'";
 	var $fmtTimeStamp = "'Y-m-d H:i:s'";
 	var $hasInsertID = true;
 	var $hasAffectedRows = true;
   	var $metaTablesSQL="select name from sysobjects where type='U' or type='V'";
-	var $metaColumnsSQL = "select c.name,t.name,c.length from syscolumns c join systypes t on t.xusertype=c.xusertype join sysobjects o on o.id=c.id where o.name='%s'";
+	var $metaColumnsSQL = "SELECT c.name,t.name,c.length FROM syscolumns c, systypes t, sysobjects o WHERE o.name='%s' and t.xusertype=c.xusertype and o.id=c.id";
+	/*
+	"select c.name,t.name,c.length from 
+	syscolumns c join systypes t on t.xusertype=c.xusertype join sysobjects o on o.id=c.id 
+	where o.name='%s'";
+	*/
 	var $concat_operator = '+'; 
 	var $sysDate = 'GetDate()';
 	var $arrayClass = 'ADORecordSet_array_sybase';
@@ -48,20 +54,30 @@ class ADODB_sybase extends ADOConnection {
 
 			  
 	function BeginTrans()
-	{	   
+	{	
+	
+		if ($this->transOff) return true;
+		$this->transCnt += 1;
+		   
 		$this->Execute('BEGIN TRAN');
 		return true;
 	}
 	
 	function CommitTrans($ok=true) 
 	{ 
+		if ($this->transOff) return true;
+		
 		if (!$ok) return $this->RollbackTrans();
+	
+		$this->transCnt -= 1;
 		$this->Execute('COMMIT TRAN');
 		return true;
 	}
 	
 	function RollbackTrans()
 	{
+		if ($this->transOff) return true;
+		$this->transCnt -= 1;
 		$this->Execute('ROLLBACK TRAN');
 		return true;
 	}
@@ -118,6 +134,9 @@ class ADODB_sybase extends ADOConnection {
 	// See http://www.isug.com/Sybase_FAQ/ASE/section6.2.html#6.2.12
 	function &SelectLimit($sql,$nrows=-1,$offset=-1,$inputarr=false,$arg3=false,$secs2cache=0) 
 	{
+		if ($secs2cache > 0) // we do not cache rowcount, so we have to load entire recordset
+			return ADOConnection::SelectLimit($sql,$nrows,$offset,$inputarr,$arg3,$secs2cache);
+		
 		$cnt = ($nrows > 0) ? $nrows : 0;
 		if ($offset > 0 && $cnt) $cnt += $offset;
 		
@@ -160,13 +179,15 @@ class ADORecordset_sybase extends ADORecordSet {
 	// _mths works only in non-localised system
 	var  $_mths = array('JAN'=>1,'FEB'=>2,'MAR'=>3,'APR'=>4,'MAY'=>5,'JUN'=>6,'JUL'=>7,'AUG'=>8,'SEP'=>9,'OCT'=>10,'NOV'=>11,'DEC'=>12);	
 
-	function ADORecordset_sybase($id)
+	function ADORecordset_sybase($id,$mode=false)
 	{
-	global $ADODB_FETCH_MODE;
-	
-		if (!$ADODB_FETCH_MODE) $this->fetchMode = ADODB_FETCH_ASSOC;
-		else $this->fetchMode = $ADODB_FETCH_MODE;
-		return $this->ADORecordSet($id);
+		if ($mode === false) { 
+			global $ADODB_FETCH_MODE;
+			$mode = $ADODB_FETCH_MODE;
+		}
+		if (!$mode) $this->fetchMode = ADODB_FETCH_ASSOC;
+		else $this->fetchMode = $mode;
+		return $this->ADORecordSet($id,$mode);
 	}
 	
 	/*	Returns: an object containing field information. 
@@ -200,8 +221,14 @@ class ADORecordset_sybase extends ADORecordSet {
 
 	function _fetch($ignore_fields=false) 
 	{
-		if ($this->fetchMode == ADODB_FETCH_NUM) $this->fields = @sybase_fetch_row($this->_queryID);
-		else $this->fields = @sybase_fetch_array($this->_queryID);
+		if ($this->fetchMode == ADODB_FETCH_NUM) {
+			$this->fields = @sybase_fetch_row($this->_queryID);
+		} else if ($this->fetchMode == ADODB_FETCH_ASSOC) {
+			$this->fields = @sybase_fetch_row($this->_queryID);
+			$this->fields = $this->GetRowAssoc(ADODB_CASE_ASSOC);
+		}  else {
+			$this->fields = @sybase_fetch_array($this->_queryID);
+		}
 		return is_array($this->fields);
 	}
 	
