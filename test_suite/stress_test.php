@@ -7,6 +7,23 @@
 <pre>
 <?php
 
+/*! var
+ test scale
+ 
+ This script will create:
+ $scale * 10   ACOs
+ $scale * 10   ARO groups
+ $scale * 1000 AROs
+ $scale * 10   AXO groups
+ $scale * 1000 AXOs
+ $scale * 10   ACLs
+ 
+ 1		normal	~5 seconds
+ 10		heavy	~1 minute
+ 100	crazy	~1 hour
+ !*/
+$scale = 10;
+
 set_time_limit (6000);
 
 /*! function
@@ -47,7 +64,6 @@ require_once (dirname (__FILE__) . '/../admin/gacl_admin.inc.php');
 /*
  * Let's get ready to RUMBLE!!!
  */
-$scale = 10;
 
 echo '<b>Stress Test</b>' . "\n";
 echo '    Scale: ' . $scale . "\n\n";
@@ -91,8 +107,8 @@ flush ();
 
 $start_time = getmicrotime ();
 
-$ids = array (0);
-$parent_id = 0;
+$query = 'SELECT id FROM aro_groups';
+$ids = $gacl_api->db->GetCol($query);
 
 // print_r ($ids);
 
@@ -102,6 +118,12 @@ $max = 10 * $scale;
 // function add_group ($name, $parent_id=0, $group_type='ARO') {
 for ( $i = $start; $i <= $max; $i++ )
 {
+	// Find a random parent
+	if ( !empty ($ids) ) {
+		$parent_id = $ids[array_mt_rand ($ids, 1)];
+	} else {
+		$parent_id = 0;
+	}
 	
 	$result = $gacl_api->add_group ('ARO Group: '. $i, $parent_id, 'ARO');
 	
@@ -114,9 +136,6 @@ for ( $i = $start; $i <= $max; $i++ )
 	{
 		$ids[] = $result;
 	}
-	
-	// Find a random parent
-	$parent_id = $ids[array_mt_rand ($ids, 1)];
 }
 
 $elapsed = getmicrotime () - $start_time;
@@ -171,8 +190,8 @@ flush ();
 
 $start_time = getmicrotime ();
 
-$ids = array (0);
-$parent_id = 0;
+$query = 'SELECT id FROM axo_groups';
+$ids = $gacl_api->db->GetCol($query);
 
 $start = 1;
 $max = 10 * $scale;
@@ -181,6 +200,12 @@ $max = 10 * $scale;
 for ( $i = $start; $i <= $max; $i++ )
 {
 	// Find a random parent
+	if ( !empty ($ids) ) {
+		$parent_id = $ids[array_mt_rand ($ids, 1)];
+	} else {
+		$parent_id = 0;
+	}
+	
 	$result = $gacl_api->add_group ('AXO Group: '. $i, $parent_id, 'AXO');
 	if ( $result == FALSE )
 	{
@@ -191,8 +216,6 @@ for ( $i = $start; $i <= $max; $i++ )
 	{
 		$ids[] = $result;
 	}
-	
-	$parent_id = $ids[array_mt_rand ($ids, 1)];
 }
 
 $elapsed = getmicrotime () - $start_time;
