@@ -1,3 +1,5 @@
+* Finish API
+
 * Write tutorial, some people may find phpGACL difficult to figure out.
 
 * Clean up Administration interface and add many more sanity checks
@@ -6,6 +8,3 @@
 
 * Implement some sort of caching, it seems ADODB's caching is very poor. It didn't improve the speed at all.
 
-* Figure out some sort of API for plugging in large amounts of ARO's. (ie: users)
-   Problem with this is unique id's and table joins... I think I'll have to create functions
-   to add/edit/delete ARO's, and they'll just have to keep "copies" of the data. 
