@@ -47,6 +47,13 @@
 class gacl_api extends gacl {
 
 	/*
+	 * Administration interface settings
+	 */	
+	var $_items_per_page = 100;
+	var $_max_select_box_items = 100;
+	var $_max_search_return_items = 100;
+
+	/*
 	 *
 	 * Misc helper functions.
 	 *
@@ -987,6 +994,11 @@ class gacl_api extends gacl {
 			return false;	
 		} else {
 			$this->db->CommitTrans();
+
+			if ($this->_caching == TRUE AND $this->_force_cache_expire == TRUE) {
+				//Expire all cache.	
+				$this->Cache_Lite->clean('default');
+			}
 			
 			//Return only the ID in the first row.
 			return $acl_id;	
@@ -1097,6 +1109,12 @@ class gacl_api extends gacl {
 		} else {
 			$this->debug_text("del_acl(): deleted ACL ID: $acl_id");
 			$this->db->CommitTrans();
+			
+			if ($this->_caching == TRUE AND $this->_force_cache_expire == TRUE) {
+				//Expire all cache.	
+				$this->Cache_Lite->clean('default');
+			}
+			
 			return true;
 		}
 
@@ -1678,6 +1696,12 @@ class gacl_api extends gacl {
 			return false;	
 		} else {
 			$this->debug_text("add_group_object(): Added Value: $object_value to Group ID: $group_id");			
+
+			if ($this->_caching == TRUE AND $this->_force_cache_expire == TRUE) {
+				//Expire all cache.	
+				$this->Cache_Lite->clean('default');
+			}
+
 			return true;
 		}		
 	}
@@ -1715,6 +1739,12 @@ class gacl_api extends gacl {
 			return false;	
 		} else {
 			$this->debug_text("del_group_object(): Deleted Value: $object_value to Group ID: $group_id assignment");			
+
+			if ($this->_caching == TRUE AND $this->_force_cache_expire == TRUE) {
+				//Expire all cache.	
+				$this->Cache_Lite->clean('default');
+			}
+
 			return true;
 		}		
 	}
@@ -1791,6 +1821,11 @@ class gacl_api extends gacl {
 			//Clean orphaned paths
 			$this->clean_path_to_root($group_type);
 			
+			if ($this->_caching == TRUE AND $this->_force_cache_expire == TRUE) {
+				//Expire all cache.	
+				$this->Cache_Lite->clean('default');
+			}
+
 			return $retval;
 		}
 	}
@@ -1921,6 +1956,12 @@ class gacl_api extends gacl {
 
 		$this->debug_text("del_group(): deleted group ID: $group_id");
 		$this->db->CommitTrans();
+
+		if ($this->_caching == TRUE AND $this->_force_cache_expire == TRUE) {
+			//Expire all cache.	
+			$this->Cache_Lite->clean('default');
+		}
+
 		return true;
 
 	}

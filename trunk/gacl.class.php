@@ -45,6 +45,7 @@ class gacl {
 	/*
 	 * Database configuration.
 	 */
+	var $_db_table_prefix = 'gacl_';
 	var $_db_type = 'mysql'; //mysql, postgres7, sybase, oci8po See here for more: http://php.weblogs.com/adodb_manual#driverguide
 	var $_db_host = 'localhost';
 	var $_db_user = 'root';
@@ -55,7 +56,8 @@ class gacl {
 	 * NOTE: 	This cache must be manually cleaned each time ACL's are modified.
 	 * 			Alternatively you could wait for the cache to expire.	
 	 */
-	var $_caching = FALSE; 
+	var $_caching = FALSE;
+	var $_force_cache_expire = TRUE; 
 	var $_cache_dir = '/tmp/phpgacl_cache'; // NO trailing slash
 	var $_cache_expire_time=600; //600 == Ten Minutes	
 	
@@ -67,7 +69,7 @@ class gacl {
 			$this->_debug=TRUE;
 		}
 			
-		$available_options = array('debug','items_per_page','max_select_box_items','max_search_return_items','db_table_prefix','db_type','db_host','db_user','db_password','db_name','caching','cache_dir','cache_expire_time');
+		$available_options = array('debug','items_per_page','max_select_box_items','max_search_return_items','db_table_prefix','db_type','db_host','db_user','db_password','db_name','caching','force_cache_expire','cache_dir','cache_expire_time');
 		if (is_array($options)) {
 			foreach ($options as $key => $value) {
 					$this->debug_text("Option: $key - $value");
