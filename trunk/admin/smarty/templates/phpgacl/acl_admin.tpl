@@ -36,7 +36,7 @@
 
 <body onload="populate(document.acl_admin.aco_section,document.acl_admin.elements['aco[]'], '{$js_aco_array_name}');populate(document.acl_admin.aro_section,document.acl_admin.elements['aro[]'], '{$js_aro_array_name}')">
     <form method="post" name="acl_admin" action="acl_admin.php">
-      <table cellpadding="2" cellspacing="2" border="2" width="100%">
+      <table cellpadding="2" cellspacing="2" border="0" width="850">
         <tbody>
           <tr align="center">
             <td valign="top" colspan="5" bgcolor="#cccccc"><b>phpGACL</b> <b>Administrator [ <a href="acl_list.php?return_page={$return_page}">ACL List</a> ] </b><br>
@@ -44,19 +44,19 @@
           </tr>
 
           <tr>
-            <td width="100" valign="top" align="center" bgcolor="#d3dce3">&nbsp;<b>Sections</b><br>
+            <td width="200" valign="top" align="center" bgcolor="#d3dce3">&nbsp;<b>Sections</b><br>
              </td>
 
-            <td width="100" valign="top" align="center" bgcolor="#d3dce3"><b>Access Control Objects</b> <br>
+            <td width="200" valign="top" align="center" bgcolor="#d3dce3"><b>Access Control Objects</b> <br>
              </td>
 
-            <td width="100" valign="top" align="center" bgcolor="#d3dce3">&nbsp;<br>
+            <td width="50" valign="top" align="center" bgcolor="#d3dce3">&nbsp;<br>
              </td>
 
-            <td width="100" valign="top" align="center" bgcolor="#d3dce3"><b>Selected</b><br>
+            <td width="200" valign="top" align="center" bgcolor="#d3dce3"><b>Selected</b><br>
              </td>
 
-            <td width="100" valign="top" align="center" bgcolor="#d3dce3"><b>Access</b><br>
+            <td width="200" valign="top" align="center" bgcolor="#d3dce3"><b>Access</b><br>
              </td>
           </tr>
 
@@ -162,67 +162,73 @@
 
           <tr>
             <td colspan="5" valign="top" align="center" bgcolor="#d3dce3">
-                <b>[ <a href="javascript: showObject('axo_row1');">Show</a> / <a href="javascript: hideObject('axo_row1');">Hide</a> ] Access eXtension Objects (Optional)</b>
+                <b>[ <a href="javascript: showObject('axo_row1');">Show</a> / <a href="javascript: hideObject();hideObject();">Hide</a> ] Access eXtension Objects (Optional)</b>
              </td>
           </tr>
-          <tr id="axo_row1" class="hide">
-            <td width="100" valign="top" align="center" bgcolor="#d3dce3"><b>Sections</b><br>
-             </td>
+          <tr>
+          <td colspan="10">
+              <table id="axo_row1" {if $show_axo!=TRUE}class="hide"{/if} cellpadding="2" cellspacing="2" border="0">   
+                <tr>
+                    <td width="200" valign="top" align="center" bgcolor="#d3dce3"><b>Sections</b><br>
+                     </td>
 
-            <td width="100" valign="top" align="center" bgcolor="#d3dce3"><b>Access eXtension Objects</b><br>
-             </td>
+                    <td width="200" valign="top" align="center" bgcolor="#d3dce3"><b>Access eXtension Objects</b><br>
+                     </td>
 
-            <td width="100" valign="top" align="center" bgcolor="#d3dce3">&nbsp;<br>
-             </td>
+                    <td width="50" valign="top" align="center" bgcolor="#d3dce3">&nbsp;<br>
+                     </td>
 
-            <td width="100" valign="top" align="center" bgcolor="#d3dce3"><b>Selected</b><br>
-             </td>
+                    <td width="200" valign="top" align="center" bgcolor="#d3dce3"><b>Selected</b><br>
+                     </td>
 
-            <td width="100" valign="top" align="center" bgcolor="#d3dce3"><b>Groups</b><br>
-             </td>
-          </tr>
-          <tr id="axo_row2"  class="hide">
-            <td valign="middle" bgcolor="#cccccc" align="center">[ <a href="edit_object_sections.php?object_type=axo&return_page={$return_page}">Edit</a> ]<br>
-             <br>
-             <select name="axo_section" tabindex="0" size="10" width="200" onclick="populate(document.acl_admin.axo_section,document.acl_admin.elements['axo[]'],'{$js_axo_array_name}')">
-                {html_options options=$options_axo_sections selected=$axo_section_value}              
-            </select> <br>
-             </td>
+                    <td width="200" valign="top" align="center" bgcolor="#d3dce3"><b>Groups</b><br>
+                     </td>
+                </tr>
+                <tr>
+                    <td valign="middle" bgcolor="#cccccc" align="center">[ <a href="edit_object_sections.php?object_type=axo&return_page={$return_page}">Edit</a> ]<br>
+                     <br>
+                     <select name="axo_section" tabindex="0" size="10" width="200" onclick="populate(document.acl_admin.axo_section,document.acl_admin.elements['axo[]'],'{$js_axo_array_name}')">
+                        {html_options options=$options_axo_sections selected=$axo_section_value}              
+                    </select> <br>
+                     </td>
 
-            <td valign="middle" bgcolor="#cccccc" align="center">
-            [ <a href="javascript: location.href = 'edit_objects.php?object_type=axo&section_value=' + document.acl_admin.axo_section.options[document.acl_admin.axo_section.selectedIndex].value + '&return_page={$return_page}';">Edit</a> ] 
-            [ <a href="#" onClick="window.open('object_search.php?src_form=acl_admin&object_type=axo&section_value=' + document.acl_admin.axo_section.options[document.acl_admin.axo_section.selectedIndex].value + '&return_page={$return_page}','','status=yes,width=400,height=400','','status=yes,width=400,height=400');">Search</a> ]<br>
-             <br>
-             <select name="axo[]" tabindex="0" size="10" width="200" multiple>
-            </select> <br>
-             </td>
+                    <td valign="middle" bgcolor="#cccccc" align="center">
+                    [ <a href="javascript: location.href = 'edit_objects.php?object_type=axo&section_value=' + document.acl_admin.axo_section.options[document.acl_admin.axo_section.selectedIndex].value + '&return_page={$return_page}';">Edit</a> ] 
+                    [ <a href="#" onClick="window.open('object_search.php?src_form=acl_admin&object_type=axo&section_value=' + document.acl_admin.axo_section.options[document.acl_admin.axo_section.selectedIndex].value + '&return_page={$return_page}','','status=yes,width=400,height=400','','status=yes,width=400,height=400');">Search</a> ]<br>
+                     <br>
+                     <select name="axo[]" tabindex="0" size="10" width="200" multiple>
+                    </select> <br>
+                     </td>
 
-            <td valign="middle" bgcolor="#cccccc" align="center">
-                <input type="BUTTON" name="select" value="&nbsp;>>&nbsp;" onClick="select_item(document.acl_admin.axo_section, document.acl_admin.elements['axo[]'], document.acl_admin.elements['selected_axo[]'])">
-                <br>
-                <br>
-                <input type="BUTTON" name="deselect" value="&nbsp;<<&nbsp;" onClick="deselect_item(document.acl_admin.elements['selected_axo[]'])">
-             </td>
+                    <td valign="middle" bgcolor="#cccccc" align="center">
+                        <input type="BUTTON" name="select" value="&nbsp;>>&nbsp;" onClick="select_item(document.acl_admin.axo_section, document.acl_admin.elements['axo[]'], document.acl_admin.elements['selected_axo[]'])">
+                        <br>
+                        <br>
+                        <input type="BUTTON" name="deselect" value="&nbsp;<<&nbsp;" onClick="deselect_item(document.acl_admin.elements['selected_axo[]'])">
+                     </td>
 
-            <td valign="middle" bgcolor="#cccccc" align="center">
-             <br>
-             <select name="selected_axo[]" tabindex="0" size="10" width="200" multiple>
-				{html_options options=$options_selected_axo selected=$selected_axo}
-            </select>
-            <br>
-             </td>
+                    <td valign="middle" bgcolor="#cccccc" align="center">
+                     <br>
+                     <select name="selected_axo[]" tabindex="0" size="10" width="200" multiple>
+                        {html_options options=$options_selected_axo selected=$selected_axo}
+                    </select>
+                    <br>
+                     </td>
 
-            <td valign="middle" bgcolor="#cccccc" align="center">[ <a href="group_admin.php?group_type=axo&return_page={$SCRIPT_NAME}?action={$action}&acl_id={$acl_id}">Edit</a> ]<br>
-				 <br>
-				 <select name="axo_groups[]" tabindex="0" multiple>
-					{html_options options=$options_axo_groups selected=$selected_axo_groups}                          
-				</select>
-				<br>
-				<br>
-				<input type="BUTTON" name="Un-Select" value="Un-Select" onClick="unselect_all(document.acl_admin.elements['axo_groups[]'])">
-            </td>
-          </tr>
-          <tr class="hide">
+                    <td valign="middle" bgcolor="#cccccc" align="center">[ <a href="group_admin.php?group_type=axo&return_page={$SCRIPT_NAME}?action={$action}&acl_id={$acl_id}">Edit</a> ]<br>
+                         <br>
+                         <select name="axo_groups[]" tabindex="0" multiple>
+                            {html_options options=$options_axo_groups selected=$selected_axo_groups}                          
+                        </select>
+                        <br>
+                        <br>
+                        <input type="BUTTON" name="Un-Select" value="Un-Select" onClick="unselect_all(document.acl_admin.elements['axo_groups[]'])">
+                    </td>
+                </tr>
+            </table>
+        </td>
+        </tr>
+        <tr>
             <td valign="top" align="right" bgcolor="#d3dce3" rowspan="1" colspan="1">
                 <b>Extended Return Value:</b>
             </td>
@@ -230,7 +236,7 @@
                 <input type="text" name="return_value" size="50" value="{$return_value}">
             </td>
           </tr>
-          <tr class="hide">
+          <tr>
             <td valign="top" align="right" bgcolor="#d3dce3" rowspan="1" colspan="1">
                 <b>Note:</b>
             </td>
