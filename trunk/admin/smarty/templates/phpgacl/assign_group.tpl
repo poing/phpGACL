@@ -77,7 +77,7 @@
     <br>
     <table cellpadding="2" cellspacing="2" border="2" width="100%">
   <tr align="center">
-	<td valign="top" colspan="4" bgcolor="#cccccc"><b>Assigned {$group_type|upper}'s to Group: {$group_name}</b><br>
+	<td valign="top" colspan="4" bgcolor="#cccccc"><b>{$total_objects}</b> {$group_type|upper}'s in Group: <b>{$group_name}</b><br>
 	 </td>
   </tr>
   <tr>
@@ -114,6 +114,7 @@
         {$rows[x].name}
      </td>
     <td valign="top" bgcolor="#cccccc" align="center">
+        [ <a href="acl_list.php?action=Filter&filter_{$group_type}_section_name={$rows[x].section}&filter_{$group_type}_name={$rows[x].name}&return_page={$return_page}">ACLs</a> ]
         <input type="checkbox" name="delete_assigned_object[]" value="{$rows[x].section_value}^{$rows[x].value}">
      </td>
 

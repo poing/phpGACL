@@ -155,16 +155,97 @@ class gacl {
 		return $acl_result['return_value'];
 	}
 
+	function reverse_acl_query($aco_section_value, $aco_value) {
+		//This won't exactly work the way I planned. Have to take in to account group inheritance.
+		//If one group allows, then its child denies, then its child allows, then its child denies. We have a problem. :(
+		$this->debug_text("<b>reverse_acl_query():</b> ACO Section: $aco_section_value ACO Value: $aco_value");
+
+		$query = "	select 		a.id,
+											a.allow,
+											c.section_value,
+											c.value,
+											d.group_id,
+											e.id
+							from    		acl a
+							LEFT JOIN aco_map b ON a.id=b.acl_id
+							LEFT JOIN aro_map c ON a.id=c.acl_id
+							LEFT JOIN aro_groups_map d ON a.id=d.acl_id
+							LEFT JOIN aro_groups_path e ON d.group_id=e.group_id
+							WHERE 	a.enabled = 1
+								AND 	b.section_value = '$aco_section_value'
+								AND 	b.value = '$aco_value'";
+
+		showarray($query);
+		$rs = &$this->db->Execute($query);
+		$rows = &$rs->GetRows();
+		
+		foreach($rows as $row) {
+			$allow = &$row[1];
+			$aro_section_value = &$row[2];
+			$aro_value = &$row[3];
+			$aro_group_id = &$row[4];
+			
+			if (!empty($aro_section_value) AND !empty($aro_value)) {
+				$raw_arr[$allow]['aro'][$aro_section_value][] = $aro_value;
+			}
+			
+			if (!empty($aro_group_id)) {
+				$raw_arr[$allow]['aro_groups'][] = $aro_group_id;
+			}
+			
+			//$raw_arr[$allow]['aro'][$aro_section_value] = array_unique($raw_arr[1]['aro'][$aro_section_value]);
+			//$raw_arr[$allow]['aro_groups'] = array_unique($raw_arr[1]['aro_groups']);
+		}
+
+		showarray($raw_arr);
+		
+		//Now remove all denied objects from the allowed object lists.
+		if (isset($raw_arr[0]['aro_groups'])) {
+			$aro_group_ids = array_diff($raw_arr[1]['aro_groups'], $raw_arr[0]['aro_groups']);
+		} else {
+			$aro_group_ids = $raw_arr[1]['aro_groups'];
+		}
+
+		//If conflict resolution works properly, this should never happen, but lets be safe anyways.
+		if (isset($raw_arr[0]['aro'])) {			
+			$aros = array_diff_assoc($raw_arr[1]['aro'], $raw_arr[0]['aro']);
+		} else {
+			$aros = $raw_arr[1]['aro'];
+		}
+		showarray($aros);
+		
+		$aro_group_ids = array_unique($aro_group_ids);
+		showarray($aro_group_ids);
+		
+		//Grab all AROs in groups.
+		foreach($aro_group_ids as $aro_group_id) {	
+			$query = "select id from aro_groups_path where group_id = $aro_group_id order by tree_level desc limit 1";
+			$path_ids[] = $this->db->GetOne($query);
+		}
+		showarray($path_ids);
+		
+		$query = "select group_id from aro_groups_path where id in (". implode($path_ids,",") .") AND group_id != 0";
+		$group_ids = $this->db->GetCol($query);
+		showarray($group_ids);
+		return $retarr;	
+	}
+	
+	
+	
+	
+	
+	
+	
+	
 	/*======================================================================*\
 		Function:   acl_query()
 		Purpose:	Main function that does the actual ACL lookup.
-						Returns as much information as possible about the ACL, so this is the function
-						that should be used if you want to "hook" in other applications. Such as pricing
-						etc...
+						Returns as much information as possible about the ACL so other functions
+						can trim it down and omit unwanted data.
 	\*======================================================================*/
 	function acl_query($aco_section_value, $aco_value, $aro_section_value, $aro_value, $axo_section_value=NULL, $axo_value=NULL, $root_aro_group_id=NULL, $root_axo_group_id=NULL, $debug=NULL) {
 
-		$cache_id = $aco_section_value.'-'.$aco_value.'-'.$aro_section_value.'-'.$aro_value.'-'.$axo_section_value.'-'.$axo_value.'-'.$root_aro_group_id.'-'.$root_axo_group_id.'-'.$debug;
+		$cache_id = 'acl_query_'.$aco_section_value.'-'.$aco_value.'-'.$aro_section_value.'-'.$aro_value.'-'.$axo_section_value.'-'.$axo_value.'-'.$root_aro_group_id.'-'.$root_axo_group_id.'-'.$debug;
 
 		$retarr = $this->get_cache($cache_id);
 
@@ -214,13 +295,6 @@ class gacl {
 			 * This is probably where the most optimizations can be made.
 			 */
 
-			/*
-			These are currently useless to us. 
-												a.updated_date,
-												b.aco_id,
-												c.aro_id,
-												d.group_id
-			*/
 			$query ="
 								select a.id,a.allow,a.return_value
 									from    acl a
@@ -367,7 +441,7 @@ class gacl {
 		$retarr['parent_ids'] = FALSE;
 
 		//Generate unique cache id.
-		$cache_id = $section_value.'-'.$value.'-'.$root_group_id.'-'.$group_type;
+		$cache_id = 'acl_get_groups_'.$section_value.'-'.$value.'-'.$root_group_id.'-'.$group_type;
 
 		$retarr = $this->get_cache($cache_id);
 

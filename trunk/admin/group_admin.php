@@ -41,15 +41,17 @@ switch ($_POST['action']) {
         
         //showarray($);
         while (list($id,$name) = @each($formatted_groups)) {
-            //list($id, $name) = $row;
+                
+            $group_data = $gacl_api->get_group_data($id, $group_type);
             
-                $groups[] = array(
-                                                'id' => $id,
-                                                'parent_id' => $parent_id,
-                                                'family_id' => $family_id,
-                                                'name' => $name,
-                                                'object_count' => $object_count[$id] + 0
-                                            );
+            $groups[] = array(
+                                            'id' => $id,
+                                            'parent_id' => $parent_id,
+                                            'family_id' => $family_id,
+                                            'name' => $name,
+                                            'raw_name' => $group_data[2],
+                                            'object_count' => $object_count[$id] + 0
+                                        );
         }
 
         $smarty->assign('groups', $groups);
