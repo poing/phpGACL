@@ -1,5 +1,5 @@
 Fri Feb 14 2003
-	- Tweeked consolidate_edit_acl() to better consolidate ACL() in the expected manor.
+	- Tweeked consolidate_edit_acl() to better consolidate ACLs in the expected manor.
 	- Fixed cache ID bug in acl_get_group_path().
 	
 Wed Feb 12 2003
