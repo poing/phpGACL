@@ -3,37 +3,6 @@ $debug=1;
 require_once("gacl_admin.inc.php");
 //require_once("../gacl.inc.php");
 
-
-
-//Cache test.
-
-require_once("../Cache_Lite/phpgacl_cache_lite.php");
-$options = array(
-	'cacheDir' => $cache_dir.'/',
-    'lifeTime' => 10,
-	'fileLocking' => false,
-	'writeControl' => false,
-	'readControl' => false,
-	
-);
-
-$Cache_Lite = new phpGACL_Cache_Lite($options);
-//$Cache_Lite = new Cache_Lite($options);
-
-if ($data = $Cache_Lite->get('123')) {
-    echo('Cache Hit !<br>');
-    echo($data);
-} else {
-    echo('Cache Missed !<br>');
-    $data = '';
-    for($i=0;$i<1000;$i++) {
-        $data .= '0123456789';
-    }
-    echo($data);
-    $Cache_Lite->save($data);
-}
-
-
 //Stress test.
 /*
 //Cleanup
