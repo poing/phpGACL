@@ -130,7 +130,7 @@ class gacl_api {
 			//Insert ACO mappings
 			while (list($aco_section_value,$aco_value_array) = @each($aco_array)) {
 				debug("Insert: ACO Section Value: $aco_section_value ACO VALUE: $aco_value_array");   
-				showarray($aco_array);
+				//showarray($aco_array);
 				foreach ($aco_value_array as $aco_value) {
 					$query = "insert into aco_map (acl_id,aco_section_value,aco_value) VALUES($acl_id, '$aco_section_value', '$aco_value')";
 					$rs = $db->Execute($query);
