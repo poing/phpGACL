@@ -9,11 +9,6 @@ switch ($_POST[action]) {
             foreach($_POST[delete_aro] as $id) {
                 $gacl_api->del_aro($id);            
             }
-/*
-            $query = "delete from aro where id in (".implode(",", $_POST[delete_aro]).")";
-            debug("delete query: $query");
-            $db->Execute($query);
-*/
         }   
             
         //Return page.
