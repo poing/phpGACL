@@ -81,6 +81,9 @@ switch ($_GET['action']) {
 				$filter_query[] = "			( lower(n.name) LIKE '".strtolower($_GET['filter_axo_group_name'])."') ";
 			}
 
+			if ( isset($_GET['filter_acl_section_id']) AND $_GET['filter_acl_section_id'] != '-1') {
+				$filter_query[] = "			( a.section_id LIKE '".$_GET['filter_acl_section_id']."') ";
+			}
 			if ( isset($_GET['filter_return_value']) AND $_GET['filter_return_value'] != '') {
 				$filter_query[] = "			( lower(a.return_value) LIKE '".strtolower($_GET['filter_return_value'])."') ";
 			}
@@ -120,6 +123,8 @@ switch ($_GET['action']) {
                                         m.name,
                                         n.name,
 
+										a.section_id,
+										x.name,
                                         a.allow,
                                         a.enabled,
                                         a.return_value,
@@ -127,6 +132,7 @@ switch ($_GET['action']) {
                                         a.updated_date
                                 from
                                         acl a
+										LEFT JOIN acl_sections x ON a.section_id=x.id
                                         LEFT JOIN aco_map b ON a.id=b.acl_id
 
                                         LEFT JOIN aco e ON ( b.section_value=e.section_value AND b.value = e.value )
@@ -148,7 +154,7 @@ switch ($_GET['action']) {
 		if (isset($acl_ids_sql) AND $acl_ids_sql != '') {
 			$query .= "	where a.id in ($acl_ids_sql)";
 		}
-		
+
         $query .= "		order by a.id, f.name, e.name, h.name, g.name, i.name";
         
         $rs = $db->pageexecute($query, $gacl_api->_items_per_page, $_GET['page']);
@@ -158,10 +164,12 @@ switch ($_GET['action']) {
 			//Parse the SQL data and get rid of any duplicate data.
 			//while (list(,$row) = @each($rows)) {
 			foreach ($rows as $row) {
-				list($acl_id, $aco_section, $aco, $aro_section, $aro, $aro_group, $axo, $axo_section, $axo_group, $allow, $enabled, $return_value, $note, $updated_date) = $row;
+				list($acl_id, $aco_section, $aco, $aro_section, $aro, $aro_group, $axo, $axo_section, $axo_group, $section_id, $section_name, $allow, $enabled, $return_value, $note, $updated_date) = $row;
 				$gacl_api->debug_text("<b>ID:</b> $acl_id <b>ACO Section:</b> $aco_section <b>ACO:</b> $aco  <b>ARO Section:</b> $aro_section <b>ARO:</b> $aro <b>AXO Section:</b> $axo_section <b>AXO:</b> $axo");
 
 				$prepared_rows[$acl_id]['acl']['id'] = $acl_id;
+				$prepared_rows[$acl_id]['acl']['section_id'] = $section_id;
+				$prepared_rows[$acl_id]['acl']['section_name'] = $section_name;
 				$prepared_rows[$acl_id]['acl']['allow'] = $allow;
 				$prepared_rows[$acl_id]['acl']['enabled'] = $enabled;
 				$prepared_rows[$acl_id]['acl']['return_value'] = $return_value;
@@ -169,7 +177,7 @@ switch ($_GET['action']) {
 				$prepared_rows[$acl_id]['acl']['updated_date'] = $updated_date;
 
 				$prepared_rows[$acl_id]['aco'][$aco_section.$aco] = "$aco_section > $aco";
-				
+
 				if ($aro_section AND $aro) {
 					$prepared_rows[$acl_id]['aro'][$aro_section.$aro] = "$aro_section > $aro";
 				}
@@ -183,13 +191,13 @@ switch ($_GET['action']) {
 				if ($axo_group) {
 					$prepared_rows[$acl_id]['axo_groups'][$axo_group] = "$axo_group";
 				}
-			
+
 			}
 
 			//Prepare the data for Smarty.
 			$i=-1;
 			foreach ($prepared_rows as $acl_id => $acl_array) {
-				
+
 				if ($acl_array['aco']) {
 					foreach ($acl_array['aco'] as $key => $value) {
 						$aco_array[] = array('aco' => $value);
@@ -217,9 +225,11 @@ switch ($_GET['action']) {
 						$axo_groups_array[] = array('group' => $value);
 					}
 				}
-				
+
 				$acls[] = array(
 									'id' => $acl_array['acl']['id'],
+									'section_id' => $acl_array['acl']['section_id'],
+									'section_name' => $acl_array['acl']['section_name'],
 									'allow' => (bool)$acl_array['acl']['allow'],
 									'enabled' => (bool)$acl_array['acl']['enabled'],
 									'return_value' => $acl_array['acl']['return_value'],
@@ -229,21 +239,21 @@ switch ($_GET['action']) {
 									'aro' => $aro_array,
 									'aro_groups' => $aro_groups_array,
 									'axo' => $axo_array,
-									'axo_groups' => $axo_groups_array								
+									'axo_groups' => $axo_groups_array
 								);
-				
+
 				unset($aco_array);
 				unset($aro_array);
 				unset($axo_array);
 				unset($aro_groups_array);
-				unset($axo_groups_array);				
+				unset($axo_groups_array);
 			}
 		}
-		
+
         $smarty->assign("acls", $acls);
 
         $smarty->assign("paging_data", $gacl_api->get_paging_data($rs));
-        
+
         $smarty->assign("filter_aco_section_name", $_GET['filter_aco_section_name']);
         $smarty->assign("filter_aco_name", $_GET['filter_aco_name']);
 
@@ -256,7 +266,29 @@ switch ($_GET['action']) {
 		$smarty->assign("filter_axo_group_name", $_GET['filter_axo_group_name']);
 
 		$smarty->assign("filter_return_value", $_GET['filter_return_value']);
+		$smarty->assign("filter_acl_section_id", $_GET['filter_acl_section_id']);
 
+        //
+        //Grab all ACL sections for select box
+        //
+        $query = "select id, name from acl_sections where hidden = 0 order by order_value";
+        $rs = $db->Execute($query);
+        $rows = $rs->GetRows();
+
+        $i=0;
+		$options_acl_sections[-1] = 'Any';
+        while (list(,$row) = @each($rows)) {
+            list($id, $value) = $row;
+
+            if ($i==0) {
+                $acl_section_id=$id;
+            }
+            $options_acl_sections[$id] = $value;
+
+            $i++;
+        }
+
+		$smarty->assign("options_filter_acl_sections",  $options_acl_sections);
 		$smarty->assign("options_filter_allow", array('-1' => 'Any', 1 => 'Allow', 0 => 'Deny'));
 		$smarty->assign("options_filter_enabled", array('-1' => 'Any', 1 => 'Yes', 0 => 'No'));
 
@@ -274,6 +306,9 @@ switch ($_GET['action']) {
 }
 
 $smarty->assign("return_page", $_SERVER['PHP_SELF'] );
+
+$smarty->assign("phpgacl_version", $gacl_api->get_version() );
+$smarty->assign("phpgacl_schema_version", $gacl_api->get_schema_version() );
 
 $smarty->display('phpgacl/acl_list.tpl');
 ?>

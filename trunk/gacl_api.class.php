@@ -48,7 +48,7 @@ class gacl_api extends gacl {
 
 	/*
 	 * Administration interface settings
-	 */	
+	 */
 	var $_items_per_page = 100;
 	var $_max_select_box_items = 100;
 	var $_max_search_return_items = 100;
@@ -76,33 +76,33 @@ class gacl_api extends gacl {
 	\*======================================================================*/
 	function return_page($url="") {
 		global $_SERVER, $debug;
-		
+
 		if (empty($url) AND !empty($_SERVER[HTTP_REFERER])) {
 			$this->debug_text("return_page(): URL not set, using referer!");
 			$url = $_SERVER[HTTP_REFERER];
 		}
-		
+
 		if (!$debug OR $debug==0) {
 			header("Location: $url\n\n");
 		} else {
-			$this->debug_text("return_page(): URL: $url -- Referer: $_SERVER[HTTP_REFERRER]");   
+			$this->debug_text("return_page(): URL: $url -- Referer: $_SERVER[HTTP_REFERRER]");
 		}
 	}
 
 	/*======================================================================*\
-		Function:   get_pading_data()
+		Function:   get_paging_data()
 		Purpose:	Creates a basic array for Smarty to deal with paging large recordsets.
 						Pass it the ADODB recordset.
 	\*======================================================================*/
 	function get_paging_data($rs) {
 
-		return array( 'prevpage' => $rs->absolutepage() - 1,
+		return array( 		'prevpage' => $rs->absolutepage() - 1,
 							'currentpage' => $rs->absolutepage(),
 							'nextpage' => $rs->absolutepage() + 1,
 							'atfirstpage' => $rs->atfirstpage(),
 							'atlastpage' => $rs->atlastpage(),
 							'lastpageno' => $rs->lastpageno()
-					 );			
+					 );
 	}
 
 	/*======================================================================*\
@@ -124,8 +124,30 @@ class gacl_api extends gacl {
 			$this->debug_text("count_all(): Count: $count");
 			return $count;
 		}
-		
+
 		return false;
+	}
+
+	/*======================================================================*\
+		Function:	get_version()
+		Purpose:	Grabs phpGACL version from the database.
+	\*======================================================================*/
+	function get_version() {
+		$query = "select value from phpgacl where name = 'version'";
+		$version = $this->db->GetOne($query);
+
+		return $version;
+	}
+
+	/*======================================================================*\
+		Function:	get_schema_version()
+		Purpose:	Grabs phpGACL schema version from the database.
+	\*======================================================================*/
+	function get_schema_version() {
+		$query = "select value from phpgacl where name = 'schema_version'";
+		$version = $this->db->GetOne($query);
+
+		return $version;
 	}
 
 	/*
@@ -140,7 +162,7 @@ class gacl_api extends gacl {
 						This ONLY works with ACO's and ARO's. Groups, and AXO are excluded.
 						As well this function is designed for handling ACLs with return values,
 						and consolidating on the return_value, in hopes of keeping the ACL count to a minimum.
-	
+
 						A return value of false must _always_ be handled outside this function.
 						As this function will remove AROs from ACLs and return false, in most cases
 						you will need to a create a completely new ACL on a false return.
@@ -153,12 +175,12 @@ class gacl_api extends gacl {
 			$this->debug_text("consolidated_edit_acl(): ACO Section Value ($aco_section_value) is empty, this is required!");
 			return false;
 		}
-		
+
 		if (empty($aco_value) ) {
 			$this->debug_text("consolidated_edit_acl(): ACO Value ($aco_value) is empty, this is required!");
 			return false;
 		}
-		
+
 		if (empty($aro_section_value) ) {
 			$this->debug_text("consolidated_edit_acl(): ARO Section Value ($aro_section_value) is empty, this is required!");
 			return false;
@@ -177,17 +199,17 @@ class gacl_api extends gacl {
 		//See if a current ACL exists with the current objects, excluding return value
 		$current_acl_ids = $this->search_acl($aco_section_value, $aco_value, $aro_section_value, $aro_value, FALSE, FALSE, FALSE, FALSE, FALSE);
 		//showarray($current_acl_ids);
-		
+
 		if (is_array($current_acl_ids)) {
 			$this->debug_text("add_consolidated_acl(): Found current ACL_IDs, counting ACOs");
-			
+
 			foreach ($current_acl_ids as $current_acl_id) {
 				//Check to make sure these ACLs only have a single ACO mapped to them.
 				$current_acl_array = &$this->get_acl($current_acl_id);
 
 				//showarray($current_acl_array);
 				$this->debug_text("add_consolidated_acl(): Current Count: ".$this->count_all($current_acl_array['aco'])."");
-				
+
 				if ( $this->count_all($current_acl_array['aco']) == 1) {
 					$this->debug_text("add_consolidated_acl(): ACL ID: $current_acl_id has 1 ACO.");
 
@@ -196,10 +218,10 @@ class gacl_api extends gacl {
 						$this->debug_text("add_consolidated_acl(): ACL ID: $current_acl_id has 1 ACO, and the same return value. No need to modify.");
 						return true;
 					}
-					
+
 					$acl_ids[] = $current_acl_id;
 				}
-				
+
 			}
 		}
 
@@ -242,13 +264,13 @@ class gacl_api extends gacl {
 					$this->debug_text("add_consolidated_acl(): ACL ID: $new_acl_id has 1 ACO, append should be able to take place.");
 					$acl_ids[] = $new_acl_id;
 				}
-				
+
 			}
 		}
 
 		//showarray($acl_ids);
 		$acl_ids_count = count($acl_ids);
-		
+
 		if (is_array($acl_ids) AND $acl_ids_count == 1) {
 			$this->debug_text("add_consolidated_acl(): Appending specified ARO to existing ACL.");
 
@@ -263,10 +285,10 @@ class gacl_api extends gacl {
 			return true;
 		} elseif($acl_ids_count > 1) {
 			$this->debug_text("add_consolidated_acl(): Found more then one ACL with a single ACO. Possible conflicting ACLs.");
-			return false;	
+			return false;
 		} elseif ($acl_ids_count == 0) {
 			$this->debug_text("add_consolidated_acl(): No existing ACLs found, create a new one.");
-			
+
 			if (!$this->add_acl(	array( $aco_section_value => array($aco_value) ),
 									array( $aro_section_value => array($aro_value) ),
 									NULL,
@@ -280,7 +302,7 @@ class gacl_api extends gacl {
 				$this->debug_text("add_consolidated_acl(): Error adding new ACL for ACO Section: $aco_section_value ACO Value: $aco_value Return Value: $return_value");
 				return false;
 			}
-			
+
 			$this->debug_text("add_consolidated_acl(): ADD_ACL() successfull, returning True.");
 			return true;
 		}
@@ -304,14 +326,14 @@ class gacl_api extends gacl {
 			$query .= " LEFT JOIN aco_map b ON a.id=b.acl_id";	
 		}
 		if ($aro_section_value !== FALSE AND $aro_value !== FALSE) {
-			$query .= " LEFT JOIN aro_map c ON a.id=c.acl_id";	
+			$query .= " LEFT JOIN aro_map c ON a.id=c.acl_id";
 		}
 		if ($aro_group_name !== FALSE) {
 			$query .= " LEFT JOIN aro_groups_map d ON a.id=d.acl_id
 							LEFT JOIN aro_groups dd ON d.group_id=dd.id";	
 		}
 		if ($axo_section_value !== FALSE AND $axo_value !== FALSE) {
-			$query .= " LEFT JOIN axo_map e ON a.id=e.acl_id";	
+			$query .= " LEFT JOIN axo_map e ON a.id=e.acl_id";
 		}
 		if ($axo_group_name !== FALSE) {
 			$query .= " LEFT JOIN axo_groups_map f ON a.id=f.acl_id
@@ -363,7 +385,7 @@ class gacl_api extends gacl {
 				$where_query[] = " ( a.return_value='$return_value' ) ";
 			}
 		}
-		
+
 		$query .= implode($where_query, " AND ");
 		
 		return $this->db->GetCol($query);
@@ -408,7 +430,7 @@ class gacl_api extends gacl {
 
 			while (list(,$aro_group_id) = @each($aro_group_ids)) {
 				if (!is_array($acl_array['aro_groups']) OR !in_array($aro_group_id, $acl_array['aro_groups'])) {
-					$this->debug_text("append_acl(): ARO Group ID: $aro_group_id");   
+					$this->debug_text("append_acl(): ARO Group ID: $aro_group_id");
 					$acl_array['aro_groups'][] = $aro_group_id;
 					$update=1;
 				} else {
@@ -468,8 +490,8 @@ class gacl_api extends gacl {
 			//function edit_acl($acl_id, $aco_array, $aro_array, $aro_group_ids=NULL, $axo_array=NULL, $axo_group_ids=NULL, $allow=1, $enabled=1, $return_value=NULL, $note=NULL) {
 			return $this->edit_acl($acl_id, $acl_array['aco'], $acl_array['aro'], $acl_array['aro_groups'], $acl_array['axo'], $acl_array['axo_groups'], $acl_array['allow'], $acl_array['enabled'], $acl_array['return_value'], $acl_array['note']);
 		}
-		
-		
+
+
 		//Return true if everything is duplicate and no ACL id updated.
 		$this->debug_text("append_acl(): Update flag not set, NOT updating ACL.");
 		return true;
@@ -507,7 +529,7 @@ class gacl_api extends gacl {
 					} else {
 						$this->debug_text("shift_acl(): ARO doesn't exist, can't remove it.");
 					}
-					
+
 				}
 			}
 		}
@@ -525,7 +547,7 @@ class gacl_api extends gacl {
 					$update=1;
 				} else {
 					$this->debug_text("shift_acl(): ARO Group doesn't exist, can't remove it.");
-				}				
+				}
 			}
 		}
 
@@ -615,14 +637,14 @@ class gacl_api extends gacl {
 		Purpose:	Grabs ACL data.
 	\*======================================================================*/
 	function get_acl($acl_id) {
-		
+
 		$this->debug_text("get_acl(): ACL_ID: $acl_id");
 		
 		if (empty($acl_id)) {
 			$this->debug_text("get_acl(): No ACL_ID specified! ACL_ID: $acl_id");
 			return false;
 		}
-		
+
 		//Grab ACL information
 		$query = "select id, allow, enabled, return_value, note from acl where id = ".$acl_id."";
 		$acl_row = $this->db->GetRow($query);
@@ -637,12 +659,12 @@ class gacl_api extends gacl {
 		while (list(,$row) = @each($rows)) {
 			list($section_value, $value, $section, $aco) = $row;
 			$this->debug_text("Section Value: $section_value Value: $value Section: $section ACO: $aco");
-			
+
 			$retarr['aco'][$section_value][] = $value;
-			
+
 		}
 		//showarray($aco);
-	
+
 		//Grab selected ARO's
 		$query = "select distinct a.section_value, a.value, c.name, b.name from aro_map a, aro b, aro_sections c
 							where ( a.section_value=b.section_value AND a.value = b.value) AND b.section_value=c.value AND a.acl_id = $acl_id";
@@ -652,7 +674,7 @@ class gacl_api extends gacl {
 		while (list(,$row) = @each($rows)) {
 			list($section_value, $value, $section, $aro) = $row;
 			$this->debug_text("Section Value: $section_value Value: $value Section: $section ARO: $aro");
-			
+
 			$retarr['aro'][$section_value][] = $value;
 			
 		}
@@ -744,34 +766,44 @@ class gacl_api extends gacl {
 
 		$this->debug_text("is_conflicting_acl(): No conflicting ACL found.");
 		return false;
-		
+
 	}
 	/*======================================================================*\
 		Function:	add_acl()
 		Purpose:	Add's an ACL. ACO_IDS, ARO_IDS, GROUP_IDS must all be arrays.
 	\*======================================================================*/
-	function add_acl($aco_array, $aro_array, $aro_group_ids=NULL, $axo_array=NULL, $axo_group_ids=NULL, $allow=1, $enabled=1, $return_value=NULL, $note=NULL, $acl_id=FALSE ) {
+	function add_acl($aco_array, $aro_array, $aro_group_ids=NULL, $axo_array=NULL, $axo_group_ids=NULL, $allow=1, $enabled=1, $return_value=NULL, $note=NULL, $section_value=NULL, $acl_id=FALSE ) {
 
 		$this->debug_text("add_acl():");
-		
+
 		if (count($aco_array) == 0) {
 			$this->debug_text("Must select at least one Access Control Object");
 			return false;
 		}
-		
+
 		if (count($aro_array) == 0 AND count($aro_group_ids) == 0) {
 			$this->debug_text("Must select at least one Access Request Object or Group");
 			return false;
 		}
-		
+
 		if (empty($allow)) {
-			$allow=0;	
+			$allow=0;
 		}
 
 		if (empty($enabled)) {
-			$enabled=0;	
+			$enabled=0;
 		}
-		
+
+		if (empty($section_value)) {
+			$section_value='system';
+		}
+
+		$section_id = &$this->get_object_section_section_id(NULL, $section_value, 'ACL');
+		if (empty($section_id)) {
+			$this->debug_text("add_acl(): Invalid Section Value: $section_value... No Section ID found.");
+			return false;
+		}
+
 		//Unique the group arrays. Later one we unique ACO/ARO/AXO arrays.
 		if (is_array($aro_group_ids)) {
 			$aro_group_ids = array_unique($aro_group_ids);
@@ -785,21 +817,21 @@ class gacl_api extends gacl {
 			$this->debug_text("add_acl(): Detected possible ACL conflict, not adding ACL!");
 			return false;
 		}
-		
-		//Edit ACL if acl_id is set. This is simply if we're being called by edit_acl(). 
+
+		//Edit ACL if acl_id is set. This is simply if we're being called by edit_acl().
 		if (empty($acl_id)) {
 			//Create ACL row first, so we have the acl_id
 			$acl_id = $this->db->GenID('acl_seq',10);
 
 			$this->db->BeginTrans();
-			$query = "insert into acl (id,allow,enabled,return_value, note, updated_date) VALUES($acl_id, $allow, $enabled, ".$this->db->quote($return_value).", ".$this->db->quote($note).", ".time().")";
+			$query = "insert into acl (id,section_id,allow,enabled,return_value, note, updated_date) VALUES($acl_id, $section_id, $allow, $enabled, ".$this->db->quote($return_value).", ".$this->db->quote($note).", ".time().")";
 			$result = $this->db->Execute($query);
 		} else {
 			$this->db->BeginTrans();
-			
+
 			//Update ACL row, and remove all mappings so they can be re-inserted.
-			$query = "update acl set allow=$allow,enabled=$enabled,return_value=".$this->db->quote($return_value).", note=".$this->db->quote($note).",updated_date=".time()." where id=$acl_id";
-			$result = $this->db->Execute($query);			
+			$query = "update acl set section_id=$section_id,allow=$allow,enabled=$enabled,return_value=".$this->db->quote($return_value).", note=".$this->db->quote($note).",updated_date=".time()." where id=$acl_id";
+			$result = $this->db->Execute($query);
 
 			if ($result) {
 				$this->debug_text("Update completed without error, delete mappings...");
@@ -810,16 +842,16 @@ class gacl_api extends gacl {
 				if ( is_string( $this->db->ErrorNo() ) ) {
 					$this->debug_text("add_acl(): database error: ". $this->db->ErrorMsg() ." (". $this->db->ErrorNo() .")");
 					$this->db->RollBackTrans();
-					return false;	
+					return false;
 				}
-				
+
 				$query = "delete from aro_map where acl_id=$acl_id";
 				$this->db->Execute($query);
 
 				if ( is_string( $this->db->ErrorNo() ) ) {
 					$this->debug_text("add_acl(): database error: ". $this->db->ErrorMsg() ." (". $this->db->ErrorNo() .")");
 					$this->db->RollBackTrans();
-					return false;	
+					return false;
 				}
 
 				$query = "delete from axo_map where acl_id=$acl_id";
@@ -828,7 +860,7 @@ class gacl_api extends gacl {
 				if ( is_string( $this->db->ErrorNo() ) ) {
 					$this->debug_text("add_acl(): database error: ". $this->db->ErrorMsg() ." (". $this->db->ErrorNo() .")");
 					$this->db->RollBackTrans();
-					return false;	
+					return false;
 				}
 
 				$query = "delete from aro_groups_map where acl_id=$acl_id";
@@ -837,7 +869,7 @@ class gacl_api extends gacl {
 				if ( is_string( $this->db->ErrorNo() ) ) {
 					$this->debug_text("add_acl(): database error: ". $this->db->ErrorMsg() ." (". $this->db->ErrorNo() .")");
 					$this->db->RollBackTrans();
-					return false;	
+					return false;
 				}
 
 				$query = "delete from axo_groups_map where acl_id=$acl_id";
@@ -846,22 +878,22 @@ class gacl_api extends gacl {
 				if ( is_string( $this->db->ErrorNo() ) ) {
 					$this->debug_text("add_acl(): database error: ". $this->db->ErrorMsg() ." (". $this->db->ErrorNo() .")");
 					$this->db->RollBackTrans();
-					return false;	
+					return false;
 				}
 			}
 		}
-		
+
 		if ( is_string( $this->db->ErrorNo() ) ) {
 			$this->debug_text("add_acl(): database error: ". $this->db->ErrorMsg() ." (". $this->db->ErrorNo() .")");
 			$this->db->RollBackTrans();
-			return false;	
+			return false;
 		}
-		
+
 		if ($result) {
 			$this->debug_text("Insert or Update completed without error, insert new mappings.");
 			//Insert ACO mappings
 			while (list($aco_section_value,$aco_value_array) = @each($aco_array)) {
-				$this->debug_text("Insert: ACO Section Value: $aco_section_value ACO VALUE: $aco_value_array");   
+				$this->debug_text("Insert: ACO Section Value: $aco_section_value ACO VALUE: $aco_value_array");
 				//$this->showarray($aco_value_array);
 				$aco_value_array = array_unique($aco_value_array);
 
@@ -876,7 +908,7 @@ class gacl_api extends gacl {
 						if ( is_string( $this->db->ErrorNo() ) ) {
 							$this->debug_text("add_acl(): database error: ". $this->db->ErrorMsg() ." (". $this->db->ErrorNo() .")");
 							$this->db->RollBackTrans();
-							return false;	
+							return false;
 						}
 					} else {
 						$this->debug_text("add_acl(): ACO Object Section Value: $aco_section_value Value: $aco_value DOES NOT exist in the database. Skipping...");
@@ -888,7 +920,7 @@ class gacl_api extends gacl {
 
 			//Insert ARO mappings
 			while (list($aro_section_value,$aro_value_array) = @each($aro_array)) {
-				$this->debug_text("Insert: ARO Section Value: $aro_section_value ARO VALUE: $aro_value_array");   
+				$this->debug_text("Insert: ARO Section Value: $aro_section_value ARO VALUE: $aro_value_array");
 
 				$aro_value_array = array_unique($aro_value_array);
 				foreach ($aro_value_array as $aro_value) {
@@ -896,14 +928,14 @@ class gacl_api extends gacl {
 
 					if (!empty($aro_object_id)) {
 						$this->debug_text("add_acl(): ARO Object ID: $aro_object_id");
-						
+
 						$query = "insert into aro_map (acl_id,section_value, value) VALUES($acl_id, '$aro_section_value', '$aro_value')";
 						$rs = $this->db->Execute($query);
 
 						if ( is_string( $this->db->ErrorNo() ) ) {
 							$this->debug_text("add_acl(): database error: ". $this->db->ErrorMsg() ." (". $this->db->ErrorNo() .")");
 							$this->db->RollBackTrans();
-							return false;	
+							return false;
 						}
 					} else {
 						$this->debug_text("add_acl(): ARO Object Section Value: $aro_section_value Value: $aro_value DOES NOT exist in the database. Skipping...");
@@ -912,7 +944,7 @@ class gacl_api extends gacl {
 					}
 				}
 			}
-			
+
 			//Insert AXO mappings
 			while (list($axo_section_value,$axo_value_array) = @each($axo_array)) {
 				$this->debug_text("Insert: AXO Section Value: $axo_section_value AXO VALUE: $axo_value_array");   
@@ -996,9 +1028,9 @@ class gacl_api extends gacl {
 				//Expire all cache.	
 				$this->Cache_Lite->clean('default');
 			}
-			
+
 			//Return only the ID in the first row.
-			return $acl_id;	
+			return $acl_id;
 		}
 	}
 
@@ -1006,10 +1038,10 @@ class gacl_api extends gacl {
 		Function:	edit_acl()
 		Purpose:	Edit's an ACL, ACO_IDS, ARO_IDS, GROUP_IDS must all be arrays.
 	\*======================================================================*/
-	function edit_acl($acl_id, $aco_array, $aro_array, $aro_group_ids=NULL, $axo_array=NULL, $axo_group_ids=NULL, $allow=1, $enabled=1, $return_value=NULL, $note=NULL) {
-		
+	function edit_acl($acl_id, $aco_array, $aro_array, $aro_group_ids=NULL, $axo_array=NULL, $axo_group_ids=NULL, $allow=1, $enabled=1, $return_value=NULL, $note=NULL, $section_value=NULL) {
+
 		$this->debug_text("edit_acl():");
-		
+
 		if (empty($acl_id) ) {
 			$this->debug_text("edit_acl(): Must specify a single ACL_ID to edit");
 			return false;
@@ -1018,44 +1050,44 @@ class gacl_api extends gacl {
 			$this->debug_text("edit_acl(): Must select at least one Access Control Object");
 			return false;
 		}
-		
+
 		if (count($aro_array) == 0 AND count($aro_group_ids) == 0) {
 			$this->debug_text("edit_acl(): Must select at least one Access Request Object or Group");
 			return false;
 		}
-		
+
 		if (empty($allow)) {
-			$allow=0;	
+			$allow=0;
 		}
 
 		if (empty($enabled)) {
-			$enabled=0;	
+			$enabled=0;
 		}
-		
+
 		//if ($this->add_acl($aco_array, $aro_array, $group_ids, $allow, $enabled, $acl_id)) {
-		if ($this->add_acl($aco_array, $aro_array, $aro_group_ids, $axo_array, $axo_group_ids, $allow, $enabled, $return_value, $note, $acl_id)) {
-			return true;	
+		if ($this->add_acl($aco_array, $aro_array, $aro_group_ids, $axo_array, $axo_group_ids, $allow, $enabled, $return_value, $note, $section_value, $acl_id)) {
+			return true;
 		} else {
 			$this->debug_text("edit_acl(): error in add_acl()");
-			return false;	
+			return false;
 		}
 	}
-	
+
 	/*======================================================================*\
 		Function:	del_acl()
 		Purpose:	Deletes a given ACL
 	\*======================================================================*/
 	function del_acl($acl_id) {
-		
+
 		$this->debug_text("del_acl(): ID: $acl_id");
-		
+
 		if (empty($acl_id) ) {
 			$this->debug_text("del_acl(): ACL_ID ($acl_id) is empty, this is required");
-			return false;	
+			return false;
 		}
 
 		$this->db->BeginTrans();
-		
+
 		$query = "delete from acl where id = $acl_id";
 		$this->debug_text("delete query: $query");
 		$this->db->Execute($query);
@@ -1698,7 +1730,7 @@ class gacl_api extends gacl {
 		Purpose:	Assigns an ARO to a group
 	\*======================================================================*/
 	function add_group_object($group_id, $object_section_value, $object_value, $group_type='ARO') {
-		
+
 		switch(strtolower($group_type)) {
 			case 'axo':
 				$table = 'groups_axo_map';
@@ -1709,7 +1741,7 @@ class gacl_api extends gacl {
 		}
 
 		$this->debug_text("add_group_object(): Group ID: $group_id Section Value: $object_section_value Value: $object_value Group Type: $group_type");
-		
+
 		$object_section_value = trim($object_section_value);
 		$object_value = trim($object_value);
 		
@@ -1830,7 +1862,7 @@ class gacl_api extends gacl {
 		}				
 		$query .= "										parent_id = $parent_id
 													where   id=$group_id";
-		$rs = $this->db->Execute($query);                   
+		$rs = $this->db->Execute($query);
 
 		if ( is_string( $this->db->ErrorNo() ) ) {
 			$this->debug_text("edit_group(): database error: ". $this->db->ErrorMsg() ." (". $this->db->ErrorNo() .")");
@@ -1909,7 +1941,7 @@ class gacl_api extends gacl {
 		}
 		
 		$this->db->BeginTrans();
-		
+
 		//Grab all current children and edit_group() each of them to the proper parent
 		$query = "select id from $table where parent_id=$group_id";
 		$children_ids = $this->db->GetCol($query);
@@ -2118,7 +2150,7 @@ class gacl_api extends gacl {
 		Purpose:	Gets the object_id given the section_value AND value of the object.
 	\*======================================================================*/
 	function get_object_id($section_value, $value, $object_type=NULL) {
-		
+
 		switch(strtolower(trim($object_type))) {
 			case 'aco':
 				$object_type = 'aco';
@@ -2132,34 +2164,34 @@ class gacl_api extends gacl {
 		}
 
 		$this->debug_text("get_object_id(): Section Value: $section_value Value: $value Object Type: $object_type");
-		
+
 		$section_value = trim($section_value);
 		$value = trim($value);
-		
+
 		if (empty($section_value) AND empty($value) ) {
 			$this->debug_text("get_object_id(): Section Value ($value) AND value ($value) is empty, this is required");
-			return false;	
+			return false;
 		}
 
 		if (empty($object_type) ) {
 			$this->debug_text("get_object_id(): Object Type ($object_type) is empty, this is required");
-			return false;	
+			return false;
 		}
-			
+
 		$query = "select id from $object_type where section_value='$section_value' AND value='$value'";
 		$rs = $this->db->Execute($query);
 
 		if ( is_string( $this->db->ErrorNo() ) ) {
 			$this->debug_text("get_object_id(): database error: ". $this->db->ErrorMsg() ." (". $this->db->ErrorNo() .")");
-			return false;	
+			return false;
 		} else {
 			$row_count = $rs->RecordCount();
-			
+
 			if ($row_count > 1) {
 				$this->debug_text("get_object_id(): Returned $row_count rows, can only return one. This should never happen, the database may be missing a unique key.");
-				return false;	
+				return false;
 			} elseif($row_count == 0) {
-				$this->debug_text("get_object_id(): Returned $row_count rows");				
+				$this->debug_text("get_object_id(): Returned $row_count rows");
 				return false;
 			} else {
 				$rows = $rs->GetRows();
@@ -2175,7 +2207,7 @@ class gacl_api extends gacl {
 		Purpose:	Gets the object_section_value given object id
 	\*======================================================================*/
 	function get_object_section_value($object_id, $object_type=NULL) {
-		
+
 		switch(strtolower(trim($object_type))) {
 			case 'aco':
 				$object_type = 'aco';
@@ -2189,15 +2221,15 @@ class gacl_api extends gacl {
 		}
 
 		$this->debug_text("get_object_section_value(): Object ID: $object_id Object Type: $object_type");
-		
+
 		if (empty($object_id) ) {
 			$this->debug_text("get_object_section_value(): Object ID ($object_id) is empty, this is required");
-			return false;	
+			return false;
 		}
-			
+
 		if (empty($object_type) ) {
 			$this->debug_text("get_object_section_value(): Object Type ($object_type) is empty, this is required");
-			return false;	
+			return false;
 		}
 
 		$query = "select section_value from $object_type where id=$object_id";
@@ -2205,21 +2237,21 @@ class gacl_api extends gacl {
 
 		if ( is_string( $this->db->ErrorNo() ) ) {
 			$this->debug_text("get_object_section_value(): database error: ". $this->db->ErrorMsg() ." (". $this->db->ErrorNo() .")");
-			return false;	
+			return false;
 		} else {
 			$row_count = $rs->RecordCount();
-			
+
 			if ($row_count > 1) {
 				$this->debug_text("get_object_section_value(): Returned $row_count rows, can only return one.");
-				return false;	
+				return false;
 			} elseif($row_count == 0) {
-				$this->debug_text("get_object_section_value(): Returned $row_count rows");				
+				$this->debug_text("get_object_section_value(): Returned $row_count rows");
 				return false;
 			} else {
 				$rows = $rs->GetRows();
 
 				//Return only the ID in the first row.
-				return $rows[0][0];	
+				return $rows[0][0];
 			}
 		}
 	}
@@ -2229,7 +2261,7 @@ class gacl_api extends gacl {
 		Purpose:	Inserts a new object
 	\*======================================================================*/
 	function add_object($section_value, $name, $value=0, $order=0, $hidden=0, $object_type=NULL) {
-		
+
 		switch(strtolower(trim($object_type))) {
 			case 'aco':
 				$object_type = 'aco';
@@ -2246,7 +2278,7 @@ class gacl_api extends gacl {
 		}
 
 		$this->debug_text("add_object(): Section Value: $section_value Value: $value Order: $order Name: $name Object Type: $object_type");
-		
+
 		$section_value = trim($section_value);
 		$name = trim($name);
 		$value = trim($value);
@@ -2255,34 +2287,34 @@ class gacl_api extends gacl {
 		if ($order == NULL OR $order == '') {
 			$order = 0;
 		}
-		
+
 		if (empty($name) OR empty($section_value) ) {
 			$this->debug_text("add_object(): name ($name) OR section value ($section_value) is empty, this is required");
-			return false;	
+			return false;
 		}
-		
+
 		if (strlen($name) >= 255 OR strlen($value) >= 230 ) {
 			$this->debug_text("add_object(): name ($name) OR value ($value) is too long.");
-			return false;	
+			return false;
 		}
 
 		if (empty($object_type) ) {
 			$this->debug_text("add_object(): Object Type ($object_type) is empty, this is required");
-			return false;	
+			return false;
 		}
-		
+
 		if ($this->get_object_section_section_id(NULL, $section_value, $object_type) === FALSE) {
 			$this->debug_text("add_object(): Section Value: $section_value Object Type ($object_type) does not exist, this is required");
-			return false;				
+			return false;
 		}
 
 		$insert_id = $this->db->GenID($object_type.'_seq',10);
 		$query = "insert into $object_type (id,section_value, value,order_value,name,hidden) VALUES($insert_id, '$section_value', '$value', '$order', '$name', $hidden)";
-		$rs = $this->db->Execute($query);                   
+		$rs = $this->db->Execute($query);
 
 		if ( is_string( $this->db->ErrorNo() ) ) {
 			$this->debug_text("add_object(): database error: ". $this->db->ErrorMsg() ." (". $this->db->ErrorNo() .")");
-			return false;	
+			return false;
 		} else {
 			$this->debug_text("add_object(): Added object as ID: $insert_id");
 			return $insert_id;
@@ -2477,7 +2509,7 @@ class gacl_api extends gacl {
 						$this->db->RollBackTrans();
 						return false;
 					}
-	
+
 					// Find the "orphaned" acl. I mean acl referencing the erased Object (map)
 					// not referenced anymore by other objects
 
@@ -2584,21 +2616,25 @@ class gacl_api extends gacl {
 				$object_type = 'axo';
 				$object_sections_table = 'axo_sections';
 				break;
+			case 'acl':
+				$object_type = 'acl';
+				$object_sections_table = 'acl_sections';
+				break;
 		}
-		
+
 		$this->debug_text("get_aco_section_section_id(): Value: $value Name: $name Object Type: $object_type");
-		
+
 		$name = trim($name);
 		$value = trim($value);
-		
+
 		if (empty($name) AND empty($value) ) {
 			$this->debug_text("get_object_section_section_id(): name ($name) OR value ($value) is empty, this is required");
-			return false;	
+			return false;
 		}
-			
+
 		if (empty($object_type) ) {
 			$this->debug_text("get_object_section_section_id(): Object Type ($object_type) is empty, this is required");
-			return false;	
+			return false;
 		}
 
 		$query = "select id from $object_sections_table where name='$name' OR value='$value'";
@@ -2606,21 +2642,21 @@ class gacl_api extends gacl {
 
 		if ( is_string( $this->db->ErrorNo() ) ) {
 			$this->debug_text("get_object_section_section_id(): database error: ". $this->db->ErrorMsg() ." (". $this->db->ErrorNo() .")");
-			return false;	
+			return false;
 		} else {
 			$row_count = $rs->RecordCount();
-			
+
 			if ($row_count > 1) {
 				$this->debug_text("get_object_section_section_id(): Returned $row_count rows, can only return one. Please search by value not name, or make your names unique.");
-				return false;	
+				return false;
 			} elseif($row_count == 0) {
-				$this->debug_text("get_object_section_section_id(): Returned $row_count rows");				
+				$this->debug_text("get_object_section_section_id(): Returned $row_count rows");
 				return false;
 			} else {
 				$rows = $rs->GetRows();
 
 				//Return only the ID in the first row.
-				return $rows[0][0];	
+				return $rows[0][0];
 			}
 		}
 	}
@@ -2630,7 +2666,7 @@ class gacl_api extends gacl {
 		Purpose:	Inserts an object Section
 	\*======================================================================*/
 	function add_object_section($name, $value=0, $order=0, $hidden=0, $object_type=NULL) {
-		
+
 		switch(strtolower(trim($object_type))) {
 			case 'aco':
 				$object_type = 'aco';
@@ -2644,10 +2680,14 @@ class gacl_api extends gacl {
 				$object_type = 'axo';
 				$object_sections_table = 'axo_sections';
 				break;
+			case 'acl':
+				$object_type = 'acl';
+				$object_sections_table = 'acl_sections';
+				break;
 		}
 
 		$this->debug_text("add_object_section(): Value: $value Order: $order Name: $name Object Type: $object_type");
-		
+
 		$name = trim($name);
 		$value = trim($value);
 		$order = trim($order);
@@ -2655,24 +2695,24 @@ class gacl_api extends gacl {
 		if ($order == NULL OR $order == '') {
 			$order = 0;
 		}
-		
+
 		if (empty($name) ) {
 			$this->debug_text("add_object_section(): name ($name) is empty, this is required");
-			return false;	
+			return false;
 		}
 
 		if (empty($object_type) ) {
 			$this->debug_text("add_object_section(): Object Type ($object_type) is empty, this is required");
-			return false;	
+			return false;
 		}
-	
+
 		$insert_id = $this->db->GenID($object_type.'_sections_seq',10);
 		$query = "insert into $object_sections_table (id,value,order_value,name,hidden) VALUES($insert_id, '$value', '$order', '$name', $hidden)";
-		$rs = $this->db->Execute($query);                   
+		$rs = $this->db->Execute($query);
 
 		if ( is_string( $this->db->ErrorNo() ) ) {
 			$this->debug_text("add_object_section(): database error: ". $this->db->ErrorMsg() ." (". $this->db->ErrorNo() .")");
-			return false;	
+			return false;
 		} else {
 			$this->debug_text("add_object_section(): Added object_section as ID: $insert_id");
 			return $insert_id;
@@ -2684,7 +2724,7 @@ class gacl_api extends gacl {
 		Purpose:	Edits a given Object Section
 	\*======================================================================*/
 	function edit_object_section($object_section_id, $name, $value=0, $order=0, $hidden=0, $object_type=NULL) {
-		
+
 		switch(strtolower(trim($object_type))) {
 			case 'aco':
 				$object_type = 'aco';
@@ -2701,6 +2741,10 @@ class gacl_api extends gacl {
 				$object_sections_table = 'axo_sections';
 				$object_map_table = 'axo_map';
 				break;
+			case 'acl':
+				$object_type = 'acl';
+				$object_sections_table = 'acl_sections';
+				break;
 		}
 
 		$this->debug_text("edit_object_section(): ID: $object_section_id Value: $value Order: $order Name: $name Object Type: $object_type");
@@ -2708,20 +2752,20 @@ class gacl_api extends gacl {
 		$name = trim($name);
 		$value = trim($value);
 		$order = trim($order);
-		
+
 		if (empty($object_section_id) ) {
 			$this->debug_text("edit_object_section(): Section ID ($object_section_id) is empty, this is required");
-			return false;	
+			return false;
 		}
 
 		if (empty($name) ) {
 			$this->debug_text("edit_object_section(): name ($name) is empty, this is required");
-			return false;	
+			return false;
 		}
-			
+
 		if (empty($object_type) ) {
 			$this->debug_text("edit_object_section(): Object Type ($object_type) is empty, this is required");
-			return false;	
+			return false;
 		}
 
 		//Get old value incase it changed, before we do the update.
@@ -2734,41 +2778,46 @@ class gacl_api extends gacl {
 																name='$name',
 																hidden=$hidden
 													where   id=$object_section_id";
-		$rs = $this->db->Execute($query);                   
+		$rs = $this->db->Execute($query);
 
 		if ( is_string( $this->db->ErrorNo() ) ) {
 			$this->debug_text("edit_object_section(): database error: ". $this->db->ErrorMsg() ." (". $this->db->ErrorNo() .")");
-			return false;	
+			return false;
 		} else {
 			$this->debug_text("edit_object_section(): Modified aco_section ID: $aco_section_id");
 
 			if ($old_value != $value) {
 				$this->debug_text("edit_object_section(): Value Changed, update other tables.");
-				
+
 				$query = "update $object_type set
 																section_value='$value'
 													where section_value = '$old_value'";
-				$rs = $this->db->Execute($query);                   
+				$rs = $this->db->Execute($query);
 
 				if ( is_string( $this->db->ErrorNo() ) ) {
 					$this->debug_text("edit_object_section(): database error: ". $this->db->ErrorMsg() ." (". $this->db->ErrorNo() .")");
-					return false;	
+					return false;
 				} else {
-					$query = "update $object_map_table set
-																	section_value='$value'
-														where section_value = '$old_value'";
-					$rs = $this->db->Execute($query);                   
+					if (!empty($object_map_table)) {
+						$query = "update $object_map_table set
+																		section_value='$value'
+															where section_value = '$old_value'";
+						$rs = $this->db->Execute($query);
 
-					if ( is_string( $this->db->ErrorNo() ) ) {
-						$this->debug_text("edit_object_section(): database error: ". $this->db->ErrorMsg() ." (". $this->db->ErrorNo() .")");
-						return false;	
+						if ( is_string( $this->db->ErrorNo() ) ) {
+							$this->debug_text("edit_object_section(): database error: ". $this->db->ErrorMsg() ." (". $this->db->ErrorNo() .")");
+							return false;
+						} else {
+							$this->debug_text("edit_object_section(): Modified ojbect_map value: $value");
+							return true;
+						}
 					} else {
-						$this->debug_text("edit_object_section(): Modified ojbect_map value: $value");
+						//ACL sections, have no mapping table. Return true.
 						return true;
 					}
-				}	
+				}
 			}
-			
+
 			return true;
 		}
 	}
@@ -2780,7 +2829,7 @@ class gacl_api extends gacl {
 						ERASE feature by: Martino Piccinato
 	\*======================================================================*/
 	function del_object_section($object_section_id, $object_type=NULL, $erase=FALSE) {
-		
+
 		switch(strtolower(trim($object_type))) {
 			case 'aco':
 				$object_type = 'aco';
@@ -2794,18 +2843,22 @@ class gacl_api extends gacl {
 				$object_type = 'axo';
 				$object_sections_table = 'axo_sections';
 				break;
+			case 'acl':
+				$object_type = 'acl';
+				$object_sections_table = 'acl_sections';
+				break;
 		}
 
 		$this->debug_text("del_object_section(): ID: $object_section_id Object Type: $object_type, Erase all: $erase");
-		
+
 		if (empty($object_section_id) ) {
 			$this->debug_text("del_object_section(): Section ID ($object_section_id) is empty, this is required");
-			return false;	
+			return false;
 		}
 
 		if (empty($object_type) ) {
 			$this->debug_text("del_object_section(): Object Type ($object_type) is empty, this is required");
-			return false;	
+			return false;
 		}
 
 		// Get the value of the section
@@ -2820,14 +2873,16 @@ class gacl_api extends gacl {
 			// each object delete the referencing object
 			// (see del_object method)
 
-			foreach ($object_ids as $id) {
-				$this->del_object($id, $object_type, TRUE);
+			if (is_array($object_ids)) {
+				foreach ($object_ids as $id) {
+					$this->del_object($id, $object_type, TRUE);
+				}
 			}
 		}
 
 		if($object_ids AND !$erase) {
-			// There are objects in the section and we 
-			// were not asked to erase them: don't delete it 
+			// There are objects in the section and we
+			// were not asked to erase them: don't delete it
 
 			$this->debug_text("del_object_section(): Could not delete the section ($section_value) as it is not empty.");
 
@@ -2835,21 +2890,21 @@ class gacl_api extends gacl {
 
 		} else {
 			// The section is empty (or emptied by this method)
-			
+
 			$query = "DELETE FROM $object_sections_table where id='$object_section_id'";
 			$this->db->Execute($query);
-	
+
 			if ( is_string( $this->db->ErrorNo() ) ) {
 				$this->debug_text("del_object_section(): database error: ". $this->db->ErrorMsg() ." (". $this->db->ErrorNo() .")");
-				return false;	
+				return false;
 			} else {
 				$this->debug_text("del_object_section(): deleted section ID: $object_section_id Value: $section_value");
 				return true;
 			}
 
 		}
-	
-		return false;	
+
+		return false;
 	}
 }
 ?>

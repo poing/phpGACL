@@ -24,60 +24,60 @@ switch ($_POST['action']) {
 				$selected_aco_array[$split_aco_value[0]][] = $split_aco_value[1];
 		}
 		//showarray($selected_aco_array);
-		
+
 		//Parse the form values
 		//foreach ($_POST['selected_aro'] as $aro_value) {
-		while (list(,$aro_value) = @each($_POST['selected_aro'])) {			
+		while (list(,$aro_value) = @each($_POST['selected_aro'])) {
 				$split_aro_value = explode("^", $aro_value);
 				$selected_aro_array[$split_aro_value[0]][] = $split_aro_value[1];
 		}
 		//showarray($selected_aro_array);
 
-		while (list(,$axo_value) = @each($_POST['selected_axo'])) {			
+		while (list(,$axo_value) = @each($_POST['selected_axo'])) {
 				$split_axo_value = explode("^", $axo_value);
 				$selected_axo_array[$split_axo_value[0]][] = $split_axo_value[1];
 		}
 		//showarray($selected_axo_array);
-		
+
 		//Some sanity checks.
 		if (count($selected_aco_array) == 0) {
 			echo "Must select at least one Access Control Object<br>\n";
 			exit;
 		}
-		
+
 		if (count($selected_aro_array) == 0 AND count($_POST['aro_groups']) == 0) {
 			echo "Must select at least one Access Request Object or Group<br>\n";
 			exit;
 		}
-		
+
 		$enabled = $_POST['enabled'];
 		if (empty($enabled)) {
-			$enabled=0;	
+			$enabled=0;
 		}
 
 		//function add_acl($aco_array, $aro_array, $aro_group_ids=NULL, $axo_array=NULL, $axo_group_ids=NULL, $allow=1, $enabled=1, $acl_id=FALSE ) {
 		if (!empty($_POST['acl_id']) ) {
 			//Update existing ACL
 			$acl_id = $_POST['acl_id'];
-			if ($gacl_api->edit_acl($acl_id, $selected_aco_array, $selected_aro_array, $_POST['aro_groups'], $selected_axo_array, $_POST['axo_groups'], $_POST['allow'], $enabled, $_POST['return_value'], $_POST['note']) == FALSE) {
+			if ($gacl_api->edit_acl($acl_id, $selected_aco_array, $selected_aro_array, $_POST['aro_groups'], $selected_axo_array, $_POST['axo_groups'], $_POST['allow'], $enabled, $_POST['return_value'], $_POST['note'], $_POST['acl_section']) == FALSE) {
 				echo "ERROR editing ACL, possible conflict or error found...<br>\n";
-				exit;				
+				exit;
 			}
 		} else {
 			//Insert new ACL.
-			if ($gacl_api->add_acl($selected_aco_array, $selected_aro_array, $_POST['aro_groups'], $selected_axo_array, $_POST['axo_groups'], $_POST['allow'], $enabled, $_POST['return_value'], $_POST['note']) == FALSE) {
+			if ($gacl_api->add_acl($selected_aco_array, $selected_aro_array, $_POST['aro_groups'], $selected_axo_array, $_POST['axo_groups'], $_POST['allow'], $enabled, $_POST['return_value'], $_POST['note'], $_POST['acl_section']) == FALSE) {
 				echo "ERROR adding ACL, possible conflict or error found...<br>\n";
-				exit;				
+				exit;
 			}
-		}       
+		}
 
         $gacl_api->return_page($_POST['return_page']);
-        
-        break;    
+
+        break;
     default:
 		//showarray($_GET);
 		if ($_GET['action'] == 'edit' AND !empty($_GET['acl_id']) ) {
-			$gacl_api->debug_text("EDITING ACL");	
+			$gacl_api->debug_text("EDITING ACL");
 
 			//Grab ACL information
 			$query = "select id, allow, enabled, return_value, note from acl where id = ".$_GET['acl_id']."";
@@ -93,12 +93,12 @@ switch ($_POST['action']) {
 			while (list(,$row) = @each($rows)) {
 				list($section_value, $value, $section, $aco) = $row;
 				$gacl_api->debug_text("Section Value: $section_value Value: $value Section: $section ACO: $aco");
-				
+
 				$options_selected_aco[$section_value.'^'.$value] = "$section > $aco";
-				
+
 			}
 			//showarray($options_aco);
-		
+
 			//Grab selected ARO's
 			$query = "select a.section_value, a.value, c.name, b.name from aro_map a, aro b, aro_sections c
 								where ( a.section_value=b.section_value AND a.value = b.value) AND b.section_value=c.value AND a.acl_id = $acl_id";
@@ -147,6 +147,25 @@ switch ($_POST['action']) {
 
 
         //
+        //Grab all ACL sections for select box
+        //
+        $query = "select value, name from acl_sections where hidden = 0 order by order_value";
+        $rs = $db->Execute($query);
+        $rows = $rs->GetRows();
+
+        $i=0;
+        while (list(,$row) = @each($rows)) {
+            list($id, $value) = $row;
+
+            if ($i==0) {
+                $acl_section_id=$id;
+            }
+            $options_acl_sections[$id] = $value;
+
+            $i++;
+        }
+
+		//
         //Grab all ACO sections for select box
         //
         $query = "select value, name from aco_sections where hidden = 0 order by order_value";
@@ -156,12 +175,12 @@ switch ($_POST['action']) {
         $i=0;
         while (list(,$row) = @each($rows)) {
             list($id, $value) = $row;
-            
+
             if ($i==0) {
-                $aco_section_id=$id;   
+                $aco_section_id=$id;
             }
             $options_aco_sections[$id] = $value;
-            
+
             $i++;
         }
 
@@ -233,7 +252,7 @@ switch ($_POST['action']) {
 
             //Add each select option for the section
             $js_aco_array .= "options['$js_aco_array_name']['$section_value'][$i] = new Array('$value', '$name');\n";
-            
+
             $tmp_section_value = $section_value;
             $i++;
         }
@@ -293,14 +312,17 @@ switch ($_POST['action']) {
 
             //Add each select option for the section
             $js_axo_array .= "options['$js_axo_array_name']['$section_value'][$i] = new Array('$value', '$name');\n";
-            
+
             $tmp_section_value = $section_value;
             $i++;
         }
         unset($section_value);
         unset($tmp_section_value);
 
-        $smarty->assign("options_axo_sections", $options_axo_sections);
+        $smarty->assign("options_acl_sections", $options_acl_sections);
+        $smarty->assign("acl_section_value", $acl_section_value);
+
+		$smarty->assign("options_axo_sections", $options_axo_sections);
         $smarty->assign("axo_section_value", $axo_section_value);
 
         $smarty->assign("options_aro_sections", $options_aro_sections);
@@ -346,7 +368,7 @@ switch ($_POST['action']) {
 			$smarty->assign("options_selected_axo", $options_selected_axo);
 		}
 		$selected_axo = @array_keys($options_selected_axo);
-		
+
 		$smarty->assign("selected_axo", $selected_axo);
 		//Show AXO layer if AXO's are selected.
 		if (count($selected_axo) > 0) {
@@ -368,5 +390,7 @@ if (isset($_GET['action'])) {
 	$smarty->assign("action", $_GET['action']);
 }
 
+$smarty->assign("phpgacl_version", $gacl_api->get_version() );
+$smarty->assign("phpgacl_schema_version", $gacl_api->get_schema_version() );
 $smarty->display('phpgacl/acl_admin.tpl');
 ?>

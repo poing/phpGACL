@@ -86,5 +86,8 @@ switch ($_GET['action']) {
         break;
 }
 
+$smarty->assign("phpgacl_version", $gacl_api->get_version() );
+$smarty->assign("phpgacl_schema_version", $gacl_api->get_schema_version() );
+
 $smarty->display('phpgacl/object_search.tpl');
 ?>
