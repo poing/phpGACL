@@ -1,6 +1,7 @@
 Tue Feb 18 2003
 	- Added 'force_cache_expire' option, so the cache is automaticalled expired when ACL/Group modifications take place.
 		This should allow the cache_expire_time to be greatly increased (86400?) and still maintain instance updates.
+	- Removed un-needed table joins in search_acl() resulting in a large performance increase. 
 	
 Mon Feb 17 2003
 	- Added "limit" to ARO select query in group_assign.php
