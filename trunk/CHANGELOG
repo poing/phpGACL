@@ -1,6 +1,7 @@
 Mon Aug 25 2003
 	- Added SOAP server and clients for PHP, Perl, and Python.
 	- Updated README regarding upgrading and PostgreSQL. 
+	- Released phpGACL v3.2.0b2
 Thu Aug 21 2003
 	- Added Help / About page.
 	- Fixed up the ACL Sections, to use values instead of IDs for consistency sake
