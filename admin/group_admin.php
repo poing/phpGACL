@@ -19,6 +19,7 @@ switch(strtolower(trim($group_type))) {
 
 switch ($_POST['action']) {
     case Delete:
+        //See edit_group.php    
         break;
     default:
         $formatted_groups = $gacl_api->format_groups($gacl_api->sort_groups($group_type), HTML);
