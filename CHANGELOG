@@ -1,6 +1,7 @@
 Fri Jan 24 2003
 	- Fixed JS UnSelect button bug for AXO groups.
 	- Added Object searching to help the admin interface handle an unlimited number of objects.
+	- Added "max_select_box_items" config option to set the maximum number of items shown in select boxes. 
 	
 Tue Jan 14 2003
 	- Upgraded ADODB to v3.00

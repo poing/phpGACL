@@ -237,7 +237,7 @@ switch ($_POST['action']) {
         //
         //Grab all ARO's for select box
         //
-        $query = "select section_value, value, name from aro  where hidden = 0 order by section_value, order_value";
+        $query = "select section_value, value, name from aro  where hidden = 0 order by section_value, order_value limit $gacl_api->_max_select_box_items";
         $rs = $db->Execute($query);
         $rows = $rs->GetRows();
 
@@ -267,7 +267,7 @@ switch ($_POST['action']) {
         //
         //Grab all AXO's for select box
         //
-        $query = "select section_value, value, name from axo  where hidden = 0 order by section_value, order_value";
+        $query = "select section_value, value, name from axo  where hidden = 0 order by section_value, order_value limit $gacl_api->_max_select_box_items";
         $rs = $db->Execute($query);
         $rows = $rs->GetRows();
 
