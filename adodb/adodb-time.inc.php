@@ -174,6 +174,37 @@ c. Implement daylight savings, which looks awfully complicated, see
 
 
 CHANGELOG
+- 23 June 2004 0.14
+
+Allow you to define your own daylights savings function, adodb_daylight_sv.
+If the function is defined (somewhere in an include), then you can correct for daylights savings.
+
+In this example, we apply daylights savings in June or July, adding one hour. This is extremely
+unrealistic as it does not take into account time-zone, geographic location, current year.
+
+function adodb_daylight_sv(&$arr, $is_gmt)
+{
+	if ($is_gmt) return;
+	$m = $arr['mon'];
+	if ($m == 6 || $m == 7) $arr['hours'] += 1;
+}
+
+This is only called by adodb_date() and not by adodb_mktime(). 
+
+The format of $arr is
+Array ( 
+   [seconds] => 0 
+   [minutes] => 0 
+   [hours] => 0 
+   [mday] => 1      # day of month, eg 1st day of the month
+   [mon] => 2       # month (eg. Feb)
+   [year] => 2102 
+   [yday] => 31     # days in current year
+   [leap] =>        # true if leap year
+   [ndays] => 28    # no of days in current month
+   ) 
+   
+
 - 28 Apr 2004 0.13
 Fixed adodb_date to properly support $is_gmt. Thx to Dimitar Angelov.
 
@@ -240,7 +271,7 @@ First implementation.
 /*
 	Version Number
 */
-define('ADODB_DATE_VERSION',0.13);
+define('ADODB_DATE_VERSION',0.14);
 
 /*
 	We check for Windows as only +ve ints are accepted as dates on Windows.
@@ -554,6 +585,9 @@ function _adodb_getdate($origd=false,$fast=false,$is_gmt=false)
 	$_month_table_normal = array("",31,28,31,30,31,30,31,31,30,31,30,31);
 	$_month_table_leaf = array("",31,29,31,30,31,30,31,31,30,31,30,31);
 	
+	$d366 = $_day_power * 366;
+	$d365 = $_day_power * 365;
+	
 	if ($d < 0) {
 		$origd = $d;
 		// The valid range of a 32bit signed timestamp is typically from 
@@ -561,10 +595,9 @@ function _adodb_getdate($origd=false,$fast=false,$is_gmt=false)
 		for ($a = 1970 ; --$a >= 0;) {
 			$lastd = $d;
 			
-			if ($leaf = _adodb_is_leap_year($a)) {
-				$d += $_day_power * 366;
-			} else
-				$d += $_day_power * 365;
+			if ($leaf = _adodb_is_leap_year($a)) $d += $d366;
+			else $d += $d365;
+			
 			if ($d >= 0) {
 				$year = $a;
 				break;
@@ -592,14 +625,11 @@ function _adodb_getdate($origd=false,$fast=false,$is_gmt=false)
 		$hour = floor($d/$_hour_power);
 	
 	} else {
-	
 		for ($a = 1970 ;; $a++) {
 			$lastd = $d;
 			
-			if ($leaf = _adodb_is_leap_year($a)) {
-				$d -= $_day_power * 366;
-			} else
-				$d -= $_day_power * 365;
+			if ($leaf = _adodb_is_leap_year($a)) $d -= $d366;
+			else $d -= $d365;
 			if ($d < 0) {
 				$year = $a;
 				break;
@@ -681,6 +711,7 @@ function adodb_date2($fmt, $d=false, $is_gmt=false)
 	return adodb_date($fmt,$d,$is_gmt);
 }
 
+
 /**
 	Return formatted date based on timestamp $d
 */
@@ -697,6 +728,8 @@ function adodb_date($fmt,$d=false,$is_gmt=false)
 	$_day_power = 86400;
 	
 	$arr = _adodb_getdate($d,true,$is_gmt);
+	if (function_exists('adodb_daylight_sv')) adodb_daylight_sv($arr, $is_gmt);
+	
 	$year = $arr['year'];
 	$month = $arr['mon'];
 	$day = $arr['mday'];

@@ -7,7 +7,7 @@ global $ADODB_INCLUDED_CSV;
 $ADODB_INCLUDED_CSV = 1;
 
 /* 
-  V4.23 16 June 2004  (c) 2000-2004 John Lim (jlim@natsoft.com.my). All rights reserved.
+  V4.50 6 July 2004  (c) 2000-2004 John Lim (jlim@natsoft.com.my). All rights reserved.
   Released under both BSD license and Lesser GPL library license. 
   Whenever there is any discrepancy between the two licenses, 
   the BSD license will take precedence. See License.txt. 
@@ -87,7 +87,7 @@ $ADODB_INCLUDED_CSV = 1;
 	function &csv2rs($url,&$err,$timeout=0)
 	{
 		$err = false;
-		$fp = @fopen($url,'r');
+		$fp = @fopen($url,'rb');
 		if (!$fp) {
 			$err = $url.' file/URL not found';
 			return false;
@@ -183,14 +183,18 @@ $ADODB_INCLUDED_CSV = 1;
 					$MAXSIZE = 128000;
 					
 					$text = fread($fp,$MAXSIZE);
-					if (strlen($text) === $MAXSIZE) {
+					if (strlen($text)) {
 						while ($txt = fread($fp,$MAXSIZE)) {
 							$text .= $txt;
 						}
 					}
 					fclose($fp);
-					@$rs = unserialize($text);
+					$rs = unserialize($text);
 					if (is_object($rs)) $rs->timeCreated = $ttl;
+					else {
+						$err = "Unable to unserialize recordset";
+						//echo htmlspecialchars($text),' !--END--!<p>';
+					}
 					return $rs;
 				}
 				

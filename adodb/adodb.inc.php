@@ -14,7 +14,7 @@
 /**
 	\mainpage 	
 	
-	 @version V4.23 16 June 2004 (c) 2000-2004 John Lim (jlim\@natsoft.com.my). All rights reserved.
+	 @version V4.50 6 July 2004 (c) 2000-2004 John Lim (jlim\@natsoft.com.my). All rights reserved.
 
 	Released under both BSD license and Lesser GPL library license. You can choose which license
 	you prefer.
@@ -151,7 +151,7 @@
 		/**
 		 * ADODB version as a string.
 		 */
-		$ADODB_vers = 'V4.23 16 June 2004 (c) 2000-2004 John Lim (jlim#natsoft.com.my). All rights reserved. Released BSD & LGPL.';
+		$ADODB_vers = 'V4.50 6 July 2004 (c) 2000-2004 John Lim (jlim#natsoft.com.my). All rights reserved. Released BSD & LGPL.';
 	
 		/**
 		 * Determines whether recordset->RecordCount() is used. 
@@ -1624,9 +1624,12 @@
 	 *
 	 * "Jonathan Younger" <jyounger@unilab.com>
   	 */
-	function GetUpdateSQL(&$rs, $arrFields,$forceUpdate=false,$magicq=false)
+	function GetUpdateSQL(&$rs, $arrFields,$forceUpdate=false,$magicq=false,$forcenulls=null)
 	{
 		global $ADODB_INCLUDED_LIB;
+		if (!isset($forcenulls)) {
+			$forcenulls = defined('ADODB_FORCE_NULLS') ? true : false;
+		}
 		if (empty($ADODB_INCLUDED_LIB)) include_once(ADODB_DIR.'/adodb-lib.inc.php');
 		return _adodb_getupdatesql($this,$rs,$arrFields,$forceUpdate,$magicq);
 	}
@@ -1640,9 +1643,12 @@
 	 * Note: This function should only be used on a recordset
 	 *	   that is run against a single table.
   	 */
-	function GetInsertSQL(&$rs, $arrFields,$magicq=false)
+	function GetInsertSQL(&$rs, $arrFields,$magicq=false,$forcenulls=null)
 	{	
 		global $ADODB_INCLUDED_LIB;
+		if (!isset($forcenulls)) {
+			$forcenulls = defined('ADODB_FORCE_NULLS') ? true : false;
+		}
 		if (empty($ADODB_INCLUDED_LIB)) include_once(ADODB_DIR.'/adodb-lib.inc.php');
 		return _adodb_getinsertsql($this,$rs,$arrFields,$magicq);
 	}
@@ -1767,44 +1773,6 @@
 				$this->fmtDate="d.m.Y";
 				$this->fmtTimeStamp = "d.m.Y H:i:s";
 				break;
-		}
-	}
-	
-	
-	/**
-	 *  $meta	contains the desired type, which could be...
-	 *	C for character. You will have to define the precision yourself.
-	 *	X for teXt. For unlimited character lengths.
-	 *	B for Binary
-	 *  F for floating point, with no need to define scale and precision
-	 * 	N for decimal numbers, you will have to define the (scale, precision) yourself
-	 *	D for date
-	 *	T for timestamp
-	 * 	L for logical/Boolean
-	 *	I for integer
-	 *	R for autoincrement counter/integer
-	 *  and if you want to use double-byte, add a 2 to the end, like C2 or X2.
-	 * 
-	 *
-	 * @return the actual type of the data or false if no such type available
-	*/
- 	function ActualType($meta)
-	{
-		switch($meta) {
-		case 'C':
-		case 'X':
-			return 'VARCHAR';
-		case 'B':
-			
-		case 'D':
-		case 'T':
-		case 'L':
-		
-		case 'R':
-			
-		case 'I':
-		case 'N':
-			return false;
 		}
 	}
 
@@ -2240,9 +2208,9 @@
 	{
 		global $ADODB_INCLUDED_LIB;
 		if (empty($ADODB_INCLUDED_LIB)) include_once(ADODB_DIR.'/adodb-lib.inc.php');
-		if ($this->pageExecuteCountRows) return _adodb_pageexecute_all_rows($this, $sql, $nrows, $page, $inputarr, $secs2cache);
-		return _adodb_pageexecute_no_last_page($this, $sql, $nrows, $page, $inputarr, $secs2cache);
-
+		if ($this->pageExecuteCountRows) $rs =& _adodb_pageexecute_all_rows($this, $sql, $nrows, $page, $inputarr, $secs2cache);
+		else $rs =& _adodb_pageexecute_no_last_page($this, $sql, $nrows, $page, $inputarr, $secs2cache);
+		return $rs;
 	}
 	
 		
@@ -3457,6 +3425,7 @@
 		$ok = class_exists("ADODB_" . $db);
 		if ($ok) return $db;
 		
+		print_r(get_declared_classes());
 		$file = ADODB_DIR."/drivers/adodb-".$db.".inc.php";
 		if (!file_exists($file)) ADOConnection::outp("Missing file: $file");
 		else ADOConnection::outp("Syntax error in file: $file");
