@@ -1,28 +1,28 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-
 {include file="phpgacl/header.tpl"} 
-    <meta name="generator" content="HTML Tidy, see www.w3.org">
-    <title>phpGACL Admin</title>
-    <meta http-equiv="content-type" content="text/html; charset=ISO-8859-1">
   </head>
 <body>
 {include file="phpgacl/navigation.tpl"}
 <form method="get" name="acl_debug" action="acl_debug.php">
 <table cellpadding="2" cellspacing="2" border="2" width="100%">
   <tr>
-    <th>&nbsp;</th>
-    <th>ACO Section</th>
-    <th>ACO Value</th>
-    <th>ARO Section</th>
-    <th>ARO Value</th>
-    <th>AXO Section</th>
-    <th>AXO Value</th>
-    <th>Root ARO Group ID</th>
-    <th>Root AXO Group ID</th>
-    <th>&nbsp;</th>
+  	<th rowspan="2">&nbsp;</th>
+  	<th colspan="2">ACO</th>
+  	<th colspan="2">ARO</th>
+  	<th colspan="2">AXO</th>
+    <th rowspan="2">Root ARO<br />Group ID</th>
+    <th rowspan="2">Root AXO<br />Group ID</th>
+    <th rowspan="2">&nbsp;</th>
+  </tr>
+  <tr>
+    <th>Section</th>
+    <th>Value</th>
+    <th>Section</th>
+    <th>Value</th>
+    <th>Section</th>
+    <th>Value</th>
   </tr>
   <tr valign="middle" align="center">
-    <td><b>acl_query(</b></td>
+    <td nowrap><b>acl_query(</b></td>
     <td><input type="text" name="aco_section_value" size="15" value="{$aco_section_value}"></td>
     <td><input type="text" name="aco_value" size="15" value="{$aco_value}"></td>
     <td><input type="text" name="aro_section_value" size="15" value="{$aro_section_value}"></td>
@@ -35,23 +35,29 @@
   </tr>
   <tr class="controls" align="center">
     <td colspan="10">
-    	<input type="submit" name="action" value="Submit">
+    	<input type="submit" class="button" name="action" value="Submit">
     </td>
   </tr>
 </table>
 {if count($acls) gt 0}
+<br />
 <table cellpadding="2" cellspacing="2" border="2" width="100%">
   <tr>
-    <th>ACL ID</th>
-    <th>ACO Section</th>
-    <th>ACO Value</th>
-    <th>ARO Section</th>
-    <th>ARO Value</th>
-    <th>AXO Section</th>
-    <th>AXO Value</th>
-    <th>Return Value</th>
-    <th>Access</th>
-    <th>Updated Date</th>
+    <th rowspan="2" width="4%">ACL ID</th>
+    <th colspan="2">ACO</th>
+    <th colspan="2">ARO</th>
+    <th colspan="2">AXO</th>
+    <th colspan="2">ACL</th>
+  </tr>
+  <tr>
+    <th width="12%">Section</th>
+    <th width="12%">Value</th>
+    <th width="12%">Section</th>
+    <th width="12%">Value</th>
+    <th width="12%">Section</th>
+    <th width="12%">Value</th>
+    <th width="8%">Access</th>
+    <th width="16%">Updated Date</th>
   </tr>
 {foreach from=$acls item=acl}
   <tr valign="top" align="left">
@@ -79,9 +85,6 @@
 		{$acl.axo_value}<br>
     </td>
 
-    <td valign="middle" align="center">
-        {$acl.return_value}<br>
-    </td>
     <td valign="middle" class="{if $acl.allow}green{else}red{/if}" align="center">
 		{if $acl.allow}
 			ALLOW
@@ -94,7 +97,10 @@
      </td>
   </tr>
   <tr valign="middle" align="left">
-    <td colspan="9">
+    <td colspan="4">
+        <b>Return Value:</b> {$acl.return_value}<br>
+    </td>
+    <td colspan="4">
         <b>Note:</b> {$acl.note}
     </td>
   </tr>

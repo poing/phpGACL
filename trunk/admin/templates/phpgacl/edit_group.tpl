@@ -1,21 +1,26 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-
 {include file="phpgacl/header.tpl"}
-    <meta name="generator" content="HTML Tidy, see www.w3.org">
-    <title>phpGACL Admin</title>
-    <meta http-equiv="content-type" content="text/html; charset=ISO-8859-1">
+    <style type="text/css">
+    {literal}
+      select {
+        margin-top: 0px;
+      }
+      input.group-name {
+        width: 99%;
+      }
+    {/literal}
+    </style>
   </head>
   <body>
-    {include file="phpgacl/navigation.tpl"}    
+{include file="phpgacl/navigation.tpl"}
     <form method="post" name="edit_group" action="edit_group.php">
       <table cellpadding="2" cellspacing="2" border="2" width="100%">
         <tbody>
           <tr>
-            <th>ID</th>
-            <th>Parent</th>
-            <th>Name</th>
+            <th width="4%">ID</th>
+            <th width="46%">Parent</th>
+            <th width="50%">Name</th>
           </tr>
-          <tr valign="top" align="center">
+          <tr valign="top">
             <td>{$id|default:"N/A"}</td>
             <td>
                 <select name="parent_id" tabindex="0" multiple>
@@ -23,7 +28,7 @@
                 </select>
              </td>
             <td>
-                <input type="text" size="50" name="name" value="{$name}">
+                <input type="text" class="group-name" size="50" name="name" value="{$name}">
             </td>
           </tr>
           <tr class="controls" align="center">

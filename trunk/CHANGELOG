@@ -1,3 +1,5 @@
+Sat Jan 31 2004
+	dcech - more interface cleanups
 Fri Jan 30 2004
 	dcech - complete overhaul of acl_admin.php
 	dcech - fix for LIMIT in sql, complete overhaul of object search

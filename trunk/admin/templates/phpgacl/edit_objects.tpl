@@ -1,9 +1,4 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-
 {include file="phpgacl/header.tpl"} 
-    <meta name="generator" content="HTML Tidy, see www.w3.org">
-    <title>phpGACL Admin</title>
-    <meta http-equiv="content-type" content="text/html; charset=ISO-8859-1">
 {include file="phpgacl/acl_admin_js.tpl"}
   </head>
   <body>
@@ -17,13 +12,13 @@
             </td>
           </tr>
           <tr>
-            <th>ID</th>
+            <th width="2%">ID</th>
             <th>Section</th>
             <th>Value</th>
             <th>Order</th>
             <th>Name</th>
-            <th>Functions</th>
-            <th><input type="checkbox" class="checkbox" name="select_all" onClick="checkAll(this)"/></th>
+            <th width="4%">Functions</th>
+            <th width="2%"><input type="checkbox" class="checkbox" name="select_all" onClick="checkAll(this)"/></th>
           </tr>
 {section name=x loop=$objects}
           <tr valign="top" align="center">
@@ -72,10 +67,10 @@
 {/section}
           <tr class="controls" align="center">
             <td colspan="5">
-              <input type="submit" name="action" value="Submit"> <input type="reset" value="Reset"><br>
+              <input type="submit" class="button" name="action" value="Submit"> <input type="reset" class="button" value="Reset"><br>
             </td>
             <td colspan="2">
-              <input type="submit" name="action" value="Delete">
+              <input type="submit" class="button" name="action" value="Delete">
             </td>
           </tr>
         </tbody>

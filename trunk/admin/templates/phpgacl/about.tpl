@@ -1,16 +1,10 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-
 {include file="phpgacl/header.tpl"}
-    <meta name="generator" content="HTML Tidy, see www.w3.org">
-    <title>phpGACL Admin</title>
-    <meta http-equiv="content-type" content="text/html; charset=ISO-8859-1">
   </head>
-
   <body>
     {if $first_run != 1}
 	{include file="phpgacl/navigation.tpl"}
 	{/if}
-      <table cellpadding="2" cellspacing="2" border="2" width="100%">
+      <table cellpadding="2" cellspacing="2" border="2" align="center">
         <tbody>
 		{if $first_run != 1}
           <tr>
@@ -19,19 +13,13 @@
 			</th>
           </tr>
           <tr>
-			<td align="center">
+			<td>
 				Please join the <a href="https://sourceforge.net/mail/?group_id=57103">Mailing Lists</a> if you have
 				any questions, comments, or support questions.
-				<br>
-				<br>
-				<b>TIP</b>: Searching the Mailing List archives may be a good idea prior to emailing the list, <br>
-				as well the below "Report" information may be helpful in any support questions.
-				<br>
-				<br>
-				PLEASE DO NOT EMAIL ME DIRECTLY REGARDING SUPPORT QUESTIONS
-				<br>
-				You will receive answers faster on the mailing list, and any answers given may benefit others.
-				<br>
+				<p><b>TIP</b>: Searching the Mailing List archives may be a good idea prior to emailing the list, <br>
+				as well the below "Report" information may be helpful in any support questions.</p>
+				<p>PLEASE DO NOT EMAIL ME DIRECTLY REGARDING SUPPORT QUESTIONS<br />
+				You will receive answers faster on the mailing list, and any answers given may benefit others.</p>
 				But if you must email me (Mike Benoit) directly, click <a href="mailto:ipso@snappymail.ca">here</a>.
 			</td>
           </tr>
@@ -41,15 +29,11 @@
 			</th>
           </tr>
           <tr>
-			<td align="center">
-				Time working on phpGACL means less time that I can work to get paid.
-				<br>
+			<td>
+				Time working on phpGACL means less time that I can work to get paid.<br />
 				Therefore any donations I receive will help me to devote more time to developing phpGACL.
-				<br>
-				<br>
-				However, I'd much rather donations in the form of code and/or documentation.
-
-				<form action="https://www.paypal.com/cgi-bin/webscr" method="post">
+				<p>However, I'd much rather donations in the form of code and/or documentation.</p>
+				<div align="center"><form action="https://www.paypal.com/cgi-bin/webscr" method="post">
 				<input type="hidden" name="cmd" value="_xclick">
 				<input type="hidden" name="business" value="ipso@snappymail.ca">
 				<input type="hidden" name="item_name" value="php Generic Access Control List">
@@ -57,32 +41,30 @@
 				<input type="hidden" name="currency_code" value="USD">
 				<input type="hidden" name="tax" value="0">
 				<input type="image" src="https://www.paypal.com/images/x-click-but04.gif" border="0" name="submit" alt="Make payments with PayPal - it's fast, free and secure!">
-				</form>
+				</form></div>
 			</td>
           </tr>
         {/if}
           <tr>
 			<th>
 				{if $first_run != 1}
-					<b>Report</b>
+					Report
 				{else}
-					<font color="#ff0000">* <b>Report</b> *</font>
+					<font color="#ff0000">* Report *</font>
 				{/if}
 			</th>
           </tr>
           <tr>
-			<td align="center">
-    			<form method="post" name="about" action="about.php">
-				Report some basic information back to the phpGACL project so we know where to spend our time.
-				<br>
+			<td>
+				Report some basic information back to the phpGACL project so we know where to spend our time.<br />
 				<b>All information will be kept private, will not be sold, and will only be used for informational purposes regarding phpGACL.</b>
-				<br>
-				<br>
+				<br /><br />
+    			<div align="center"><form method="post" name="about" action="about.php">
 				<textarea name="system_information" rows="10" cols="60" wrap="VIRTUAL">{$system_info}</textarea>
-				<br>
-				<input type="hidden" name="system_info_md5" value="{$system_info_md5}">
-				<input type="submit" name="action" value="Submit">
-				</form>
+				<br />
+				<input type="hidden" name="system_info_md5" value="{$system_info_md5}" />
+				<input type="submit" name="action" value="Submit" />
+				</form></div>
 			</td>
           </tr>
 		{if $first_run != 1}
@@ -92,7 +74,7 @@
 			</th>
           </tr>
           <tr>
-			<td align="center">
+			<td>
 <pre>
 {$credits}
 </pre>

@@ -55,6 +55,11 @@ input {
 input.checkbox, input.radio {
 	border: 0px;
 	margin: 1px 2px 0px;
+	padding: 0px;
+}
+
+input.button {
+	width: 100px;
 }
 
 .navigation {
@@ -73,6 +78,49 @@ input.checkbox, input.radio {
 }
 
 .footer {
-	font-family: courier, monospace;
 	font-size: 8pt;
+	text-align: center;
+}
+
+form {
+	margin: 0px;
+}
+
+tr.hide {
+	display: none;
+}
+
+tr.show {
+}
+
+td.tabon {
+	background: #438EC5;
+}
+
+td.taboff {
+	background: #ABC3D4;
+}
+
+select {
+	width: 99%;
+	margin-top: 5px;
+}
+
+textarea, input#return_value {
+	width: 99%;
+}
+
+input.un-select {
+	width: 99%;
+	margin-top: 5px;
+}
+
+input.select {
+	width: 99%;
+	margin-top: 5px;
+}
+
+input.deselect {
+	width: 99%;
+	margin-top: 8px;
 }

@@ -1,9 +1,4 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-
 {include file="phpgacl/header.tpl"} 
-    <meta name="generator" content="HTML Tidy, see www.w3.org">
-    <title>phpGACL Admin</title>
-    <meta http-equiv="content-type" content="text/html; charset=ISO-8859-1">
   </head>
 <body>
 {include file="phpgacl/navigation.tpl"}
