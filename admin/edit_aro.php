@@ -1,15 +1,19 @@
 <?php
 require_once("gacl_admin.inc.php");
 
-
 switch ($_POST[action]) {
     case Delete:
         //showarray($_POST[delete_sections]);
     
         if (count($_POST[delete_aro]) > 0) {
+            foreach($_POST[delete_aro] as $id) {
+                $gacl_api->del_aro($id);            
+            }
+/*
             $query = "delete from aro where id in (".implode(",", $_POST[delete_aro]).")";
             debug("delete query: $query");
             $db->Execute($query);
+*/
         }   
             
         //Return page.
@@ -25,15 +29,7 @@ switch ($_POST[action]) {
         //Update sections
         while (list(,$row) = @each($_POST[aro])) {
             list($id, $value, $order, $name) = $row;
-
-            $query = "update aro set
-                                                                    section_id=$_POST[section_id],
-                                                                    value='$value',
-                                                                    order_value='$order',
-                                                                    name='$name'
-                                                        where   id=$id";
-            $rs = $db->Execute($query);                   
-            
+            $gacl_api->edit_aro($id, $_POST['section_id'], $name, $value, $order);            
         }
         unset($id);
         unset($section_id);
@@ -47,9 +43,7 @@ switch ($_POST[action]) {
 
             if (!empty($value) AND $order != "" AND !empty($name)) {
                 debug("Trying to insert!");
-                $insert_id = $db->GenID('aro_seq',10);
-                $query = "insert into aro (id,section_id, value,order_value,name) VALUES($insert_id, $_POST[section_id], '$value', '$order', '$name')";
-                $rs = $db->Execute($query);                   
+                $aro_id= $gacl_api->add_aro($_POST['section_id'], $name, $value, $order);
             }
             debug("NOT Trying to insert!");
         }
