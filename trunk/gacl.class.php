@@ -156,6 +156,41 @@ class gacl {
 	}
 
 	/*======================================================================*\
+		Function:   array_acl_query()
+		Purpose:	Handles ACL lookups over arrays of AROs
+					Returns the same data format as inputted.
+	\*======================================================================*/	
+	function acl_query_array($aco_section_value, $aco_value, $aro_array) {
+		/*
+			Input Array:
+				Section -> Value, Value, Value
+				Section -> Value, Value, Value
+				
+		 */
+		
+		if (!is_array($aro_array)) {
+			$this->debug_text("acl_query_array(): ARO Array must be passed");
+			return false;
+		} 
+		
+		foreach($aro_array as $aro_section_value => $aro_value_array) {
+			foreach ($aro_value_array as $aro_value) {
+				$this->debug_text("acl_query_array(): ARO Section Value: $aro_section_value ARO VALUE: $aro_value");
+				
+				if( $this->acl_check($aco_section_value, $aco_value, $aro_section_value, $aro_value) ) {
+					$this->debug_text("acl_query_array(): ACL_CHECK True");
+					$retarr[$aro_section_value][] = $aro_value;
+				} else {
+					$this->debug_text("acl_query_array(): ACL_CHECK False");
+				}
+			}
+		}
+		
+		return $retarr;
+
+	}
+
+	/*======================================================================*\
 		Function:   acl_query()
 		Purpose:	Main function that does the actual ACL lookup.
 						Returns as much information as possible about the ACL so other functions
