@@ -70,7 +70,7 @@ switch ($db_type) {
 		 */
 		echo_normal("Attempting to create tables in \"<b>$db_name</b>\"");
 
-		$table_array[acl] = 	array (	acl =>
+		$table_array = 	array (	acl =>
 																"
 																CREATE TABLE acl (
 																  id int(12) NOT NULL default '0',
