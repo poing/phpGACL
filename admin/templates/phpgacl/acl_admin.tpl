@@ -99,14 +99,14 @@
             </th>
           </tr>
 
-          <tr id="axo_row1" {if $show_axo!=TRUE}class="hide"{/if}>
+          <tr id="axo_row1" {if !$show_axo}class="hide"{/if}>
             <th>Sections</th>
             <th>Access eXtension Objects</th>
             <th>&nbsp;</th>
             <th>Selected</th>
             <th>Groups</th>
           </tr>
-          <tr valign="top" align="center" id="axo_row2" {if $show_axo!=TRUE}class="hide"{/if}>
+          <tr valign="top" align="center" id="axo_row2" {if !$show_axo}class="hide"{/if}>
             <td>
               [ <a href="edit_object_sections.php?object_type=axo&return_page={$return_page}">Edit</a> ]
               <br />
