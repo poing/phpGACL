@@ -4,6 +4,7 @@ Wed Oct 09 2002
 	- Changed group "level" table column name to "tree_level", as the old name "level" was a reserved word in some db's.
 		MySQL: ALTER TABLE `groups_path` CHANGE `level` `tree_level` INT(12) DEFAULT '0' NOT NULL
 	- Modified a few of the queries to be more portable, specifically for Oracle's sake.
+	- Added a FAQ entry regarding individualized item permissions. 
 	
 Wed Sep 25 2002
 	- Added multi-layer ACO checking to ACL_QUERY()

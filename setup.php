@@ -85,12 +85,12 @@ switch ($db_type) {
 																"
 																CREATE TABLE aco (
 																  id int(12) NOT NULL default '0',
-																  section_id int(12) NOT NULL default '0',
-																  value varchar(255) NOT NULL default '',
+																  section_value varchar(230) NOT NULL default '0',
+																  value varchar(230) NOT NULL default '',
 																  order_value int(10) NOT NULL default '0',
 																  name varchar(255) NOT NULL default '',
 																  hidden smallint(1) NOT NULL default '0',
-																  UNIQUE KEY value (section_id,value),
+																  UNIQUE KEY value (section_value,value),
 																  UNIQUE KEY id (id),
 																  INDEX (hidden)
 																) TYPE=MyISAM
@@ -99,7 +99,8 @@ switch ($db_type) {
 																"
 																CREATE TABLE aco_map (
 																  acl_id int(12) NOT NULL default '0',
-																  aco_id int(12) NOT NULL default '0',
+																  aco_section_value varchar(230) NOT NULL default '0',
+																  aco_value varchar(230) NOT NULL default '0',
 																  INDEX (acl_id)
 																) TYPE=MyISAM
 																",
@@ -107,7 +108,7 @@ switch ($db_type) {
 																"
 																CREATE TABLE aco_sections (
 																  id int(12) NOT NULL default '0',
-																  value varchar(255) NOT NULL default '',
+																  value varchar(230) NOT NULL default '',
 																  order_value int(10) NOT NULL default '0',
 																  name varchar(255) NOT NULL default '',
 																  hidden smallint(1) NOT NULL default '0',
@@ -120,12 +121,12 @@ switch ($db_type) {
 																"
 																CREATE TABLE aro (
 																  id int(12) NOT NULL default '0',
-																  section_id int(12) NOT NULL default '0',
-																  value varchar(255) NOT NULL default '',
+																  section_value varchar(230) NOT NULL default '0',
+																  value varchar(230) NOT NULL default '',
 																  order_value int(10) NOT NULL default '0',
 																  name varchar(255) NOT NULL default '',
 																  hidden smallint(1) NOT NULL default '0',
-																  UNIQUE KEY value (section_id,value),
+																  UNIQUE KEY value (section_value,value),
 																  UNIQUE KEY id (id),
 																  INDEX (hidden)
 																) TYPE=MyISAM
@@ -134,7 +135,8 @@ switch ($db_type) {
 																"
 																 CREATE TABLE aro_map (
 																  acl_id int(12) NOT NULL default '0',
-																  aro_id int(12) NOT NULL default '0',
+																  aro_section_value varchar(230) NOT NULL default '0',
+																  aro_value varchar(230) NOT NULL default '0',
 																  INDEX (acl_id)
 																) TYPE=MyISAM
 																",
@@ -165,8 +167,9 @@ switch ($db_type) {
 																"
 																CREATE TABLE groups_aro_map (
 																  group_id int(12) NOT NULL default '0',
-																  aro_id int(12) NOT NULL default '0',
-																  UNIQUE KEY group_id (group_id,aro_id)
+																  aro_section_value varchar(230) NOT NULL default '0',
+																  aro_value varchar(230) NOT NULL default '0',
+																  UNIQUE KEY group_id (group_id,aro_section_value,aro_value)
 																) TYPE=MyISAM
 																",
 													groups_map =>

@@ -40,12 +40,12 @@
             <td valign="middle" bgcolor="#cccccc" align="center">[ <a href="edit_aro_sections.php?return_page={$return_page}">Edit</a> ]<br>
              <br>
              <select name="aro_section" tabindex="0" size="10" width="200" onclick="populate(document.acl_admin.aro_section,document.acl_admin.elements['aro[]'],'{$js_aro_array_name}')">
-                {html_options options=$options_aro_sections selected=$aro_section_id}              
+                {html_options options=$options_aro_sections selected=$aro_section_value}              
             </select> <br>
              </td>
 
             <td valign="middle" bgcolor="#cccccc" align="center">
-            [ <a href="javascript: location.href = 'edit_aro.php?section_id=' + document.acl_admin.aro_section.options[document.acl_admin.aro_section.selectedIndex].value + '&return_page={$return_page}';">Edit</a> ]<br>
+            [ <a href="javascript: location.href = 'edit_aro.php?section_value=' + document.acl_admin.aro_section.options[document.acl_admin.aro_section.selectedIndex].value + '&return_page={$return_page}';">Edit</a> ]<br>
              <br>
              <select name="aro[]" tabindex="0" size="10" width="200" multiple>
             </select> <br>
@@ -99,7 +99,7 @@
     {section name=x loop=$aros}
   <tr>
     <td valign="top" bgcolor="#cccccc" align="center">
-            {$aros[x].id}
+            {$aros[x].value}
      </td>
 
     <td valign="top" bgcolor="#cccccc" align="center">
@@ -110,7 +110,7 @@
         {$aros[x].name}
      </td>
     <td valign="top" bgcolor="#cccccc" align="center">
-        <input type="checkbox" name="delete_assigned_aro[]" value="{$aros[x].id}">
+        <input type="checkbox" name="delete_assigned_aro[]" value="{$aros[x].section_value}^{$aros[x].value}">
      </td>
 
   </tr>

@@ -5,12 +5,22 @@ switch ($_POST[action]) {
     case Delete:
 	    debug("Delete!!");
 
-        if (count($_POST[delete_assigned_aro]) > 0) {
-            foreach($_POST[delete_assigned_aro] as $id) {
-                $gacl_api->del_group_aro($_POST['group_id'], $id);            
-            }
-        }   
-            
+		//Parse the form values
+		//foreach ($_POST['delete_assigned_aro'] as $aro_value) {
+		while (list(,$aro_value) = @each($_POST['delete_assigned_aro'])) {						
+				$split_aro_value = explode("^", $aro_value);
+				$selected_aro_array[$split_aro_value[0]][] = $split_aro_value[1];
+		}
+
+        //Insert ARO -> GROUP mappings
+        while (list($aro_section_value,$aro_array) = @each($selected_aro_array)) {
+            debug("Assign: ARO ID: $aro_section_value to Group: $_POST[group_id]");   
+
+			foreach ($aro_array as $aro_value) {
+                $gacl_api->del_group_aro($_POST['group_id'], $aro_section_value, $aro_value);
+			}
+        }
+         
         //Return page.
         return_page($_POST[return_page]);
 		
@@ -18,11 +28,19 @@ switch ($_POST[action]) {
     case Submit:
         debug("Submit!!");
 
-        //Insert ARO -> GROUP mappings
-        while (list(,$aro_id) = @each($_POST[selected_aro])) {
-            debug("Assign: ARO ID: $aro_id to Group: $_POST[group_id]");   
+		//Parse the form values
+		foreach ($_POST['selected_aro'] as $aro_value) {
+				$split_aro_value = explode("^", $aro_value);
+				$selected_aro_array[$split_aro_value[0]][] = $split_aro_value[1];
+		}
 
-            $gacl_api->add_group_aro($_POST['group_id'], $aro_id);            			
+        //Insert ARO -> GROUP mappings
+        while (list($aro_section_value,$aro_array) = @each($selected_aro_array)) {
+            debug("Assign: ARO ID: $aro_section_value to Group: $_POST[group_id]");   
+
+			foreach ($aro_array as $aro_value) {
+				$gacl_api->add_group_aro($_POST['group_id'], $aro_section_value, $aro_value);
+			}
         }
                 
         return_page();
@@ -32,7 +50,7 @@ switch ($_POST[action]) {
         //
         //Grab all ARO sections for select box
         //
-        $query = "select id, name from aro_sections order by order_value";
+        $query = "select value, name from aro_sections order by order_value";
         $rs = $db->Execute($query);
 
         $rows = $rs->GetRows();
@@ -54,12 +72,12 @@ switch ($_POST[action]) {
 
         //showarray($options_aro_sections);
         $smarty->assign("options_aro_sections", $options_aro_sections);
-        $smarty->assign("aro_section_id", $aro_section_id);
+        $smarty->assign("aro_section_value", $aro_section_value);
 
         //
         //Grab all ARO's for select box
         //
-        $query = "select section_id, id, name from aro order by section_id, order_value";
+        $query = "select section_value, value, name from aro order by section_value, order_value";
         $rs = $db->Execute($query);
         $rows = $rs->GetRows();
 
@@ -68,20 +86,20 @@ switch ($_POST[action]) {
         $js_aro_array = "var options = new Array();\n";
         $js_aro_array .= "options['$js_aro_array_name'] = new Array();\n";
         while (list(,$row) = @each($rows)) {
-            list($section_id, $value, $name) = $row;
+            list($section_value, $value, $name) = $row;
             
             //Prepare javascript code for dynamic select box.
             //Init the javascript sub-array.
-            if ($section_id != $tmp_section_id) {
+            if ($section_value != $tmp_section_value) {
                 $i=0;
 
-                $js_aro_array .= "options['$js_aro_array_name'][$section_id] = new Array();\n";
+                $js_aro_array .= "options['$js_aro_array_name']['$section_value'] = new Array();\n";
             }
 
             //Add each select option for the section
-            $js_aro_array .= "options['$js_aro_array_name'][$section_id][$i] = new Array('$value', '$name');\n";
+            $js_aro_array .= "options['$js_aro_array_name']['$section_value'][$i] = new Array('$value', '$name');\n";
             
-            $tmp_section_id = $section_id;
+            $tmp_section_value = $section_value;
             $i++;
         }
 
@@ -91,15 +109,16 @@ switch ($_POST[action]) {
 
         //Grab list of assigned ARO's
         $query = "select
-                                        b.id,
+										b.section_value,
+                                        b.value,
                                         b.name,
                                         c.name
                             from    groups_aro_map a,
                                         aro b,
                                         aro_sections c
                             where   a.group_id = $_GET[group_id]
-                                        AND a.aro_id=b.id
-                                        AND b.section_id=c.id
+                                        AND a.aro_value=b.value
+                                        AND b.section_value=c.value
                             order by c.name, b.name";
         $rs = $db->Execute($query);
 
@@ -109,10 +128,11 @@ switch ($_POST[action]) {
 
         $i=0;
         while (list(,$row) = @each($rows)) {
-            list($id, $aro_name, $section) = $row;
+            list($section_value, $value, $aro_name, $section) = $row;
             
             $aros[] = array(
-                                id => $id,
+								section_value => $section_value,
+                                value => $value,
                                 name => $aro_name,
                                 section => $section
                             );
