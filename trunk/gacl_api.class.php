@@ -388,8 +388,10 @@ class gacl_api extends gacl {
 			}
 		}
 
-		$query .= '
+		if (count($where_query) > 0) {
+			$query .= '
 				WHERE		'. implode (' AND ', $where_query);
+		}
 
 		return $this->db->GetCol($query);
 	}
