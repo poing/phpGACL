@@ -107,7 +107,7 @@ flush ();
 
 $start_time = getmicrotime ();
 
-$query = 'SELECT id FROM aro_groups';
+$query = 'SELECT id FROM '.$gacl_api->_db_table_prefix.'aro_groups';
 $ids = $gacl_api->db->GetCol($query);
 
 // print_r ($ids);
@@ -190,7 +190,7 @@ flush ();
 
 $start_time = getmicrotime ();
 
-$query = 'SELECT id FROM axo_groups';
+$query = 'SELECT id FROM '.$gacl_api->_db_table_prefix.'axo_groups';
 $ids = $gacl_api->db->GetCol($query);
 
 $start = 1;
@@ -272,11 +272,11 @@ $max = 10 * $scale;
 
 $aco_list = $gacl_api->get_object ('system', 1, 'ACO');
 
-$query = 'SELECT id, name FROM aro_groups ORDER BY parent_id DESC LIMIT 100';
+$query = 'SELECT id, name FROM '.$gacl_api->_db_table_prefix.''. $gacl_.'aro_groups ORDER BY parent_id DESC LIMIT 100';
 $rs = $gacl_api->db->Execute($query);
 $aro_groups = $rs->GetAssoc();
 
-$query = 'SELECT id, name FROM axo_groups ORDER BY parent_id DESC LIMIT 100';
+$query = 'SELECT id, name FROM '.$gacl_api->_db_table_prefix.'axo_groups ORDER BY parent_id DESC LIMIT 100';
 $rs = $gacl_api->db->Execute($query);
 $axo_groups = $rs->GetAssoc();
 
