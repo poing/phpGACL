@@ -80,9 +80,9 @@ switch ($_POST['action']) {
 			$gacl_api->debug_text("EDITING ACL");
 
 			//Grab ACL information
-			$query = "select id, section_id, allow, enabled, return_value, note from ".$gacl_api->_db_table_prefix."acl where id = ".$_GET['acl_id']."";
+			$query = "select id, section_value, allow, enabled, return_value, note from ".$gacl_api->_db_table_prefix."acl where id = ".$_GET['acl_id']."";
 			$acl_row = $db->GetRow($query);
-			list($acl_id, $section_id, $allow, $enabled, $return_value, $note) = $acl_row;
+			list($acl_id, $acl_section_value, $allow, $enabled, $return_value, $note) = $acl_row;
 
 			//Grab selected ACO's
 			$query = "select a.section_value, a.value, c.name, b.name from ".$gacl_api->_db_table_prefix."aco_map a, ".$gacl_api->_db_table_prefix."aco b, ".$gacl_api->_db_table_prefix."aco_sections c
@@ -143,6 +143,7 @@ switch ($_POST['action']) {
 			$gacl_api->debug_text("NOT EDITING ACL");
 			$allow=1;
 			$enabled=1;
+			$acl_section_value='user';
 		}
 
 
@@ -319,11 +320,11 @@ switch ($_POST['action']) {
         unset($section_value);
         unset($tmp_section_value);
 
-		echo "Section ID: $section_id<br>\n";
-		echo "Section Value: ".$gacl_api->get_object_section_value($section_id,'ACL')."<br>\n";
+		//echo "Section ID: $section_id<br>\n";
+		//echo "Section Value: ". $acl_section_value ."<br>\n";
 
         $smarty->assign("options_acl_sections", $options_acl_sections);
-        $smarty->assign("acl_section_value", $gacl_api->get_object_section_value($section_id));
+        $smarty->assign("acl_section_value", $acl_section_value);
 
 		$smarty->assign("options_axo_sections", $options_axo_sections);
         $smarty->assign("axo_section_value", $axo_section_value);

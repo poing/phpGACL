@@ -15,6 +15,7 @@
 		[ <a href="acl_admin.php?return_page=acl_list.php">ACL Admin</a> ]
 		[ <a href="acl_test.php">ACL Test</a> ]
 		[ <a href="acl_debug.php">ACL Debug</a> ]
+		[ <a href="about.php">Help / About</a> ]
 		</b>
 		<br>
 	</td>
@@ -79,8 +80,8 @@
         <input type="text" name="filter_return_value" size="8" value="{$filter_return_value}">
     </td>
     <td rowspan="2" valign="middle" bgcolor="#cccccc" align="center">
-		 <select name="filter_acl_section_id" tabindex="0">
-			{html_options options=$options_filter_acl_sections selected=$filter_acl_section_id}
+		 <select name="filter_acl_section_name" tabindex="0">
+			{html_options options=$options_filter_acl_sections selected=$filter_acl_section_name}
 		</select>
     </td>
     <td rowspan="2" valign="middle" bgcolor="#cccccc" align="center">

@@ -16,6 +16,13 @@ INSTALL:
 	
 	Consult the example.php file in this directory. 
 
+UPGRADING:
+	
+	MAKE A BACKUP FIRST! 
+	MAKE A BACKUP FIRST! 
+	MAKE A BACKUP FIRST! 
+	Then run setup.php. 
+	
 SYNOPSIS:
 
 	require_once("gacl.class.php");
