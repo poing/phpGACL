@@ -1,3 +1,9 @@
+Wed Oct 23 2002
+	- Switched away from ID's in favor of VALUES for most functions, including acl_check(). Broke all backwards compatibility.
+	- Modified DB Schema to reflect above.
+	- When ARO/ACO values are changed, the API will modify said values in all tables.
+	- Added a variable for phpGACL's current path. 
+	
 Wed Oct 09 2002 
 	- Added "hidden" flags to relavent API functions
 	- Added Oracle 8i schema to setup.php

@@ -1,6 +1,5 @@
 <?php
 require_once("gacl.inc.php");
-//$debug=1;
 
 function echo_success($text) {
     echo "<font color=\"green\"><b>Success!</b></font> $text<br>\n";   	
@@ -351,7 +350,7 @@ switch ($db_type) {
 																	   aro_section_value varchar(255) NOT NULL default 0,
 																	   aro_value varchar(255) NOT NULL default 0
 																	);
-																	create unique index group_id_aro_id_groups_aro_map on groups_aro_map(group_id,aro_id);
+																	create unique index group_id_aro_id_groups_aro_map on groups_aro_map(group_id,aro_section_value, aro_value);
 																	",
 											groups_map =>
 																	"
@@ -441,7 +440,7 @@ switch ($db_type) {
 											aro_map_idx_1 =>	"create index acl_id_aro_map on aro_map(acl_id)",
 											group_idx_1 =>		"create unique index id_groups on groups(id)",
 											group_dix_2 =>		"create index parent_id_groups on groups(parent_id)",
-											idx_1  => 				"create unique index group_id_aro_id_groups_aro_map on groups_aro_map(group_id,aro_id)",
+											idx_1  => 				"create unique index group_id_aro_id_groups_aro_map on groups_aro_map(group_id,aro_section_value, aro_value)",
 											idx_2  => 				"create unique index path_id_group_id_groups_path_map on groups_path_map(path_id, group_id)",
 											idx_3  => 				"create unique index id_group_id_tree_level_groups_path on groups_path(id, group_id, tree_level)",
 											idx_4  => 				"create unique index acl_id_group_id_groups_map on groups_map(acl_id, group_id)"
