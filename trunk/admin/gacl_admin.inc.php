@@ -33,7 +33,7 @@ require_once(dirname(__FILE__).'/../gacl_api.class.php');
 
 
 $gacl_options = array(
-								'debug' => FALSE,
+								'debug' => TRUE,
 								'items_per_page' => 5,
 								'db_type' => 'mysql',
 								'db_host' => 'localhost',

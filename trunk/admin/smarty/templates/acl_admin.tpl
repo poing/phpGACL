@@ -109,7 +109,8 @@
              </td>
 
             <td valign="middle" bgcolor="#cccccc" align="center">
-            [ <a href="javascript: location.href = 'edit_objects.php?object_type=aro&section_value=' + document.acl_admin.aro_section.options[document.acl_admin.aro_section.selectedIndex].value + '&return_page={$return_page}';">Edit</a> ]<br>
+            [ <a href="javascript: location.href = 'edit_objects.php?object_type=aro&section_value=' + document.acl_admin.aro_section.options[document.acl_admin.aro_section.selectedIndex].value + '&return_page={$return_page}';">Edit</a> ]
+            [ <a href="#" onClick="window.open('obj_search.php?object_type=aro&section_value=' + document.acl_admin.aro_section.options[document.acl_admin.aro_section.selectedIndex].value + '&return_page={$return_page}','','status=yes,width=400,height=400','','status=yes,width=400,height=400');">Search</a> ]<br>
              <br>
              <select name="aro[]" tabindex="0" size="10" width="200" multiple>
             </select> <br>
@@ -200,7 +201,7 @@
 				</select>
 				<br>
 				<br>
-				<input type="BUTTON" name="Un-Select" value="Un-Select" onClick="unselect_all(document.acl_admin.elements['groups[]'])">
+				<input type="BUTTON" name="Un-Select" value="Un-Select" onClick="unselect_all(document.acl_admin.elements['axo_groups[]'])">
             </td>
           </tr>
           <tr>
