@@ -245,6 +245,8 @@ class gacl {
 			 *
 			 * This is probably where the most optimizations can be made.
 			 */
+			
+			$order_by = array();
 
 			$query = '
 					SELECT		a.id,a.allow,a.return_value
@@ -284,8 +286,7 @@ class gacl {
 			
 			$query .= '
 					WHERE		a.enabled=1 AND	ac.acl_id=a.id
-						AND		(ac.section_value='. $this->db->quote($aco_section_value) .' AND ac.value='. $this->db->quote($aco_value) .')
-						AND		(';
+						AND		(ac.section_value='. $this->db->quote($aco_section_value) .' AND ac.value='. $this->db->quote($aco_value) .')';
 			
 			// if we are querying an aro group
 			if ($aro_section_value == $this->_group_switch) {
@@ -295,17 +296,24 @@ class gacl {
 					return FALSE;
 				}
 				
-				$query .= 'rg.id IN ('. $sql_aro_group_ids .')';
+				$query .= '
+						AND		rg.id IN ('. $sql_aro_group_ids .')';
+				
+				$order_by[] = '(rg.rgt-rg.lft) ASC';
 			} else {
-				$query .= '(ar.section_value='. $this->db->quote($aro_section_value) .' AND ar.value='. $this->db->quote($aro_value) .')';
+				$query .= '
+						AND		((ar.section_value='. $this->db->quote($aro_section_value) .' AND ar.value='. $this->db->quote($aro_value) .')';
 				
 				if ( isset ($sql_aro_group_ids) ) {
 					$query .= ' OR rg.id IN ('. $sql_aro_group_ids .')';
+					
+					$order_by[] = '(ar.value IS NOT NULL) DESC';
+					$order_by[] = '(rg.rgt-rg.lft) ASC';
 				}
+				
+				$query .= ')';
 			}
 			
-			$query .= ')
-						AND		(';
 
 			// if we are querying an axo group
 			if ($axo_section_value == $this->_group_switch) {
@@ -315,8 +323,14 @@ class gacl {
 					return FALSE;
 				}
 				
-				$query .= 'xg.id IN ('. $sql_axo_group_ids .')';
+				$query .= '
+						AND		xg.id IN ('. $sql_axo_group_ids .')';
+				
+				$order_by[] = '(xg.rgt-xg.lft) ASC';
 			} else {
+				$query .= '
+						AND		(';
+				
 				if ($axo_section_value == '' AND $axo_value == '') {
 					$query .= '(ax.section_value IS NULL AND ax.value IS NULL)';
 				} else {
@@ -325,31 +339,27 @@ class gacl {
 
 				if (isset($sql_axo_group_ids)) {
 					$query .= ' OR xg.id IN ('. $sql_axo_group_ids .')';
+					
+					$order_by[] = '(ax.value IS NOT NULL) DESC';
+					$order_by[] = '(xg.rgt-xg.lft) ASC';
 				} else {
 					$query .= ' AND axg.group_id IS NULL';
 				}
+				
+				$query .= ')';
 			}
-			
-			$query .= ')
-					ORDER BY	';
 			
 			/*
 			 * The ordering is always very tricky and makes all the difference in the world.
 			 * Order (ar.value IS NOT NULL) DESC should put ACLs given to specific AROs
 			 * ahead of any ACLs given to groups. This works well for exceptions to groups.
 			 */
-			if (isset($sql_aro_group_ids)) {
-				$query .= '(ar.value IS NOT NULL) DESC,(rg.rgt-rg.lft) ASC,
-								';
-			}
 			
-			if (isset($sql_axo_group_ids)) {
-				$query .= '(ax.value IS NOT NULL) DESC,(xg.rgt-xg.lft) ASC,
-								';
-			}
-
-			$query .= 'a.updated_date DESC
-								';
+			$order_by[] = 'a.updated_date DESC';
+			
+			$query .= '
+					ORDER BY	'. implode (',', $order_by) . '
+					';
 
 			// we are only interested in the first row
 			$rs = $this->db->SelectLimit($query, 1);
