@@ -1,6 +1,6 @@
 <table width="100%" cellspacing="2" cellpadding="2" border="0">
         <tr>
-                <td width="40" bgcolor="#cccccc" align="left">
+                <td width="60" bgcolor="#cccccc" align="left">
                         <div align="left">
 						{if $paging_data.atfirstpage}
 							|&lt; &lt;&lt;
@@ -12,7 +12,7 @@
                 <td bgcolor="#cccccc">
 					<br>
                 </td>
-                <td width="40" bgcolor="#cccccc" align="right">
+                <td width="60" bgcolor="#cccccc" align="right">
 						{if $paging_data.atlastpage}
 							&gt;&gt; &gt;|
 						{else}
