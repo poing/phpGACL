@@ -2,7 +2,7 @@ NAME:
 
     phpGACL - PHP based Access Control Lists.
 
-VERSION: 0.9
+VERSION: v0.9beta
 
 AUTHORS:
     
@@ -12,14 +12,19 @@ MAILING LISTS:
 
     See here: http://sourceforge.net/mail/?group_id=57103
 
+INSTALL:
+	
+	Edit config.inc.php to setup database connection parameters
+	Run setup.php in your web browsers to initialize database
+
 SYNOPSIS:
 
     require("gacl.inc.php");
 
     if ( acl_check( <Access Control Object> , <Access Request Object> ) ) {
-	echo "Access Granted!";
+		echo "Access Granted!";
     } else {
-	echo "Access Denied!";
+		echo "Access Denied!";
     }
 
 
