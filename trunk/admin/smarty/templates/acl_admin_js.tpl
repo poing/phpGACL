@@ -39,24 +39,22 @@ function select_item(parent_form_element, src_form_element, dst_form_element) {
 
 			//Check to see if duplicate entries exist.
 			for (n=0; n < dst_form_element.options.length; n++) {
-				if (src_form_element.options[i].value == dst_form_element.options[n].value) {
+				if ( parent_form_element.options[parent_form_element.selectedIndex].value + '^' + src_form_element.options[i].value == dst_form_element.options[n].value) {
 					found_dup=true;
 				}
 			}
 			
 			//Only add if its not a duplicate entry.
 			if (!found_dup) {
-			   //Grab the current selected value from the parent
+				//Grab the current selected value from the parent
 				src_id = src_form_element.options[i].value;
-				src_section = parent_form_element.options[parent_form_element.selectedIndex].text;
-				src_text = src_form_element.options[i].text;
-			   
-				//alert('Src ID: ' + src_id);
-				//alert('Parent: ' + src_section);
-				//alert('Src Text: ' + src_text);
+				src_text = src_form_element.options[i].text;				
+
+				src_section_id = parent_form_element.options[parent_form_element.selectedIndex].value;
+				src_section_text = parent_form_element.options[parent_form_element.selectedIndex].text;
 
 				options_length = dst_form_element.options.length;
-				dst_form_element.options[options_length] = new Option(src_section + ' > ' + src_text, src_id);
+				dst_form_element.options[options_length] = new Option(src_section_text + ' > ' + src_text, src_section_id + '^' + src_id);
 				dst_form_element.options[options_length].selected = true;			   
 			}
 			

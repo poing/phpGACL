@@ -32,8 +32,8 @@ switch ($_POST[action]) {
                                         LEFT JOIN aco_map b ON a.id=b.acl_id
                                         LEFT JOIN aro_map c ON a.id=c.acl_id
                                         LEFT JOIN groups_map d ON a.id=d.acl_id
-                                        LEFT JOIN aco e ON b.aco_id=e.id
-                                        LEFT JOIN aco_sections f ON e.section_id=f.id
+                                        LEFT JOIN aco e ON ( b.aco_section_value=e.section_value AND b.aco_value = e.value )
+                                        LEFT JOIN aco_sections f ON e.section_value=f.value
                                 order by a.id, f.name, e.name";
         $rs = $db->Execute($query);
 

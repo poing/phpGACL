@@ -1,4 +1,18 @@
-* Add hidden flags in to all API function calls.
+* Add "3rd layer" support for ACL'ing individual items.
+    Two ways we can do this:
+        1. Use the current ACO's, and add a 3rd param to acl_check($aco_id, $aro_id, $aco_id) or acl_check(array($aco_id,$aco_id), $aro_id)
+        2. Add a completely seperate layer (what should I call it? ACOb for now), acl_check($aco_id, $aro_id, $acob_id)
+        
+* Now that we go by values not ID's, we need to support proper renaming of values so everything stays mapped.
+
+* Get rid of freepolls.com, they're always down.
+
+* Handle different paths better. Especially to do with including cache class files.        
+
+* Don't depend on phpGACL's internal ID's, use "values" for each ARO, ACO and require aco/aro section_id's as well? This should
+    save some lookup's in the long run.
+
+* Create include files with queries in each for the different databases. ie: include($db->db_type."-custom_sql.php");
 
 * Create templates_c for Smarty in setup.php, figure out permissions for it as well. Write this in the FAQ/README.
 
@@ -6,7 +20,7 @@
 
 * Write tutorial, some people may find phpGACL difficult to figure out.
 
-* Oracle compatibility:
+* Oracle compatibility: Apply second path from Fred Cohen
     
 > There are a few things:
 > 1) 'LEVEL' is a reserved word in Oracle. I had to change the column in

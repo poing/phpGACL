@@ -57,17 +57,17 @@ class gacl_api {
 		Function:	add_acl()
 		Purpose:	Add's an ACL. ACO_IDS, ARO_IDS, GROUP_IDS must all be arrays.
 	\*======================================================================*/
-	function add_acl($aco_ids, $aro_ids, $group_ids, $allow=1, $enabled=1, $acl_id=FALSE ) {
+	function add_acl($aco_array, $aro_array, $group_ids, $allow=1, $enabled=1, $acl_id=FALSE ) {
 		global $db;
 		
 		debug("add_acl():");
 		
-		if (count($aco_ids) == 0) {
+		if (count($aco_array) == 0) {
 			debug("Must select at least one Access Control Object");
 			return false;
 		}
 		
-		if (count($aro_ids) == 0 AND count($group_ids) == 0) {
+		if (count($aro_array) == 0 AND count($group_ids) == 0) {
 			debug("Must select at least one Access Request Object or Group");
 			return false;
 		}
@@ -128,31 +128,33 @@ class gacl_api {
 		if ($rs) {
 			debug("Insert or Update completed without error, insert new mappings.");
 			//Insert ACO mappings
-			while (list(,$aco_id) = @each($aco_ids)) {
-				debug("Insert: ACO ID: $aco_id");   
+			while (list($aco_section_value,$aco_array) = @each($aco_array)) {
+				debug("Insert: ACO Section Value: $aco_section_value ACO VALUE: $aco_value");   
 
-				$query = "insert into aco_map (acl_id,aco_id) VALUES($acl_id, $aco_id)";
-				$rs = $db->Execute($query);
+				foreach ($aco_array as $aco_value) {
+					$query = "insert into aco_map (acl_id,aco_section_value,aco_value) VALUES($acl_id, '$aco_section_value', '$aco_value')";
+					$rs = $db->Execute($query);
 
-				if ($db->ErrorNo() != 0) {
-					debug("add_acl(): database error: ". $db->ErrorMsg() ." (". $db->ErrorNo() .")");
-					return false;	
+					if ($db->ErrorNo() != 0) {
+						debug("add_acl(): database error: ". $db->ErrorMsg() ." (". $db->ErrorNo() .")");
+						return false;	
+					}
 				}
-
 			}
 
 			//Insert ARO mappings
-			while (list(,$aro_id) = @each($aro_ids)) {
-				debug("Insert: ARO ID: $aro_id");   
+			while (list($aro_section_value,$aro_array) = @each($aro_array)) {
+				debug("Insert: ARO Section Value: $aro_section_value ARO VALUE: $aro_value");   
 
-				$query = "insert into aro_map (acl_id,aro_id) VALUES($acl_id, $aro_id)";
-				$rs = $db->Execute($query);
+				foreach ($aro_array as $aro_value) {
+					$query = "insert into aro_map (acl_id,aro_section_value, aro_value) VALUES($acl_id, '$aro_section_value', '$aro_value')";
+					$rs = $db->Execute($query);
 
-				if ($db->ErrorNo() != 0) {
-					debug("add_acl(): database error: ". $db->ErrorMsg() ." (". $db->ErrorNo() .")");
-					return false;	
+					if ($db->ErrorNo() != 0) {
+						debug("add_acl(): database error: ". $db->ErrorMsg() ." (". $db->ErrorNo() .")");
+						return false;	
+					}
 				}
-
 			}
 			
 			//Insert GROUP mappings
@@ -184,7 +186,7 @@ class gacl_api {
 		Function:	edit_acl()
 		Purpose:	Edit's an ACL, ACO_IDS, ARO_IDS, GROUP_IDS must all be arrays.
 	\*======================================================================*/
-	function edit_acl($acl_id, $aco_ids, $aro_ids, $group_ids, $allow=1, $enabled=1) {
+	function edit_acl($acl_id, $aco_array, $aro_array, $group_ids, $allow=1, $enabled=1) {
 		global $db;
 		
 		debug("edit_acl():");
@@ -193,12 +195,12 @@ class gacl_api {
 			debug("edit_acl(): Must specify a single ACL_ID to edit");
 			return false;
 		}
-		if (count($aco_ids) == 0) {
+		if (count($aco_array) == 0) {
 			debug("edit_acl(): Must select at least one Access Control Object");
 			return false;
 		}
 		
-		if (count($aro_ids) == 0 AND count($group_ids) == 0) {
+		if (count($aro_array) == 0 AND count($group_ids) == 0) {
 			debug("edit_acl(): Must select at least one Access Request Object or Group");
 			return false;
 		}
@@ -211,7 +213,7 @@ class gacl_api {
 			$enabled=0;	
 		}
 		
-		if ($this->add_acl($aco_ids, $aro_ids, $group_ids, $allow, $enabled, $acl_id)) {
+		if ($this->add_acl($aco_array, $aro_array, $group_ids, $allow, $enabled, $acl_id)) {
 			return true;	
 		} else {
 			debug("edit_acl(): error in add_acl()");
@@ -580,24 +582,24 @@ class gacl_api {
 		Function:	add_group_aro()
 		Purpose:	Assigns an ARO to a group
 	\*======================================================================*/
-	function add_group_aro($group_id, $aro_id) {
+	function add_group_aro($group_id, $aro_section_value, $aro_value) {
 		global $db;
 		
-		debug("add_group_aro(): Group ID: $group_id ARO ID: $aro_id");
+		debug("add_group_aro(): Group ID: $group_id ARO Section Value: $aro_section_value ARO Value: $aro_value");
 		
-		if (empty($group_id) OR empty($aro_id)) {
-			debug("add_group(): Group ID:  ($group_id) OR ARO id ($aro_id) is empty, this is required");
+		if (empty($group_id) OR empty($aro_value) OR empty($aro_section_value)) {
+			debug("add_group(): Group ID:  ($group_id) OR ARO value ($aro_value) OR ARO section value ($aro_section_value) is empty, this is required");
 			return false;	
 		}
 				
-        $query = "insert into groups_aro_map (group_id,aro_id) VALUES($group_id, $aro_id)";
+        $query = "insert into groups_aro_map (group_id,aro_section_value, aro_value) VALUES($group_id, '$aro_section_value', '$aro_value')";
 		$rs = $db->Execute($query);                   
 
 		if ($db->ErrorNo() != 0) {
 			debug("add_group_aro(): database error: ". $db->ErrorMsg() ." (". $db->ErrorNo() .")");
 			return false;	
 		} else {
-			debug("add_group_aro(): Added ARO ID: $aro_id to Group ID: $group_id");			
+			debug("add_group_aro(): Added ARO Value: $aro_value to Group ID: $group_id");			
 			return true;
 		}		
 	}
@@ -606,24 +608,24 @@ class gacl_api {
 		Function:	del_group_aro()
 		Purpose:	Removes an ARO to group assignment
 	\*======================================================================*/
-	function del_group_aro($group_id, $aro_id) {
+	function del_group_aro($group_id, $aro_section_value, $aro_value) {
 		global $db;
 		
-		debug("del_group_aro(): Group ID: $group_id ARO ID: $aro_id");
+		debug("del_group_aro(): Group ID: $group_id ARO Section value: $aro_section_value ARO Value: $aro_value");
 		
-		if (empty($group_id) OR empty($aro_id)) {
-			debug("del_group(): Group ID:  ($group_id) OR ARO id ($aro_id) is empty, this is required");
+		if (empty($group_id) OR empty($aro_value) OR empty($aro_section_value)) {
+			debug("del_group(): Group ID:  ($group_id) OR ARO Section value: $aro_section_value OR ARO Value ($aro_value) is empty, this is required");
 			return false;	
 		}
 				
-        $query = "delete from groups_aro_map where group_id=$group_id AND aro_id=$aro_id";
+        $query = "delete from groups_aro_map where group_id=$group_id AND ( aro_section_value='$aro_section_value' AND aro_value='$aro_value')";
 		$rs = $db->Execute($query);                   
 
 		if ($db->ErrorNo() != 0) {
 			debug("del_group_aro(): database error: ". $db->ErrorMsg() ." (". $db->ErrorNo() .")");
 			return false;	
 		} else {
-			debug("del_group_aro(): Deleted ARO ID: $aro_id to Group ID: $group_id assignment");			
+			debug("del_group_aro(): Deleted ARO Value: $aro_value to Group ID: $group_id assignment");			
 			return true;
 		}		
 	}
@@ -899,22 +901,22 @@ class gacl_api {
 		Function:	add_aro()
 		Purpose:	Inserts a new ARO
 	\*======================================================================*/
-	function add_aro($section_id, $name, $value=0, $order=0, $hidden=0) {
+	function add_aro($section_value, $name, $value=0, $order=0, $hidden=0) {
 		global $db;
 		
-		debug("add_aro(): Section ID: $section_id Value: $value Order: $order Name: $name");
+		debug("add_aro(): Section Value: $section_value Value: $value Order: $order Name: $name");
 		
 		$name = trim($name);
 		$value = trim($value);
 		$order = trim($order);
 		
-		if (empty($name) OR empty($section_id) ) {
-			debug("add_aro(): name ($name) OR section id ($section_id) is empty, this is required");
+		if (empty($name) OR empty($section_value) ) {
+			debug("add_aro(): name ($name) OR section value ($section_value) is empty, this is required");
 			return false;	
 		}
 		
 		$insert_id = $db->GenID('aro_seq',10);
-		$query = "insert into aro (id,section_id, value,order_value,name,hidden) VALUES($insert_id, $section_id, '$value', '$order', '$name', $hidden)";
+		$query = "insert into aro (id,section_value, value,order_value,name,hidden) VALUES($insert_id, '$section_value', '$value', '$order', '$name', $hidden)";
 		$rs = $db->Execute($query);                   
 
 		if ($db->ErrorNo() != 0) {
@@ -930,17 +932,17 @@ class gacl_api {
 		Function:	edit_aro()
 		Purpose:	Edits a given ARO
 	\*======================================================================*/
-	function edit_aro($aro_id, $section_id, $name, $value=0, $order=0, $hidden=0) {
+	function edit_aro($aro_id, $section_value, $name, $value=0, $order=0, $hidden=0) {
 		global $db;
 		
-		debug("edit_aro(): ID: $aro_id Section ID: $section_id Value: $value Order: $order Name: $name Hidden: $hidden");
+		debug("edit_aro(): ID: $aro_id Section Value: $section_value Value: $value Order: $order Name: $name Hidden: $hidden");
 		
 		$name = trim($name);
 		$value = trim($value);
 		$order = trim($order);
 		
-		if (empty($aro_id) OR empty($section_id) ) {
-			debug("edit_aro(): ARO ID ($aro_id) OR Section ID ($section_id) is empty, this is required");
+		if (empty($aro_id) OR empty($section_value) ) {
+			debug("edit_aro(): ARO ID ($aro_id) OR Section ID ($section_value) is empty, this is required");
 			return false;	
 		}
 
@@ -950,7 +952,7 @@ class gacl_api {
 		}
 		
 		$query = "update aro set
-																section_id=$section_id,
+																section_value='$section_value',
 																value='$value',
 																order_value='$order',
 																name='$name',
@@ -1297,22 +1299,22 @@ class gacl_api {
 		Function:	add_aco()
 		Purpose:	Inserts a new ARO
 	\*======================================================================*/
-	function add_aco($section_id, $name, $value=0, $order=0, $hidden=0) {
+	function add_aco($section_value, $name, $value=0, $order=0, $hidden=0) {
 		global $db;
 		
-		debug("add_aco(): Section ID: $section_id Value: $value Order: $order Name: $name");
+		debug("add_aco(): Section Value: $section_value Value: $value Order: $order Name: $name");
 		
 		$name = trim($name);
 		$value = trim($value);
 		$order = trim($order);
 		
-		if (empty($name) OR empty($section_id) ) {
-			debug("add_aco(): name ($name) OR section id ($section_id) is empty, this is required");
+		if (empty($name) OR empty($section_value) ) {
+			debug("add_aco(): name ($name) OR section value ($section_value) is empty, this is required");
 			return false;	
 		}
 		
 		$insert_id = $db->GenID('aco_seq',10);
-		$query = "insert into aco (id,section_id, value,order_value,name,hidden) VALUES($insert_id, $section_id, '$value', '$order', '$name', $hidden)";
+		$query = "insert into aco (id,section_value, value,order_value,name,hidden) VALUES($insert_id, '$section_value', '$value', '$order', '$name', $hidden)";
 		$rs = $db->Execute($query);                   
 
 		if ($db->ErrorNo() != 0) {
@@ -1328,17 +1330,17 @@ class gacl_api {
 		Function:	edit_aco()
 		Purpose:	Edits a given ARO
 	\*======================================================================*/
-	function edit_aco($aco_id, $section_id, $name, $value=0, $order=0, $hidden=0) {
+	function edit_aco($aco_id, $section_value, $name, $value=0, $order=0, $hidden=0) {
 		global $db;
 		
-		debug("edit_aco(): ID: $aco_id Section ID: $section_id Value: $value Order: $order Name: $name");
+		debug("edit_aco(): ID: $aco_id Section Value: $section_value Value: $value Order: $order Name: $name");
 		
 		$name = trim($name);
 		$value = trim($value);
 		$order = trim($order);
 		
-		if (empty($aco_id) OR empty($section_id) ) {
-			debug("edit_aco(): ARO ID ($aco_id) OR Section ID ($section_id) is empty, this is required");
+		if (empty($aco_id) OR empty($section_value) ) {
+			debug("edit_aco(): ARO ID ($aco_id) OR Section Value ($section_value) is empty, this is required");
 			return false;	
 		}
 
@@ -1348,7 +1350,7 @@ class gacl_api {
 		}
 		
 		$query = "update aco set
-																section_id=$section_id,
+																section_value='$section_value',
 																value='$value',
 																order_value='$order',
 																name='$name',

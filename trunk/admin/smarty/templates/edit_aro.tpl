@@ -102,7 +102,7 @@
           </tr>
         </tbody>
       </table>
-    <input type="hidden" name="section_id" value="{$section_id}">
+    <input type="hidden" name="section_value" value="{$section_value}">
     <input type="hidden" name="return_page" value="{$return_page}">
     </form>
   </body>
