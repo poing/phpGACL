@@ -1,5 +1,6 @@
 Sun Nov 7 2004
 	mikeb - Updated Cache Lite class to latest version, including improved Hashed_Cache_Lite class thanks to Dan.
+	miekb - If caching is not enabled, improved the bypassing of the caching library/overhead. 
 Mon Oct 4 2004
 	mikeb - Added phpDoc style comments thanks to Gordon Luk <gordon.luk@dfafunds.com>
 Sat Oct 2 2004
