@@ -1,4 +1,4 @@
-<?
+<?php
 /*
  * phpGACL - Generic Access Control List - Hashed Directory Caching. 
  * Copyright (C) 2002 Mike Benoit

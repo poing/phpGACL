@@ -1,6 +1,9 @@
 Mike Benoit <ipso@snappymail.ca>:
     Wrote initial "proof of concept" implementation, and maintains documentation & code base.
     
+Martino Piccinato <martino@nexus.it>
+    Modified several API functions to help keep data in sync across tables.    
+    
 Paul Munn <pmunn@munn.com>
     Sent in Postgres7 table schema, plus some very good suggestions. As well helped with the documentation. 
 
