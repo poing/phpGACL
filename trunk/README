@@ -23,6 +23,9 @@ UPGRADING:
 	MAKE A BACKUP FIRST! 
 	Then run setup.php. It will most likely NOT work, as ADODB's XML Schema still needs some work. 
 
+	Upgrading from ANY version to v3.3.x WILL NOT WORK YET! The schema format has changed way
+	to much.
+	
 	Unless your running PostgreSQL, then upgrading from 3.1.x or older to 3.2.x or newer will require
 	a complete dump (including column names), dropping the database, running setup.php, then 
 	importing the dump. 
@@ -52,6 +55,6 @@ DESCRIPTION:
 	See here: http://phpgacl.sourceforge.net/
 
 COPYRIGHT:
-	Copyright (c) 2002 Mike Benoit, All rights reserved.
+	Copyright (c) 2004 Mike Benoit, All rights reserved.
 	This software is released under the GNU Lesser General Public License.
 	Please read the disclaimer at the top of the gacl.inc.php file.
