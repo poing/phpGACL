@@ -41,7 +41,7 @@
 			  </select>
             </td>
             <td width="50">
-				<input type="BUTTON" name="select" value="&nbsp;>>&nbsp;" onClick="select_item(opener.document.{$src_form}.{$object_type}_section, document.object_search.elements['objects'], opener.document.{$src_form}.elements['selected_{$object_type}[]'])">
+				<input type="button" name="select" value="&nbsp;>>&nbsp;" onClick="select_item(opener.document.{$src_form}.{$object_type}_section, document.object_search.elements['objects'], opener.document.{$src_form}.elements['selected_{$object_type}[]'])">
              </td>
           </tr>
 		{/if}

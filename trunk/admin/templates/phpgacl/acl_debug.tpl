@@ -49,10 +49,6 @@
     <th>ARO Value</th>
     <th>AXO Section</th>
     <th>AXO Value</th>
-    <th>ARO Group ID</th>
-    <th>ARO Group Tree Level</th>
-    <th>AXO Group ID</th>
-    <th>AXO Group Tree Level</th>
     <th>Return Value</th>
     <th>Access</th>
     <th>Updated Date</th>
@@ -83,20 +79,6 @@
 		{$acl.axo_value}<br>
     </td>
 
-    <td nowrap>
-		{$acl.aro_group_id}<br>
-    </td>
-    <td nowrap>
-		{$acl.aro_tree_level}<br>
-    </td>
-
-    <td nowrap>
-		{$acl.axo_group_id}<br>
-    </td>
-    <td nowrap>
-		{$acl.axo_tree_level}<br>
-    </td>
-
     <td valign="middle" align="center">
         {$acl.return_value}<br>
     </td>
@@ -112,7 +94,7 @@
      </td>
   </tr>
   <tr valign="middle" align="left">
-    <td colspan="13">
+    <td colspan="9">
         <b>Note:</b> {$acl.note}
     </td>
   </tr>
