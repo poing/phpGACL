@@ -1,7 +1,3 @@
-* Move to entirely OO code.
-
-* Get rid of config.inc.php file, use an array of configuration variables instead so you can have mutiple instances of phpGACL in the same application.
-
 * Build framework for the plugin system.
     Create a "plugin" directory.
     Create a "plugin" section on the acl_admin page where plugin form fields can be displayed?
@@ -15,7 +11,7 @@
 
 * Write tutorial, some people may find phpGACL difficult to figure out.
 
-* Oracle compatibility: Apply second path from Fred Cohen
+* Oracle compatibility.
     
 * FUTURE: Possibly support tree'd ACOs.
 

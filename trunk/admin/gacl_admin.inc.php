@@ -28,29 +28,54 @@
  *
  */
 
-//$debug=1;
+require_once(dirname(__FILE__).'/../gacl.class.php');
+require_once(dirname(__FILE__).'/../gacl_api.class.php');
 
-require_once(dirname(__FILE__).'/../config.inc.php');
+$gacl_options = array(
+								'test' => 'test',
+								'db_type' => 'mysql',
+								'db_host' => 'localhost',
+								'db_user' => 'root',
+								'db_password' => '',
+								'db_name' => 'gacl',
+								'caching' => FALSE,
+								'cache_dir' => '/tmp/phpgacl_test_cache',
+								'cache_expire_time' => 600
+							);
+							
+$gacl_api = new gacl_api($gacl_options);
 
-require_once($gacl_dir.'/admin/gacl_api.class.php');
-$gacl_api = new gacl_api;
+$gacl = $gacl_api;
 
-require_once($adodb_dir.'/adodb.inc.php');
-$ADODB_FETCH_MODE = ADODB_FETCH_NUM;
+$db = $gacl->db;
 
-$db = ADONewConnection($db_type);
-if (isset($debug) OR isset($_GET['debug'])) {
-	$debug=1;
-    $db->debug = true;
-}
-$db->Connect($db_host, $db_user, $db_password, $db_name);
+/*
+ * Configure the Smarty Class for the administration interface ONLY!
+ */
+//$smarty_dir = GACL_DIR .'/admin/smarty'; //NO trailing slash!
+$smarty_dir = 'smarty'; //NO trailing slash!
+$smarty_template_dir = $smarty_dir.'/templates'; //NO trailing slash!
+$smarty_compile_dir = $smarty_dir.'/templates_c'; //NO trailing slash!
 
 //Setup the Smarty Class.
 require_once($smarty_dir.'/Smarty.class.php');
+
 $smarty = new Smarty;
 $smarty->compile_check = true;
 $smarty->template_dir = $smarty_template_dir;
 $smarty->compile_dir = $smarty_compile_dir;
+
+/*
+ * Email address used in setup.php, please do not change.
+ */
+$author_email = 'ipso@snappymail.ca';
+
+/*
+ * Don't need to show notices, some of them are pretty lame and people get overly worried when they see them it seems.
+ * Mean while I will try to fix most of these. ;)
+ */
+error_reporting (E_ALL ^ E_NOTICE);
+
 
 /*======================================================================*\
     Function:   debug()

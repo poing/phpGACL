@@ -1,5 +1,12 @@
 <?php
-require_once("gacl.inc.php");
+require_once("admin/gacl_admin.inc.php");
+
+$db_type = $gacl->_db_type;
+$db_name = $gacl->_db_name;
+$db_host = $gacl->_db_host;
+$db_user = $gacl->_db_user;
+$db_password = $gacl->_db_password;
+$db_name = $gacl->_db_name;
 
 function echo_success($text) {
     echo "<font color=\"green\"><b>Success!</b></font> $text<br>\n";   	

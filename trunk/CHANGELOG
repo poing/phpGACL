@@ -1,17 +1,24 @@
+Sun Dec 15 2002
+	- Moved to completely OO structure.
+	- Config options can now be passed during object creation. $gacl = new gacl($options);
+	
 Sun Dec 01 2002
 	- Fixed bug that broke allow and enabled from being changed when editing ACLs.
+	
 Sat Nov 30 2002
 	- Merged ERASE feature in to API functions, del_object() and del_object_section() thanks to Martino.
 	- Changed the acl list page layout
 	- Changed the acl test page layout
 	- Added assigned object count to the group admin page.
 	- Fixed a JS bug that wouldn't allow you to "select" (>>) any objects at all, if one was already selected.
+	
 Sun Nov 17 2002
 	- format_groups() function wasn't recursing as efficiently as it could be. Fixed.
 	- Re-wrote API aro/aco/group specific functions to be generic to help support AXO's.
 	- Re-wrote aro/aco/group specific admin scripts to be generic to help support AXO's.
 	- Added AXO support to acl_admin.php.
 	- Updated gacl.inc.php to support AXO's.
+	
 Mon Nov 11 2002
 	- Changed the ordering of the main acl_query() SQL query. It wasn't properly preferring the deepest groups ACLs. - Thanks to Mauro
 		for spotting this one and helping me track it down.
