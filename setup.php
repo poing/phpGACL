@@ -215,7 +215,7 @@ if ( $failed <= 0 ) {
 Installation Successful!!!<br>\n
 <br>\n
 <font color=\"red\"><b>*IMPORTANT*</b></font><br>\n
-Please make sure you create the <b>&lt;phpGACL root&gt;/admin/smarty/templates_c</b> directory, <br>\n
+Please make sure you create the <b>&lt;phpGACL root&gt;/admin/templates_c</b> directory, <br>\n
 and give it <b>write permissions</b> for the user your web server runs as.
 
 Please read the manual, and example.php, then <a href=\"admin/acl_admin.php\"><b>Go here!</b></a> to get started.
