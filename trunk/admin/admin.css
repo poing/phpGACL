@@ -103,6 +103,10 @@ ul#menu li.current a {
 	text-decoration: none;
 }
 
+ul#menu li.current a:hover {
+	color: #666666;
+}
+
 div#mid-r {
 	margin: 0px;
 	padding: 0px;
