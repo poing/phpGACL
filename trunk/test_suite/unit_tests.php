@@ -20,13 +20,13 @@ class phpgacl_api_test extends TestCase {
     
     function get_version() {
         $result = $this->gacl_api->get_version();
-        $expected = '/[0-9]{1,2}.[0-9]{1,2}.[0-9]{1,2}/i';
+        $expected = '/^[0-9]{1,2}.[0-9]{1,2}.[0-9]{1,2}[a-zA-Z]{1}[0-9]{1,2}$/i';
 		
         $this->assertRegexp($expected, $result, 'Version incorrect.');
     }
     function get_schema_version() {
         $result = $this->gacl_api->get_schema_version();
-        $expected = '/[0-9]{1,2}.[0-9]{1,2}/i';
+        $expected = '/^[0-9]{1,2}.[0-9]{1,2}$/i';
 		
         $this->assertRegexp($expected, $result, 'Schema Version incorrect.');
     }
@@ -54,8 +54,9 @@ class phpgacl_api_test extends TestCase {
 			'Level1d' => 8
 		);
 		
-        $result = $this->gacl_api->count_all($arr);
-		// $this->gacl_api->showarray($result);
+		//Keep in mind count_all only counts actual values. So array()'s don't count as +1        
+		$result = $this->gacl_api->count_all($arr);
+		
         $this->assert($result == 8, 'Incorrect array count, Should be 8.');
     }
 	
