@@ -8,7 +8,7 @@
 {include file="phpgacl/navigation.tpl"}
   <form method="post" name="acl_admin" action="acl_admin.php" onsubmit="select_all(document.acl_admin.elements['selected_aco[]']);select_all(document.acl_admin.elements['selected_aro[]']);select_all(document.acl_admin.elements['selected_aro[]']);return true;">
     <div align="center">
-      <table cellpadding="2" cellspacing="2" border="2">
+      <table cellpadding="2" cellspacing="2" border="2" align="center">
         <tbody>
           <tr>
             <th width="24%">Sections</th>

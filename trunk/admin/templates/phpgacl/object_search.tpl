@@ -13,6 +13,7 @@
 {include file="phpgacl/acl_admin_js.tpl"}
   </head>
   <body onload="document.object_search.name_search_str.focus();">
+{include file="phpgacl/navigation.tpl" hidemenu="1"}
     <form method="get" name="object_search" action="object_search.php">
       <table cellpadding="2" cellspacing="2" border="2" width="100%">
         <tbody>
