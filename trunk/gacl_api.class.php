@@ -258,7 +258,7 @@ class gacl_api extends gacl {
 		}
 		
 		//if ($this->add_acl($aco_array, $aro_array, $group_ids, $allow, $enabled, $acl_id)) {
-		if ($this->add_acl($aco_array, $aro_array, $aro_group_ids, $axo_array, $axo_group_ids, $allow, $enabled, $acl_id)) {
+		if ($this->add_acl($aco_array, $aro_array, $aro_group_ids, $axo_array, $axo_group_ids, $allow, $enabled, $return_value, $note, $acl_id)) {
 			return true;	
 		} else {
 			$this->debug_text("edit_acl(): error in add_acl()");

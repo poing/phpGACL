@@ -35,6 +35,8 @@ switch ($_POST[action]) {
 
                                         a.allow,
                                         a.enabled,
+                                        a.return_value,
+                                        a.note,
                                         a.updated_date
                                 from
                                         acl a
@@ -65,12 +67,14 @@ switch ($_POST[action]) {
 			//Parse the SQL data and get rid of any duplicate data.
 			//while (list(,$row) = @each($rows)) {
 			foreach ($rows as $row) {
-				list($acl_id, $aco_section, $aco, $aro_section, $aro, $aro_group, $axo, $axo_section, $axo_group, $allow, $enabled, $updated_date) = $row;
+				list($acl_id, $aco_section, $aco, $aro_section, $aro, $aro_group, $axo, $axo_section, $axo_group, $allow, $enabled, $return_value, $note, $updated_date) = $row;
 				debug("<b>ID:</b> $acl_id <b>ACO Section:</b> $aco_section <b>ACO:</b> $aco  <b>ARO Section:</b> $aro_section <b>ARO:</b> $aro <b>AXO Section:</b> $axo_section <b>AXO:</b> $axo");
 
 				$prepared_rows[$acl_id][acl][id] = $acl_id;
 				$prepared_rows[$acl_id][acl][allow] = $allow;
 				$prepared_rows[$acl_id][acl][enabled] = $enabled;
+				$prepared_rows[$acl_id][acl][return_value] = $return_value;
+				$prepared_rows[$acl_id][acl][note] = $note;
 				$prepared_rows[$acl_id][acl][updated_date] = $updated_date;
 
 				$prepared_rows[$acl_id][aco][$aco_section.$aco] = "$aco_section > $aco";
@@ -127,6 +131,8 @@ switch ($_POST[action]) {
 									id => $acl_array[acl][id],
 									allow => (bool)$acl_array[acl][allow],
 									enabled => (bool)$acl_array[acl][enabled],
+									return_value => $acl_array[acl][return_value],
+									note => $acl_array[acl][note],
 									updated_date => date("d-M-y H:m:i",$acl_array[acl][updated_date]),
 									aco => $aco_array,
 									aro => $aro_array,

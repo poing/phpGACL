@@ -40,7 +40,7 @@ class gacl {
 	/*
 	 * Enable Debug output.
 	 */	
-	var $_debug = FALSE;
+	var $_debug = TRUE;
 
 	/*
 	 * Database configuration.
