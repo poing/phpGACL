@@ -96,11 +96,11 @@
 			<NOTNULL/>
 			<KEY/>
 		</field>
-		<field name="section_value" type="C" size="255">
+		<field name="section_value" type="C" size="240">
 			<DEFAULT value="0"/>
 			<NOTNULL/>
 		</field>
-		<field name="value" type="C" size="255">
+		<field name="value" type="C" size="240">
 			<NOTNULL/>
 		</field>
 		<field name="order_value" type="I">
@@ -176,11 +176,11 @@
 			<NOTNULL/>
 			<KEY/>
 		</field>
-		<field name="section_value" type="C" size="255">
+		<field name="section_value" type="C" size="240">
 			<DEFAULT value="0"/>
 			<NOTNULL/>
 		</field>
-		<field name="value" type="C" size="255">
+		<field name="value" type="C" size="240">
 			<NOTNULL/>
 		</field>
 		<field name="order_value" type="I">
@@ -256,11 +256,11 @@
 			<NOTNULL/>
 			<KEY/>
 		</field>
-		<field name="section_value" type="C" size="255">
+		<field name="section_value" type="C" size="240">
 			<DEFAULT value="0"/>
 			<NOTNULL/>
 		</field>
-		<field name="value" type="C" size="255">
+		<field name="value" type="C" size="240">
 			<NOTNULL/>
 		</field>
 		<field name="order_value" type="I">
@@ -353,10 +353,10 @@
 			<DEFAULT value="0"/>
 			<NOTNULL/>
 		</field>
-		<field name="section_value" type="C" size="255">
+		<field name="section_value" type="C" size="240">
 			<NOTNULL/>
 		</field>
-		<field name="value" type="C" size="255">
+		<field name="value" type="C" size="240">
 			<NOTNULL/>
 		</field>
 	</table>
@@ -443,10 +443,10 @@
 			<DEFAULT value="0"/>
 			<NOTNULL/>
 		</field>
-		<field name="section_value" type="C" size="255">
+		<field name="section_value" type="C" size="240">
 			<NOTNULL/>
 		</field>
-		<field name="value" type="C" size="255">
+		<field name="value" type="C" size="240">
 			<NOTNULL/>
 		</field>
 	</table>
