@@ -1,3 +1,10 @@
+Wed Oct 09 2002 
+	- Added "hidden" flags to relavent API functions
+	- Added Oracle 8i schema to setup.php
+	- Changed group "level" table column name to "tree_level", as the old name "level" was a reserved word in some db's.
+		MySQL: ALTER TABLE `groups_path` CHANGE `level` `tree_level` INT(12) DEFAULT '0' NOT NULL
+	- Modified a few of the queries to be more portable, specifically for Oracle's sake.
+	
 Wed Sep 25 2002
 	- Added multi-layer ACO checking to ACL_QUERY()
 	- Removed multi-layer ACO checking in favor of "dual" acl checking. ie:

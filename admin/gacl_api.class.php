@@ -461,7 +461,7 @@ class gacl_api {
 									id
 						from    groups_path
 						where group_id = $path_to_root[0]
-								AND level = 0";
+								AND tree_level = 0";
 		$path_id = $db->GetOne($query);
 		debug("put_group_path_to_root(): Path ID: $path_id");
 		
@@ -472,7 +472,7 @@ class gacl_api {
 			$i=0;
 			foreach ($path_to_root as $group_id) {
 
-				$query = "insert into groups_path (id, group_id, level) VALUES($insert_id, $group_id, $i)";
+				$query = "insert into groups_path (id, group_id, tree_level) VALUES($insert_id, $group_id, $i)";
 				$db->Execute($query);
 				
 				$i++;
@@ -755,7 +755,7 @@ class gacl_api {
 		Function:	get_aro()
 		Purpose:	Grabs all ARO's in the database, or specific to a section_id
 	\*======================================================================*/
-	function get_aro($section_id = null) {
+	function get_aro($section_id = null, $return_hidden=1) {
 		global $db;
 		
 		debug("get_aro(): Section ID: $section_id");
@@ -764,6 +764,10 @@ class gacl_api {
 		$query = "select id from aro ";
 		if (!empty($section_id) ) {
 			$query .= " where section_id = $section_id";
+		}
+		
+		if ($return_hidden==0) {
+			$query .= "		and hidden=0";	
 		}
 
 		$rs = $db->GetCol($query);
@@ -781,7 +785,7 @@ class gacl_api {
 		Function:	get_aro_data()
 		Purpose:	Gets all data pertaining to a specific ARO.
 	\*======================================================================*/
-	function get_aro_data($aro_id) {
+	function aro_data($aro_id) {
 		global $db;
 		
 		debug("get_aro_data(): ARO ID: $aro_id");
@@ -791,7 +795,7 @@ class gacl_api {
 			return false;	
 		}
 		
-		$query = "select section_id, value, order_value, name from aro where id = $aro_id";
+		$query = "select section_id, value, order_value, name, hidden from aro where id = $aro_id";
 
 		$rs = $db->Execute($query);
 
@@ -895,7 +899,7 @@ class gacl_api {
 		Function:	add_aro()
 		Purpose:	Inserts a new ARO
 	\*======================================================================*/
-	function add_aro($section_id, $name, $value=0, $order=0) {
+	function add_aro($section_id, $name, $value=0, $order=0, $hidden=0) {
 		global $db;
 		
 		debug("add_aro(): Section ID: $section_id Value: $value Order: $order Name: $name");
@@ -910,7 +914,7 @@ class gacl_api {
 		}
 		
 		$insert_id = $db->GenID('aro_seq',10);
-		$query = "insert into aro (id,section_id, value,order_value,name) VALUES($insert_id, $section_id, '$value', '$order', '$name')";
+		$query = "insert into aro (id,section_id, value,order_value,name,hidden) VALUES($insert_id, $section_id, '$value', '$order', '$name', $hidden)";
 		$rs = $db->Execute($query);                   
 
 		if ($db->ErrorNo() != 0) {
@@ -926,10 +930,10 @@ class gacl_api {
 		Function:	edit_aro()
 		Purpose:	Edits a given ARO
 	\*======================================================================*/
-	function edit_aro($aro_id, $section_id, $name, $value=0, $order=0) {
+	function edit_aro($aro_id, $section_id, $name, $value=0, $order=0, $hidden=0) {
 		global $db;
 		
-		debug("edit_aro(): ID: $aro_id Section ID: $section_id Value: $value Order: $order Name: $name");
+		debug("edit_aro(): ID: $aro_id Section ID: $section_id Value: $value Order: $order Name: $name Hidden: $hidden");
 		
 		$name = trim($name);
 		$value = trim($value);
@@ -949,7 +953,8 @@ class gacl_api {
 																section_id=$section_id,
 																value='$value',
 																order_value='$order',
-																name='$name'
+																name='$name',
+																hidden=$hidden
 													where   id=$aro_id";
 		$rs = $db->Execute($query);                   
 
@@ -1040,7 +1045,7 @@ class gacl_api {
 		Function:	add_aro_section()
 		Purpose:	Inserts an ARO Section
 	\*======================================================================*/
-	function add_aro_section($name, $value=0, $order=0) {
+	function add_aro_section($name, $value=0, $order=0, $hidden=0) {
 		global $db;
 		
 		debug("add_aro_section(): Value: $value Order: $order Name: $name");
@@ -1055,7 +1060,7 @@ class gacl_api {
 		}
 			
 		$insert_id = $db->GenID('aro_sections_seq',10);
-		$query = "insert into aro_sections (id,value,order_value,name) VALUES($insert_id, '$value', '$order', '$name')";
+		$query = "insert into aro_sections (id,value,order_value,name,hidden) VALUES($insert_id, '$value', '$order', '$name', $hidden)";
 		$rs = $db->Execute($query);                   
 
 		if ($db->ErrorNo() != 0) {
@@ -1071,7 +1076,7 @@ class gacl_api {
 		Function:	edit_aro_section()
 		Purpose:	Edits a given ARO section
 	\*======================================================================*/
-	function edit_aro_section($aro_section_id, $name, $value=0, $order=0) {
+	function edit_aro_section($aro_section_id, $name, $value=0, $order=0, $hidden=0) {
 		global $db;
 		
 		debug("edit_aro_section(): ID: $aro_section_id Value: $value Order: $order Name: $name");
@@ -1093,7 +1098,8 @@ class gacl_api {
 		$query = "update aro_sections set
 																value='$value',
 																order_value='$order',
-																name='$name'
+																name='$name',
+																hidden=$hidden
 													where   id=$aro_section_id";
 		$rs = $db->Execute($query);                   
 
@@ -1147,7 +1153,7 @@ class gacl_api {
 		Function:	get_aco()
 		Purpose:	Grabs all ACO's in the database, or specific to a section_id
 	\*======================================================================*/
-	function get_aco($section_id = null) {
+	function get_aco($section_id = null, $return_hidden=1) {
 		global $db;
 		
 		debug("get_aco(): Section ID: $section_id");
@@ -1156,6 +1162,10 @@ class gacl_api {
 		$query = "select id from aco ";
 		if (!empty($section_id) ) {
 			$query .= " where section_id = $section_id";
+		}
+
+		if ($return_hidden==0) {
+			$query .= "		and hidden=0";	
 		}
 
 		$rs = $db->GetCol($query);
@@ -1183,7 +1193,7 @@ class gacl_api {
 			return false;	
 		}
 		
-		$query = "select section_id, value, order_value, name from aco where id = $aco_id";
+		$query = "select section_id, value, order_value, name, hidden from aco where id = $aco_id";
 
 		$rs = $db->Execute($query);
 
@@ -1287,7 +1297,7 @@ class gacl_api {
 		Function:	add_aco()
 		Purpose:	Inserts a new ARO
 	\*======================================================================*/
-	function add_aco($section_id, $name, $value=0, $order=0) {
+	function add_aco($section_id, $name, $value=0, $order=0, $hidden=0) {
 		global $db;
 		
 		debug("add_aco(): Section ID: $section_id Value: $value Order: $order Name: $name");
@@ -1302,7 +1312,7 @@ class gacl_api {
 		}
 		
 		$insert_id = $db->GenID('aco_seq',10);
-		$query = "insert into aco (id,section_id, value,order_value,name) VALUES($insert_id, $section_id, '$value', '$order', '$name')";
+		$query = "insert into aco (id,section_id, value,order_value,name,hidden) VALUES($insert_id, $section_id, '$value', '$order', '$name', $hidden)";
 		$rs = $db->Execute($query);                   
 
 		if ($db->ErrorNo() != 0) {
@@ -1318,7 +1328,7 @@ class gacl_api {
 		Function:	edit_aco()
 		Purpose:	Edits a given ARO
 	\*======================================================================*/
-	function edit_aco($aco_id, $section_id, $name, $value=0, $order=0) {
+	function edit_aco($aco_id, $section_id, $name, $value=0, $order=0, $hidden=0) {
 		global $db;
 		
 		debug("edit_aco(): ID: $aco_id Section ID: $section_id Value: $value Order: $order Name: $name");
@@ -1341,7 +1351,8 @@ class gacl_api {
 																section_id=$section_id,
 																value='$value',
 																order_value='$order',
-																name='$name'
+																name='$name',
+																hidden=$hidden
 													where   id=$aco_id";
 		$rs = $db->Execute($query);                   
 
@@ -1434,7 +1445,7 @@ class gacl_api {
 		Function:	add_aco_section()
 		Purpose:	Inserts an ACO Section
 	\*======================================================================*/
-	function add_aco_section($name, $value=0, $order=0) {
+	function add_aco_section($name, $value=0, $order=0, $hidden=0) {
 		global $db;
 		
 		debug("add_aco_section(): Value: $value Order: $order Name: $name");
@@ -1449,7 +1460,7 @@ class gacl_api {
 		}
 				
 		$insert_id = $db->GenID('aco_sections_seq',10);
-		$query = "insert into aco_sections (id,value,order_value,name) VALUES($insert_id, '$value', '$order', '$name')";
+		$query = "insert into aco_sections (id,value,order_value,name,hidden) VALUES($insert_id, '$value', '$order', '$name', $hidden)";
 		$rs = $db->Execute($query);                   
 
 		if ($db->ErrorNo() != 0) {
@@ -1465,7 +1476,7 @@ class gacl_api {
 		Function:	edit_aco_section()
 		Purpose:	Edits a given ACO Section
 	\*======================================================================*/
-	function edit_aco_section($aco_section_id, $name, $value=0, $order=0) {
+	function edit_aco_section($aco_section_id, $name, $value=0, $order=0, $hidden=0) {
 		global $db;
 		
 		debug("edit_aco_section(): ID: $aco_section_id Value: $value Order: $order Name: $name");
@@ -1487,7 +1498,8 @@ class gacl_api {
 		$query = "update aco_sections set
 																value='$value',
 																order_value='$order',
-																name='$name'
+																name='$name',
+																hidden=$hidden
 													where   id=$aco_section_id";
 		$rs = $db->Execute($query);                   
 

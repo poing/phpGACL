@@ -54,7 +54,7 @@ switch ($_POST['action']) {
 			list($acl_id, $allow, $enabled) = $acl_row;
 
 			//Grab selected ACO's
-			$query = "select b.id, c.name, b.name from aco_map as a, aco as b, aco_sections as c where a.aco_id=b.id AND b.section_id=c.id AND a.acl_id = $acl_id";
+			$query = "select b.id, c.name, b.name from aco_map a, aco b, aco_sections c where a.aco_id=b.id AND b.section_id=c.id AND a.acl_id = $acl_id";
 			$rs = $db->Execute($query);
 			$rows = $rs->GetRows();
 
@@ -68,7 +68,7 @@ switch ($_POST['action']) {
 			//showarray($options_aco);
 		
 			//Grab selected ARO's
-			$query = "select b.id, c.name, b.name from aro_map as a, aro as b, aro_sections as c where a.aro_id=b.id AND b.section_id=c.id AND a.acl_id = $acl_id";
+			$query = "select b.id, c.name, b.name from aro_map a, aro b, aro_sections c where a.aro_id=b.id AND b.section_id=c.id AND a.acl_id = $acl_id";
 			$rs = $db->Execute($query);
 			$rows = $rs->GetRows();
 
@@ -96,7 +96,7 @@ switch ($_POST['action']) {
         //
         //Grab all ACO sections for select box
         //
-        $query = "select id, name from aco_sections order by order_value";
+        $query = "select id, name from aco_sections where hidden = 0 order by order_value";
         $rs = $db->Execute($query);
         $rows = $rs->GetRows();
 
@@ -115,7 +115,7 @@ switch ($_POST['action']) {
         //
         //Grab all ARO sections for select box
         //
-        $query = "select id, name from aro_sections order by order_value";
+        $query = "select id, name from aro_sections where hidden = 0 order by order_value";
         $rs = $db->Execute($query);
         $rows = $rs->GetRows();
 
@@ -135,7 +135,7 @@ switch ($_POST['action']) {
         //
         //Grab all ACO's for select box
         //
-        $query = "select section_id, id, name from aco order by section_id, order_value";
+        $query = "select section_id, id, name from aco where hidden = 0 order by section_id, order_value";
         $rs = $db->Execute($query);
         $rows = $rs->GetRows();
 
@@ -169,7 +169,7 @@ switch ($_POST['action']) {
         //
         //Grab all ARO's for select box
         //
-        $query = "select section_id, id, name from aro order by section_id, order_value";
+        $query = "select section_id, id, name from aro  where hidden = 0 order by section_id, order_value";
         $rs = $db->Execute($query);
         $rows = $rs->GetRows();
 

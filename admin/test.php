@@ -1,7 +1,40 @@
 <?php
 $debug=1;
-require_once("gacl_admin.inc.php");
-//require_once("../gacl.inc.php");
+//require_once("gacl_admin.inc.php");
+require_once("./gacl.inc.php");
+
+//require_once('../Cache_Lite.php');
+require_once('./profiler.inc');
+$profiler = new Profiler(true,true);
+
+$options = array(
+    'caching' => true,
+    'cacheDir' => '/tmp/phpgacl_cache',
+    'lifeTime' => 100
+);
+
+//$Cache_Lite = new Hashed_Cache_Lite($options);
+$Cache_Lite = new Cache_Lite($options);
+
+$data = '0123456789';
+$Cache_Lite->save($data,'123');
+
+$profiler->startTimer( "acl_query()");
+//Test memory caching.
+for ($i=0; $i < 2; $i++) {
+	//$Cache_Lite->save($data,'123'.$i);
+
+	$data = $Cache_Lite->get('123');
+	//echo "$data<br>\n";
+}
+$profiler->stopTimer( "acl_query()");
+
+$profiler->printTimers();
+/*
+//Test multi-layer ACOs
+$test = acl_query(array(21,19), 10);
+showarray($test);
+*/
 
 //Stress test.
 /*

@@ -1,5 +1,60 @@
+* Add hidden flags in to all API function calls.
+
 * Create templates_c for Smarty in setup.php, figure out permissions for it as well. Write this in the FAQ/README.
 
 * Write "mock" implementations to show off some of phpGACL's benefits.
 
 * Write tutorial, some people may find phpGACL difficult to figure out.
+
+* Oracle compatibility:
+    
+> There are a few things:
+> 1) 'LEVEL' is a reserved word in Oracle. I had to change the column in
+> GROUPS_PATH to 'glevel' and update
+> gacl_api.class.php accordingly.
+
+> 2) Oracle doesn't like the "AS" syntax used in the table list of a SELECT. 
+> 
+> ie: (line 57 of acl_admin.php)
+> 
+> select	b.id, c.name, b.name 
+> from		aco_map as a, 	
+> 		aco as b, 
+> 		aco_sections as c 
+> where 	a.aco_id=b.id 
+> 		AND b.section_id=c.id 
+> 		AND a.acl_id = $acl_id
+> 
+> Would have to change to:
+> 
+> select	b.id, c.name, b.name 
+> from		aco_map  a, 	
+> 		aco  b, 
+> 		aco_sections c 
+> where 	a.aco_id=b.id 
+> 		AND b.section_id=c.id 
+> 		AND a.acl_id = $acl_id
+
+> 3) LEFT JOINs don't have the same syntax in Oracle. (that I know of)
+> In acl_list.php I had to modify the "Glab all ACLs" query to look like this:
+> 
+>                        select        distinct
+>                                         a.id,
+>                                         f.name,
+>                                         e.name,
+>                                         a.allow,
+>                                         a.enabled,
+>                                         a.updated_date
+>                        from     acl a,
+>                                 aco_map  b,
+>                                 aro_map  c ,
+>                                 groups_map d,
+>                                 aco  e ,
+>                                 aco_sections  f
+>                         where
+>                                 a.id=b.acl_id (+)
+>                                 and a.id=c.acl_id (+)
+>                                 and a.id=d.acl_id (+)
+>                                 and b.aco_id = e.id (+)
+>                                 and e.section_id  = f.id (+)
+>                         order by a.id, f.name, e.name
