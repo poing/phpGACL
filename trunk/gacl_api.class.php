@@ -600,7 +600,7 @@ class gacl_api extends gacl {
 
 								$conflict_result = &$this->search_acl($aco_section_value, $aco_value, $aro_section_value, $aro_value);
 								if ($conflict_result != FALSE) {
-									showarray($conflict_result);
+									//showarray($conflict_result);
 									$conflicting_acls = implode($conflict_result,",");
 									$this->debug_text("is_conflicting_acl(): Conflict FOUND!!! ACL_IDS: ($conflicting_acls)");
 									return true;
