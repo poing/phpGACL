@@ -9,7 +9,8 @@
     <table cellpadding="2" cellspacing="2" border="2" width="100%">
   <tr align="center">
 	<td valign="top" colspan="6" bgcolor="#cccccc"><b>phpGACL ACL List
-		[ <a href="group_admin.php">Group Admin</a> ]
+		[ <a href="group_admin.php?group_type=aro">ARO Group Admin</a> ]
+		[ <a href="group_admin.php?group_type=axo">AXO Group Admin</a> ]
 		[ <a href="acl_admin.php?return_page=acl_list.php">ACL Admin</a> ]
 		[ <a href="../acl_test.php">ACL Test</a> ]
 		</b>

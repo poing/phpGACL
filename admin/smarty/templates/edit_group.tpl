@@ -12,8 +12,8 @@
       <table cellpadding="2" cellspacing="2" border="2" width="100%">
         <tbody>
           <tr align="center">
-            <td valign="top" colspan="3" bgcolor="#cccccc"><b>phpGACL</b> <b>ACO Administrator</b>
-            <b>[ <a href="group_admin.php?return_page={$return_page}">Group Admin</a> ] </b>
+            <td valign="top" colspan="3" bgcolor="#cccccc"><b>phpGACL</b> <b>{$group_type|upper} Group Administrator</b>
+            <b>[ <a href="group_admin.php?group_type={$group_type}&return_page={$return_page}">{$group_type|upper} Group Admin</a> ] </b>
             <br>
              </td>
           </tr>
@@ -49,6 +49,7 @@
         </tbody>
       </table>
     <input type="hidden" name="group_id" value="{$id}">
+    <input type="hidden" name="group_type" value="{$group_type}">
     <input type="hidden" name="return_page" value="{$return_page}">
     
     </form>

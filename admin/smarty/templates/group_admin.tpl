@@ -14,7 +14,7 @@
       <table cellpadding="2" cellspacing="2" border="2" width="100%">
         <tbody>
           <tr align="center">
-            <td valign="top" colspan="3" bgcolor="#cccccc"><b>phpGACL</b> <b>Group Administrator [ <a href="acl_list.php">ACL List</a> ]</b><br>
+            <td valign="top" colspan="3" bgcolor="#cccccc"><b>phpGACL</b> <b>{$group_type|upper} Group Administrator [ <a href="acl_list.php">ACL List</a> ]</b><br>
              </td>
           </tr>
 
@@ -34,9 +34,9 @@
 
             <td valign="top" bgcolor="#cccccc" align="center">
                 Don't forget, to click here --> 
-                [ <a href="assign_aro_group.php?group_id={$groups[x].id}&return_page={$return_page}">Assign ARO</a> ]
-                [ <a href="edit_group.php?parent_id={$groups[x].id}&return_page={$return_page}">Add Child</a> ]
-                [ <a href="edit_group.php?group_id={$groups[x].id}&return_page={$return_page}">Edit</a> ]
+                [ <a href="assign_group.php?group_type={$group_type}&group_id={$groups[x].id}&return_page={$return_page}">Assign {$group_type|upper}</a> ]
+                [ <a href="edit_group.php?group_type={$group_type}&parent_id={$groups[x].id}&return_page={$return_page}">Add Child</a> ]
+                [ <a href="edit_group.php?group_type={$group_type}&group_id={$groups[x].id}&return_page={$return_page}">Edit</a> ]
                 <input type="checkbox" name="delete_group[]" value="{$groups[x].id}">
              </td>
 
@@ -57,6 +57,7 @@
           </tr>
         </tbody>
       </table>
+    <input type="hidden" name="group_type" value="{$group_type}">    
     <input type="hidden" name="return_page" value="{$return_page}">    
     </form>
   </body>

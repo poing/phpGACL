@@ -1,7 +1,26 @@
 <?php
 require_once("gacl_admin.inc.php");
 
-switch ($_POST[action]) {
+//GET takes precedence.
+if ($_GET['group_type'] != '') {
+	$group_type = $_GET['group_type'];
+} else {
+	$group_type = $_POST['group_type'];	
+}
+
+switch(strtolower(trim($group_type))) {
+    case 'axo':
+        $group_type = 'axo';
+		$group_table = 'axo_groups';
+        break;
+    default:
+        $group_type = 'aro';
+        $group_table = 'aro_groups';
+        break;
+}
+
+
+switch ($_POST['action']) {
     case Delete:
         debug("Delete");
     
@@ -10,7 +29,7 @@ switch ($_POST[action]) {
 			foreach ($_POST[delete_group] as $group_id) {
 				debug("Deleting group_id: $group_id");
 
-				$gacl_api->del_group($group_id);
+				$gacl_api->del_group($group_id, TRUE, $group_type);
 			}
         }   
             
@@ -37,11 +56,11 @@ switch ($_POST[action]) {
         if (empty($_POST[group_id])) {
             debug("Insert");
 
-			$insert_id = $gacl_api->add_group($_POST[name], $parent_id);
+			$insert_id = $gacl_api->add_group($_POST[name], $parent_id, $group_type);
         } else {
             debug("Update");
 
-			$gacl_api->edit_group($_POST['group_id'], $_POST['name'], $parent_id);
+			$gacl_api->edit_group($_POST['group_id'], $_POST['name'], $parent_id, $group_type);
         }
         
         return_page("$_POST[return_page]");
@@ -53,7 +72,7 @@ switch ($_POST[action]) {
                                         id,
                                         parent_id,
                                         name
-                            from    groups
+                            from    $group_table
                             where   id = $_GET[group_id]";
             $rs = $db->Execute($query);
             $rows = $rs->GetRows();
@@ -68,11 +87,12 @@ switch ($_POST[action]) {
         $smarty->assign('parent_id', $parent_id);
         $smarty->assign('name', $name);
         
-        $smarty->assign("options_groups", $gacl_api->format_groups($gacl_api->sort_groups()) );
+        $smarty->assign("options_groups", $gacl_api->format_groups($gacl_api->sort_groups($group_type)) );
 
         break;
 }
 
+$smarty->assign('group_type', $group_type);
 $smarty->assign('return_page', $_GET[return_page]);
 
 $smarty->display('edit_group.tpl');

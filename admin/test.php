@@ -3,15 +3,23 @@ $debug=1;
 //require_once("gacl_admin.inc.php");
 require_once("../gacl.inc.php");
 
-echo "Blah: ". dirname(__FILE__)."<br>\n";
-echo "Blah: ". $gacl_dir."<br>\n";
+//Test AXO's
+//function acl_query($aco_section_value, $aco_value, $aro_section_value, $aro_value, $axo_section_value=NULL, $axo_value=NULL, $root_aro_group_id=NULL, $root_axo_group_id=NULL) {
+$test1= acl_query('system','login','users', '1');
+showarray($test1);
+
+$test2=acl_query('system','login','users', '1','projects','1');
+showarray($test2);
+
 
 //Test subtree'ing
+/*
 $test=acl_get_groups('test_section2','user1',0);
 showarray($test);
 
 $test=acl_get_groups('test_section2','user1');
 showarray($test);
+*/
 
 /*
 //require_once('../Cache_Lite.php');

@@ -28,7 +28,7 @@
  *
  */
 
-//$debug=1;
+$debug=1;
 
 require_once('../config.inc.php');
 

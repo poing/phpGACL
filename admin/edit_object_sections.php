@@ -1,5 +1,31 @@
 <?php
 require_once("gacl_admin.inc.php");
+
+//GET takes precedence.
+if ($_GET['object_type'] != '') {
+	$object_type = $_GET['object_type'];
+} else {
+	$object_type = $_POST['object_type'];	
+}
+
+switch(strtolower(trim($object_type))) {
+    case 'aco':
+        $object_type = 'aco';
+		$object_sections_table = 'aco_sections';
+        break;
+    case 'aro':
+        $object_type = 'aro';
+		$object_sections_table = 'aro_sections';
+        break;
+    case 'axo':
+        $object_type = 'axo';
+		$object_sections_table = 'axo_sections';
+        break;
+    default:
+        echo "ERROR: Must select an object type<br>\n";
+        exit();
+        break;
+}
    
 switch ($_POST[action]) {
     case Delete:
@@ -7,7 +33,7 @@ switch ($_POST[action]) {
     
         if (count($_POST[delete_sections]) > 0) {
             foreach($_POST[delete_sections] as $id) {
-                $gacl_api->del_aco_section($id);            
+                $gacl_api->del_object_section($id, $object_type);
             }
         }   
             
@@ -23,7 +49,7 @@ switch ($_POST[action]) {
         //Update sections
         while (list(,$row) = @each($_POST[sections])) {
             list($id, $value, $order, $name) = $row;
-            $gacl_api->edit_aco_section($id, $name, $value, $order );
+            $gacl_api->edit_object_section($id, $name, $value, $order,0,$object_type );
         }
         unset($id);
         unset($value);
@@ -36,8 +62,8 @@ switch ($_POST[action]) {
             
             if (!empty($value) AND !empty($order) AND !empty($name)) {
 
-                $aco_section_id = $gacl_api->add_aco_section($name, $value, $order);
-                debug("Section ID: $aco_section_id");
+                $object_section_id = $gacl_api->add_object_section($name, $value, $order, 0, $object_type);
+                debug("Section ID: $object_section_id");
             }
         }
         debug("return_page: $_POST[return_page]");
@@ -45,7 +71,7 @@ switch ($_POST[action]) {
         
         break;    
     default:
-        $query = "select id,value,order_value,name from aco_sections order by order_value";
+        $query = "select id,value,order_value,name from $object_sections_table order by order_value";
         $rs = $db->Execute($query);
         $rows = $rs->GetRows();
 
@@ -77,7 +103,8 @@ switch ($_POST[action]) {
         break;
 }
 
+$smarty->assign('object_type', $object_type);
 $smarty->assign('return_page', $_GET[return_page]);
 
-$smarty->display('edit_aco_sections.tpl');
+$smarty->display('edit_object_sections.tpl');
 ?>
