@@ -16,7 +16,7 @@
 			delete from #PREFIX#phpgacl where name = 'version';
 		</query>
 		<query>
-			insert into #PREFIX#phpgacl (name, value) VALUES('version','3.2.1b');
+			insert into #PREFIX#phpgacl (name, value) VALUES('version','3.2.1');
 		</query>
 		<query>
 			delete from #PREFIX#phpgacl where name = 'schema_version';
@@ -57,8 +57,11 @@
 		<col>id</col>
 		<col>enabled</col>
 	</index>
-	<index name="section_alue_acl" table="#PREFIX#acl">
+	<index name="section_value_acl" table="#PREFIX#acl">
 		<col>section_value</col>
+	</index>
+	<index name="updated_date_acl" table="#PREFIX#acl">
+		<col>updated_date</col>
 	</index>
 
 	<table name="#PREFIX#acl_sections">
