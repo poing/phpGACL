@@ -1,5 +1,5 @@
 Fri Nov 14 2003
-	mikeb - Fixed minor bug in get_group_objects() to do with the SQL query.
+	mikeb - Fixed minor bug in get_group_objects() to do with the SQL query, and table prefixes.
 	dcech - improved count_all function and documentation
 	dcech - updated Stress Test & added script to do random ACL checks
 	dcech - fixed bug where debug_db was called after RollBackTrans
