@@ -577,7 +577,6 @@ class adoSchema {
 
 			case "TABLE":	// Table element
 				if( $this->supportedPlatform( $attrs['PLATFORM'] ) ) {
-					var_dump($this->useChangeTableSQL);
 					$this->table = new dbTable( $attrs['NAME'], $this->useChangeTableSQL );
 				} else {
 					unset( $this->table );
