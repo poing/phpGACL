@@ -5,7 +5,8 @@ class phpgacl_api_test extends gacl_test_case {
     
     function get_version() {
         $result = $this->gacl_api->get_version();
-        $expected = '/^[0-9]{1,2}.[0-9]{1,2}.[0-9]{1,2}[a-zA-Z]{1}[0-9]{1,2}$/i';
+        //$expected = '/^[0-9]{1,2}.[0-9]{1,2}.[0-9]{1,2}$/i';
+		$expected = '/^[0-9]{1,2}.[0-9]{1,2}.[0-9]{1,2}[a-zA-Z]{0,1}[0-9]{0,1}$/i';
 		
         $this->assertRegexp($expected, $result, 'Version incorrect.');
     }
@@ -218,7 +219,7 @@ class phpgacl_api_test extends gacl_test_case {
 	/** ARO GROUP **/
 	
     function get_group_id_parent_aro() {
-        $result = $this->gacl_api->get_group_id('ARO Group 1', 'ARO');
+        $result = $this->gacl_api->get_group_id(NULL, 'ARO Group 1', 'ARO');
         $message = 'get_group_id_parent_aro failed';
         $this->assert($result, $message);
         
@@ -226,7 +227,7 @@ class phpgacl_api_test extends gacl_test_case {
     }
     
     function get_group_id_child_aro() {
-        $result = $this->gacl_api->get_group_id('ARO Group 2', 'ARO');
+        $result = $this->gacl_api->get_group_id(NULL, 'ARO Group 2', 'ARO');
         $message = 'get_group_id_child_aro failed';
         $this->assert($result, $message);
         
@@ -248,7 +249,7 @@ class phpgacl_api_test extends gacl_test_case {
     }
 	
     function get_group_data_aro() {
-        list($id, $parent_id, $name, $lft, $rgt) = $this->gacl_api->get_group_data($this->get_group_id_parent_aro(), 'ARO');
+        list($id, $parent_id, $value, $name, $lft, $rgt) = $this->gacl_api->get_group_data($this->get_group_id_parent_aro(), 'ARO');
 		//Check all values in the resulting array.
 		if ( $id > 0 AND $parent_id >= 0 AND strlen($name) > 0 AND $lft >= 1 AND $rgt > 1) {
 			$result = TRUE;
@@ -296,7 +297,7 @@ class phpgacl_api_test extends gacl_test_case {
     }
 	
     function add_group_parent_aro() {
-        $result = $this->gacl_api->add_group('ARO Group 1', 0, 'ARO');
+        $result = $this->gacl_api->add_group('group_1', 'ARO Group 1', 0, 'ARO');
         $message = 'add_group_parent_aro failed';
         $this->assert($result, $message);
     }
@@ -304,9 +305,9 @@ class phpgacl_api_test extends gacl_test_case {
     function edit_group_parent_aro() {
 		$group_id = $this->get_group_id_parent_aro();
 		
-        $first_rename = $this->gacl_api->edit_group($group_id,'ARO Group 1 - tmp', 0, 'ARO');
-		$second_rename = $this->gacl_api->edit_group($group_id,'ARO Group 1', 0, 'ARO');
-		$reparent_to_self = $this->gacl_api->edit_group($group_id,'ARO Group 1', $group_id, 'ARO');
+        $first_rename = $this->gacl_api->edit_group($group_id, 'group_1_tmp', 'ARO Group 1 - tmp', 0, 'ARO');
+		$second_rename = $this->gacl_api->edit_group($group_id,'group_1', 'ARO Group 1', 0, 'ARO');
+		$reparent_to_self = $this->gacl_api->edit_group($group_id,'group_1', 'ARO Group 1', $group_id, 'ARO');
 		
 		if ($first_rename === TRUE AND $second_rename === TRUE AND $reparent_to_self === FALSE) {
 			$result = TRUE;
@@ -352,7 +353,7 @@ class phpgacl_api_test extends gacl_test_case {
     }
     
     function add_group_child_aro() {
-        $result = $this->gacl_api->add_group('ARO Group 2', $this->get_group_id_parent_aro(), 'ARO');
+        $result = $this->gacl_api->add_group('group_2', 'ARO Group 2', $this->get_group_id_parent_aro(), 'ARO');
         $message = 'add_group_child failed';
         $this->assert($result, $message);
     }
@@ -388,7 +389,7 @@ class phpgacl_api_test extends gacl_test_case {
 	/** AXO GROUP **/
 	
     function get_group_id_parent_axo() {
-        $result = $this->gacl_api->get_group_id('AXO Group 1', 'AXO');
+        $result = $this->gacl_api->get_group_id(NULL, 'AXO Group 1', 'AXO');
         $message = 'get_group_id_parent_aro failed';
         $this->assert($result, $message);
         
@@ -396,7 +397,7 @@ class phpgacl_api_test extends gacl_test_case {
     }
     
     function get_group_id_child_axo() {
-        $result = $this->gacl_api->get_group_id('AXO Group 2', 'AXO');
+        $result = $this->gacl_api->get_group_id(NULL, 'AXO Group 2', 'AXO');
         $message = 'get_group_id_child_axo failed';
         $this->assert($result, $message);
         
@@ -418,7 +419,7 @@ class phpgacl_api_test extends gacl_test_case {
     }
 	
     function get_group_data_axo() {
-        list($id, $parent_id, $name, $lft, $rgt) = $this->gacl_api->get_group_data($this->get_group_id_parent_axo(), 'AXO');
+        list($id, $parent_id, $value, $name, $lft, $rgt) = $this->gacl_api->get_group_data($this->get_group_id_parent_axo(), 'AXO');
 		//Check all values in the resulting array.
 		if ( $id > 0 AND $parent_id >= 0 AND strlen($name) > 0 AND $lft >= 1 AND $rgt > 1) {
 			$result = TRUE;
@@ -432,7 +433,7 @@ class phpgacl_api_test extends gacl_test_case {
     }
 	
     function add_group_parent_axo() {
-        $result = $this->gacl_api->add_group('AXO Group 1', 0, 'AXO');
+        $result = $this->gacl_api->add_group('group_1', 'AXO Group 1', 0, 'AXO');
         $message = 'add_group failed';
         $this->assert($result, $message);
     }
@@ -444,7 +445,7 @@ class phpgacl_api_test extends gacl_test_case {
     }
     
     function add_group_child_axo() {
-        $result = $this->gacl_api->add_group('AXO Group 2', $this->get_group_id_parent_axo(), 'AXO');
+        $result = $this->gacl_api->add_group('group_2', 'AXO Group 2', $this->get_group_id_parent_axo(), 'AXO');
         $message = 'add_group failed';
         $this->assert($result, $message);
     }

@@ -42,11 +42,11 @@ class acl_setup {
 			$this->aro[] = $this->gacl_api->add_object ('test_alien','Hontook','hontook',0,0,'ARO');
 		
 		// ARO groups
-		$this->aro_group['root'] = $this->gacl_api->add_group('Millennium Falcon Passengers',0,'ARO');
-			$this->aro_group['crew'] = $this->gacl_api->add_group('Crew',$this->aro_group['root'],'ARO');
-			$this->aro_group['passengers'] = $this->gacl_api->add_group('Passengers',$this->aro_group['root'],'ARO');
-				$this->aro_group['jedi'] = $this->gacl_api->add_group('Jedi',$this->aro_group['passengers'],'ARO');
-			$this->aro_group['engineers'] = $this->gacl_api->add_group('Engineers',$this->aro_group['root'],'ARO');
+		$this->aro_group['root'] = $this->gacl_api->add_group('millennium_falcon_passengers', 'Millennium Falcon Passengers',0,'ARO');
+			$this->aro_group['crew'] = $this->gacl_api->add_group('crew', 'Crew',$this->aro_group['root'],'ARO');
+			$this->aro_group['passengers'] = $this->gacl_api->add_group('passengers','Passengers',$this->aro_group['root'],'ARO');
+				$this->aro_group['jedi'] = $this->gacl_api->add_group('jedi', 'Jedi',$this->aro_group['passengers'],'ARO');
+			$this->aro_group['engineers'] = $this->gacl_api->add_group('engineers', 'Engineers',$this->aro_group['root'],'ARO');
 		
 		// add AROs to groups
 		$this->gacl_api->add_group_object($this->aro_group['crew'],'test_alien','chewie','ARO');
@@ -71,7 +71,7 @@ class acl_setup {
 			$this->axo[] = $this->gacl_api->add_object ('test_location','Guns','guns',0,0,'AXO');
 		
 		// AXO Groups
-		$this->axo_group['locations'] = $this->gacl_api->add_group('Locations',0,'AXO');
+		$this->axo_group['locations'] = $this->gacl_api->add_group('locations', 'Locations',0,'AXO');
 		
 		// add AXOs to groups
 		$this->gacl_api->add_group_object($this->axo_group['locations'],'test_location','engines','AXO');
