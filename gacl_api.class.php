@@ -1812,17 +1812,19 @@ class gacl_api extends gacl {
 		}
 
 		$query  = '
-				SELECT		o.section_value,o.value
-				FROM		'. $object_table .' o
-				RIGHT JOIN	'. $map_table .' gm ON o.id=gm.'. $group_type .'_id';
+				SELECT		o.section_value,o.value';
 
 		if ($option == 'RECURSE') {
-		    $query .= '
-				LEFT JOIN	'. $group_table .' g1 ON g1.id=gm.group_id
-				LEFT JOIN	'. $group_table .' g2 ON g2.lft<=g1.lft AND g2.rgt>=g1.rgt
+			$query .= '
+				FROM		'. $group_table .' g2
+				JOIN		'. $group_table .' g1 ON g1.lft>=g2.lft AND g1.rgt<=g2.rgt
+				JOIN		'. $map_table .' gm ON gm.group_id=g1.id
+				JOIN		'. $object_table .' o ON o.id=gm.'. $group_type .'_id
 				WHERE		g2.id='. $group_id;
 		} else {
 			$query .= '
+				FROM		'. $map_table .' gm
+				JOIN		'. $object_table .' o ON o.id=gm.'. $group_type .'_id
 				WHERE		gm.group_id='. $group_id;
 		}
 

@@ -1,41 +1,42 @@
 Sun Dec 5 2004
-	mikeb - Added clear_database() API function that truncates all phpGACL tables. Thanks to Ross Lawley <ross.lawley@mediatelgroup.co.uk>
-	mikeb - Modified millennium falcon example.
+        mikeb - Added clear_database() API function that truncates all phpGACL tables. Thanks to Ross Lawley <ross.lawley@mediatelgroup.co.uk>
+        mikeb - Modified millennium falcon example.
+        dcech - Updated get_group_objects function with much more efficient SQL.
 Tue Nov 30 2004
-	mikeb - modified query in get_group_objects() to speed it up. It could still be optimized further though.
+        mikeb - modified query in get_group_objects() to speed it up. It could still be optimized further though.
 Mon Nov 29 2004
-	mikeb - Applied patch to admin/edit_group.php enabling the deletion of all groups. John Mortlock <johnm@hlaustralia.com.au>
+        mikeb - Applied patch to admin/edit_group.php enabling the deletion of all groups. John Mortlock <johnm@hlaustralia.com.au>
 Sun Nov 28 2004
-	mikeb - Removed default table prefix from gacl.class.php.
-	mikeb - Corrected minor mistake in the manual with regards to incorrect argument ordering in acl_check() 
-	mikeb - Modified API comments for search_acl() to include return value.
-	mikeb - Fixed admin link at the bottom of several pages in the Millennium Falcon examples.
+        mikeb - Removed default table prefix from gacl.class.php.
+        mikeb - Corrected minor mistake in the manual with regards to incorrect argument ordering in acl_check() 
+        mikeb - Modified API comments for search_acl() to include return value.
+        mikeb - Fixed admin link at the bottom of several pages in the Millennium Falcon examples.
 Sat Nov 27 2004
-	mikeb - Added Millennium Falcon example written by Ross Lawley <ross.lawley@mediatelgroup.co.uk>
-	mikeb - Added 3-dimensional ACL Test page from Meinhard <meinhard.jahn@karsten-jahnke.de>
-	mikeb - Upgraded ADODB to v4.54
-	mikeb - Upgraded Smarty to v2.6.6
+        mikeb - Added Millennium Falcon example written by Ross Lawley <ross.lawley@mediatelgroup.co.uk>
+        mikeb - Added 3-dimensional ACL Test page from Meinhard <meinhard.jahn@karsten-jahnke.de>
+        mikeb - Upgraded ADODB to v4.54
+        mikeb - Upgraded Smarty to v2.6.6
 Sun Nov 7 2004
-	mikeb - Updated Cache Lite class to latest version, including improved Hashed_Cache_Lite class thanks to Dan.
-	mikeb - If caching is not enabled, improved the bypassing of the caching library/overhead thanks to Andrew Eddie <eddieajau@iprimus.com.au>
-	mikeb - Updated manual thanks to Andrew Eddie <eddieajau@iprimus.com.au>
-	mikeb - add_group API function now assigns the value to the insert ID if the value is not specified. thanks to Andrew Eddie <eddieajau@iprimus.com.au>
-	mikeb - Moved admin interface specific functions/variables from gacl_api.class.php to admin/gacl_admin_api.class.php. thanks to Andrew Eddie <eddieajau@iprimus.com.au>
+        mikeb - Updated Cache Lite class to latest version, including improved Hashed_Cache_Lite class thanks to Dan.
+        mikeb - If caching is not enabled, improved the bypassing of the caching library/overhead thanks to Andrew Eddie <eddieajau@iprimus.com.au>
+        mikeb - Updated manual thanks to Andrew Eddie <eddieajau@iprimus.com.au>
+        mikeb - add_group API function now assigns the value to the insert ID if the value is not specified. thanks to Andrew Eddie <eddieajau@iprimus.com.au>
+        mikeb - Moved admin interface specific functions/variables from gacl_api.class.php to admin/gacl_admin_api.class.php. thanks to Andrew Eddie <eddieajau@iprimus.com.au>
 Mon Oct 4 2004
-	mikeb - Added phpDoc style comments thanks to Gordon Luk <gordon.luk@dfafunds.com>
+        mikeb - Added phpDoc style comments thanks to Gordon Luk <gordon.luk@dfafunds.com>
 Sat Oct 2 2004
-	mikeb - Added get_ungrouped_objects() function, thanks to Gordon Luk <gordon.luk@dfafunds.com>
+        mikeb - Added get_ungrouped_objects() function, thanks to Gordon Luk <gordon.luk@dfafunds.com>
 Sun Sep 19 2004
-	mikeb - Added a "isset()" call in Hashed_Cache_Lite		
-	mikeb - Applied patch from Gordon Luk <gordon.luk@dfafunds.com> to allow the search_acl() function to proceed without a where clause.
+        mikeb - Added a "isset()" call in Hashed_Cache_Lite             
+        mikeb - Applied patch from Gordon Luk <gordon.luk@dfafunds.com> to allow the search_acl() function to proceed without a where clause.
 Thu Sep 09 2004
-	mikeb - gacl.class.php line 532, missing quotes around $root_group. Thanks to Erwan le Gall <erwan.le-gall@education.gouv.fr>
+        mikeb - gacl.class.php line 532, missing quotes around $root_group. Thanks to Erwan le Gall <erwan.le-gall@education.gouv.fr>
 Sat Aug 28 2004
-	mikeb - Released v3.3.3
+        mikeb - Released v3.3.3
 Mon Aug 16 2004
-	mikeb - Quoted group value in acl_get_groups(). Thanks to Christer Lindh <clindh@homenet.se>
+        mikeb - Quoted group value in acl_get_groups(). Thanks to Christer Lindh <clindh@homenet.se>
 Wed Aug 11 2004
-	mikeb - Add comment to admin/gacl_admin.inc.php to tell people not to use "_" for table prefixes.
+        mikeb - Add comment to admin/gacl_admin.inc.php to tell people not to use "_" for table prefixes.
 Thu Aug 05 2004
         mikeb - Fixed acl_test.php ACL Check timings. Thanks to Gordon Luk <gordon.luk@dfafunds.com>
 Tue Jul 27 2004
