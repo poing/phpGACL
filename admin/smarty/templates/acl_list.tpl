@@ -1,7 +1,6 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
 
-<html>
-  <head>
+{include file="header.tpl"} 
     <meta name="generator" content="HTML Tidy, see www.w3.org">
     <title>phpGACL Admin</title>
     <meta http-equiv="content-type" content="text/html; charset=ISO-8859-1">
@@ -13,7 +12,6 @@
 		[ <a href="group_admin.php">Group Admin</a> ]
 		[ <a href="acl_admin.php?return_page=acl_list.php">ACL Admin</a> ]
 		[ <a href="acl_test.php">ACL Test</a> ]
-		[ <a href="http://phpgacl.sourceforge.net/">Home</a> ]
 		</b>
 		<br>
 	 </td>
@@ -89,7 +87,5 @@
     </table>
     <input type="hidden" name="return_page" value="{$return_page}">
 </form>
-     <br>
-  </body>
-</html>
+{include file="footer.tpl"}
 

@@ -1,7 +1,6 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
 
-<html>
-  <head>
+{include file="header.tpl"} 
     <meta name="generator" content="HTML Tidy, see www.w3.org">
     <title>phpGACL Admin</title>
     <meta http-equiv="content-type" content="text/html; charset=ISO-8859-1">
@@ -154,8 +153,5 @@
 	<input type="hidden" name="acl_id" value="{$acl_id}">
 	<input type="hidden" name="return_page" value="{$return_page}">
     </form>
-    <br>
-     <br>
-  </body>
-</html>
+{include file="footer.tpl"} 
 

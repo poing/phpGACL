@@ -1,7 +1,6 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
 
-<html>
-  <head>
+{include file="header.tpl"}
     <meta name="generator" content="HTML Tidy, see www.w3.org">
     <title>phpGACL Admin</title>
     <meta http-equiv="content-type" content="text/html; charset=ISO-8859-1">
@@ -9,20 +8,18 @@
 
   <body>
     <br>
-     
-
     <form method="post" name="edit_group" action="edit_group.php">
       <table cellpadding="2" cellspacing="2" border="2" width="100%">
         <tbody>
           <tr align="center">
-            <td valign="top" colspan="3" bgcolor="#cccccc"><b>phpGACL</b> <b>ACO Administrator</b><br>
+            <td valign="top" colspan="3" bgcolor="#cccccc"><b>phpGACL</b> <b>ACO Administrator</b>
+            <b>[ <a href="group_admin.php?return_page={$return_page}">Group Admin</a> ] </b>
+            <br>
              </td>
           </tr>
-
           <tr>
             <td valign="top" bgcolor="#d3dce3" align="center"><b>ID</b> </td>
             <td valign="top" bgcolor="#d3dce3" align="center"><b>Parent</b> </td>
-
             <td valign="top" bgcolor="#d3dce3" align="center"><b>Name</b> </td>
           </tr>
           <tr>
@@ -56,5 +53,5 @@
     
     </form>
   </body>
-</html>
+{include file="footer.tpl"}
 
