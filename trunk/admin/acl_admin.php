@@ -6,15 +6,7 @@ switch ($_POST[action]) {
         break;
     case Submit:
         debug("Submit!!");
-
-/*
-        showarray($_POST[selected_aco]);
-        showarray($_POST[selected_aro]);
-        showarray($_POST[groups]);
-        showarray($_POST[allow]);
-        showarray($_POST[enabled]);
-*/                
-		
+	
 		//Some sanity checks.
 		if (count($_POST[selected_aco]) == 0) {
 			echo "Must select at least one Access Control Object<br>\n";

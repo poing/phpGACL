@@ -1,11 +1,13 @@
 * Implement Postgres7 schema/support
-* Fix include_path set in config.inc.php to support currently set include_path.
-* Add a $gacl_dir variable incase people want to move it to a different directory. Relative paths?
-* Rename tables from "groups" to "group". Simply good practice.
+
 * Write tutorial, some people may find phpGACL difficult to figure out.
+
 * Clean up Administration interface and add many more sanity checks
+
 * Improve setup script, including support for more databases
+
 * Implement some sort of caching, it seems ADODB's caching is very poor. It didn't improve the speed at all.
+
 * Figure out some sort of API for plugging in large amounts of ARO's. (ie: users)
    Problem with this is unique id's and table joins... I think I'll have to create functions
    to add/edit/delete ARO's, and they'll just have to keep "copies" of the data. 

@@ -2,7 +2,7 @@ NAME:
 
     phpGACL - PHP based Access Control Lists.
 
-VERSION: v0.9beta
+VERSION: v0.9.1beta
 
 AUTHORS:
     
@@ -21,12 +21,11 @@ SYNOPSIS:
 
     require("gacl.inc.php");
 
-    if ( acl_check( <Access Control Object> , <Access Request Object> ) ) {
+    if ( acl_check( <Access Control Object ID> , <Access Request Object ID> ) ) {
 		echo "Access Granted!";
     } else {
 		echo "Access Denied!";
     }
-
 
 DESCRIPTION:
 
