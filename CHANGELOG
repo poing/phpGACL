@@ -2,7 +2,6 @@ Thu June 12 2003
 	- Added "ACLs" link to the group page, so you easily show all ACLs a specific group is assigned too.
 	- Added "ACLs" link to the group assign page, so you easily show all ACLs a specific ARO/AXO is assigned too.
 	- modified return array format for get_group_objects() and added functionality to return objects in child groups as well.
-	- Created reverse_acl_query() function for passing an ACO and getting all AROs that have access to it.
 	- Fixed a seemingly minor bug with path_ids and groups furthest away from the tree trunk. 
 	
 Wed June 11 2003
