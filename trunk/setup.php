@@ -361,8 +361,8 @@ switch ($db_type) {
 																	"
 																	CREATE TABLE aco_map (
 																	   acl_id integer NOT NULL default 0,
-																	   aco_section_value varchar(255) NOT NULL default 0,
-																	   aco_value varchar(255) NOT NULL default 0
+																	   section_value varchar(255) NOT NULL default 0,
+																	   value varchar(255) NOT NULL default 0
 																	);
 																	create index acl_id_aco_map on aco_map(acl_id);
 																	",
@@ -397,8 +397,8 @@ switch ($db_type) {
 																	"
 																	CREATE TABLE aro_map (
 																	   acl_id integer NOT NULL default 0,
-																	   aro_section_value varchar(255) NOT NULL default 0,
-																	   aro_value varchar(255) NOT NULL default 0
+																	   section_value varchar(255) NOT NULL default 0,
+																	   value varchar(255) NOT NULL default 0
 																	);
 																	create index acl_id_aro_map on aro_map(acl_id);														
 																	",
@@ -415,50 +415,130 @@ switch ($db_type) {
 																	create unique index value_aro_sections on aro_sections(value);
 																	create index hidden_aro_sections on aro_sections(hidden);								
 																	",
-											groups =>
+											axo =>
 																	"
-																	CREATE TABLE groups (
+																	CREATE TABLE axo (
+																	   id integer NOT NULL default 0,
+																	   section_value varchar(255) NOT NULL default 0,
+																	   value varchar(255) NOT NULL default '',
+																	   order_value integer NOT NULL default 0,
+																	   name varchar(255) NOT NULL default '',
+																	   hidden smallint NOT NULL default '0'
+																	);
+																	create unique index section_value_value_axo on axo(section_value,value);
+																	create unique index id_axo on axo(id);
+																	create index hidden_axo on axo(hidden);
+																	",
+											axo_map =>
+																	"
+																	CREATE TABLE axo_map (
+																	   acl_id integer NOT NULL default 0,
+																	   section_value varchar(255) NOT NULL default 0,
+																	   value varchar(255) NOT NULL default 0
+																	);
+																	create index acl_id_axo_map on axo_map(acl_id);														
+																	",
+											axo_sections =>
+																	"
+																	CREATE TABLE axo_sections (
+																	   id integer NOT NULL default 0,
+																	   value varchar(255) NOT NULL default '',
+																	   order_value integer NOT NULL default 0,
+																	   name varchar(255) NOT NULL default '',
+																	   hidden smallint NOT NULL default '0'
+																	);
+																	create unique index id_axo_sections on axo_sections(id);
+																	create unique index value_axo_sections on axo_sections(value);
+																	create index hidden_axo_sections on axo_sections(hidden);								
+																	",
+											aro_groups =>
+																	"
+																	CREATE TABLE aro_groups (
 																	   id integer NOT NULL default 0,
 																	   parent_id integer NOT NULL default 0,
 																	   name varchar(255) NOT NULL default ''
 																	);
-																	create unique index id_groups on groups(id);
-																	create index parent_id_groups on groups(parent_id);								
+																	create unique index id_aro_groups on aro_groups(id);
+																	create index parent_id_aro_groups on aro_groups(parent_id);								
 																	",
 											groups_aro_map =>
 																	"
 																	CREATE TABLE groups_aro_map (
 																	   group_id integer NOT NULL default 0,
-																	   aro_section_value varchar(255) NOT NULL default 0,
-																	   aro_value varchar(255) NOT NULL default 0
+																	   section_value varchar(255) NOT NULL default 0,
+																	   value varchar(255) NOT NULL default 0
 																	);
-																	create unique index group_id_aro_id_groups_aro_map on groups_aro_map(group_id,aro_section_value, aro_value);
+																	create unique index group_id_aro_id_groups_aro_map on groups_aro_map(group_id,section_value, value);
 																	",
-											groups_map =>
+											aro_groups_map =>
 																	"
-																	CREATE TABLE groups_map (
+																	CREATE TABLE aro_groups_map (
 																	   acl_id integer NOT NULL default 0,
 																	   group_id integer NOT NULL default 0
 																	);
-																	create unique index acl_id_group_id_groups_map on groups_map(acl_id, group_id);
+																	create unique index acl_id_group_id_aro_groups_map on aro_groups_map(acl_id, group_id);
 																	",
-											groups_path =>
+											aro_groups_path =>
 																	"
-																	CREATE TABLE groups_path (
+																	CREATE TABLE aro_groups_path (
 																	   id integer NOT NULL default 0,
 																	   group_id integer NOT NULL default 0,
 																	   tree_level integer NOT NULL default 0
 																	);
-																	create unique index id_group_id_tree_level_groups_path on groups_path(id, group_id, tree_level);
+																	create unique index id_group_id_tree_level_aro_groups_path on aro_groups_path(id, group_id, tree_level);
 																	",
-											groups_path_map =>
+											aro_groups_path_map =>
 																	"
-																	CREATE TABLE groups_path_map (
+																	CREATE TABLE aro_groups_path_map (
 																	   path_id integer NOT NULL default 0,
 																	   group_id integer NOT NULL default 0
 																	);
-																	create unique index path_id_group_id_groups_path_map on groups_path_map(path_id, group_id);
-																	"								
+																	create unique index path_id_group_id_aro_groups_path_map on aro_groups_path_map(path_id, group_id);
+																	",
+											axo_groups =>
+																	"
+																	CREATE TABLE axo_groups (
+																	   id integer NOT NULL default 0,
+																	   parent_id integer NOT NULL default 0,
+																	   name varchar(255) NOT NULL default ''
+																	);
+																	create unique index id_axo_groups on axo_groups(id);
+																	create index parent_id_axo_groups on axo_groups(parent_id);								
+																	",
+											groups_axo_map =>
+																	"
+																	CREATE TABLE groups_axo_map (
+																	   group_id integer NOT NULL default 0,
+																	   section_value varchar(255) NOT NULL default 0,
+																	   value varchar(255) NOT NULL default 0
+																	);
+																	create unique index group_id_axo_id_groups_aro_map on groups_axo_map(group_id,section_value, value);
+																	",
+											axo_groups_map =>
+																	"
+																	CREATE TABLE axo_groups_map (
+																	   acl_id integer NOT NULL default 0,
+																	   group_id integer NOT NULL default 0
+																	);
+																	create unique index acl_id_group_id_axo_groups_map on axo_groups_map(acl_id, group_id);
+																	",
+											axo_groups_path =>
+																	"
+																	CREATE TABLE axo_groups_path (
+																	   id integer NOT NULL default 0,
+																	   group_id integer NOT NULL default 0,
+																	   tree_level integer NOT NULL default 0
+																	);
+																	create unique index id_group_id_tree_level_axo_groups_path on axo_groups_path(id, group_id, tree_level);
+																	",
+											axo_groups_path_map =>
+																	"
+																	CREATE TABLE axo_groups_path_map (
+																	   path_id integer NOT NULL default 0,
+																	   group_id integer NOT NULL default 0
+																	);
+																	create unique index path_id_group_id_axo_groups_path_map on axo_groups_path_map(path_id, group_id);
+																	"																
 										);
 												
 		$tables = $db->GetCol("select tablename from pg_tables");

@@ -2,10 +2,16 @@
 require_once("gacl_admin.inc.php");
 
 //GET takes precedence.
-if ($_GET['group_type'] != '') {
-	$group_type = $_GET['group_type'];
-} else {
+if ($_GET['group_type'] == '') {
 	$group_type = $_POST['group_type'];	
+} else {
+	$group_type = $_GET['group_type'];
+}
+
+if ($_GET['return_page'] == '') {
+	$return_page = $_POST['return_page'];	
+} else {
+	$return_page = $_GET['return_page'];
 }
 
 switch(strtolower(trim($group_type))) {
@@ -34,7 +40,7 @@ switch ($_POST['action']) {
         }   
             
         //Return page.
-        return_page($_POST[return_page]);
+        return_page($return_page);
         
         break;
     case Submit:
@@ -63,7 +69,7 @@ switch ($_POST['action']) {
 			$gacl_api->edit_group($_POST['group_id'], $_POST['name'], $parent_id, $group_type);
         }
         
-        return_page("$_POST[return_page]");
+        return_page("$return_page");
         break;    
     default:
         //Grab specific group data
@@ -93,7 +99,7 @@ switch ($_POST['action']) {
 }
 
 $smarty->assign('group_type', $group_type);
-$smarty->assign('return_page', $_GET[return_page]);
+$smarty->assign('return_page', $return_page);
 
 $smarty->display('edit_group.tpl');
 ?>
