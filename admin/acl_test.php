@@ -2,9 +2,6 @@
 //$debug=1;
 require_once("../gacl.inc.php");
 
-//acl_get_group_parents( acl_get_groups(28) );
-//exit;
-
 //
 //Grab all ACO sections for select box
 //

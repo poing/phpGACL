@@ -209,7 +209,7 @@ switch ($db_type) {
 
 
 if ( $failed <= 0 ) {
-	echo_success("Installation Successful!!! <a href=\"acl_admin.php\"><b>Go here!</b></a> to get started.");	
+	echo_success("Installation Successful!!! <a href=\"admin/acl_admin.php\"><b>Go here!</b></a> to get started.");	
 } else {
 	echo_failed("Installation Failed!!! Please fix the above errors and try again.");	
 }

@@ -50,7 +50,7 @@
              </td>
 
             <td valign="top" bgcolor="#cccccc" align="center">
-                <input type="text" size="10" name="aco[{$aco[x].id}][]" value="{$aco[x].name}">                
+                <input type="text" size="40" name="aco[{$aco[x].id}][]" value="{$aco[x].name}">                
              </td>
             <td valign="top" bgcolor="#cccccc" align="center">
                 <input type="checkbox" name="delete_aco[]" value="{$aco[x].id}">                
@@ -77,7 +77,7 @@
              </td>
 
             <td valign="top" bgcolor="#cccccc" align="center">
-                <input type="text" size="10" name="new_aco[{$new_aco[y].id}][]" value="">                
+                <input type="text" size="40" name="new_aco[{$new_aco[y].id}][]" value="">                
              </td>
             <td valign="top" bgcolor="#cccccc" align="center">
                 &nbsp;
