@@ -1,10 +1,10 @@
 Wed Nov 12 2003
-	- More MPTT fixes from Dan
-	- is_conflicting_acl() patch from Dan also. 
+	mikeb - More MPTT fixes from Dan
+	mikeb - is_conflicting_acl() patch from Dan also. 
 Tue Nov 11 2003
-	- Applied MPTT (different group tree format) patch from Dan Cech <dcech@phpwerx.net>
-	- Minor cleanup of the above patch.
-	- FIxed a couple minor bugs with add_group_object() and del_object() relating to the MPTT patch.
+	mikeb - Applied MPTT (different group tree format) patch from Dan Cech <dcech@phpwerx.net>
+	mikeb - Minor cleanup of the above patch.
+	mikeb - FIxed a couple minor bugs with add_group_object() and del_object() relating to the MPTT patch.
 Wed Nov 05 2003
 	- Fixed issue where ARO and AXO groups use the same sequence. Not really a bug, but shouldn't 
 	be the case. Thanks to Dan Cech <dcech@phpwerx.net>
