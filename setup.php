@@ -81,7 +81,6 @@ switch ($db_type) {
 			}
 		}
 
-
 		break;
 	case postgres7:
 		echo_success("Compatible database type \"<b>$db_type</b>\" detected!");
@@ -105,7 +104,6 @@ switch ($db_type) {
 				$db->Connect($db_host, $db_user, $db_password, $db_name);
 			}
 		}
-
 
 		break;
 
@@ -211,11 +209,16 @@ if ( $failed <= 0 ) {
 "
 Installation Successful!!!<br>\n
 <br>\n
+<div align=\"center\">
 <font color=\"red\"><b>*IMPORTANT*</b></font><br>\n
 Please make sure you create the <b>&lt;phpGACL root&gt;/admin/templates_c</b> directory, <br>\n
 and give it <b>write permissions</b> for the user your web server runs as.
 
-Please read the manual, and example.php, then <a href=\"admin/about.php\"><b>Go here!</b></a> to get started.
+Please read the manual, and example.php to familiarize yourself with phpGACL.
+<Br>
+<br>
+<a href=\"admin/about.php?first_run=1\"><b>Let's get started!</b></a>
+</div>
 ");
 } else {
 	echo_failed("Please fix the above errors and try again.");

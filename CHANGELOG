@@ -1,5 +1,6 @@
 Sun Jan 24 2003
 	mikeb - Changed acl_list layout.
+	mikeb - Changed setup.php to point to about.php and modified about.php to only display the report section on first run.
 	mikeb - Unleashed v3.3.0b1 upon the world! Wahahahah!
 Sat Jan 24 2003
 	mikeb - Minor updates to CREDITS file, README, and footer.tpl

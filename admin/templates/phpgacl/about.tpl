@@ -7,9 +7,12 @@
   </head>
 
   <body>
+    {if $first_run != 1}
 	{include file="phpgacl/navigation.tpl"}
+	{/if}
       <table cellpadding="2" cellspacing="2" border="2" width="100%">
         <tbody>
+		{if $first_run != 1}
           <tr>
 			<td valign="top" align="center" rowspan="1" colspan="4" bgcolor="#cccccc">
 				<b>Help</b>
@@ -57,10 +60,14 @@
 				</form>
 			</td>
           </tr>
-
+        {/if}
           <tr>
 			<td valign="top" align="center" rowspan="1" colspan="4" bgcolor="#cccccc">
-				<b>Report</b>
+				{if $first_run != 1}
+					<b>Report</b>
+				{else}
+					<font color="#ff0000">* <b>Report</b> *</font>
+				{/if}
 			</td>
           </tr>
           <tr>
@@ -78,7 +85,7 @@
 				</form>
 			</td>
           </tr>
-
+		{if $first_run != 1}
 		  <tr>
 			<td valign="top" align="center" rowspan="1" colspan="4" bgcolor="#cccccc">
 				<b>Credits</b>
@@ -91,7 +98,7 @@
 </pre>
 			</td>
           </tr>
-
+        {/if}
         </tbody>
       </table>
 {include file="phpgacl/footer.tpl"}
