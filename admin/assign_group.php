@@ -42,16 +42,16 @@ switch ($_POST[action]) {
         }
          
         //Return page.
-        $gacl_api->return_page($_POST[return_page]);
+        $gacl_api->return_page($_POST['return_page']);
 		
         break;
     case Submit:
         $gacl_api->debug_text("Submit!!");
 
-		//showarray($_POST['selected_objects']);
+		showarray($_POST['selected_'.$_POST['group_type']]);
 		//Parse the form values
 		//foreach ($_POST['selected_aro'] as $aro_value) {
-		while (list(,$object_value) = @each($_POST['selected_objects'])) {
+		while (list(,$object_value) = @each($_POST['selected_'.$_POST['group_type']])) {
 				$split_object_value = explode("^", $object_value);
 				$selected_object_array[$split_object_value[0]][] = $split_object_value[1];
 		}
@@ -180,5 +180,5 @@ switch ($_POST[action]) {
 $smarty->assign("group_type", $group_type);
 $smarty->assign("return_page", $_SERVER[REQUEST_URI] );
 
-$smarty->display('assign_group.tpl');
+$smarty->display('phpgacl/assign_group.tpl');
 ?>

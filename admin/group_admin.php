@@ -60,5 +60,5 @@ switch ($_POST['action']) {
 $smarty->assign('group_type', $group_type);
 $smarty->assign('return_page', $_SERVER[REQUEST_URI]);
 
-$smarty->display('group_admin.tpl');
+$smarty->display('phpgacl/group_admin.tpl');
 ?>

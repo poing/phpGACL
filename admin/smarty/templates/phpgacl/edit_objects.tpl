@@ -1,6 +1,6 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
 
-{include file="header.tpl"} 
+{include file="phpgacl/header.tpl"} 
     <meta name="generator" content="HTML Tidy, see www.w3.org">
     <title>phpGACL Admin</title>
     <meta http-equiv="content-type" content="text/html; charset=ISO-8859-1">
@@ -17,7 +17,7 @@
           </tr>
           <tr>
             <td valign="top" colspan="11" bgcolor="#cccccc">
-                {include file="pager.tpl" pager_data=$paging_data link="?section_value=$section_value&object_type=$object_type&"}
+                {include file="phpgacl/pager.tpl" pager_data=$paging_data link="?section_value=$section_value&object_type=$object_type&"}
             </td>
           </tr>
 
@@ -62,7 +62,7 @@
             {/section}
           <tr>
             <td valign="top" colspan="11" bgcolor="#cccccc">
-                {include file="pager.tpl" pager_data=$paging_data link="?section_value=$section_value&object_type=$object_type&"}
+                {include file="phpgacl/pager.tpl" pager_data=$paging_data link="?section_value=$section_value&object_type=$object_type&"}
             </td>
           </tr>
           <tr>
@@ -128,5 +128,5 @@
     <input type="hidden" name="return_page" value="{$return_page}">
     
     </form>
-{include file="footer.tpl"} 
+{include file="phpgacl/footer.tpl"} 
 

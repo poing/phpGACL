@@ -101,5 +101,5 @@ switch ($_POST['action']) {
 $smarty->assign('group_type', $group_type);
 $smarty->assign('return_page', $return_page);
 
-$smarty->display('edit_group.tpl');
+$smarty->display('phpgacl/edit_group.tpl');
 ?>

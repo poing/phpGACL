@@ -362,5 +362,5 @@ if (isset($_GET['action'])) {
 	$smarty->assign("action", $_GET['action']);
 }
 
-$smarty->display('acl_admin.tpl');
+$smarty->display('phpgacl/acl_admin.tpl');
 ?>

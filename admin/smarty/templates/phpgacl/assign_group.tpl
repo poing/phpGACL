@@ -1,6 +1,6 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
 
-{include file="header.tpl"} 
+{include file="phpgacl/header.tpl"} 
     <meta name="generator" content="HTML Tidy, see www.w3.org">
     <title>phpGACL Admin</title>
     <meta http-equiv="content-type" content="text/html; charset=ISO-8859-1">
@@ -9,11 +9,9 @@
 <script LANGUAGE="JavaScript">
 {$js_array}
 </script>
-{include file="acl_admin_js.tpl"}
+{include file="phpgacl/acl_admin_js.tpl"}
 
   <body onload="populate(document.assign_group.{$group_type}_section,document.assign_group.elements['objects[]'], '{$js_array_name}')">
-    <br>
-
     <form method="post" name="assign_group" action="assign_group.php">
       <table cellpadding="2" cellspacing="2" border="2" width="100%">
         <tbody>
@@ -37,7 +35,7 @@
           </tr>
 
           <tr>
-            <td valign="middle" bgcolor="#cccccc" align="center">[ <a href="edit_{$group_type}_sections.php?return_page={$return_page}">Edit</a> ]<br>
+            <td valign="middle" bgcolor="#cccccc" align="center">[ <a href="edit_object_sections.php?object_type={$group_type}&return_page={$return_page}">Edit</a> ]<br>
              <br>
              <select name="{$group_type}_section" tabindex="0" size="10" width="200" onclick="populate(document.assign_group.{$group_type}_section,document.assign_group.elements['objects[]'],'{$js_array_name}')">
                 {html_options options=$options_sections selected=$section_value}              
@@ -45,7 +43,7 @@
              </td>
 
             <td valign="middle" bgcolor="#cccccc" align="center">
-            [ <a href="javascript: location.href = 'edit_aro.php?section_value=' + document.assign_group.aro_section.options[document.assign_group.aro_section.selectedIndex].value + '&return_page={$return_page}';">Edit</a> ]
+            [ <a href="javascript: location.href = 'edit_objects.php?object_type={$group_type}&section_value=' + document.assign_group.aro_section.options[document.assign_group.aro_section.selectedIndex].value + '&return_page={$return_page}';">Edit</a> ]
             [ <a href="#" onClick="window.open('object_search.php?src_form=assign_group&object_type={$group_type}&section_value=' + document.assign_group.{$group_type}_section.options[document.assign_group.{$group_type}_section.selectedIndex].value,'','status=yes,width=400,height=400','','status=yes,width=400,height=400');">Search</a> ]<br>
              <br>
              <select name="objects[]" tabindex="0" size="10" width="200" multiple>
@@ -84,7 +82,7 @@
   </tr>
   <tr>
     <td valign="top" colspan="11" bgcolor="#cccccc">
-        {include file="pager.tpl" pager_data=$paging_data link="?group_type=$group_type&group_id=$group_id&"}
+        {include file="phpgacl/pager.tpl" pager_data=$paging_data link="?group_type=$group_type&group_id=$group_id&"}
     </td>
   </tr>
   <tr>
@@ -123,7 +121,7 @@
     {/section}
     <tr>
         <td valign="top" colspan="11" bgcolor="#cccccc">
-            {include file="pager.tpl" pager_data=$paging_data link="?"}
+            {include file="phpgacl/pager.tpl" pager_data=$paging_data link="?"}
         </td>
     </tr>
 	  <tr>
@@ -141,4 +139,4 @@
 <input type="hidden" name="group_type" value="{$group_type}">
 <input type="hidden" name="return_page" value="{$return_page}">    
 </form>
-{include file="footer.tpl"} 
+{include file="phpgacl/footer.tpl"} 

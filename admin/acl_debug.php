@@ -22,12 +22,12 @@ switch ($_GET['action']) {
 															a.return_value,
 															a.note,
 															a.updated_date,
-															b.section_value aco_section_value,
-															b.value aco_value,
-															c.section_value aro_section_value,
-															c.value aro_value,
-															h.section_value axo_section_value,
-															h.value axo_value
+															b.section_value as aco_section_value,
+															b.value as aco_value,
+															c.section_value as aro_section_value,
+															c.value as aro_value,
+															h.section_value as axo_section_value,
+															h.value as axo_value
 															",$result['query']);
 //															d.group_id aro_group_id,
 //															e.tree_level aro_tree_level
@@ -102,5 +102,5 @@ switch ($_GET['action']) {
 
 $smarty->assign("return_page", $_SERVER['PHP_SELF'] );
 
-$smarty->display('acl_debug.tpl');
+$smarty->display('phpgacl/acl_debug.tpl');
 ?>

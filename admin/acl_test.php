@@ -99,5 +99,5 @@ $smarty->assign("paging_data", $gacl_api->get_paging_data($rs));
 
 $smarty->assign("return_page", $_SERVER[PHP_SELF] );
 
-$smarty->display('acl_test.tpl');
+$smarty->display('phpgacl/acl_test.tpl');
 ?>

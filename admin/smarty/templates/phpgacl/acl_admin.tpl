@@ -1,6 +1,6 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
 
-{include file="header.tpl"} 
+{include file="phpgacl/header.tpl"} 
     <meta name="generator" content="HTML Tidy, see www.w3.org">
     <title>phpGACL Admin</title>
     <meta http-equiv="content-type" content="text/html; charset=ISO-8859-1">
@@ -14,7 +14,7 @@
 {$js_axo_array}
 </script>
 
-{include file="acl_admin_js.tpl"}
+{include file="phpgacl/acl_admin_js.tpl"}
 
 <body onload="populate(document.acl_admin.aco_section,document.acl_admin.elements['aco[]'], '{$js_aco_array_name}');populate(document.acl_admin.aro_section,document.acl_admin.elements['aro[]'], '{$js_aro_array_name}')">
     <form method="post" name="acl_admin" action="acl_admin.php">
@@ -233,5 +233,5 @@
 	<input type="hidden" name="acl_id" value="{$acl_id}">
 	<input type="hidden" name="return_page" value="{$return_page}">
     </form>
-{include file="footer.tpl"} 
+{include file="phpgacl/footer.tpl"} 
 
