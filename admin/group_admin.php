@@ -70,7 +70,7 @@ switch ($_POST['action']) {
 $smarty->assign('group_type', $group_type);
 $smarty->assign('return_page', $_SERVER['REQUEST_URI']);
 
-$smarty->assign('current', $group_type .'_group_admin');
+$smarty->assign('current', $group_type .'_group');
 $smarty->assign('page_title', strtoupper($group_type) .' Group Admin');
 
 $smarty->assign('phpgacl_version', $gacl_api->get_version());
