@@ -305,6 +305,8 @@ class gacl_api extends gacl {
 	 * NULL values are included in the search, if you want to ignore
 	 * for instance aro_groups use FALSE instead of NULL.
 	 *
+	 * @return array containing ACL IDs if search is successful
+	 *
 	 * @param string ACO Section Value
 	 * @param string ACO Value
 	 * @param string ARO Section Value
@@ -2609,7 +2611,7 @@ class gacl_api extends gacl {
 	 *
 	 * @param string Filter for section value
 	 * @param int Returns hidden objects if 1, does not if 0
-	 * @param string Object Type, either 'ACO', 'ARO', 'AXO', or 'ACL'
+	 * @param string Object Type, either 'ACO', 'ARO', 'AXO'
 	 */
 	function get_objects($section_value = NULL, $return_hidden = 1, $object_type = NULL) {
 		switch (strtolower(trim($object_type))) {
@@ -2673,7 +2675,7 @@ class gacl_api extends gacl {
 	 * @return array Returns 2-Dimensional array of rows with columns = ( section_value, value, order_value, name, hidden )
 	 *
 	 * @param int Object ID #
-	 * @param string Object Type, either 'ACO', 'ARO', 'AXO', or 'ACL'
+	 * @param string Object Type, either 'ACO', 'ARO', 'AXO'
 	 */
 	function get_object_data($object_id, $object_type=NULL) {
 
@@ -2733,7 +2735,7 @@ class gacl_api extends gacl {
 	 *
 	 * @param string Object Section Value
 	 * @param string Object Value
-	 * @param string Object Type, either 'ACO', 'ARO', 'AXO', 'ACL'
+	 * @param string Object Type, either 'ACO', 'ARO', 'AXO'
 	 */
 	function get_object_id($section_value, $value, $object_type=NULL) {
 

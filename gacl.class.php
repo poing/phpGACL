@@ -58,7 +58,7 @@ class gacl {
 	--- Database configuration. ---
 	*/
 	/** @var string Prefix for all the phpgacl tables in the database */
-	var $_db_table_prefix = 'gacl_';
+	var $_db_table_prefix = '';
 
 	/** @var string The database type, based on available ADODB connectors - mysql, postgres7, sybase, oci8po See here for more: http://php.weblogs.com/adodb_manual#driverguide */
 	var $_db_type = 'mysql';

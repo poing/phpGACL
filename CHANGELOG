@@ -1,3 +1,7 @@
+Sun Nov 28 2004
+	mikeb - Removed default table prefix from gacl.class.php.
+	mikeb - Corrected minor mistake in the manual with regards to incorrect argument ordering in acl_check() 
+	mikeb - Modified API comments for search_acl() to include return value.
 Sat Nov 27 2004
 	mikeb - Added Millennium Falcon example written by Ross Lawley <ross.lawley@mediatelgroup.co.uk>
 	mikeb - Added 3-dimensional ACL Test page from Meinhard <meinhard.jahn@karsten-jahnke.de>
