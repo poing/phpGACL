@@ -59,10 +59,10 @@ switch ($_POST['action']) {
 		if (!empty($_POST['acl_id']) ) {
 			//Update existing ACL
 			$acl_id = $_POST['acl_id'];
-			$gacl_api->edit_acl($acl_id, $selected_aco_array, $selected_aro_array, $_POST['aro_groups'], $selected_axo_array, $_POST['axo_groups'], $_POST['allow'], $enabled);
+			$gacl_api->edit_acl($acl_id, $selected_aco_array, $selected_aro_array, $_POST['aro_groups'], $selected_axo_array, $_POST['axo_groups'], $_POST['allow'], $enabled, $return_value, $note);
 		} else {
 			//Insert new ACL.
-			$acl_id = $gacl_api->add_acl($selected_aco_array, $selected_aro_array, $_POST['aro_groups'], $selected_axo_array, $_POST['axo_groups'], $_POST['allow'], $enabled);
+			$acl_id = $gacl_api->add_acl($selected_aco_array, $selected_aro_array, $_POST['aro_groups'], $selected_axo_array, $_POST['axo_groups'], $_POST['allow'], $enabled, $return_value, $note);
 		}       
 
         return_page($_POST[return_page]);

@@ -203,7 +203,22 @@
 				<input type="BUTTON" name="Un-Select" value="Un-Select" onClick="unselect_all(document.acl_admin.elements['groups[]'])">
             </td>
           </tr>
-
+          <tr>
+            <td valign="top" align="right" bgcolor="#d3dce3" rowspan="1" colspan="1">
+                <b>Extended Return Value:</b>
+            </td>
+            <td valign="top" align="left" bgcolor="#cccccc" rowspan="1" colspan="4">
+                <input type="text" name="return_value" size="50" value="{$return_value}">
+            </td>
+          </tr>
+          <tr>
+            <td valign="top" align="right" bgcolor="#d3dce3" rowspan="1" colspan="1">
+                <b>Note:</b>
+            </td>
+            <td valign="top" align="left" bgcolor="#cccccc" rowspan="1" colspan="4">
+                <textarea name="note" rows="2" cols="50">{$note}</textarea>
+            </td>
+          </tr>
           <tr>
             <td valign="top" bgcolor="#999999" rowspan="1" colspan="5">
               <div align="center">
