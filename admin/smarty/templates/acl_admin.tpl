@@ -16,9 +16,7 @@
 
 {include file="acl_admin_js.tpl"}
 
-  <body onload="populate(document.acl_admin.aco_section,document.acl_admin.elements['aco[]'], '{$js_aco_array_name}');populate(document.acl_admin.aro_section,document.acl_admin.elements['aro[]'], '{$js_aro_array_name}')">
-    <br>
-
+<body onload="populate(document.acl_admin.aco_section,document.acl_admin.elements['aco[]'], '{$js_aco_array_name}');populate(document.acl_admin.aro_section,document.acl_admin.elements['aro[]'], '{$js_aro_array_name}')">
     <form method="post" name="acl_admin" action="acl_admin.php">
       <table cellpadding="2" cellspacing="2" border="2" width="100%">
         <tbody>

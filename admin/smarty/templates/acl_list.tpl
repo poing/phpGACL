@@ -59,7 +59,7 @@
             {$acls[x].id}
      </td>
 
-    <td valign="top" bgcolor="#cccccc" align="left">
+    <td valign="top" bgcolor="#cccccc" align="left" nowrap>
 		{section name=y loop=$acls[x].aco}
 			<b>{$smarty.section.y.iteration}.</b> {$acls[x].aco[y].aco}
 			<br>
@@ -67,14 +67,14 @@
 		<br>
      </td>
 
-    <td valign="top" bgcolor="#cccccc" align="left">
+    <td valign="top" bgcolor="#cccccc" align="left" nowrap>
 		{section name=y loop=$acls[x].aro}
 			<b>{$smarty.section.y.iteration}.</b> {$acls[x].aro[y].aro}
 			<br>
 		{/section}
 		<br>
      </td>
-    <td valign="top" bgcolor="#cccccc" align="left">
+    <td valign="top" bgcolor="#cccccc" align="left" nowrap>
 		{section name=y loop=$acls[x].aro_groups}
 			<b>{$smarty.section.y.iteration}.</b> {$acls[x].aro_groups[y].group}
 			<br>
@@ -82,14 +82,14 @@
 		<br>
      </td>
      
-    <td valign="top" bgcolor="#cccccc" align="left">
+    <td valign="top" bgcolor="#cccccc" align="left" nowrap>
 		{section name=y loop=$acls[x].axo}
 			<b>{$smarty.section.y.iteration}.</b> {$acls[x].axo[y].axo}
 			<br>
 		{/section}
 		<br>
      </td>
-    <td valign="top" bgcolor="#cccccc" align="left">
+    <td valign="top" bgcolor="#cccccc" align="left" nowrap>
 		{section name=y loop=$acls[x].axo_groups}
 			<b>{$smarty.section.y.iteration}.</b> {$acls[x].axo_groups[y].group}
 			<br>
