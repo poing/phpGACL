@@ -823,7 +823,7 @@ class gacl_api extends gacl {
 		//Edit ACL if acl_id is set. This is simply if we're being called by edit_acl().
 		if (empty($acl_id)) {
 			//Create ACL row first, so we have the acl_id
-			$acl_id = $this->db->GenID('acl_seq',10);
+			$acl_id = $this->db->GenID($this->_db_table_prefix.'acl_seq',10);
 
 			$this->db->BeginTrans();
 			$query = "insert into ".$this->_db_table_prefix."acl (id,section_value,allow,enabled,return_value, note, updated_date) VALUES($acl_id, ".$this->db->quote($section_value).", $allow, $enabled, ".$this->db->quote($return_value).", ".$this->db->quote($note).", ".time().")";
@@ -1652,7 +1652,7 @@ class gacl_api extends gacl {
 			return false;	
 		}
 		
-		$insert_id = $this->db->GenID('groups_id_seq',10);
+		$insert_id = $this->db->GenID($this->_db_table_prefix.'groups_id_seq',10);
 		$query = "insert into $table (id, parent_id,name) VALUES($insert_id, $parent_id, '$name')";
 		$rs = $this->db->Execute($query);                   
 
@@ -2343,7 +2343,7 @@ class gacl_api extends gacl {
 			return true;
 		}
 
-		$insert_id = $this->db->GenID($object_type.'_seq',10);
+		$insert_id = $this->db->GenID($this->_db_table_prefix.$object_type.'_seq',10);
 		$query = "insert into $table (id,section_value, value,order_value,name,hidden) VALUES($insert_id, '$section_value', '$value', '$order', '$name', $hidden)";
 		$rs = $this->db->Execute($query);
 
@@ -2751,7 +2751,7 @@ class gacl_api extends gacl {
 			return false;
 		}
 
-		$insert_id = $this->db->GenID($object_type.'_sections_seq',10);
+		$insert_id = $this->db->GenID($this->_db_table_prefix.$object_type.'_sections_seq',10);
 		$query = "insert into $object_sections_table (id,value,order_value,name,hidden) VALUES($insert_id, '$value', '$order', '$name', $hidden)";
 		$rs = $this->db->Execute($query);
 
