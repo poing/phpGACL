@@ -58,5 +58,5 @@ switch ($_GET['action']) {
         break;
 }
 
-$smarty->display('obj_search.tpl');
+$smarty->display('object_search.tpl');
 ?>

@@ -111,7 +111,7 @@ switch ($_POST[action]) {
         $smarty->assign('objects', $objects);
         $smarty->assign('new_objects', $new_objects);
         
-        $smarty->assign("paging_data", get_paging_data($rs));
+        $smarty->assign("paging_data", $gacl_api->get_paging_data($rs));
         
         break;
 }

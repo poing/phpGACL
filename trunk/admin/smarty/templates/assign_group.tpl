@@ -46,6 +46,7 @@
 
             <td valign="middle" bgcolor="#cccccc" align="center">
             [ <a href="javascript: location.href = 'edit_aro.php?section_value=' + document.assign_group.aro_section.options[document.assign_group.aro_section.selectedIndex].value + '&return_page={$return_page}';">Edit</a> ]<br>
+            [ <a href="#" onClick="window.open('object_search.php?object_type={$group_type}&section_value=' + document.assign_group.section.options[document.assign_group.section.selectedIndex].value + '&return_page={$return_page}','','status=yes,width=400,height=400','','status=yes,width=400,height=400');">Search</a> ]<br>            
              <br>
              <select name="objects[]" tabindex="0" size="10" width="200" multiple>
             </select> <br>

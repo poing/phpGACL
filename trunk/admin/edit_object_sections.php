@@ -101,7 +101,7 @@ switch ($_POST[action]) {
         $smarty->assign('sections', $sections);
         $smarty->assign('new_sections', $new_sections);
 
-        $smarty->assign("paging_data", get_paging_data($rs));
+        $smarty->assign("paging_data", $gacl_api->get_paging_data($rs));
 
         break;
 }
