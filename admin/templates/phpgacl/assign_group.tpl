@@ -11,7 +11,7 @@
         <tbody>
           <tr>
             <th width="32%">Sections</th>
-            <th width="32%">Access Request Objects</th>
+            <th width="32%">{$object_type}s</th>
             <th width="4%">&nbsp;</th>
             <th width="32%">Selected</th>
           </tr>
@@ -51,7 +51,7 @@
       <br />
       <table cellpadding="2" cellspacing="2" border="2" width="100%">
         <tr align="center">
-	      <td colspan="5"><b>{$total_objects}</b> {$group_type|upper}'s in Group: <b>{$group_name}</b></td>
+	      <td colspan="5"><b>{$total_objects}</b> {$group_type|upper}s in Group: <b>{$group_name}</b></td>
         </tr>
         <tr class="pager">
           <td colspan="5">
@@ -59,22 +59,22 @@
           </td>
         </tr>
         <tr>
-	<th>Value</b></td>
-	<th>Sections</b></td>
-	<th>Access Request Objects</b></td>
-	<th width="4%">Functions</b></td>
+	<th>Section</th>
+	<th>{$object_type}</th>
+	<th>{$group_type|upper} Value</th>
+	<th width="4%">Functions</th>
 	<th width="2%"><input type="checkbox" class="checkbox" name="select_all" onClick="checkAll(this)"/></th>
         </tr>
 {foreach from=$rows item=row}
   <tr valign="top" align="center">
     <td>
-      {$row.value}
-    </td>
-    <td>
       {$row.section}
     </td>
     <td>
       {$row.name}
+    </td>
+    <td>
+      {$row.value}
     </td>
     <td>
       [ <a href="acl_list.php?action=Filter&filter_{$group_type}_section={$row.section_value}&filter_{$group_type}={$row.name}&return_page={$return_page}">ACLs</a> ]
@@ -92,7 +92,7 @@
   <tr class="controls" align="center">
     <td colspan="3">&nbsp;</td>
     <td colspan="2">
-      <input type="submit" class="button" name="action" value="Delete">
+      <input type="submit" class="button" name="action" value="Remove">
     </td>
   </tr>
 </table>
