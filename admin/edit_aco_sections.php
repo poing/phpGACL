@@ -20,7 +20,6 @@ switch ($_POST[action]) {
         //showarray($_POST[sections]);
         //showarray($_POST[new_sections]);
     
-        
         //Update sections
         while (list(,$row) = @each($_POST[sections])) {
             list($id, $value, $order, $name) = $row;

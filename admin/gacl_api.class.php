@@ -60,7 +60,7 @@ class gacl_api {
 	function add_acl($aco_ids, $aro_ids, $group_ids, $allow=1, $enabled=1, $acl_id=FALSE ) {
 		global $db;
 		
-		debug("add_ac(): Name: $name");
+		debug("add_acl():");
 		
 		if (count($aco_ids) == 0) {
 			debug("Must select at least one Access Control Object");
@@ -187,7 +187,7 @@ class gacl_api {
 	function edit_acl($acl_id, $aco_ids, $aro_ids, $group_ids, $allow=1, $enabled=1) {
 		global $db;
 		
-		debug("add_ac(): Name: $name");
+		debug("edit_acl():");
 		
 		if (empty($acl_id) ) {
 			debug("edit_acl(): Must specify a single ACL_ID to edit");
@@ -274,6 +274,79 @@ class gacl_api {
 	 */
 
 	/*======================================================================*\
+		Function:	sort_groups()
+		Purpose:	Grabs all the groups from the database doing preliminary grouping by parent
+	\*======================================================================*/
+	function sort_groups() {
+		global $db;
+		
+		//Grab all groups from the database.
+		$query = "select
+									id,
+									parent_id,
+									name
+						from    groups
+						order by parent_id";
+		$rs = $db->Execute($query);
+		$rows = $rs->GetRows();
+		   
+		/*
+		 * Save groups in an array sorted by parent. Should be make it easier for later on.
+		 */
+		while (list(,$row) = @each($rows)) {
+			list($id, $parent_id, $name) = $row;
+			
+			$sorted_groups[$parent_id][$id] = $name;
+		}
+
+		return $sorted_groups;
+	}
+
+	/*======================================================================*\
+		Function:	format_groups()
+		Purpose:	Takes the array returned by sort_groups() and formats for human consumption.
+	\*======================================================================*/
+	function format_groups($sorted_groups, $type='TEXT', $root_id=0, $level=0) {
+		/*
+		 * Recursing with a global array, not the most effecient or safe way to do it, but it will work for now.
+		 */
+		global $formatted_groups;
+		
+		while (list($id,$name) = @each($sorted_groups[$root_id])) {
+			switch ($type) {
+				case 'TEXT':
+					/*
+					 * Formatting optimized for TEXT (combo box) output.
+					 */
+					$spacing = str_repeat("|&nbsp;&nbsp;", $level * 1);
+					$text = $spacing.$name;
+					break;
+				case 'HTML':
+					/*
+					 * Formatting optimized for HTML (tables) output.
+					 */
+					$width= $level * 20;
+					$spacing = "<img src=\"s.gif\" width=\"$width\">";
+					$text = $spacing." ".$name;
+					break;                
+			}
+			$formatted_groups[$id] = $text;
+
+			/*
+			 * Recurse if we can.
+			 */
+			if (isset($sorted_groups[$id]) AND count($sorted_groups[$id]) > 0) {
+				debug("Recursing! Level: $level");
+				$this->format_groups($sorted_groups, $type, $id, $level + 1);
+			} else {
+				debug("Found last branch!");
+			}
+		}
+		
+		return $formatted_groups;
+	}
+
+	/*======================================================================*\
 		Function:	get_group_id()
 		Purpose:	Gets the group_id given the name.
 						Will only return one group id, so if there are duplicate names, it will return false.
@@ -282,6 +355,8 @@ class gacl_api {
 		global $db;
 		
 		debug("get_group_id(): Name: $name");
+
+		$name = trim($name);
 		
 		if (empty($name) ) {
 			debug("get_group_id(): name ($name) is empty, this is required");
@@ -449,6 +524,8 @@ class gacl_api {
 		global $db;
 		
 		debug("add_group(): Name: $name Parent ID: $parent_id");
+
+		$name = trim($name);
 		
 		if (empty($name)) {
 			debug("add_group(): name ($name) OR parent id ($parent_id) is empty, this is required");
@@ -557,6 +634,8 @@ class gacl_api {
 		global $db;
 		
 		debug("edit_group(): ID: $group_id Name: $name Parent ID: $parent_id");
+
+		$name = trim($name);
 		
 		if (empty($group_id) OR empty($name) ) {
 			debug("edit_group(): Group ID ($group_id) OR Name ($name) is empty, this is required");
@@ -736,6 +815,9 @@ class gacl_api {
 		
 		debug("get_aro_id(): Value: $value Name: $name");
 		
+		$name = trim($name);
+		$value = trim($value);
+		
 		if (empty($name) AND empty($value) ) {
 			debug("get_aro_id(): name ($name) OR value ($value) is empty, this is required");
 			return false;	
@@ -812,6 +894,10 @@ class gacl_api {
 		
 		debug("add_aro(): Section ID: $section_id Value: $value Order: $order Name: $name");
 		
+		$name = trim($name);
+		$value = trim($value);
+		$order = trim($order);
+		
 		if (empty($name) OR empty($section_id) ) {
 			debug("add_aro(): name ($name) OR section id ($section_id) is empty, this is required");
 			return false;	
@@ -838,6 +924,10 @@ class gacl_api {
 		global $db;
 		
 		debug("edit_aro(): ID: $aro_id Section ID: $section_id Value: $value Order: $order Name: $name");
+		
+		$name = trim($name);
+		$value = trim($value);
+		$order = trim($order);
 		
 		if (empty($aro_id) OR empty($section_id) ) {
 			debug("edit_aro(): ARO ID ($aro_id) OR Section ID ($section_id) is empty, this is required");
@@ -911,6 +1001,9 @@ class gacl_api {
 		
 		debug("get_aro_section_section_id(): Value: $value Name: $name");
 		
+		$name = trim($name);
+		$value = trim($value);
+		
 		if (empty($name) AND empty($value) ) {
 			debug("get_aro_section_section_id(): name ($name) OR value ($value) is empty, this is required");
 			return false;	
@@ -946,6 +1039,10 @@ class gacl_api {
 		
 		debug("add_aro_section(): Value: $value Order: $order Name: $name");
 		
+		$name = trim($name);
+		$value = trim($value);
+		$order = trim($order);
+		
 		if (empty($name) ) {
 			debug("add_aro_section(): name ($name) is empty, this is required");
 			return false;	
@@ -972,6 +1069,10 @@ class gacl_api {
 		global $db;
 		
 		debug("edit_aro_section(): ID: $aro_section_id Value: $value Order: $order Name: $name");
+		
+		$name = trim($name);
+		$value = trim($value);
+		$order = trim($order);
 		
 		if (empty($aro_section_id) ) {
 			debug("edit_aro_section(): Section ID ($aro_section_id) is empty, this is required");
@@ -1106,6 +1207,9 @@ class gacl_api {
 		
 		debug("get_aco_id(): Value: $value Name: $name");
 		
+		$name = trim($name);
+		$value = trim($value);
+		
 		if (empty($name) AND empty($value) ) {
 			debug("get_aco_id(): name ($name) OR value ($value) is empty, this is required");
 			return false;	
@@ -1182,6 +1286,10 @@ class gacl_api {
 		
 		debug("add_aco(): Section ID: $section_id Value: $value Order: $order Name: $name");
 		
+		$name = trim($name);
+		$value = trim($value);
+		$order = trim($order);
+		
 		if (empty($name) OR empty($section_id) ) {
 			debug("add_aco(): name ($name) OR section id ($section_id) is empty, this is required");
 			return false;	
@@ -1208,6 +1316,10 @@ class gacl_api {
 		global $db;
 		
 		debug("edit_aco(): ID: $aco_id Section ID: $section_id Value: $value Order: $order Name: $name");
+		
+		$name = trim($name);
+		$value = trim($value);
+		$order = trim($order);
 		
 		if (empty($aco_id) OR empty($section_id) ) {
 			debug("edit_aco(): ARO ID ($aco_id) OR Section ID ($section_id) is empty, this is required");
@@ -1280,6 +1392,9 @@ class gacl_api {
 		
 		debug("get_aco_section_section_id(): Value: $value Name: $name");
 		
+		$name = trim($name);
+		$value = trim($value);
+		
 		if (empty($name) AND empty($value) ) {
 			debug("get_aco_section_section_id(): name ($name) OR value ($value) is empty, this is required");
 			return false;	
@@ -1318,6 +1433,10 @@ class gacl_api {
 		
 		debug("add_aco_section(): Value: $value Order: $order Name: $name");
 		
+		$name = trim($name);
+		$value = trim($value);
+		$order = trim($order);
+		
 		if (empty($name) ) {
 			debug("add_aco_section(): name ($name) is empty, this is required");
 			return false;	
@@ -1344,6 +1463,10 @@ class gacl_api {
 		global $db;
 		
 		debug("edit_aco_section(): ID: $aco_section_id Value: $value Order: $order Name: $name");
+
+		$name = trim($name);
+		$value = trim($value);
+		$order = trim($order);
 		
 		if (empty($aco_section_id) ) {
 			debug("edit_aco_section(): Section ID ($aco_section_id) is empty, this is required");

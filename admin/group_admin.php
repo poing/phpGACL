@@ -5,7 +5,7 @@ switch ($_POST[action]) {
     case Delete:
         break;
     default:
-        $formatted_groups = format_groups(sort_groups(), HTML);
+        $formatted_groups = $gacl_api->format_groups($gacl_api->sort_groups(), HTML);
 
         //showarray($);
         while (list($id,$name) = @each($formatted_groups)) {
