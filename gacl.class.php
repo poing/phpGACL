@@ -189,15 +189,15 @@ class gacl {
 				$sql_aro_group_ids = implode(",", $aro_group_ids['group_ids']);   
 			}
 
-			if ( isset($aro_path_ids) ) {		
+			if ( isset($aro_path_ids) AND !empty($aro_path_ids) ) {		
 				$sql_aro_path_ids = implode(",", $aro_path_ids);   
 			}
 
-			if ( isset($axo_group_ids['group_ids']) ) {
+			if ( isset($axo_group_ids['group_ids']) AND !empty($axo_group_ids['group_ids']) ) {
 				$sql_axo_group_ids = implode(",", $axo_group_ids['group_ids']);   
 			}
 
-			if ( isset($axo_path_ids) ) {
+			if ( isset($axo_path_ids) AND !empty($axo_path_ids) ) {
 				$sql_axo_path_ids = implode(",", $axo_path_ids);   
 			}
 
