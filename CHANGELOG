@@ -2,6 +2,7 @@ Sat Jul 10 2004
 	mikeb - Released v3.3.2
 	mikeb - upgraded to ADOdb v4.50
 	mikeb - upgraded to Smarty v2.6.3
+	mikeb - Fixed group_admin.php bug with hardcoded group_type column name.
 Sat Jun 19 2004
         dcech - cleaned up setup script a little
         dcech - upgraded to adodb-xmlschema CVS to get fixes for prefix-related problems.
