@@ -46,20 +46,19 @@ switch ($_POST[action]) {
                                         LEFT JOIN aro_map c ON a.id=c.acl_id
                                         LEFT JOIN aro_groups_map d ON a.id=d.acl_id
 
-                                        LEFT JOIN aro g ON ( c.section_value=g.section_value AND c.value = g.value )
-                                        LEFT JOIN aro_sections h ON g.section_value=h.value
-										LEFT JOIN aro_groups as i ON i.id=d.group_id
-										
                                         LEFT JOIN axo_map j ON a.id=j.acl_id
                                         LEFT JOIN axo_groups_map k ON a.id=k.acl_id
 
-                                        LEFT JOIN aro l ON ( j.section_value=l.section_value AND j.value = l.value )
-                                        LEFT JOIN aro_sections m ON l.section_value=m.value
-										LEFT JOIN axo_groups as n ON n.id=k.group_id
+                                        LEFT JOIN aro g ON ( c.section_value=g.section_value AND c.value = g.value )
+                                        LEFT JOIN aro_sections h ON g.section_value=h.value
+										LEFT JOIN aro_groups i ON i.id=d.group_id
+
+                                        LEFT JOIN axo l ON ( j.section_value=l.section_value AND j.value = l.value )
+                                        LEFT JOIN axo_sections m ON l.section_value=m.value
+										LEFT JOIN axo_groups n ON n.id=k.group_id
 
                                 order by a.id, f.name, e.name, h.name, g.name, i.name";
         $rs = $db->Execute($query);
-
         $rows = $rs->GetRows();
 
 		if ($rows) {
@@ -135,6 +134,12 @@ switch ($_POST[action]) {
 									axo => $axo_array,
 									axo_groups => $axo_groups_array								
 								);
+				
+				unset($aco_array);
+				unset($aro_array);
+				unset($axo_array);
+				unset($aro_groups_array);
+				unset($axo_groups_array);				
 			}
 		}
 		

@@ -5,6 +5,15 @@
     <title>phpGACL Admin</title>
     <meta http-equiv="content-type" content="text/html; charset=ISO-8859-1">
   </head>
+
+<div align="center">
+Keep in mind the server hosting this may be overloaded. Preliminary benchmarks<br>
+on my Celeron 800 running Apache, MySQL, and X11 show about 5ms per
+acl_check() with caching turned off, <br>
+which of course is heavily dependant on the database itself.
+</div>
+<Br>
+
 <form method="post" name="acl_list" action="acl_list.php">
 <table cellpadding="2" cellspacing="2" border="2" width="100%">
   <tr align="center">
@@ -42,7 +51,7 @@
 		{$smarty.section.x.iteration}
      </td>
     <td valign="middle" bgcolor="#cccccc" align="center">
-		{$acls[x].aco_section_name} > {$acls[x].aco_name}
+		{$acls[x].display_aco_name}
      </td>
     <td valign="top" bgcolor="#cccccc" align="left">
         {$acls[x].aro_section_name} > {$acls[x].aro_name}
