@@ -85,8 +85,8 @@ switch ($_POST['action']) {
 				$query = '
 					SELECT a.section_value,a.value,c.name,b.name
 					FROM '. $gacl_api->_db_table_prefix . $type .'_map a
-					JOIN '. $gacl_api->_db_table_prefix . $type .' b ON b.section_value=a.section_value AND b.value=a.value
-					JOIN '. $gacl_api->_db_table_prefix . $type .'_sections c ON c.value=a.section_value
+					INNER JOIN '. $gacl_api->_db_table_prefix . $type .' b ON b.section_value=a.section_value AND b.value=a.value
+					INNER JOIN '. $gacl_api->_db_table_prefix . $type .'_sections c ON c.value=a.section_value
 					WHERE a.acl_id='. $db->qstr($acl_id);
 				$rs = $db->Execute($query);
 				
