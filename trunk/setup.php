@@ -266,13 +266,13 @@ switch ($db_type) {
 																	"
 																	CREATE TABLE aco (
 																	   id integer NOT NULL default 0,
-																	   section_id integer NOT NULL default 0,
+																	   section_value varchar(255) NOT NULL default 0,
 																	   value varchar(255) NOT NULL default '',
 																	   order_value integer NOT NULL default 0,
 																	   name varchar(255) NOT NULL default '',
 																	   hidden smallint NOT NULL default '0'
 																	);
-																	create unique index section_id_value_aco on aco(section_id,value);
+																	create unique index section_value_value_aco on aco(section_value,value);
 																	create unique index id_aco on aco(id);
 																	create index hidden_aco on aco(hidden);
 																	",
@@ -280,7 +280,8 @@ switch ($db_type) {
 																	"
 																	CREATE TABLE aco_map (
 																	   acl_id integer NOT NULL default 0,
-																	   aco_id integer NOT NULL default 0
+																	   aco_section_value varchar(255) NOT NULL default 0,
+																	   aco_value varchar(255) NOT NULL default 0
 																	);
 																	create index acl_id_aco_map on aco_map(acl_id);
 																	",
@@ -301,13 +302,13 @@ switch ($db_type) {
 																	"
 																	CREATE TABLE aro (
 																	   id integer NOT NULL default 0,
-																	   section_id integer NOT NULL default 0,
+																	   section_value varchar(255) NOT NULL default 0,
 																	   value varchar(255) NOT NULL default '',
 																	   order_value integer NOT NULL default 0,
 																	   name varchar(255) NOT NULL default '',
 																	   hidden smallint NOT NULL default '0'
 																	);
-																	create unique index section_id_value_aro on aro(section_id,value);
+																	create unique index section_value_value_aro on aro(section_value,value);
 																	create unique index id_aro on aro(id);
 																	create index hidden_aro on aro(hidden);
 																	",
@@ -315,7 +316,8 @@ switch ($db_type) {
 																	"
 																	CREATE TABLE aro_map (
 																	   acl_id integer NOT NULL default 0,
-																	   aro_id integer NOT NULL default 0
+																	   aro_section_value varchar(255) NOT NULL default 0,
+																	   aro_value varchar(255) NOT NULL default 0
 																	);
 																	create index acl_id_aro_map on aro_map(acl_id);														
 																	",
@@ -346,7 +348,8 @@ switch ($db_type) {
 																	"
 																	CREATE TABLE groups_aro_map (
 																	   group_id integer NOT NULL default 0,
-																	   aro_id integer NOT NULL default 0
+																	   aro_section_value varchar(255) NOT NULL default 0,
+																	   aro_value varchar(255) NOT NULL default 0
 																	);
 																	create unique index group_id_aro_id_groups_aro_map on groups_aro_map(group_id,aro_id);
 																	",
@@ -430,7 +433,7 @@ switch ($db_type) {
 		$index_array = array (
 											acl_idx_1 =>			"create unique index id_acl on acl(id)",
 											ace_idx_2 =>			"create index id_enabled_acl on acl(id,enabled)",
-											aco_idx1 => 			"create unique index section_id_value_aco on aco(section_id,value)",
+											aco_idx1 => 			"create unique index section_value_value_aco on aco(section_value,value)",
 											ace_idx2 =>     		"create unique index id_aco on aco(id)",
 											aco_map_idx =>		"create index acl_id_aco_map on aco_map(acl_id)",
 											aco_sec_idx_1 =>	"create unique index id_aco_sections on aco_sections(id)",
@@ -457,7 +460,7 @@ switch ($db_type) {
 																	"
 																	CREATE TABLE aco (
 																	   id integer default 0 NOT NULL,
-																	   section_id integer default 0 NOT NULL,
+																	   section_value varchar(255) default 0 NOT NULL,
 																	   value varchar(255) default '' NOT NULL,
 																	   order_value integer default 0 NOT NULL,
 																	   name varchar(255) default '' NOT NULL
@@ -466,7 +469,8 @@ switch ($db_type) {
 																	"
 																	CREATE TABLE aco_map (
 																	   acl_id integer default 0 NOT NULL,
-																	   aco_id integer default 0 NOT NULL
+																	   aco_section_value varchar(255) default '' NOT NULL,
+																	   aco_value varchar(255) default '' NOT NULL
 																	)
 																	",
 											aco_sections =>
@@ -482,7 +486,7 @@ switch ($db_type) {
 																	"
 																	CREATE TABLE aro (
 																	   id integer default 0 NOT NULL,
-																	   section_id integer default 0 NOT NULL,
+																	   section_value varchar(255) default 0 NOT NULL,
 																	   value varchar(255) default '' NOT NULL,
 																	   order_value integer default 0 NOT NULL,
 																	   name varchar(255) default '' NOT NULL
@@ -492,7 +496,8 @@ switch ($db_type) {
 																   "
 																	CREATE TABLE aro_map (
 																	   acl_id integer default 0 NOT NULL,
-																	   aro_id integer default 0 NOT NULL
+																	   aro_section_value varchar(255) default '' NOT NULL,
+																	   aro_value varchar(255) default '' NOT NULL
 																	)
 																	",
 											aro_sections =>
@@ -516,7 +521,8 @@ switch ($db_type) {
 																	"
 																	CREATE TABLE groups_aro_map (
 																	   group_id integer default 0 NOT NULL,
-																	   aro_id integer default 0 NOT NULL
+																	   aro_section_value varchar(255) default '' NOT NULL,
+																	   aro_value varchar(255) default '' NOT NULL
 																	)
 																	",
 											groups_map =>
