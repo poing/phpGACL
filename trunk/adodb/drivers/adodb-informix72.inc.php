@@ -1,6 +1,6 @@
 <?php
 /*
-V3.50 19 May 2003  (c) 2000-2003 John Lim. All rights reserved.
+V3.60 16 June 2003  (c) 2000-2003 John Lim. All rights reserved.
   Released under both BSD license and Lesser GPL library license.
   Whenever there is any discrepancy between the two licenses,
   the BSD license will take precedence.
@@ -105,7 +105,7 @@ class ADODB_informix72 extends ADOConnection {
 	  return ifx_error();
    }
 
-   function MetaColumns($table)
+   function &MetaColumns($table)
    {
 		return ADOConnection::MetaColumns($table,false);
    }
@@ -239,6 +239,7 @@ class ADORecordset_informix72 extends ADORecordSet {
 				$o->type = $arr[0];
 				$o->max_length = $arr[1];
 				$this->_fieldprops[] = $o;
+				$o->not_null = $arr[4]=="N";
 			}
 		}
 		return $this->_fieldprops[$fieldOffset];

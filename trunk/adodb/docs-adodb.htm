@@ -11,7 +11,7 @@
 <body bgcolor="#FFFFFF">
 
 <h2>ADOdb Library for PHP</h2>
-<p>V3.50 19 May 2003 (c) 2000-2003 John Lim (<a href="mailto:jlim#natsoft.com.my">jlim#natsoft.com.my</a>)</p>
+<p>V3.60 16 June 2003 (c) 2000-2003 John Lim (<a href="mailto:jlim#natsoft.com.my">jlim#natsoft.com.my</a>)</p>
 <p><font size="1">This software is dual licensed using BSD-Style and LGPL. Where 
 	there is any discrepancy, the BSD-Style license will take precedence. This 
 	means you can use it in proprietary and commercial products.</font></p>
@@ -239,7 +239,7 @@ You will use <code>$conn-><a href=#connect>Connect()</a></code> or
   </tr>
   <tr valign="top"> 
 	<td height="54"><b><font size="2">db2</font></b></td>
-	<td height="54"><font size="2">C</font></td>
+	<td height="54"><font size="2">A</font></td>
 	<td height="54"><font size="2">DB2. Should work reliably as based on ODBC 
 	  driver.</font></td>
 	<td height="54"><font size="2">Y/N</font></td>
@@ -1424,7 +1424,7 @@ in adodb/lang/adodb-$lang.inc.php, where $lang is the supported langauge.
 connections even if PConnect is called by defining the constant 
 ADODB_NEVER_PERSIST  before you call PConnect.
 <p><b>NConnect<a name="nconnect"></a>($host,[$user],[$password],[$database])</b></p>
-<p>Always force new connection. In contrast, PHP sometimes reuses connections 
+<p>Always force a new connection. In contrast, PHP sometimes reuses connections 
 	when you use Connect() or PConnect(). Currently works only on mysql (PHP 4.3.0 
 	or later) and oci8-derived drivers. For other drivers, NConnect() works like 
 	Connect(). 
@@ -1782,8 +1782,9 @@ $DB->CompleteTrans($ok);
 <p><b>BeginTrans<a name="begintrans"></a>( )</b></p>
 <p>Begin a transaction. Turns off autoCommit. Returns true if successful. Some 
   databases will always return false if transaction support is not available. 
-  Interbase, Oracle and MSSQL support transactions. Any open transactions will 
-  be rolled back when the connection is closed.</p>
+   Any open transactions will be rolled back when the connection is closed. Among the
+   databases that support transactions are Oracle, PostgreSQL, Interbase, MSSQL, certain
+    versions of MySQL, DB2, Informix, Sybase, etc.</p>
  <p>Note that <a href=#starttrans>StartTrans()</a> and CompleteTrans() is a superior method of 
  handling transactions, available since ADOdb 3.40. For a explanation, see the <a href=#starttrans>StartTrans()</a> documentation.
 
@@ -2457,10 +2458,35 @@ $<font color="#663300">rs</font>   = $<font color="#663300">conn</font>->Execute
 	For your education, visit <a href=http://palslib.com/>palslib.com</a> for 
 	database info, and read this article on <a href=http://phplens.com/lens/php-book/optimizing-debugging-php.php>Optimizing 
 	PHP</a>. </p>
-</font> 
+</font>
 <h2>Change Log<a name="Changes"></a><a name="changelog"></a></h2>
-<p><b>3.50 15 April 2003</b></p>
-<p>Fixed mssql compat with FreeDTS. FreeDTS does not implement mssql_fetch_assoc(). 
+
+<p><b>3.60 16 June 2003</b>
+
+<p>We now SET CONCAT_NULL_YIELDS_NULL OFF for odbc_mssql driver to be compat with mssql driver.
+
+<p>The property $emptyDate missing from connection class. Also changed 1903 to constant (TIMESTAMP_FIRST_YEAR=100). 
+Thx to Sebastiaan van Stijn.
+<p>ADOdb speedup optimization - we now return all arrays by reference.
+<p>Now DBDate() and DBTimeStamp() now accepts the string 'null' as a parameter. Suggested by vincent.
+<p>Added GetArray() to connection class.
+<p>Added not_null check in informix metacolumns().
+<p>Connection parameters for postgresql did not work correctly when port was defined.
+<p>DB2 is now a tested driver, making adodb 100% compatible. 
+Extensive changes to odbc driver for DB2, including implementing serverinfo() and SQLDate(), 
+switching to SQL_CUR_USE_ODBC as the cursor mode, 
+and lastAffectedRows and SelectLimit() fixes.
+<p>The odbc driver's FetchField() field names did not obey ADODB_ASSOC_CASE. Fixed.
+<p>Some bugs in adodb_backtrace() fixed.
+<p>Added "INT IDENTITY" type to adorecordset::MetaType() to support odbc_mssql properly.
+<p>MetaColumns() for oci8, mssql, odbc revised to support scale. Also minor revisions to odbc
+MetaColumns() for vfp and db2 compat.
+<p>Added unsigned support to mysql datadict class. Thx to iamsure.
+<p>Infinite loop in mssql MoveNext() fixed when ADODB_FETCH_ASSOC used. Thx to Josh R, Night_Wulfe#hotmail.com.
+<p>ChangeTableSQL contributed by Florian Buzin.
+<p>The odbc_mssql driver now sets CONCAT_NULL_YIELDS_NULL OFF for compat with mssql driver.
+<p><b>3.50 19 May 2003</b></p>
+<p>Fixed mssql compat with FreeTDS. FreeTDS does not implement mssql_fetch_assoc(). 
 <p>Merged back connection and recordset code into adodb.inc.php.
 <p>ADOdb sessions using oracle clobs contributed by achim.gosse#ddd.de. See adodb-session-clob.php.
 <p>Added /s modifier to preg_match everywhere, which ensures that regex does not stop at /n. Thx Pao-Hsi Huang.

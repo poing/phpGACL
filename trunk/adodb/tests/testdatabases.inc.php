@@ -1,7 +1,7 @@
 <?php
   
 /*
-V3.50 19 May 2003  (c) 2000-2003 John Lim (jlim@natsoft.com.my). All rights reserved.
+V3.60 16 June 2003  (c) 2000-2003 John Lim (jlim@natsoft.com.my). All rights reserved.
   Released under both BSD license and Lesser GPL library license. 
   Whenever there is any discrepancy between the two licenses, 
   the BSD license will take precedence.
@@ -86,8 +86,8 @@ if (!empty($testvfp)) { // ODBC
 	print "<h1>Connecting $db->databaseType...</h1>";flush();
 
 	if ( $db->PConnect("vfp-adoxyz")) {
-		testdb($db,"create table d:\\inetpub\\wwwroot\\php\\vfp\\ADOXYZ (id int, firstname char(24), lastname char(24),created date)");
-	 } else print "ERROR: Visual FoxPro test requires a Windows ODBC DSN=logos2, VFP driver";
+		testdb($db,"create table d:\\inetpub\\adodb\\ADOXYZ (id int, firstname char(24), lastname char(24),created date)");
+	 } else print "ERROR: Visual FoxPro test requires a Windows ODBC DSN=vfp-adoxyz, VFP driver";
 	
 }
 
@@ -114,7 +114,7 @@ if (!empty($testmysqlodbc)) { // MYSQL
 	print "<h1>Connecting $db->databaseType...</h1>";
 	if ($HTTP_SERVER_VARS['HTTP_HOST'] == 'localhost') $server = 'localhost';
 	else $server = "mangrove";
-	if ($db->PConnect('mysql', "mobydick", ""))
+	if ($db->PConnect('mysql', "root", ""))
 		testdb($db,
 		"create table ADOXYZ (id int, firstname char(24), lastname char(24), created date) type=innodb");
 	else print "ERROR: MySQL test requires a MySQL server on localhost, userid='admin', password='', database='test'".'<BR>'.$db->ErrorMsg();
@@ -154,6 +154,18 @@ if (false && !empty($testoracle)) {
 	else print "ERROR: Oracle test requires an Oracle server setup with scott/tiger".'<BR>'.$db->ErrorMsg();
 
 }
+
+ADOLoadCode("db2"); // no longer supported
+if (!empty($testdb2)) { 
+	
+	$db = ADONewConnection();
+	print "<h1>Connecting $db->databaseType...</h1>";
+	if ($db->Connect("db2_sample", "", "", ""))
+		testdb($db,"create table ADOXYZ (id int, firstname varchar(24), lastname varchar(24),created date)");
+	else print "ERROR: DB2 test requires an server setup with odbc data source db2_sample".'<BR>'.$db->ErrorMsg();
+
+}
+
 
 
 ADOLoadCode("odbc_mssql");

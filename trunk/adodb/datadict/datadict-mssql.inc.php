@@ -1,7 +1,7 @@
 <?php
 
 /**
-  V3.50 19 May 2003  (c) 2000-2003 John Lim (jlim@natsoft.com.my). All rights reserved.
+  V3.60 16 June 2003  (c) 2000-2003 John Lim (jlim@natsoft.com.my). All rights reserved.
   Released under both BSD license and Lesser GPL library license. 
   Whenever there is any discrepancy between the two licenses, 
   the BSD license will take precedence.
@@ -12,6 +12,31 @@
 
 class ADODB2_mssql extends ADODB_DataDict {
 	var $databaseType = 'mssql';
+	
+	
+	function MetaType($t,$len=-1,$fieldobj=false)
+	{
+		if (is_object($t)) {
+			$fieldobj = $t;
+			$t = $fieldobj->type;
+			$len = $fieldobj->max_length;
+		}
+		
+		$len = -1; // mysql max_length is not accurate
+		switch (strtoupper($t)) {
+
+		case 'INT': 
+		case 'INTEGER': return  'I';
+		case 'BIT':
+		case 'TINYINT': return  'I1';
+		case 'SMALLINT': return 'I2';
+		case 'BIGINT':  return  'I8';
+		
+		case 'REAL':
+		case 'FLOAT': return 'F';
+		default: return parent::MetaType($t,$len,$fieldobj);
+		}
+	}
 	
 	function ActualType($meta)
 	{

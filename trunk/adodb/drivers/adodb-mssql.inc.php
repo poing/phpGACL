@@ -1,6 +1,6 @@
 <?php
 /* 
-V3.50 19 May 2003  (c) 2000-2003 John Lim (jlim@natsoft.com.my). All rights reserved.
+V3.60 16 June 2003  (c) 2000-2003 John Lim (jlim@natsoft.com.my). All rights reserved.
   Released under both BSD license and Lesser GPL library license. 
   Whenever there is any discrepancy between the two licenses, 
   the BSD license will take precedence. 
@@ -77,7 +77,11 @@ class ADODB_mssql extends ADOConnection {
 	var $hasAffectedRows = true;
 	var $metaDatabasesSQL = "select name from sysdatabases where name <> 'master'";
 	var $metaTablesSQL="select name from sysobjects where (type='U' or type='V') and (name not in ('sysallocations','syscolumns','syscomments','sysdepends','sysfilegroups','sysfiles','sysfiles1','sysforeignkeys','sysfulltextcatalogs','sysindexes','sysindexkeys','sysmembers','sysobjects','syspermissions','sysprotects','sysreferences','systypes','sysusers','sysalternates','sysconstraints','syssegments','REFERENTIAL_CONSTRAINTS','CHECK_CONSTRAINTS','CONSTRAINT_TABLE_USAGE','CONSTRAINT_COLUMN_USAGE','VIEWS','VIEW_TABLE_USAGE','VIEW_COLUMN_USAGE','SCHEMATA','TABLES','TABLE_CONSTRAINTS','TABLE_PRIVILEGES','COLUMNS','COLUMN_DOMAIN_USAGE','COLUMN_PRIVILEGES','DOMAINS','DOMAIN_CONSTRAINTS','KEY_COLUMN_USAGE','dtproperties'))";
-	var $metaColumnsSQL = "select c.name,t.name,c.length from syscolumns c join systypes t on t.xusertype=c.xusertype join sysobjects o on o.id=c.id where o.name='%s'";
+	var $metaColumnsSQL = # xtype==61 is datetime
+"select c.name,t.name,c.length,
+	(case when c.xusertype=61 then 0 else c.xprec end),
+	(case when c.xusertype=61 then 0 else c.xscale end) 
+	from syscolumns c join systypes t on t.xusertype=c.xusertype join sysobjects o on o.id=c.id where o.name='%s'";
 	var $hasTop = 'top';		// support mssql SELECT TOP 10 * FROM TABLE
 	var $hasGenID = true;
 	var $sysDate = 'convert(datetime,convert(char,GetDate(),102),102)';
@@ -135,12 +139,12 @@ class ADODB_mssql extends ADOConnection {
 	// they are in the same stored procedure, function, or batch.
 			return $this->GetOne($this->identitySQL);
 	}
-	
+
 	function _affectedrows()
 	{
 		return $this->GetOne('select @@rowcount');
 	}
-	
+
 	var $_dropSeqSQL = "drop table %s";
 	
 	function CreateSequence($seq='adodbseq',$start=1)
@@ -155,9 +159,9 @@ class ADODB_mssql extends ADOConnection {
 		$this->Execute('COMMIT TRANSACTION adodbseq'); 
 		return true;
 	}
-	
+
 	function GenID($seq='adodbseq',$start=1)
-	{	
+	{
 		//$this->debug=1;
 		$this->Execute('BEGIN TRANSACTION adodbseq');
 		$ok = $this->Execute("update $seq with (tablock,holdlock) set id = id + 1");
@@ -586,7 +590,8 @@ class ADORecordset_mssql extends ADORecordSet {
 							$fassoc[$k] = $v;
 						}
 						$this->fields = $fassoc;
-					}
+					} else
+						$this->fields = false;
 				}
 			}
 			

@@ -11,13 +11,14 @@
 <body bgcolor="#FFFFFF">
 
 <h2>ADOdb Data Dictionary Library for PHP</h2>
-<p> V3.50 19 May 2003 (c) 2000-2003 John Lim (<a href="mailto:jlim#natsoft.com.my">jlim#natsoft.com.my</a>)</p>
+<p> V3.60 16 June 2003 (c) 2000-2003 John Lim (<a href="mailto:jlim#natsoft.com.my">jlim#natsoft.com.my</a>)</p>
 <p><font size=1>This software is dual licensed using BSD-Style and LGPL. 
 Where there is any discrepancy, the BSD-Style license will take precedence. 
 This means you can use it in proprietary and commercial products.</font></p>
 
-<p>This is the documentation for a class library to automate the creation of tables, 
-indexes and foreign key constraints portably for multiple databases. Download from <a href="http://php.weblogs.com/adodb">http://php.weblogs.com/adodb</a>
+<p>This documentation describes a class library to automate the creation of tables, 
+  indexes and foreign key constraints portably for multiple databases. Download 
+  from <a href="http://php.weblogs.com/adodb">http://php.weblogs.com/adodb</a> 
 <p>Currently the following databases are supported: 
 <p> Well-tested: PostgreSQL, MySQL, Oracle, MSSQL. <br>
 Beta-quality: DB2, Informix, Sybase, Interbase, Firebird.<br>
@@ -154,8 +155,14 @@ Or the simpler declarative format:
 	$taboptarray = array('constraints' => 
 					', FOREIGN KEY (col1) REFERENCES reftable (refcol)');
 </pre>
-	<p><b>function CreateIndexSQL($idxname, $tabname, $flds, $idxoptarray=false)</b>
-	<p>
+<p><strong>function ChangeTableSQL($tabname, $flds)</strong>
+<p>Checks to see if table exists, if table does not exist, behaves like CreateTableSQL. 
+  If table exists, generates appropriate ALTER TABLE MODIFY COLUMN commands if 
+  field already exists, or ALTER TABLE ADD $column if field does not exist. 
+<p>The class must be connected to the database for ChangeTableSQL to detect the 
+  existance of the table. Idea and code contributed by Florian Buzin.
+<p><b>function CreateIndexSQL($idxname, $tabname, $flds, $idxoptarray=false)</b> 
+<p>
 	RETURNS:		an array of strings, the sql to be executed, or false
 	<pre>
 	$idxname:		name of index

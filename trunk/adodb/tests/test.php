@@ -1,6 +1,6 @@
 <?php
 /* 
-V3.50 19 May 2003  (c) 2000-2003 John Lim (jlim@natsoft.com.my). All rights reserved.
+V3.60 16 June 2003  (c) 2000-2003 John Lim (jlim@natsoft.com.my). All rights reserved.
   Released under both BSD license and Lesser GPL library license. 
   Whenever there is any discrepancy between the two licenses, 
   the BSD license will take precedence. 
@@ -69,6 +69,12 @@ GLOBAL $ADODB_vers,$ADODB_CACHE_DIR,$ADODB_FETCH_MODE, $HTTP_GET_VARS,$ADODB_COU
 	</p>
 <?php  
 	$create =false;
+	/*$ADODB_FETCH_MODE = ADODB_FETCH_NUM;
+	
+	$rs = $db->Execute('select lastname,firstname,lastname,id from adoxyz');
+	$arr = $rs->GetAssoc();
+	echo "<pre>";print_r($arr);
+	die();*/
 	
 	GLOBAL $EXECS, $CACHED;
 	
@@ -90,6 +96,7 @@ GLOBAL $ADODB_vers,$ADODB_CACHE_DIR,$ADODB_FETCH_MODE, $HTTP_GET_VARS,$ADODB_COU
 	
 	$arr = $db->ServerInfo();
 	print_r($arr);
+	echo "<br>";
 	$e = error_reporting(E_ALL-E_WARNING);
 	flush();
 	print "<i>date1</i> (1969-02-20) = ".$db->DBDate('1969-2-20');
@@ -589,7 +596,10 @@ END adodb;
 	 else Err("Failed SelectLimit Test 2");
 	
 	print "<p>SelectLimit Test 3: Should see Wai Hun and Steven</p>";
+	$db->debug=1;
+	global $A; $A=1;
 	$rs = &$db->SelectLimit('select * from ADOXYZ order by id',-1,48);
+	$A=0;
 	if ($rs && !$rs->EOF) {
 		if (empty($rs->connection)) print "<b>Connection object missing from recordset</b></br>";
 		if (trim($rs->fields[1]) != 'Wai Hun') Err("Error 1");
@@ -785,6 +795,7 @@ END adodb;
 	print "<p>ASSOC TEST 2<br>";
 	$ADODB_FETCH_MODE = ADODB_FETCH_ASSOC;
 	$rs = $db->query('select * from adoxyz order by id');
+	print_r($rs->fields);
 	for($i=0;$i<$rs->FieldCount();$i++) 
 	{ 
 		$fld=$rs->FetchField($i); 
@@ -875,7 +886,10 @@ END adodb;
 	if ($d != $rs->fields[0]) Err("SQLDate failed expected: <br>act:$d <br>sql:".$rs->fields[0]);
 	
 	print "<p>Test Filter</p>";
+	$db->debug = 1;
+	
 	$rs = $db->SelectLimit('select * from ADOXYZ where id < 3 order by id');
+	
 	$rs = RSFilter($rs,'do_strtolower');
 	if (trim($rs->fields[1]) != 'caroline'  && trim($rs->fields[2]) != 'miranda') {
 		err('**** RSFilter failed');
@@ -1187,6 +1201,7 @@ For the latest version of ADODB, visit <a href=http://php.weblogs.com/ADODB>php.
 <input type=checkbox name="testoracle" value=1 <?php echo !empty($testoracle) ? 'checked' : '' ?>> <b>Oracle (oci8)</b> <br>
 <input type=checkbox name="testpostgres" value=1 <?php echo !empty($testpostgres) ? 'checked' : '' ?>> <b>PostgreSQL</b><br>
 <input type=checkbox name="testpgodbc" value=1 <?php echo !empty($testpgodbc) ? 'checked' : '' ?>> <b>PostgreSQL ODBC</b><br>
+<input type=checkbox name="testdb2" value=1 <?php echo !empty($testdb2) ? 'checked' : '' ?>> DB2<br>
 <input type=checkbox name="testvfp" value=1 <?php echo !empty($testvfp) ? 'checked' : '' ?>> VFP<br>
 <input type=checkbox name="testado" value=1 <?php echo !empty($testado) ? 'checked' : '' ?>> ADO (for mssql and access)<br>
 <input type=checkbox name="nocountrecs" value=1 <?php echo !empty($nocountrecs) ? 'checked' : '' ?>> $ADODB_COUNTRECS=false<br>

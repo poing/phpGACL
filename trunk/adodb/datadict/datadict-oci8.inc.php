@@ -1,7 +1,7 @@
 <?php
 
 /**
-  V3.50 19 May 2003  (c) 2000-2003 John Lim (jlim@natsoft.com.my). All rights reserved.
+  V3.60 16 June 2003  (c) 2000-2003 John Lim (jlim@natsoft.com.my). All rights reserved.
   Released under both BSD license and Lesser GPL library license. 
   Whenever there is any discrepancy between the two licenses, 
   the BSD license will take precedence.
@@ -17,6 +17,50 @@ class ADODB2_oci8 extends ADODB_DataDict {
 	var $seqPrefix = 'SEQ_';
 	var $dropTable = "DROP TABLE %s CASCADE CONSTRAINTS";
 	
+	function MetaType($t,$len=-1)
+	{
+		if (is_object($t)) {
+			$fieldobj = $t;
+			$t = $fieldobj->type;
+			$len = $fieldobj->max_length;
+		}
+		switch (strtoupper($t)) {
+	 	case 'VARCHAR':
+	 	case 'VARCHAR2':
+		case 'CHAR':
+		case 'VARBINARY':
+		case 'BINARY':
+			if (isset($this) && $len <= $this->blobSize) return 'C';
+			return 'X';
+		
+		case 'NCHAR':
+		case 'NVARCHAR2':
+		case 'NVARCHAR':
+			if (isset($this) && $len <= $this->blobSize) return 'C2';
+			return 'X2';
+			
+		case 'NCLOB':
+		case 'CLOB';
+			return 'XL';
+		
+		case 'LONG RAW':
+		case 'LONG VARBINARY':
+		case 'BLOB':
+			return 'B';
+		
+		case 'DATE': 
+			return 'T';
+		
+		case 'INT': 
+		case 'SMALLINT':
+		case 'INTEGER': 
+			return 'I';
+			
+		default:
+			return 'N';
+		}
+	}
+	
  	function ActualType($meta)
 	{
 		switch($meta) {
@@ -31,15 +75,15 @@ class ADODB2_oci8 extends ADODB_DataDict {
 			
 		case 'D': 
 		case 'T': return 'DATE';
-		case 'L': return 'NUMBER(1)';
-		case 'I1': return 'NUMBER(3)';
-		case 'I2': return 'NUMBER(5)';
+		case 'L': return 'DECIMAL(1)';
+		case 'I1': return 'DECIMAL(3)';
+		case 'I2': return 'DECIMAL(5)';
 		case 'I':
-		case 'I4': return 'NUMBER(10)';
+		case 'I4': return 'DECIMAL(10)';
 		
-		case 'I8': return 'NUMBER(20)';
-		case 'F': return 'NUMBER';
-		case 'N': return 'NUMBER';
+		case 'I8': return 'DECIMAL(20)';
+		case 'F': return 'DECIMAL';
+		case 'N': return 'DECIMAL';
 		default:
 			return $meta;
 		}	
@@ -95,7 +139,7 @@ class ADODB2_oci8 extends ADODB_DataDict {
 	}
 	
 	// return string must begin with space
-	function _CreateSuffix($fname,$ftype,$fnotnull,$fdefault,$fautoinc,$fconstraint)
+	function _CreateSuffix($fname,$ftype,$fnotnull,$fdefault,$fautoinc,$fconstraint,$funsigned)
 	{
 		$suffix = '';
 		
@@ -103,11 +147,10 @@ class ADODB2_oci8 extends ADODB_DataDict {
 			$fnotnull = false;
 			if ($this->debug) ADOConnection::outp("NOT NULL and DEFAULT='' illegal in Oracle");
 		}
-				
+		
 		if (strlen($fdefault)) $suffix .= " DEFAULT $fdefault";
-		if ($fnotnull) {
-			$suffix .= ' NOT NULL';
-		}
+		if ($fnotnull) $suffix .= ' NOT NULL';
+		
 		if ($fautoinc) $this->seqField = $fname;
 		if ($fconstraint) $suffix .= ' '.$fconstraint;
 		
@@ -195,7 +238,7 @@ end;
 	function SetCommentSQL($table,$col,$cmt)
 	{
 		$cmt = $this->connection->qstr($cmt);
-		return  "COMMENT ON COLUMN $table.$col IS '$cmt'";
+		return  "COMMENT ON COLUMN $table.$col IS $cmt";
 	}
 }
 ?>

@@ -1,6 +1,6 @@
 <?php
 /* 
-V3.50 19 May 2003  (c) 2000-2003 John Lim (jlim@natsoft.com.my). All rights reserved.
+V3.60 16 June 2003  (c) 2000-2003 John Lim (jlim@natsoft.com.my). All rights reserved.
   Released under both BSD license and Lesser GPL library license. 
   Whenever there is any discrepancy between the two licenses, 
   the BSD license will take precedence. 
@@ -32,12 +32,15 @@ class  ADODB_odbc_mssql extends ADODB_odbc {
 	var $ansiOuter = true; // for mssql7 or later
 	var $identitySQL = 'select @@IDENTITY'; // 'select SCOPE_IDENTITY'; # for mssql 2000
 	var $hasInsertID = true;
+	var $connectStmt = 'SET CONCAT_NULL_YIELDS_NULL OFF'; # When SET CONCAT_NULL_YIELDS_NULL is ON, 
+														  # concatenating a null value with a string yields a NULL result
 	
 	function ADODB_odbc_mssql()
 	{
 		$this->ADODB_odbc();
 	}
 
+	// crashes php...
 	function xServerInfo()
 	{
 		$row = $this->GetRow("execute sp_server_info 2");
@@ -57,19 +60,25 @@ class  ADODB_odbc_mssql extends ADODB_odbc {
 			return $this->GetOne($this->identitySQL);
 	}
 	
-	function MetaTables()
+	function &MetaTables()
 	{
 		return ADOConnection::MetaTables();
 	}
 	
-	function MetaColumns($table)
+	function &MetaColumns($table)
 	{
 		return ADOConnection::MetaColumns($table);
 	}
 	
+	function _query($sql,$inputarr)
+	{
+		if (is_string($sql)) $sql = str_replace('||','+',$sql);
+		return ADODB_odbc::_query($sql,$inputarr);
+	}
+	
 	// "Stein-Aksel Basma" <basma@accelero.no>
 	// tested with MSSQL 2000
-	function MetaPrimaryKeys($table)
+	function &MetaPrimaryKeys($table)
 	{
 		$sql = "select k.column_name from information_schema.key_column_usage k,
 		information_schema.table_constraints tc 
