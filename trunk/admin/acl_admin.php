@@ -16,7 +16,7 @@ switch ($_POST['action']) {
         $gacl_api->debug_text("Submit!!");
 		//showarray($_POST['selected_aco']);
 		//showarray($_POST['selected_aro']);
-		
+
 		//Parse the form values
 		//foreach ($_POST['selected_aco'] as $aco_value) {
 		while (list(,$aco_value) = @each($_POST['selected_aco'])) {
@@ -80,12 +80,12 @@ switch ($_POST['action']) {
 			$gacl_api->debug_text("EDITING ACL");
 
 			//Grab ACL information
-			$query = "select id, allow, enabled, return_value, note from acl where id = ".$_GET['acl_id']."";
+			$query = "select id, section_id, allow, enabled, return_value, note from ".$gacl_api->_db_table_prefix."acl where id = ".$_GET['acl_id']."";
 			$acl_row = $db->GetRow($query);
-			list($acl_id, $allow, $enabled, $return_value, $note) = $acl_row;
+			list($acl_id, $section_id, $allow, $enabled, $return_value, $note) = $acl_row;
 
 			//Grab selected ACO's
-			$query = "select a.section_value, a.value, c.name, b.name from aco_map a, aco b, aco_sections c
+			$query = "select a.section_value, a.value, c.name, b.name from ".$gacl_api->_db_table_prefix."aco_map a, ".$gacl_api->_db_table_prefix."aco b, ".$gacl_api->_db_table_prefix."aco_sections c
 								where ( a.section_value=b.section_value AND a.value = b.value) AND b.section_value=c.value AND a.acl_id = $acl_id";
 			$rs = $db->Execute($query);
 			$rows = $rs->GetRows();
@@ -100,7 +100,7 @@ switch ($_POST['action']) {
 			//showarray($options_aco);
 
 			//Grab selected ARO's
-			$query = "select a.section_value, a.value, c.name, b.name from aro_map a, aro b, aro_sections c
+			$query = "select a.section_value, a.value, c.name, b.name from ".$gacl_api->_db_table_prefix."aro_map a, ".$gacl_api->_db_table_prefix."aro b, ".$gacl_api->_db_table_prefix."aro_sections c
 								where ( a.section_value=b.section_value AND a.value = b.value) AND b.section_value=c.value AND a.acl_id = $acl_id";
 			$rs = $db->Execute($query);
 			$rows = $rs->GetRows();
@@ -108,14 +108,14 @@ switch ($_POST['action']) {
 			while (list(,$row) = @each($rows)) {
 				list($section_value, $value, $section, $aro) = $row;
 				$gacl_api->debug_text("Section Value: $section_value Value: $value Section: $section ARO: $aro");
-				
+
 				$options_selected_aro[$section_value.'^'.$value] = "$section > $aro";
-				
+
 			}
 			//showarray($options_aro);
 
 			//Grab selected AXO's
-			$query = "select a.section_value, a.value, c.name, b.name from axo_map a, axo b, axo_sections c
+			$query = "select a.section_value, a.value, c.name, b.name from ".$gacl_api->_db_table_prefix."axo_map a, ".$gacl_api->_db_table_prefix."axo b, ".$gacl_api->_db_table_prefix."axo_sections c
 								where ( a.section_value=b.section_value AND a.value = b.value) AND b.section_value=c.value AND a.acl_id = $acl_id";
 			$rs = $db->Execute($query);
 			$rows = $rs->GetRows();
@@ -123,19 +123,19 @@ switch ($_POST['action']) {
 			while (list(,$row) = @each($rows)) {
 				list($section_value, $value, $section, $axo) = $row;
 				$gacl_api->debug_text("Section Value: $section_value Value: $value Section: $section AXO: $axo");
-				
+
 				$options_selected_axo[$section_value.'^'.$value] = "$section > $axo";
-				
+
 			}
 			//showarray($options_aro);
 
 			//Grab selected ARO groups.
-			$query = "select group_id from aro_groups_map where  acl_id = $acl_id";
+			$query = "select group_id from ".$gacl_api->_db_table_prefix."aro_groups_map where  acl_id = $acl_id";
 			$selected_aro_groups = $db->GetCol($query);
 			//showarray($selected_groups);
-			
+
 			//Grab selected AXO groups.
-			$query = "select group_id from axo_groups_map where  acl_id = $acl_id";
+			$query = "select group_id from ".$gacl_api->_db_table_prefix."axo_groups_map where  acl_id = $acl_id";
 			$selected_axo_groups = $db->GetCol($query);
 			//showarray($selected_groups);
 
@@ -149,7 +149,7 @@ switch ($_POST['action']) {
         //
         //Grab all ACL sections for select box
         //
-        $query = "select value, name from {$gacl_api->_db_table_prefix}acl_sections where hidden = 0 order by order_value";
+        $query = "select value, name from ".$gacl_api->_db_table_prefix."acl_sections where hidden = 0 order by order_value";
         $rs = $db->Execute($query);
         $rows = $rs->GetRows();
 
@@ -168,7 +168,7 @@ switch ($_POST['action']) {
 		//
         //Grab all ACO sections for select box
         //
-        $query = "select value, name from {$gacl_api->_db_table_prefix}aco_sections where hidden = 0 order by order_value";
+        $query = "select value, name from ".$gacl_api->_db_table_prefix."aco_sections where hidden = 0 order by order_value";
         $rs = $db->Execute($query);
         $rows = $rs->GetRows();
 
@@ -187,47 +187,47 @@ switch ($_POST['action']) {
         //
         //Grab all ARO sections for select box
         //
-        $query = "select value, name from {$gacl_api->_db_table_prefix}aro_sections where hidden = 0 order by order_value";
+        $query = "select value, name from ".$gacl_api->_db_table_prefix."aro_sections where hidden = 0 order by order_value";
         $rs = $db->Execute($query);
         $rows = $rs->GetRows();
 
         $i=0;
         while (list(,$row) = @each($rows)) {
             list($id, $value) = $row;
-            
+
             if ($i==0) {
-                $aro_section_id=$id;   
+                $aro_section_id=$id;
             }
 
             $options_aro_sections[$id] = $value;
-            
+
             $i++;
         }
 
         //
         //Grab all AXO sections for select box
         //
-        $query = "select value, name from {$gacl_api->_db_table_prefix}axo_sections where hidden = 0 order by order_value";
+        $query = "select value, name from ".$gacl_api->_db_table_prefix."axo_sections where hidden = 0 order by order_value";
         $rs = $db->Execute($query);
         $rows = $rs->GetRows();
 
         $i=0;
         while (list(,$row) = @each($rows)) {
             list($id, $value) = $row;
-            
+
             if ($i==0) {
-                $axo_section_id=$id;   
+                $axo_section_id=$id;
             }
 
             $options_axo_sections[$id] = $value;
-            
+
             $i++;
         }
 
         //
         //Grab all ACO's for select box
         //
-        $query = "select section_value, value, name from {$gacl_api->_db_table_prefix}aco where hidden = 0 order by section_value, order_value";
+        $query = "select section_value, value, name from ".$gacl_api->_db_table_prefix."aco where hidden = 0 order by section_value, order_value";
         $rs = $db->Execute($query);
         $rows = $rs->GetRows();
 
@@ -258,11 +258,11 @@ switch ($_POST['action']) {
         }
         unset($section_value);
         unset($tmp_section_value);
-	
+
         //
         //Grab all ARO's for select box
         //
-        $query = "select section_value, value, name from {$gacl_api->_db_table_prefix}aro  where hidden = 0 order by section_value, order_value limit $gacl_api->_max_select_box_items";
+        $query = "select section_value, value, name from ".$gacl_api->_db_table_prefix."aro where hidden = 0 order by section_value, order_value limit $gacl_api->_max_select_box_items";
         $rs = $db->Execute($query);
         $rows = $rs->GetRows();
 
@@ -271,7 +271,7 @@ switch ($_POST['action']) {
         $js_aro_array = "options['$js_aro_array_name'] = new Array();\n";
         while (list(,$row) = @each($rows)) {
             list($section_value, $value, $name) = $row;
-            
+
             //Prepare javascript code for dynamic select box.
             //Init the javascript sub-array.
             if (!isset($tmp_section_value) OR $section_value != $tmp_section_value) {
@@ -282,7 +282,7 @@ switch ($_POST['action']) {
 
             //Add each select option for the section
             $js_aro_array .= "options['$js_aro_array_name']['$section_value'][$i] = new Array('$value', '$name');\n";
-            
+
             $tmp_section_value = $section_value;
             $i++;
         }
@@ -292,7 +292,7 @@ switch ($_POST['action']) {
         //
         //Grab all AXO's for select box
         //
-        $query = "select section_value, value, name from {$gacl_api->_db_table_prefix}axo  where hidden = 0 order by section_value, order_value limit $gacl_api->_max_select_box_items";
+        $query = "select section_value, value, name from ".$gacl_api->_db_table_prefix."axo where hidden = 0 order by section_value, order_value limit $gacl_api->_max_select_box_items";
         $rs = $db->Execute($query);
         $rows = $rs->GetRows();
 
@@ -301,7 +301,7 @@ switch ($_POST['action']) {
         $js_axo_array = "options['$js_axo_array_name'] = new Array();\n";
         while (list(,$row) = @each($rows)) {
             list($section_value, $value, $name) = $row;
-            
+
             //Prepare javascript code for dynamic select box.
             //Init the javascript sub-array.
             if (!isset($tmp_section_value) OR $section_value != $tmp_section_value) {
@@ -319,8 +319,11 @@ switch ($_POST['action']) {
         unset($section_value);
         unset($tmp_section_value);
 
+		echo "Section ID: $section_id<br>\n";
+		echo "Section Value: ".$gacl_api->get_object_section_value($section_id,'ACL')."<br>\n";
+
         $smarty->assign("options_acl_sections", $options_acl_sections);
-        $smarty->assign("acl_section_value", $acl_section_value);
+        $smarty->assign("acl_section_value", $gacl_api->get_object_section_value($section_id));
 
 		$smarty->assign("options_axo_sections", $options_axo_sections);
         $smarty->assign("axo_section_value", $axo_section_value);
@@ -343,7 +346,7 @@ switch ($_POST['action']) {
         //Grab formatted ARO Groups for select box
         $smarty->assign("options_aro_groups", $gacl_api->format_groups($gacl_api->sort_groups('ARO')) );
 		$smarty->assign("selected_aro_groups", $selected_aro_groups);
-        
+
 		unset($formatted_groups);
         //Grab formatted AXO Groups for select box
         $smarty->assign("options_axo_groups", $gacl_api->format_groups($gacl_api->sort_groups('AXO')) );

@@ -5,23 +5,23 @@ require_once("gacl_admin.inc.php");
 if ($_GET['group_type'] != '') {
 	$group_type = $_GET['group_type'];
 } else {
-	$group_type = $_POST['group_type'];	
+	$group_type = $_POST['group_type'];
 }
 
 switch(strtolower(trim($group_type))) {
     case 'axo':
-        $group_type = 'axo';
-	$table = $gacl_api->_db_table_prefix . 'axo';
+		$group_type = 'axo';
+		$table = $gacl_api->_db_table_prefix . 'axo';
 		$group_table = $gacl_api->_db_table_prefix . 'axo_groups';
 		$group_sections_table = $gacl_api->_db_table_prefix . 'axo_sections';
-		$group_map_table = $gacl_api->_db_table_prefix . 'axo_groups_map';
+		$group_map_table = $gacl_api->_db_table_prefix . 'groups_axo_map';
         break;
     default:
-        $group_type = 'aro';
-	$table = $gacl_api->_db_table_prefix . 'aro';
+		$group_type = 'aro';
+		$table = $gacl_api->_db_table_prefix . 'aro';
 		$group_table = $gacl_api->_db_table_prefix . 'aro_groups';
 		$group_sections_table = $gacl_api->_db_table_prefix . 'aro_sections';
-		$group_map_table = $gacl_api->_db_table_prefix . 'aro_groups_map';
+		$group_map_table = $gacl_api->_db_table_prefix . 'groups_aro_map';
         break;
 }
 
@@ -31,23 +31,23 @@ switch ($_POST['action']) {
 
 		//Parse the form values
 		//foreach ($_POST['delete_assigned_aro'] as $aro_value) {
-		while (list(,$object_value) = @each($_POST['delete_assigned_object'])) {						
+		while (list(,$object_value) = @each($_POST['delete_assigned_object'])) {
 				$split_object_value = explode("^", $object_value);
 				$selected_object_array[$split_object_value[0]][] = $split_object_value[1];
 		}
 
         //Insert Object -> GROUP mappings
         while (list($object_section_value,$object_array) = @each($selected_object_array)) {
-            $gacl_api->debug_text("Assign: Object ID: $object_section_value to Group: $_POST[group_id]");   
+            $gacl_api->debug_text("Assign: Object ID: $object_section_value to Group: $_POST[group_id]");
 
 			foreach ($object_array as $object_value) {
                 $gacl_api->del_group_object($_POST['group_id'], $object_section_value, $object_value, $group_type);
 			}
         }
-         
+
         //Return page.
         $gacl_api->return_page("$PHP_SELF?group_type=".$_POST['group_type']."&group_id=".$_POST['group_id']."");
-		
+
         break;
     case 'Submit':
         $gacl_api->debug_text("Submit!!");
@@ -62,16 +62,16 @@ switch ($_POST['action']) {
 
         //Insert ARO -> GROUP mappings
         while (list($object_section_value,$object_array) = @each($selected_object_array)) {
-            $gacl_api->debug_text("Assign: Object ID: $object_section_value to Group: $_POST[group_id]");   
+            $gacl_api->debug_text("Assign: Object ID: $object_section_value to Group: $_POST[group_id]");
 
 			foreach ($object_array as $object_value) {
 				$gacl_api->add_group_object($_POST['group_id'], $object_section_value, $object_value, $group_type);
 			}
         }
-                
+
         $gacl_api->return_page("$PHP_SELF?group_type=".$_POST['group_type']."&group_id=".$_POST['group_id']."");
 
-        break;    
+        break;
     default:
         //
         //Grab all ARO sections for select box
@@ -86,13 +86,13 @@ switch ($_POST['action']) {
         $i=0;
         while (list(,$row) = @each($rows)) {
             list($id, $value) = $row;
-            
+
             if ($i==0) {
-                $section_value=$value;   
+                $section_value=$value;
             }
 
             $options_sections[$id] = $value;
-            
+
             $i++;
         }
 
@@ -113,7 +113,7 @@ switch ($_POST['action']) {
         $js_array .= "options['$js_array_name'] = new Array();\n";
         while (list(,$row) = @each($rows)) {
             list($section_value, $value, $name) = $row;
-            
+
             //Prepare javascript code for dynamic select box.
             //Init the javascript sub-array.
             if ($section_value != $tmp_section_value) {
@@ -124,7 +124,7 @@ switch ($_POST['action']) {
 
             //Add each select option for the section
             $js_array .= "options['$js_array_name']['$section_value'][$i] = new Array('$value', '$name');\n";
-            
+
             $tmp_section_value = $section_value;
             $i++;
         }
@@ -134,19 +134,19 @@ switch ($_POST['action']) {
 
 
         //Grab list of assigned Objects
-        $query = "select
-										b.section_value,
-                                        b.value,
-                                        b.name,
-                                        c.name
-                            from    $group_map_table a,
-                                        $table b,
-                                        $group_sections_table c
-                            where   a.group_id = $_GET[group_id]
-                                        AND a.section_value=b.section_value
-                                        AND a.value=b.value
-                                        AND b.section_value=c.value
-                            order by c.name, b.name";
+        $query = "	select
+							b.section_value,
+							b.value,
+							b.name,
+							c.name
+					from    $group_map_table a,
+							$table b,
+							$group_sections_table c
+					where   a.group_id = ". $_GET['group_id'] ."
+								AND a.section_value=b.section_value
+								AND a.value=b.value
+								AND b.section_value=c.value
+					order by c.name, b.name";
         //$rs = $db->Execute($query);
         $rs = $db->pageexecute($query, $gacl_api->_items_per_page, $_GET['page']);
         $rows = $rs->GetRows();
@@ -154,7 +154,7 @@ switch ($_POST['action']) {
         $i=0;
         while (list(,$row) = @each($rows)) {
             list($section_value, $value, $name, $section) = $row;
-            
+
             $object_rows[] = array(
 								'section_value' => $section_value,
                                 'value' => $value,
@@ -176,7 +176,7 @@ switch ($_POST['action']) {
         $smarty->assign("total_objects", $rs->_maxRecordCount);
         
         $smarty->assign("paging_data", $gacl_api->get_paging_data($rs));
-        
+
         break;
 }
 

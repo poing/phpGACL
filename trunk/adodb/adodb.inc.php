@@ -15,7 +15,7 @@
 /**
 	\mainpage 	
 	
-	 @version V3.60 16 June 2003 (c) 2000-2003 John Lim (jlim\@natsoft.com.my). All rights reserved.
+	 @version V3.72 9 Aug 2003 (c) 2000-2003 John Lim (jlim\@natsoft.com.my). All rights reserved.
 
 	Released under both BSD license and Lesser GPL library license. 
  	Whenever there is any discrepancy between the two licenses, 
@@ -150,7 +150,7 @@
 		/**
 		 * ADODB version as a string.
 		 */
-		$ADODB_vers = 'V3.60 16 June 2003 (c) 2000-2003 John Lim (jlim@natsoft.com.my). All rights reserved. Released BSD & LGPL.';
+		$ADODB_vers = 'V3.72 9 Aug 2003 (c) 2000-2003 John Lim (jlim@natsoft.com.my). All rights reserved. Released BSD & LGPL.';
 	
 		/**
 		 * Determines whether recordset->RecordCount() is used. 
@@ -205,7 +205,7 @@
 	// CLASS ADOConnection
 	//==============================================================================================	
 	
-    /**
+	/**
 	 * Connection object. For connecting to databases, and executing queries.
 	 */ 
 	class ADOConnection {
@@ -272,9 +272,9 @@
 	var $_oldRaiseFn =  false;
 	var $_transOK = null;
 	var $_connectionID	= false;	/// The returned link identifier whenever a successful database connection is made.	
-	var $_errorMsg = '';		/// A variable which was used to keep the returned last error message.  The value will
+	var $_errorMsg = false;		/// A variable which was used to keep the returned last error message.  The value will
 								/// then returned by the errorMsg() function	
-						
+	var $_errorCode = false;	/// Last error code, not guaranteed to be used - only by oci8					
 	var $_queryID = false;		/// This variable keeps the last created result link identifier
 	
 	var $_isPersistentConnection = false;	/// A boolean variable to state whether its a persistent connection or normal connection.	*/
@@ -338,7 +338,7 @@
 	 * @param [argUsername]		Userid to login
 	 * @param [argPassword]		Associated password
 	 * @param [argDatabaseName]	database
-	 * @param [forceNew]        force new connection
+	 * @param [forceNew]		force new connection
 	 *
 	 * @return true or false
 	 */	  
@@ -478,6 +478,14 @@
 	{
 		return $this->qstr($s,false);
 	}
+	
+	/**
+	 Requested by "Karsten Dambekalns" <k.dambekalns@fishfarm.de>
+	*/
+	function QMagic($s)
+	{
+		return $this->qstr($s,get_magic_quotes_gpc());
+	}
 
 	function q(&$s)
 	{
@@ -559,9 +567,9 @@
 	/**
 	* PEAR DB Compat - do not use internally
 	*/
-	function &LimitQuery($sql, $offset, $count)
+	function &LimitQuery($sql, $offset, $count, $params=false)
 	{
-		$rs = &$this->SelectLimit($sql, $count, $offset); // swap 
+		$rs = &$this->SelectLimit($sql, $count, $offset, $params); 
 		if (!$rs && defined('ADODB_PEAR')) return ADODB_PEAR_Error();
 		return $rs;
 	}
@@ -655,6 +663,16 @@
 		}
 		$this->_transOK = false;
 	}
+	
+	/**
+		Check if transaction has failed, only for Smart Transactions.
+	*/
+	function HasFailedTrans()
+	{
+		if ($this->transOff > 0) return $this->_transOK;
+		return false;
+	}
+	
 	/**
 	 * Execute SQL 
 	 *
@@ -710,7 +728,9 @@
 			$inBrowser = isset($HTTP_SERVER_VARS['HTTP_USER_AGENT']);
 			
 			if ($inBrowser)
-				ADOConnection::outp( "<hr />\n($this->databaseType): ".htmlspecialchars($sqlTxt)." &nbsp; <code>$ss</code>\n<hr />\n",false);
+				if ($this->debug === -1)
+				ADOConnection::outp( "<br>\n($this->databaseType): ".htmlspecialchars($sqlTxt)." &nbsp; <code>$ss</code>\n<br>\n",false);
+				else ADOConnection::outp( "<hr />\n($this->databaseType): ".htmlspecialchars($sqlTxt)." &nbsp; <code>$ss</code>\n<hr />\n",false);
 			else
 				ADOConnection::outp(  "=----\n($this->databaseType): ".($sqlTxt)." \n-----\n",false);
 			flush();
@@ -742,14 +762,14 @@
 			// non-debug version of query
 			
 			$this->_queryID =@$this->_query($sql,$inputarr,$arg3);
-			
 		}
 		// error handling if query fails
 		if ($this->_queryID === false) {
 			$fn = $this->raiseErrorFn;
 			if ($fn) {
 				$fn($this->databaseType,'EXECUTE',$this->ErrorNo(),$this->ErrorMsg(),$sql,$inputarr,$this);
-			}
+			} else
+				if ($this->debug && $this->debug !== 1) adodb_backtrace(true,4);
 			return false;
 		} else if ($this->_queryID === true) {
 		// return simplified empty recordset for inserts/updates/deletes with lower overhead
@@ -910,7 +930,13 @@
 		return false;
 	}
 	
-	
+	/**
+	 * @returns assoc array where keys are tables, and values are foreign keys
+	 */
+	function MetaForeignKeys($table, $owner=false, $upper=false)
+	{
+		return false;
+	}
 	/**
 	 * Choose a database to connect to. Many databases do not support this.
 	 *
@@ -1356,7 +1382,7 @@
 	global $ADODB_CACHE_DIR;
 	
 		if (strlen($ADODB_CACHE_DIR) > 1 && !$sql) {
-			if (strpos(strtoupper(PHP_OS),'WIN') !== false) {
+			if (strncmp(PHP_OS,'WIN',3) === 0) {
 				$cmd = 'del /s '.str_replace('/','\\',$ADODB_CACHE_DIR).'\adodb_*.cache';
 			} else {
 				$cmd = 'rm -rf '.$ADODB_CACHE_DIR.'/??/adodb_*.cache'; 
@@ -1440,7 +1466,7 @@
 				if (get_magic_quotes_runtime()) {
 					ADOConnection::outp("Please disable magic_quotes_runtime - it corrupts cache files :(");
 				}
-				ADOConnection::outp( " $md5file cache failure: $err (see sql below)");
+				if ($this->debug !== -1) ADOConnection::outp( " $md5file cache failure: $err (see sql below)");
 			}
 			$rs = &$this->Execute($sql,$inputarr,$arg3);
 			if ($rs) {
@@ -1463,6 +1489,9 @@
 			} else
 				@unlink($md5file);
 		} else {
+			$this->_errorMsg = '';
+			$this->_errorCode = 0;
+			
 			if ($this->fnCacheExecute) {
 				$fn = $this->fnCacheExecute;
 				$fn($this, $secs2cache, $sql, $inputarr);
@@ -1471,7 +1500,7 @@
 			$rs->connection = &$this; // Pablo suggestion
 			if ($this->debug){ 
 			global $HTTP_SERVER_VARS;
-        			
+					
 				$inBrowser = isset($HTTP_SERVER_VARS['HTTP_USER_AGENT']);
 				$ttl = $rs->timeCreated + $secs2cache - time();
 				$s = is_array($sql) ? $sql[0] : $sql;
@@ -1567,6 +1596,16 @@
 	function BlobEncode($blob)
 	{
 		return $blob;
+	}
+	
+	function SetCharSet($charset)
+	{
+		return false;
+	}
+	
+	function GetCharSet()
+	{
+		return false;
 	}
 	
 	/**
@@ -1704,9 +1743,15 @@
 		}
 		
 	/**
+	 * @param ttype can either be 'VIEW' or 'TABLE' or false. 
+	 * 		If false, both views and tables are returned.
+	 *		"VIEW" returns only views
+	 *		"TABLE" returns only tables
+	 * @param showSchema returns the schema/user with the table name, eg. USER.TABLE
+	 *
 	 * @return  array of tables for current database.
 	 */ 
-	function &MetaTables() 
+	function &MetaTables($ttype=false,$showSchema=false) 
 	{
 	global $ADODB_FETCH_MODE;
 	
@@ -1724,8 +1769,20 @@
 			if ($rs === false) return false;
 			$arr =& $rs->GetArray();
 			$arr2 = array();
+			
+			if ($hast = ($ttype && isset($arr[0][1]))) { 
+				$showt = strncmp($ttype,'T',1);
+			}
+			
 			for ($i=0; $i < sizeof($arr); $i++) {
-				$arr2[] = $arr[$i][0];
+				if ($hast) {
+					if ($showt == 0) {
+						if (strncmp($arr[$i][1],'T',1) == 0) $arr2[] = trim($arr[$i][0]);
+					} else {
+						if (strncmp($arr[$i][1],'V',1) == 0) $arr2[] = trim($arr[$i][0]);
+					}
+				} else
+					$arr2[] = trim($arr[$i][0]);
 			}
 			$rs->Close();
 			return $arr2;
@@ -1767,9 +1824,9 @@
 					if ($fld->scale>0) $fld->max_length += 1;
 				} else
 					$fld->max_length = $rs->fields[2];
-				
-				$retarr[strtoupper($fld->name)] = $fld;	
-				
+					
+				if ($ADODB_FETCH_MODE == ADODB_FETCH_NUM) $retarr[] = $fld;	
+				else $retarr[strtoupper($fld->name)] = $fld;
 				$rs->MoveNext();
 			}
 			$rs->Close();
@@ -2047,7 +2104,7 @@
 	// CLASS ADORecordSet
 	//==============================================================================================	
 	
- 
+
    /**
 	 * RecordSet class that represents the dataset returned by the database.
 	 * To keep memory overhead low, this class holds only the current row in memory.
@@ -2190,6 +2247,11 @@
 			$cnt++;
 		}
 		return $results;
+	}
+	
+	function &GetAll($nRows = -1)
+	{
+		return GetArray($nRows);
 	}
 	
 	/*
@@ -2548,7 +2610,7 @@
 	{
 		$this->bind = array();
 		for ($i=0; $i < $this->_numOfFields; $i++) {
-			$o = $this->FetchField($i);
+			$o =& $this->FetchField($i);
 			if ($upper === 2) $this->bind[$o->name] = $i;
 			else $this->bind[($upper) ? strtoupper($o->name) : strtolower($o->name)] = $i;
 		}
@@ -2563,7 +2625,7 @@
    *
    * $upper  0 = lowercase, 1 = uppercase, 2 = whatever is returned by FetchField
    */
-	function GetRowAssoc($upper=1)
+	function &GetRowAssoc($upper=1)
 	{
 	 
 	   	if (!$this->bind) {
@@ -2694,7 +2756,7 @@
 	*/
 	function &FetchObj()
 	{
-		return FetchObject(false);
+		return $this->FetchObject(false);
 	}
 	
 	/**
@@ -3168,7 +3230,8 @@
 	 */
 	function &NewADOConnection($db='')
 	{
-		return ADONewConnection($db);
+		$tmp =& ADONewConnection($db);
+		return $tmp;
 	}
 	
 	/**
@@ -3272,7 +3335,7 @@
 	# 2. unlink($filename) fails -- ok, rename will fail
 	# 3. adodb reads stale file because unlink fails -- ok, $rs timeout occurs
 	# 4. another process creates $filename between unlink() and rename() -- ok, rename() fails and  cache updated
-		if (strpos(strtoupper(PHP_OS),'WIN') !== false) {
+		if (strncmp(PHP_OS,'WIN',3) === 0) {
 			// skip the decimal place
 			$mtime = substr(str_replace(' ','_',microtime()),2); 
 			// unlink will let some latencies develop, so uniqid() is more random
@@ -3308,7 +3371,7 @@
 	}
 
 	
-	function adodb_backtrace($print=true)
+	function adodb_backtrace($print=true,$levels=9999)
 	{
 		$s = '';
 		if (PHPVERSION() >= 4.3) {
@@ -3321,6 +3384,9 @@
 			$tabs = sizeof($traceArr)-1;
 			
 			foreach ($traceArr as $arr) {
+				$levels -= 1;
+				if ($levels < 0) break;
+				
 				$args = array();
 				for ($i=0; $i < $tabs; $i++) $s .= ' &nbsp; ';
 				$tabs -= 1;
@@ -3332,7 +3398,7 @@
 					else if (is_array($v)) $args[] = 'Array['.sizeof($v).']';
 					else if (is_object($v)) $args[] = 'Object:'.get_class($v);
 					else if (is_bool($v)) $args[] = $v ? 'true' : 'false';
-					else { 
+					else {
 						$v = (string) @$v;
 						$str = htmlspecialchars(substr($v,0,$MAXSTRLEN));
 						if (strlen($v) > $MAXSTRLEN) $str .= '...';
@@ -3340,7 +3406,7 @@
 					}
 				}
 				$s .= $arr['function'].'('.implode(', ',$args).')';
-				$s .= @sprintf("</font><font color=#808080 size=-1> # line %4d, file: <a href=\"file:/%s\">%s</a></font>",
+				$s .= @sprintf("</font><font color=#808080 size=-1> %% line %4d, file: <a href=\"file:/%s\">%s</a></font>",
 					$arr['line'],$arr['file'],$arr['file']);
 				$s .= "\n";
 			}	

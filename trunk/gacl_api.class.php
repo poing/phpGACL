@@ -31,10 +31,10 @@
 /*
  *
  *
- *  == If you find a feature may be missing from this API, please email me: ipso@snappymail.ca and I will be happy to add it. == 
+ *  == If you find a feature may be missing from this API, please email me: ipso@snappymail.ca and I will be happy to add it. ==
  *
  *
- * Example: 
+ * Example:
  *	$gacl_api = new gacl_api;
  *
  *	$section_id = $gacl_api->get_aco_section_id('System');
@@ -250,7 +250,7 @@ class gacl_api extends gacl {
 		$new_acl_ids = $this->search_acl($aco_section_value, $aco_value, FALSE, FALSE, NULL, NULL, NULL, NULL, $return_value);
 		$new_acl_count = count($new_acl_ids);
 		//showarray($new_acl_ids);
-		
+
 		if (is_array($new_acl_ids)) {
 			$this->debug_text("add_consolidated_acl(): Found new ACL_IDs, counting ACOs");
 			
@@ -323,25 +323,25 @@ class gacl_api extends gacl {
 		$query = "select 	a.id
 							from {$this->_db_table_prefix}acl a";
 		if ($aco_section_value !== FALSE AND $aco_value !== FALSE) {
-			$query .= " LEFT JOIN {$this->_db_table_prefix}aco_map b ON a.id=b.acl_id";	
+			$query .= " LEFT JOIN {$this->_db_table_prefix}aco_map b ON a.id=b.acl_id";
 		}
 		if ($aro_section_value !== FALSE AND $aro_value !== FALSE) {
-			$query .= " LEFT JOIN {$this->_db_table_prefix}aro_map c ON a.id=c.acl_id";	
+			$query .= " LEFT JOIN {$this->_db_table_prefix}aro_map c ON a.id=c.acl_id";
 		}
 		if ($aro_group_name !== FALSE) {
 			$query .= " LEFT JOIN {$this->_db_table_prefix}aro_groups_map d ON a.id=d.acl_id
-							LEFT JOIN {$this->_db_table_prefix}aro_groups dd ON d.group_id=dd.id";	
+							LEFT JOIN {$this->_db_table_prefix}aro_groups dd ON d.group_id=dd.id";
 		}
 		if ($axo_section_value !== FALSE AND $axo_value !== FALSE) {
-			$query .= " LEFT JOIN {$this->_db_table_prefix}axo_map e ON a.id=e.acl_id";	
+			$query .= " LEFT JOIN {$this->_db_table_prefix}axo_map e ON a.id=e.acl_id";
 		}
 		if ($axo_group_name !== FALSE) {
 			$query .= " LEFT JOIN {$this->_db_table_prefix}axo_groups_map f ON a.id=f.acl_id
-							LEFT JOIN {$this->_db_table_prefix}axo_groups ff ON f.group_id=ff.id";	
+							LEFT JOIN {$this->_db_table_prefix}axo_groups ff ON f.group_id=ff.id";
 		}
-		
+
 		$query .= " WHERE ";
-		
+
 		//Where clauses
 		if ($aco_section_value !== FALSE AND $aco_value !== FALSE) {
 			if ($aco_section_value == NULL AND $aco_value == NULL) {
@@ -511,7 +511,7 @@ class gacl_api extends gacl {
 		
 		//Grab ACL data.
 		$acl_array = &$this->get_acl($acl_id);
-	
+
 		//showarray($acl_array);
 		//Remove each object type seperately.
 		if (is_array($aro_array) AND count($aro_array) > 0) {
@@ -824,13 +824,13 @@ class gacl_api extends gacl {
 			$acl_id = $this->db->GenID('acl_seq',10);
 
 			$this->db->BeginTrans();
-			$query = "insert into {$this->_db_table_prefix}acl (id,allow,enabled,return_value, note, updated_date) VALUES($acl_id, $allow, $enabled, ".$this->db->quote($return_value).", ".$this->db->quote($note).", ".time().")";
+			$query = "insert into {$this->_db_table_prefix}acl (id,section_id,allow,enabled,return_value, note, updated_date) VALUES($acl_id, $section_id, $allow, $enabled, ".$this->db->quote($return_value).", ".$this->db->quote($note).", ".time().")";
 			$result = $this->db->Execute($query);
 		} else {
 			$this->db->BeginTrans();
 
 			//Update ACL row, and remove all mappings so they can be re-inserted.
-			$query = "update {$this->_db_table_prefix}acl set allow=$allow,enabled=$enabled,return_value=".$this->db->quote($return_value).", note=".$this->db->quote($note).",updated_date=".time()." where id=$acl_id";
+			$query = "update {$this->_db_table_prefix}acl set section_id=$section_id,allow=$allow,enabled=$enabled,return_value=".$this->db->quote($return_value).", note=".$this->db->quote($note).",updated_date=".time()." where id=$acl_id";
 			$result = $this->db->Execute($query);
 
 			if ($result) {
@@ -947,7 +947,7 @@ class gacl_api extends gacl {
 
 			//Insert AXO mappings
 			while (list($axo_section_value,$axo_value_array) = @each($axo_array)) {
-				$this->debug_text("Insert: AXO Section Value: $axo_section_value AXO VALUE: $axo_value_array");   
+				$this->debug_text("Insert: AXO Section Value: $axo_section_value AXO VALUE: $axo_value_array");
 
 				$axo_value_array = array_unique($axo_value_array);
 				foreach ($axo_value_array as $axo_value) {
@@ -960,7 +960,7 @@ class gacl_api extends gacl {
 						if ( is_string( $this->db->ErrorNo() ) ) {
 							$this->debug_text("add_acl(): database error: ". $this->db->ErrorMsg() ." (". $this->db->ErrorNo() .")");
 							$this->db->RollBackTrans();
-							return false;	
+							return false;
 						}
 					} else {
 						$this->debug_text("add_acl(): AXO Object Section Value: $axo_section_value Value: $axo_value DOES NOT exist in the database. Skipping...");
@@ -972,7 +972,7 @@ class gacl_api extends gacl {
 
 			//Insert ARO GROUP mappings
 			while (list(,$aro_group_id) = @each($aro_group_ids)) {
-				$this->debug_text("Insert: ARO GROUP ID: $aro_group_id");   
+				$this->debug_text("Insert: ARO GROUP ID: $aro_group_id");
 
 				$aro_group_data = &$this->get_group_data($aro_group_id, 'ARO');
 
@@ -984,7 +984,7 @@ class gacl_api extends gacl {
 					if ( is_string( $this->db->ErrorNo() ) ) {
 						$this->debug_text("add_acl(): database error: ". $this->db->ErrorMsg() ." (". $this->db->ErrorNo() .")");
 						$this->db->RollBackTrans();
-						return false;	
+						return false;
 					}
 				} else {
 					$this->debug_text("add_acl(): ARO Group: $aro_group_id DOES NOT exist in the database. Skipping...");
@@ -995,7 +995,7 @@ class gacl_api extends gacl {
 
 			//Insert AXO GROUP mappings
 			while (list(,$axo_group_id) = @each($axo_group_ids)) {
-				$this->debug_text("Insert: AXO GROUP ID: $axo_group_id");   
+				$this->debug_text("Insert: AXO GROUP ID: $axo_group_id");
 
 				$axo_group_data = &$this->get_group_data($axo_group_id, 'AXO');
 
@@ -1007,7 +1007,7 @@ class gacl_api extends gacl {
 					if ( is_string( $this->db->ErrorNo() ) ) {
 						$this->debug_text("add_acl(): database error: ". $this->db->ErrorMsg() ." (". $this->db->ErrorNo() .")");
 						$this->db->RollBackTrans();
-						return false;	
+						return false;
 					}
 				} else {
 					$this->debug_text("add_acl(): AXO Group: $axo_group_id DOES NOT exist in the database. Skipping...");
@@ -1020,12 +1020,12 @@ class gacl_api extends gacl {
 		if ( is_string( $this->db->ErrorNo() ) ) {
 			$this->debug_text("add_acl(): database error: ". $this->db->ErrorMsg() ." (". $this->db->ErrorNo() .")");
 			$this->db->RollBackTrans();
-			return false;	
+			return false;
 		} else {
 			$this->db->CommitTrans();
 
 			if ($this->_caching == TRUE AND $this->_force_cache_expire == TRUE) {
-				//Expire all cache.	
+				//Expire all cache.
 				$this->Cache_Lite->clean('default');
 			}
 
@@ -1093,10 +1093,10 @@ class gacl_api extends gacl {
 		$this->db->Execute($query);
 		if ( is_string( $this->db->ErrorNo() ) ) {
 			$this->debug_text("del_acl(): database error: ". $this->db->ErrorMsg() ." (". $this->db->ErrorNo() .")");
-			$this->db->RollBackTrans();			
-			return false;	
+			$this->db->RollBackTrans();
+			return false;
 		}
-		
+
 		$query = "delete from {$this->_db_table_prefix}aco_map where acl_id= $acl_id";
 		$this->db->Execute($query);
 		if ( is_string( $this->db->ErrorNo() ) ) {
@@ -1257,7 +1257,7 @@ class gacl_api extends gacl {
 						Will only return one group id, so if there are duplicate names, it will return false.
 	\*======================================================================*/
 	function get_group_id($name = null, $group_type = 'ARO') {
-		
+
 		$this->debug_text("get_group_id(): Name: $name");
 
 		switch(strtolower($group_type)) {
@@ -1270,12 +1270,12 @@ class gacl_api extends gacl {
 		}
 
 		$name = trim($name);
-		
+
 		if (empty($name) ) {
 			$this->debug_text("get_group_id(): name ($name) is empty, this is required");
-			return false;	
+			return false;
 		}
-			
+
 		$query = "select id from $table where name='$name'";
 		$rs = $this->db->Execute($query);
 
@@ -2093,7 +2093,7 @@ class gacl_api extends gacl {
 		}
 
 		if ($return_hidden==0) {
-			$query .= "		and hidden=0";	
+			$query .= "		and hidden=0";
 		}
 
 		$rs = $this->db->GetCol($query);
@@ -2155,7 +2155,7 @@ class gacl_api extends gacl {
 				return $rows;
 			} else {
 				$this->debug_text("get_object_data(): Returned $row_count rows");
-				return false;	
+				return false;
 			}
 		}
 	}
@@ -2215,7 +2215,7 @@ class gacl_api extends gacl {
 				$rows = $rs->GetRows();
 
 				//Return only the ID in the first row.
-				return $rows[0][0];	
+				return $rows[0][0];
 			}
 		}
 	}
@@ -2286,18 +2286,18 @@ class gacl_api extends gacl {
 		switch(strtolower(trim($object_type))) {
 			case 'aco':
 				$object_type = 'aco';
-				$table = $this->_db_table_prefix . 'aco';
-				$object_sections_table = $this->_db_table_prefix . 'aco_sections';
+				$table = $this->_db_table_prefix .'aco';
+				$object_sections_table = $this->_db_table_prefix .'aco_sections';
 				break;
 			case 'aro':
 				$object_type = 'aro';
-				$table = $this->_db_table_prefix . 'aro';
-				$object_sections_table = $this->_db_table_prefix . 'aro_sections';
+				$table = $this->_db_table_prefix .'aro';
+				$object_sections_table = $this->_db_table_prefix .'aro_sections';
 				break;
 			case 'axo':
 				$object_type = 'axo';
-				$table = $this->_db_table_prefix . 'axo';
-				$object_sections_table = $this->_db_table_prefix . 'axo_sections';
+				$table = $this->_db_table_prefix .'axo';
+				$object_sections_table = $this->_db_table_prefix .'axo_sections';
 				break;
 		}
 
@@ -2333,7 +2333,7 @@ class gacl_api extends gacl {
 		}
 
 		//Test to see if the object already exists.
-		$query = "select id from $object_type where section_value='$section_value' AND value='$value'";
+		$query = "select id from $table where section_value='$section_value' AND value='$value'";
 		$rs = $this->db->Execute($query);
 
 		if ($rs->RecordCount() == 1) {
