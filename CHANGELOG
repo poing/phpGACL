@@ -9,6 +9,9 @@ Sun May 02 2004
 	mikeb - Upgraded to Smarty v2.6.2
 	mikeb - Re-enabled JS selected = true when selecting objects to assign to groups.
 	mikeb - Released v3.3.0-final
+
+==> mikeb - Read the CHANGELOG line with "==>" infront of it. Mar 03 2004.
+	
 Wed Apr 21 2004
 	mikeb - Fixed index name for value column in AXO group table. Falk <support@fajo.de>
 	mikeb - Updated schema diagrams. Falk <support@fajo.de>
@@ -25,6 +28,9 @@ Wed Mar 03 2004
 	dcech - Updated admin interface and gacl class for value patch.
 		acl_* functions now all accept group values rather than IDs.
 	dcech - Minor fixes in gacl_api for group_value patch.
+	
+==>	mikeb - *BEWARE* add_group(), edit_group() both require a group_value now!
+	
 Sat Feb 28 2004
 	mikeb - Upgraded ADODB to 4.20.
 	mikeb - Applied group value patch from Christer Lindh <clindh@homenet.se>.
