@@ -1,6 +1,6 @@
 <?php
 /* 
-V3.00 6 Jan 2003  (c) 2000-2003 John Lim (jlim@natsoft.com.my). All rights reserved.
+V3.50 19 May 2003  (c) 2000-2003 John Lim (jlim@natsoft.com.my). All rights reserved.
   Released under both BSD license and Lesser GPL library license. 
   Whenever there is any discrepancy between the two licenses, 
   the BSD license will take precedence. 
@@ -15,9 +15,10 @@ error_reporting(E_ALL);
 include_once('../adodb.inc.php');
 include_once('../adodb-pager.inc.php');
 
-$driver = 'postgres';
-$sql = 'select ID, firstname as "First Name", lastname as "Last Name", created as "Date Created" from adoxyz  order  by  id';
-$sql = 'select count(*),firstname from adoxyz group by firstname order by 2 ';
+$driver = 'oci8';
+$sql = 'select  ID, firstname as "First Name", lastname as "Last Name" from adoxyz  order  by  id';
+//$sql = 'select count(*),firstname from adoxyz group by firstname order by 2 ';
+$sql = 'select distinct firstname, lastname from adoxyz  order  by  firstname';
 
 if ($driver == 'postgres') {
 	$db = NewADOConnection('postgres');
@@ -31,8 +32,9 @@ if ($driver == 'access') {
 
 if ($driver == 'ibase') {
 	$db = NewADOConnection('ibase');
-	$db->PConnect("localhost:e:\\interbase\\examples\\database\\employee.gdb", "sysdba", "masterkey", "");
-	$sql = 'select ID, firstname , lastname , created  from adoxyz order by id';
+	$db->PConnect("localhost:e:\\firebird\\examples\\employee.gdb", "sysdba", "masterkey", "");
+	$sql = 'select distinct firstname, lastname  from adoxyz  order  by  firstname';
+
 }
 if ($driver == 'mssql') {
 	$db = NewADOConnection('mssql');

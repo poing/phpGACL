@@ -1,6 +1,6 @@
 <?php
 /*
-V3.00 6 Jan 2003  (c) 2000-2003 John Lim. All rights reserved.
+V3.50 19 May 2003  (c) 2000-2003 John Lim. All rights reserved.
   Released under both BSD license and Lesser GPL library license. 
   Whenever there is any discrepancy between the two licenses, 
   the BSD license will take precedence.
@@ -22,6 +22,8 @@ include_once(ADODB_DIR.'/drivers/adodb-oci8.inc.php');
 class ADODB_oci8po extends ADODB_oci8 {
 	var $databaseType = 'oci8po';
 	var $dataProvider = 'oci8';
+	var $metaColumnsSQL = "select lower(cname),coltype,width from col where tname='%s' order by colno";
+	var $metaTablesSQL = "select lower(table_name) from cat where table_type in ('TABLE','VIEW')";
 	
 	function Prepare($sql)
 	{
@@ -52,6 +54,7 @@ class ADODB_oci8po extends ADODB_oci8 {
 		}
 		return ADODB_oci8::_query($sql,$inputarr);
 	}
+	
 
 }
 
@@ -107,7 +110,6 @@ class ADORecordset_oci8po extends ADORecordset_oci8 {
 				if ($this->fetchMode & OCI_ASSOC) $this->_updatefields();
 				return true;
 			}
-			
 			$this->EOF = true;
 		}
 		return false;
@@ -132,18 +134,19 @@ class ADORecordset_oci8po extends ADORecordset_oci8 {
 		return $results;
 	}
 
-	// Uggh - a useless slowdown
+	// Create associative array
 	function _updatefields()
 	{
-		//if (ADODB_ASSOC_CASE == 2) return; // native
+		if (ADODB_ASSOC_CASE == 2) return; // native
 		
 		$arr = array();
+		$lowercase = ADODB_ASSOC_CASE == 0;
 		foreach ($this->fields as $k => $v) {
 			if (is_integer($k)) $arr[$k] = $v;
 			else {
-				if (ADODB_ASSOC_CASE != 1)
+				if ($lowercase)
 					$arr[strtolower($k)] = $v;
-				else // if (ADODB_ASSOC_CASE == 1)
+				else
 					$arr[strtoupper($k)] = $v;
 			}
 		}
@@ -153,7 +156,9 @@ class ADORecordset_oci8po extends ADORecordset_oci8 {
 	function _fetch() 
 	{
 		$ret = @OCIfetchinto($this->_queryID,$this->fields,$this->fetchMode);
-		if ($ret && $this->fetchMode & OCI_ASSOC) $this->_updatefields();
+		if ($ret) {
+			if ($this->fetchMode & OCI_ASSOC) $this->_updatefields();
+		}
 		return $ret;
 	}
 	

@@ -1,6 +1,6 @@
 <?php
 /*
-V3.00 6 Jan 2003  (c) 2000-2003 John Lim (jlim@natsoft.com.my). All rights reserved.
+V3.50 19 May 2003  (c) 2000-2003 John Lim (jlim@natsoft.com.my). All rights reserved.
   Released under both BSD license and Lesser GPL library license. 
   Whenever there is any discrepancy between the two licenses, 
   the BSD license will take precedence.
@@ -28,7 +28,7 @@ To force non-persistent connections, call adodb_session_open first before sessio
  	GLOBAL $HTTP_SESSION_VARS;
 	include('adodb.inc.php');
 	include('adodb-session.php');
-	adodb_session_open(false,false,false);
+	adodb_sess_open(false,false,false);
 	session_start();
 	session_register('AVAR');
 	$HTTP_SESSION_VARS['AVAR'] += 1;
@@ -42,6 +42,7 @@ To force non-persistent connections, call adodb_session_open first before sessio
   create table sessions (
 	   SESSKEY char(32) not null,
 	   EXPIRY int(11) unsigned not null,
+	   EXPIREREF varchar(64),
 	   DATA text not null,
 	  primary key (sesskey)
   );
@@ -58,6 +59,26 @@ To force non-persistent connections, call adodb_session_open first before sessio
   3. Recommended is PHP 4.0.6 or later. There are documented
 	 session bugs in earlier versions of PHP.
 
+  4. If you want to receive notifications when a session expires, then
+  	 you can tag a session with an EXPIREREF, and before the session
+	 record is deleted, we can call a function that will pass the EXPIREREF
+	 as the first parameter, and the session key as the second parameter.
+	 
+	 To do this, define a notification function, say NotifyFn:
+	 
+	 	function NotifyFn($expireref, $sesskey)
+	 	{
+	 	}
+	 
+	 Then define a global variable, with the first parameter being the
+	 global variable you would like to store in the EXPIREREF field, and
+	 the second is the function name.
+	 
+	 In this example, we want to be notified when a user's session 
+	 has expired, so we store the user id in $USERID, and make this
+	 the value stored in the EXPIREREF field:
+	 
+	 	$ADODB_SESSION_EXPIRE_NOTIFY = array('USERID','NotifyFn');
 */
 
 if (!defined('_ADODB_LAYER')) {
@@ -82,7 +103,9 @@ GLOBAL 	$ADODB_SESSION_CONNECT,
 	$ADODB_SESS_CONN,
 	$ADODB_SESS_LIFE,
 	$ADODB_SESS_DEBUG,
+	$ADODB_SESSION_EXPIRE_NOTIFY,
 	$ADODB_SESSION_CRC;
+	
 	
 	$ADODB_SESS_LIFE = ini_get('session.gc_maxlifetime');
 	if ($ADODB_SESS_LIFE <= 1) {
@@ -105,11 +128,27 @@ GLOBAL 	$ADODB_SESSION_CONNECT,
 		$ADODB_SESSION_DB ='xphplens_2';
 	}
 	
+	if (empty($ADODB_SESSION_EXPIRE_NOTIFY)) {
+		$ADODB_SESSION_EXPIRE_NOTIFY = false;
+	}
 	//  Made table name configurable - by David Johnson djohnson@inpro.net
 	if (empty($ADODB_SESSION_TBL)){
 		$ADODB_SESSION_TBL = 'sessions';
 	}
-
+	
+	/*
+	$ADODB_SESS['driver'] = $ADODB_SESSION_DRIVER;
+	$ADODB_SESS['connect'] = $ADODB_SESSION_CONNECT;
+	$ADODB_SESS['user'] = $ADODB_SESSION_USER;
+	$ADODB_SESS['pwd'] = $ADODB_SESSION_PWD;
+	$ADODB_SESS['db'] = $ADODB_SESSION_DB;
+	$ADODB_SESS['life'] = $ADODB_SESS_LIFE;
+	$ADODB_SESS['debug'] = $ADODB_SESS_DEBUG;
+	
+	$ADODB_SESS['debug'] = $ADODB_SESS_DEBUG;
+	$ADODB_SESS['table'] = $ADODB_SESS_TBL;
+	*/
+	
 /****************************************************************************************\
 	Create the connection to the database. 
 	
@@ -189,7 +228,8 @@ function adodb_sess_write($key, $val)
 		$ADODB_SESS_LIFE, 
 		$ADODB_SESSION_TBL,
 		$ADODB_SESS_DEBUG, 
-		$ADODB_SESSION_CRC;
+		$ADODB_SESSION_CRC,
+		$ADODB_SESSION_EXPIRE_NOTIFY;
 
 	$expiry = time() + $ADODB_SESS_LIFE;
 	
@@ -203,8 +243,13 @@ function adodb_sess_write($key, $val)
 	}
 	$val = rawurlencode($val);
 	
-	$rs = $ADODB_SESS_CONN->Replace($ADODB_SESSION_TBL,
-	    array('sesskey' => $key, 'expiry' => $expiry, 'data' => $val),
+	$arr = array('sesskey' => $key, 'expiry' => $expiry, 'data' => $val);
+	if ($ADODB_SESSION_EXPIRE_NOTIFY) {
+		$var = reset($ADODB_SESSION_EXPIRE_NOTIFY);
+		global $$var;
+		$arr['expireref'] = $$var;
+	}
+	$rs = $ADODB_SESS_CONN->Replace($ADODB_SESSION_TBL,$arr,
     	'sesskey',$autoQuote = true);
 	
 	if (!$rs) {
@@ -220,22 +265,59 @@ function adodb_sess_write($key, $val)
 
 function adodb_sess_destroy($key) 
 {
-	global $ADODB_SESS_CONN, $ADODB_SESSION_TBL;
-
-	$qry = "DELETE FROM $ADODB_SESSION_TBL WHERE sesskey = '$key'";
-	$rs = $ADODB_SESS_CONN->Execute($qry);
+	global $ADODB_SESS_CONN, $ADODB_SESSION_TBL,$ADODB_SESSION_EXPIRE_NOTIFY;
+	
+	if ($ADODB_SESSION_EXPIRE_NOTIFY) {
+		reset($ADODB_SESSION_EXPIRE_NOTIFY);
+		$fn = next($ADODB_SESSION_EXPIRE_NOTIFY);
+		$savem = $ADODB_SESS_CONN->SetFetchMode(ADODB_FETCH_NUM);
+		$rs = $ADODB_SESS_CONN->Execute("SELECT expireref,sesskey FROM $ADODB_SESSION_TBL WHERE sesskey='$key'");
+		$ADODB_SESS_CONN->SetFetchMode($savem);
+		if ($rs) {
+			$ADODB_SESS_CONN->BeginTrans();
+			while (!$rs->EOF) {
+				$ref = $rs->fields[0];
+				$key = $rs->fields[1];
+				$fn($ref,$key);
+				$del = $ADODB_SESS_CONN->Execute("DELETE FROM $ADODB_SESSION_TBL WHERE sesskey='$key'");
+				$rs->MoveNext();
+			}
+			$ADODB_SESS_CONN->CommitTrans();
+		}
+	} else {
+		$qry = "DELETE FROM $ADODB_SESSION_TBL WHERE sesskey = '$key'";
+		$rs = $ADODB_SESS_CONN->Execute($qry);
+	}
 	return $rs ? true : false;
 }
 
 function adodb_sess_gc($maxlifetime) 
 {
-	global $ADODB_SESS_DEBUG, $ADODB_SESS_CONN, $ADODB_SESSION_TBL;
-
-	$qry = "DELETE FROM $ADODB_SESSION_TBL WHERE expiry < " . time();
-	$ADODB_SESS_CONN->Execute($qry);
-
-	if ($ADODB_SESS_DEBUG) ADOConnection::outp("<p><b>Garbage Collection</b>: $qry</p>");
+	global $ADODB_SESS_DEBUG, $ADODB_SESS_CONN, $ADODB_SESSION_TBL,$ADODB_SESSION_EXPIRE_NOTIFY;
 	
+	if ($ADODB_SESSION_EXPIRE_NOTIFY) {
+		reset($ADODB_SESSION_EXPIRE_NOTIFY);
+		$fn = next($ADODB_SESSION_EXPIRE_NOTIFY);
+		$savem = $ADODB_SESS_CONN->SetFetchMode(ADODB_FETCH_NUM);
+		$rs = $ADODB_SESS_CONN->Execute("SELECT expireref,sesskey FROM $ADODB_SESSION_TBL WHERE expiry < " . time());
+		$ADODB_SESS_CONN->SetFetchMode($savem);
+		if ($rs) {
+			$ADODB_SESS_CONN->BeginTrans();
+			while (!$rs->EOF) {
+				$ref = $rs->fields[0];
+				$key = $rs->fields[1];
+				$fn($ref,$key);
+				$del = $ADODB_SESS_CONN->Execute("DELETE FROM $ADODB_SESSION_TBL WHERE sesskey='$key'");
+				$rs->MoveNext();
+			}
+			$ADODB_SESS_CONN->CommitTrans();
+		}
+	} else {
+		$qry = "DELETE FROM $ADODB_SESSION_TBL WHERE expiry < " . time();
+		$ADODB_SESS_CONN->Execute($qry);
+	
+		if ($ADODB_SESS_DEBUG) ADOConnection::outp("<p><b>Garbage Collection</b>: $qry</p>");
+	}
 	// suggested by Cameron, "GaM3R" <gamr@outworld.cx>
 	if (defined('ADODB_SESSION_OPTIMIZE')) {
 	global $ADODB_SESSION_DRIVER;
@@ -258,7 +340,7 @@ function adodb_sess_gc($maxlifetime)
 	$rs = $ADODB_SESS_CONN->SelectLimit('select '.$ADODB_SESS_CONN->sysTimeStamp.' from '. $ADODB_SESSION_TBL,1);
 	if ($rs && !$rs->EOF) {
 	
-		$dbt = $rs->fields[0];
+		$dbt = reset($rs->fields);
 		$rs->Close();
 		$dbt = $ADODB_SESS_CONN->UnixTimeStamp($dbt);
 		$t = time();
