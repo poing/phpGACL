@@ -1,3 +1,18 @@
+Mon Nov 24 2003
+	mikeb - Fixed PostgreSQL LEFT JOIN issue with is_conflicting_acl(), Can't reference multiple tables, then a LEFT JOIN. ie:
+			select * from table1, table2 LEFT JOIN table3 LEFT JOIN table4. 
+			Instead:
+			select * from table1 LEFT JOIN table2 LEFT JOIN table3 LEFT JOIN table4. 
+	mikeb - Fixed PosgresSQL LEFT JOIN issue with acl_check()
+	mikeb - Fixed PostgreSQL transaction issue, where generating sequences causes the transaction to abort. 
+			Simply move the transaction start _after_ the GenID() call.
+	dcech - cleaned up get_object_section_section_id - fixed bug if invalid object type specified, and bug if no value specified.
+Wed Nov 19 2003
+	mikeb - Added transactions to edit_object_section()
+	mikeb - Added more API test_suite functions.
+	mikeb - Fixed minor display issue with pager.tpl.
+	dcech - numerous fixes in gacl_api. edit_group, add_group_object, rebuild_tree & _rebuild_tree.
+	dcech - new functions in gacl_api. get_root_group_id & get_object_groups.
 Tue Nov 18 2003
 	mikeb - Added more tests to the test suite. Fixed up a couple SQL syntax errors in del_group().
 Fri Nov 14 2003
@@ -18,7 +33,7 @@ Wed Nov 05 2003
 Wed Oct 29 2003
 	- Fixed bug in schema.xml where group_id was missing from a unique index.
 Tue Oct 21 2003
-	- Group select boxes are represent the tree structure much better. Purely cosmetic change.  Thanks to Dan Cech <dcech@phpwerx.net>	
+	- Group select boxes represent the tree structure much better. Purely cosmetic change.  Thanks to Dan Cech <dcech@phpwerx.net>	
 Wed Oct 08 2003
 	- Released 3.2.2
 	- Fixed bug in acl_list.php where the filter wasn't being passed between pages. Thanks to Dan Cech <dcech@phpwerx.net>
