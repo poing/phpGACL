@@ -522,7 +522,7 @@ class dbTable extends dbObject {
 					if( is_array( $opt ) ) {
 						$key = key( $opt );
 						$value = $opt[key( $opt )];
-						$fldarray[$field_id][$key] .= $value;
+						@$fldarray[$field_id][$key] .= $value;
 					// Option doesn't have arguments
 					} else {
 						$fldarray[$field_id][$opt] = $opt;
@@ -748,6 +748,14 @@ class dbIndex extends dbObject {
 	}
 }
 
+/**
+* Creates a data object in ADOdb's datadict format
+*
+* This class stores information about table data.
+*
+* @package axmls
+* @access private
+*/
 class dbData extends dbObject {
 	
 	var $data = array();
@@ -1281,8 +1289,8 @@ class adoSchema {
 		$this->mgq = get_magic_quotes_runtime();
 		set_magic_quotes_runtime(0);
 		
-		$this->debug = $this->db->debug;
 		$this->db =& $db;
+		$this->debug = $this->db->debug;
 		$this->dict = NewDataDictionary( $this->db );
 		$this->sqlArray = array();
 		$this->schemaVersion = XMLS_SCHEMA_VERSION;

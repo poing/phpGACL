@@ -7,7 +7,7 @@ global $ADODB_INCLUDED_LIB;
 $ADODB_INCLUDED_LIB = 1;
 
 /* 
- @version V4.50 6 July 2004 (c) 2000-2004 John Lim (jlim\@natsoft.com.my). All rights reserved.
+ @version V4.54 5 Nov 2004 (c) 2000-2004 John Lim (jlim\@natsoft.com.my). All rights reserved.
   Released under both BSD license and Lesser GPL library license. 
   Whenever there is any discrepancy between the two licenses, 
   the BSD license will take precedence. See License.txt. 
@@ -22,6 +22,7 @@ $ADODB_INCLUDED_LIB = 1;
 function _array_change_key_case($an_array)
 {
 	if (is_array($an_array)) {
+		$new_array = array();
 		foreach($an_array as $key=>$value)
 			$new_array[strtoupper($key)] = $value;
 
@@ -62,8 +63,10 @@ function _adodb_replace(&$zthis, $table, $fieldArray, $keyCol, $autoQuote, $has_
 		
 		if ($uSet && $where) {
 			$update = "UPDATE $table SET $uSet WHERE $where";
-			
+
 			$rs = $zthis->Execute($update);
+			
+			
 			if ($rs) {
 				if ($zthis->poorAffectedRows) {
 				/*
@@ -77,10 +80,14 @@ function _adodb_replace(&$zthis, $table, $fieldArray, $keyCol, $autoQuote, $has_
 			
 					$cnt = $zthis->GetOne("select count(*) from $table where $where");
 					if ($cnt > 0) return 1; // record already exists
-				} else
-					 if (($zthis->Affected_Rows()>0)) return 1;
-			}
+				} else {
+				
+					if (($zthis->Affected_Rows()>0)) return 1;
+				}
+			} else
+				return 0;
 		}
+		
 	//	print "<p>Error=".$this->ErrorNo().'<p>';
 		$first = true;
 		foreach($fieldArray as $k => $v) {
@@ -108,12 +115,12 @@ function _adodb_getmenu(&$zthis, $name,$defstr='',$blank1stItem=true,$multiple=f
 
 	if ($multiple or is_array($defstr)) {
 		if ($size==0) $size=5;
-		$attr = " multiple size=$size";
+		$attr = ' multiple size="'.$size.'"';
 		if (!strpos($name,'[]')) $name .= '[]';
-	} else if ($size) $attr = " size=$size";
+	} else if ($size) $attr = ' size="'.$size.'"';
 	else $attr ='';
-
-	$s = "<select name=\"$name\"$attr $selectAttr>";
+	
+	$s = '<select name="'.$name.'"'.$attr.' '.$selectAttr.'>';
 	if ($blank1stItem) 
 		if (is_string($blank1stItem))  {
 			$barr = explode(':',$blank1stItem);
@@ -266,11 +273,7 @@ function &_adodb_pageexecute_all_rows(&$zthis, $sql, $nrows, $page,
 	$lastpageno = (int) ceil($qryRecs / $nrows);
 	$zthis->_maxRecordCount = $qryRecs;
 	
-	// If page number <= 1, then we are at the first page
-	if (!isset($page) || $page <= 1) {	
-		$page = 1;
-		$atfirstpage = true;
-	}
+
 
 	// ***** Here we check whether $page is the last page or 
 	// whether we are trying to retrieve 
@@ -278,6 +281,12 @@ function &_adodb_pageexecute_all_rows(&$zthis, $sql, $nrows, $page,
 	if ($page >= $lastpageno) {
 		$page = $lastpageno;
 		$atlastpage = true;
+	}
+	
+	// If page number <= 1, then we are at the first page
+	if (empty($page) || $page <= 1) {	
+		$page = 1;
+		$atfirstpage = true;
 	}
 	
 	// We get the data we want
@@ -351,7 +360,7 @@ function &_adodb_pageexecute_no_last_page(&$zthis, $sql, $nrows, $page, $inputar
 	return $rsreturn;
 }
 
-function _adodb_getupdatesql(&$zthis,&$rs, $arrFields,$forceUpdate=false,$magicq=false,$forcenulls=false)
+function _adodb_getupdatesql(&$zthis,&$rs, $arrFields,$forceUpdate=false,$magicq=false,$force=2)
 {
 		if (!$rs) {
 			printf(ADODB_BAD_RS,'GetUpdateSQL');
@@ -372,8 +381,8 @@ function _adodb_getupdatesql(&$zthis,&$rs, $arrFields,$forceUpdate=false,$magicq
 			// If the recordset field is one
 			// of the fields passed in then process.
 			$upperfname = strtoupper($field->name);
-			if (adodb_key_exists($upperfname,$arrFields)) {
-
+			if (adodb_key_exists($upperfname,$arrFields,$force)) {
+				
 				// If the existing field value in the recordset
 				// is different from the value passed in then
 				// go ahead and append the field name and new value to
@@ -392,13 +401,9 @@ function _adodb_getupdatesql(&$zthis,&$rs, $arrFields,$forceUpdate=false,$magicq
 
 					// Based on the datatype of the field
 					// Format the value properly for the database
-				$type = $rs->MetaType($field->type);
-					
-					// is_null requires php 4.0.4
-				if (($forcenulls && is_null($arrFields[$upperfname])) || 
-					$arrFields[$upperfname] === 'null') {
-					$setFields .= $field->name . " = null, ";
-				} else {
+					$type = $rs->MetaType($field->type);
+						
+
 					if ($type == 'null') {
 						$type = 'C';
 					}
@@ -407,16 +412,53 @@ function _adodb_getupdatesql(&$zthis,&$rs, $arrFields,$forceUpdate=false,$magicq
 						$fnameq = $zthis->nameQuote.$upperfname.$zthis->nameQuote;
 					else
 						$fnameq = $upperfname;
-					//we do this so each driver can customize the sql for
-					//DB specific column types. 
-					//Oracle needs BLOB types to be handled with a returning clause
-					//postgres has special needs as well
-					$setFields .= _adodb_column_sql($zthis, 'U', $type, $upperfname, $fnameq,
-													  $arrFields, $magicq);
+					
+					
+                // is_null requires php 4.0.4
+                //********************************************************//
+                if (is_null($arrFields[$upperfname])
+					|| (empty($arrFields[$upperfname]) && strlen($arrFields[$upperfname]) == 0)
+                    || $arrFields[$upperfname] === 'null'
+                    )
+                {
+                    switch ($force) {
+
+                        //case 0:
+                        //    //Ignore empty values. This is allready handled in "adodb_key_exists" function.
+                        //break;
+
+                        case 1:
+                            //Set null
+                            $setFields .= $field->name . " = null, ";
+                        break;
+							
+                        case 2:
+                            //Set empty
+                            $arrFields[$upperfname] = "";
+                            $setFields .= _adodb_column_sql($zthis, 'U', $type, $upperfname, $fnameq,$arrFields, $magicq);
+                        break;
+						default:
+                        case 3:
+                            //Set the value that was given in array, so you can give both null and empty values
+                            if (is_null($arrFields[$upperfname]) || $arrFields[$upperfname] === 'null') {
+                                $setFields .= $field->name . " = null, ";
+                            } else {
+                                $setFields .= _adodb_column_sql($zthis, 'U', $type, $upperfname, $fnameq,$arrFields, $magicq);
+                            }
+                        break;
+                    }
+                //********************************************************//
+                } else {
+						//we do this so each driver can customize the sql for
+						//DB specific column types. 
+						//Oracle needs BLOB types to be handled with a returning clause
+						//postgres has special needs as well
+						$setFields .= _adodb_column_sql($zthis, 'U', $type, $upperfname, $fnameq,
+														  $arrFields, $magicq);
+					}
 				}
 			}
 		}
-	}
 
 		// If there were any modified fields then build the rest of the update query.
 		if ($fieldUpdatedCount > 0 || $forceUpdate) {
@@ -429,9 +471,11 @@ function _adodb_getupdatesql(&$zthis,&$rs, $arrFields,$forceUpdate=false,$magicq
 			
 			$discard = false;
 			// not a good hack, improvements?
-			if ($whereClause)
-				preg_match('/\s(LIMIT\s.*)/is', $whereClause[1], $discard);
-			else
+			if ($whereClause) {
+				if (preg_match('/\s(ORDER\s.*)/is', $whereClause[1], $discard));
+				else if (preg_match('/\s(LIMIT\s.*)/is', $whereClause[1], $discard));
+				else preg_match('/\s(FOR UPDATE.*)/is', $whereClause[1], $discard);
+			} else
 				$whereClause = array(false,false);
 				
 			if ($discard)
@@ -448,9 +492,9 @@ function _adodb_getupdatesql(&$zthis,&$rs, $arrFields,$forceUpdate=false,$magicq
 	}
 }
 
-function adodb_key_exists($key, &$arr,$forcenulls=false)
+function adodb_key_exists($key, &$arr,$force=2)
 {
-	if (!$forcenulls) {
+	if ($force<=0) {
 		// the following is the old behaviour where null or empty fields are ignored
 		return (!empty($arr[$key])) || (isset($arr[$key]) && strlen($arr[$key])>0);
 	}
@@ -468,8 +512,12 @@ function adodb_key_exists($key, &$arr,$forcenulls=false)
  * 
  * 
  */
-function _adodb_getinsertsql(&$zthis,&$rs,$arrFields,$magicq=false,$forcenulls=false)
+function _adodb_getinsertsql(&$zthis,&$rs,$arrFields,$magicq=false,$force=2)
 {
+static $cacheRS = false;
+static $cacheSig = 0;
+static $cacheCols;
+
 	$tableName = '';
 	$values = '';
 	$fields = '';
@@ -488,11 +536,24 @@ function _adodb_getinsertsql(&$zthis,&$rs,$arrFields,$magicq=false,$forcenulls=f
 		$rsclass = $zthis->rsPrefix.$zthis->databaseType;
 		$recordSet =& new $rsclass(-1,$zthis->fetchMode);
 		$recordSet->connection = &$zthis;
-	
-		$columns = $zthis->MetaColumns( $tableName );
+		
+		if (is_string($cacheRS) && $cacheRS == $rs) {
+			$columns =& $cacheCols;
+		} else {
+			$columns = $zthis->MetaColumns( $tableName );
+			$cacheRS = $tableName;
+			$cacheCols = $columns;
+		}
 	} else if (is_subclass_of($rs, 'adorecordset')) {
-		for ($i=0, $max=$rs->FieldCount(); $i < $max; $i++) 
-			$columns[] = $rs->FetchField($i);
+		if (isset($rs->insertSig) && is_integer($cacheRS) && $cacheRS == $rs->insertSig) {
+			$columns =& $cacheCols;
+		} else {
+			for ($i=0, $max=$rs->FieldCount(); $i < $max; $i++) 
+				$columns[] = $rs->FetchField($i);
+			$cacheRS = $cacheSig;
+			$cacheCols = $columns;
+			$rs->insertSig = $cacheSig++;
+		}
 		$recordSet =& $rs;
 	
 	} else {
@@ -503,25 +564,49 @@ function _adodb_getinsertsql(&$zthis,&$rs,$arrFields,$magicq=false,$forcenulls=f
 	// Loop through all of the fields in the recordset
 	foreach( $columns as $field ) { 
 		$upperfname = strtoupper($field->name);
-		if (adodb_key_exists($upperfname,$arrFields)) {
-
-			// Set the counter for the number of fields that will be inserted.
-			$fieldInsertedCount++;
-			
+		if (adodb_key_exists($upperfname,$arrFields,$force)) {
+			$bad = false;
 			if (strpos($upperfname,' ') !== false)
 				$fnameq = $zthis->nameQuote.$upperfname.$zthis->nameQuote;
 			else
 				$fnameq = $upperfname;
 			
-
-			// Get the name of the fields to insert
-			$fields .= $fnameq . ", ";
-		
 			$type = $recordSet->MetaType($field->type);
+			
+            /********************************************************/
+            if (is_null($arrFields[$upperfname])
+                || (empty($arrFields[$upperfname]) && strlen($arrFields[$upperfname]) == 0)
+                || $arrFields[$upperfname] === 'null'
+				)
+               {
+                    switch ($force) {
+
+                        case 0: // we must always set null if missing
+							$bad = true;
+							break;
+							
+                        case 1:
+                            $values  .= "null, ";
+                        break;
 		
-			if (($forcenulls && is_null($arrFields[$upperfname])) || 
-				$arrFields[$upperfname] === 'null') {
-				$values  .= "null, ";
+                        case 2:
+                            //Set empty
+                            $arrFields[$upperfname] = "";
+                            $values .= _adodb_column_sql($zthis, 'I', $type, $upperfname, $fnameq,$arrFields, $magicq);
+                        break;
+
+						default:
+                        case 3:
+                            //Set the value that was given in array, so you can give both null and empty values
+							if (is_null($arrFields[$upperfname]) || $arrFields[$upperfname] === 'null') { 
+								$values  .= "null, ";
+							} else {
+                        		$values .= _adodb_column_sql($zthis, 'I', $type, $upperfname, $fnameq, $arrFields, $magicq);
+             				}
+              			break;
+             		} // switch
+
+            /*********************************************************/
 			} else {
 				//we do this so each driver can customize the sql for
 				//DB specific column types. 
@@ -529,7 +614,15 @@ function _adodb_getinsertsql(&$zthis,&$rs,$arrFields,$magicq=false,$forcenulls=f
 				//postgres has special needs as well
 				$values .= _adodb_column_sql($zthis, 'I', $type, $upperfname, $fnameq,
 											   $arrFields, $magicq);
-			}				
+			}
+			
+			if ($bad) continue;
+			// Set the counter for the number of fields that will be inserted.
+			$fieldInsertedCount++;
+			
+			
+			// Get the name of the fields to insert
+			$fields .= $fnameq . ", ";
 		}
 	}
 
@@ -539,8 +632,10 @@ function _adodb_getinsertsql(&$zthis,&$rs,$arrFields,$magicq=false,$forcenulls=f
 	
 	// Get the table name from the existing query.
 	if (!$tableName) {
-		preg_match("/FROM\s+".ADODB_TABLE_REGEX."/is", $rs->sql, $tableName);
+		if (preg_match("/FROM\s+".ADODB_TABLE_REGEX."/is", $rs->sql, $tableName))
 			$tableName = $tableName[1];
+		else 
+			return false;
 	}		
 
 	// Strip off the comma and space on the end of both the fields
@@ -693,4 +788,105 @@ function _adodb_column_sql(&$zthis, $action, $type, $fname, $fnameq, $arrFields,
 
 	return $sql;
 }
+
+
+
+function _adodb_debug_execute(&$zthis, $sql, $inputarr)
+{
+global $HTTP_SERVER_VARS;
+
+	$ss = '';
+	if ($inputarr) {
+		foreach($inputarr as $kk=>$vv) {
+			if (is_string($vv) && strlen($vv)>64) $vv = substr($vv,0,64).'...';
+			$ss .= "($kk=>'$vv') ";
+		}
+		$ss = "[ $ss ]";
+	}
+	$sqlTxt = str_replace(',',', ',is_array($sql) ? $sql[0] : $sql);
+
+	// check if running from browser or command-line
+	$inBrowser = isset($HTTP_SERVER_VARS['HTTP_USER_AGENT']);
+	
+	if ($inBrowser) {
+		$ss = htmlspecialchars($ss);
+		if ($zthis->debug === -1)
+			ADOConnection::outp( "<br>\n($zthis->databaseType): ".htmlspecialchars($sqlTxt)." &nbsp; <code>$ss</code>\n<br>\n",false);
+		else 
+			ADOConnection::outp( "<hr>\n($zthis->databaseType): ".htmlspecialchars($sqlTxt)." &nbsp; <code>$ss</code>\n<hr>\n",false);
+	} else {
+		ADOConnection::outp("-----\n($zthis->databaseType): ".$sqlTxt."\n-----\n",false);
+	}
+	
+	$qID = $zthis->_query($sql,$inputarr);
+	
+	/* 
+		Alexios Fakios notes that ErrorMsg() must be called before ErrorNo() for mssql
+		because ErrorNo() calls Execute('SELECT @ERROR'), causing recursion
+	*/
+	if ($zthis->databaseType == 'mssql') { 
+	// ErrorNo is a slow function call in mssql, and not reliable in PHP 4.0.6
+		if($emsg = $zthis->ErrorMsg()) {
+			if ($err = $zthis->ErrorNo()) ADOConnection::outp($err.': '.$emsg);
+		}
+	} else if (!$qID) {
+		ADOConnection::outp($zthis->ErrorNo() .': '. $zthis->ErrorMsg());
+	}
+	
+	return $qID;
+}
+
+
+function _adodb_backtrace($printOrArr=true,$levels=9999)
+{
+	if (PHPVERSION() < 4.3) return '';
+	 
+	$html =  (isset($_SERVER['HTTP_USER_AGENT']));
+	$fmt =  ($html) ? "</font><font color=#808080 size=-1> %% line %4d, file: <a href=\"file:/%s\">%s</a></font>" : "%% line %4d, file: %s";
+
+	$MAXSTRLEN = 64;
+
+	$s = ($html) ? '<pre align=left>' : '';
+	
+	if (is_array($printOrArr)) $traceArr = $printOrArr;
+	else $traceArr = debug_backtrace();
+	array_shift($traceArr);
+	array_shift($traceArr);
+	$tabs = sizeof($traceArr)-2;
+	
+	foreach ($traceArr as $arr) {
+		$levels -= 1;
+		if ($levels < 0) break;
+		
+		$args = array();
+		for ($i=0; $i < $tabs; $i++) $s .=  ($html) ? ' &nbsp; ' : "\t";
+		$tabs -= 1;
+		if ($html) $s .= '<font face="Courier New,Courier">';
+		if (isset($arr['class'])) $s .= $arr['class'].'.';
+		if (isset($arr['args']))
+		 foreach($arr['args'] as $v) {
+			if (is_null($v)) $args[] = 'null';
+			else if (is_array($v)) $args[] = 'Array['.sizeof($v).']';
+			else if (is_object($v)) $args[] = 'Object:'.get_class($v);
+			else if (is_bool($v)) $args[] = $v ? 'true' : 'false';
+			else {
+				$v = (string) @$v;
+				$str = htmlspecialchars(substr($v,0,$MAXSTRLEN));
+				if (strlen($v) > $MAXSTRLEN) $str .= '...';
+				$args[] = $str;
+			}
+		}
+		$s .= $arr['function'].'('.implode(', ',$args).')';
+		
+		
+		$s .= @sprintf($fmt, $arr['line'],$arr['file'],basename($arr['file']));
+			
+		$s .= "\n";
+	}	
+	if ($html) $s .= '</pre>';
+	if ($printOrArr) print $s;
+	
+	return $s;
+}
+
 ?>
