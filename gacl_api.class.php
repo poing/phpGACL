@@ -1667,9 +1667,11 @@ class gacl_api extends gacl {
 		
 		switch(strtolower($group_type)) {
 			case 'axo':
+				$group_type = 'axo';
 				$table = $this->_db_table_prefix . 'axo_groups';
 				break;
 			default:
+				$group_type = 'aro';
 				$table = $this->_db_table_prefix . 'aro_groups';
 				break;
 		}
@@ -1683,7 +1685,7 @@ class gacl_api extends gacl {
 			return false;	
 		}
 		
-		$insert_id = $this->db->GenID($this->_db_table_prefix.'groups_id_seq',10);
+		$insert_id = $this->db->GenID($this->_db_table_prefix.$group_type.'_groups_id_seq',10);
 		$query = "insert into $table (id, parent_id,name) VALUES($insert_id, $parent_id, '$name')";
 		$rs = $this->db->Execute($query);                   
 
