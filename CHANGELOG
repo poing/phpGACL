@@ -1,6 +1,7 @@
 Tue Jul 27 2004
         dcech - Fixed missing table prefix in edit_object function.
                 Thanks to Martin Salo <salo@laborint.com>.
+        dcech - Updated to adodb-xmlschema CVS for prefixing.
 Mon Jul 26 2004
         mikeb - Fixed bug in is_conflicting_acl() where it would detect an incorrect conflict when using certain AXO combinations. Thanks to a patch from Jeff McDonald <jeff@beefstudio.com>
 Sat Jul 17 2004
