@@ -97,16 +97,16 @@
 	<sql>
 		<descr>SQL to be executed only to insert default rows</descr>
 		<query>
-			delete from #PREFIX#acl_sections where id = 1 and value = 'system';
+			delete from #PREFIX#acl_sections where id = 1 and value = 'system'
 		</query>
 		<query>
-			insert into #PREFIX#acl_sections (id,value,order_value,name) VALUES(1,'system',1,'System');
+			insert into #PREFIX#acl_sections (id,value,order_value,name) VALUES(1,'system',1,'System')
 		</query>
 		<query>
-			delete from #PREFIX#acl_sections where id = 2 and value = 'user';
+			delete from #PREFIX#acl_sections where id = 2 and value = 'user'
 		</query>
 		<query>
-			insert into #PREFIX#acl_sections (id,value,order_value,name) VALUES(2,'user',2,'User');
+			insert into #PREFIX#acl_sections (id,value,order_value,name) VALUES(2,'user',2,'User')
 		</query>
 	</sql>
 
