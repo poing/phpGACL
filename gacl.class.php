@@ -307,11 +307,12 @@ class gacl {
 				
 			/*
 			 * Permission granted?
+			 * Now why did I not choose to use TRUE/FALSE in the first place? 
 			 */
 			if ($row[0][1] == 1) {
-				$allow = 1;
+				$allow = TRUE;
 			} else {
-				$allow = 0;
+				$allow = FALSE;
 			}
 			//$profiler->stopTimer( "acl_query()");
 
