@@ -309,13 +309,22 @@ class phpgacl_api_test extends TestCase {
         $message = 'edit_group_parent_aro failed';
         $this->assert($result, $message);
     }
-/*
-    function del_group_parent_no_reparent_aro() {
-        $result = $this->gacl_api->del_group($this->get_group_id_parent_aro(), FALSE, 'ARO');
+
+    function del_group_parent_reparent_aro() {
+		$this->add_group_parent_aro();
+		$this->add_group_child_aro();
+		$this->add_parent_group_object_aro();
+		$this->add_child_group_object_aro();
+
+        $result = $this->gacl_api->del_group($this->get_group_id_parent_aro(), TRUE, 'ARO');
+		
+		$this->del_child_group_object_aro();
+		$this->del_group_child_aro();
+
         $message = 'del_group_parent_no_reparent_aro failed';
         $this->assert($result, $message);
     }
-*/
+
     function del_group_parent_no_reparent_aro() {
 		$this->add_group_parent_aro();
 		$this->add_group_child_aro();
@@ -520,6 +529,7 @@ $suite->addTest(new phpgacl_api_test('del_object_section_aco'));
 
 //Test group reparenting - Order of this test is important.
 $suite->addTest(new phpgacl_api_test('del_group_parent_no_reparent_aro'));
+$suite->addTest(new phpgacl_api_test('del_group_parent_reparent_aro'));
 
 $suite->addTest(new phpgacl_api_test('del_object_aro'));
 $suite->addTest(new phpgacl_api_test('del_object2_aro'));
