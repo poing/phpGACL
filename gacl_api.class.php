@@ -842,7 +842,7 @@ class gacl_api extends gacl {
 				$this->db->Execute($query);
 
 				if ( is_string( $this->db->ErrorNo() ) ) {
-					$this->debug_text("add_acl(): database error: ". $this->db->ErrorMsg() ." (". $this->db->ErrorNo() .")");
+					$this->debug_db('add_acl');
 					$this->db->RollBackTrans();
 					return false;
 				}
@@ -851,7 +851,7 @@ class gacl_api extends gacl {
 				$this->db->Execute($query);
 
 				if ( is_string( $this->db->ErrorNo() ) ) {
-					$this->debug_text("add_acl(): database error: ". $this->db->ErrorMsg() ." (". $this->db->ErrorNo() .")");
+					$this->debug_db('add_acl');
 					$this->db->RollBackTrans();
 					return false;
 				}
@@ -860,7 +860,7 @@ class gacl_api extends gacl {
 				$this->db->Execute($query);
 
 				if ( is_string( $this->db->ErrorNo() ) ) {
-					$this->debug_text("add_acl(): database error: ". $this->db->ErrorMsg() ." (". $this->db->ErrorNo() .")");
+					$this->debug_db('add_acl');
 					$this->db->RollBackTrans();
 					return false;
 				}
@@ -869,7 +869,7 @@ class gacl_api extends gacl {
 				$this->db->Execute($query);
 
 				if ( is_string( $this->db->ErrorNo() ) ) {
-					$this->debug_text("add_acl(): database error: ". $this->db->ErrorMsg() ." (". $this->db->ErrorNo() .")");
+					$this->debug_db('add_acl');
 					$this->db->RollBackTrans();
 					return false;
 				}
@@ -878,7 +878,7 @@ class gacl_api extends gacl {
 				$this->db->Execute($query);
 
 				if ( is_string( $this->db->ErrorNo() ) ) {
-					$this->debug_text("add_acl(): database error: ". $this->db->ErrorMsg() ." (". $this->db->ErrorNo() .")");
+					$this->debug_db('add_acl');
 					$this->db->RollBackTrans();
 					return false;
 				}
@@ -886,7 +886,7 @@ class gacl_api extends gacl {
 		}
 
 		if ( is_string( $this->db->ErrorNo() ) ) {
-			$this->debug_text("add_acl(): database error: ". $this->db->ErrorMsg() ." (". $this->db->ErrorNo() .")");
+			$this->debug_db('add_acl');
 			$this->db->RollBackTrans();
 			return false;
 		}
@@ -908,7 +908,7 @@ class gacl_api extends gacl {
 						$rs = $this->db->Execute($query);
 
 						if ( is_string( $this->db->ErrorNo() ) ) {
-							$this->debug_text("add_acl(): database error: ". $this->db->ErrorMsg() ." (". $this->db->ErrorNo() .")");
+							$this->debug_db('add_acl');
 							$this->db->RollBackTrans();
 							return false;
 						}
@@ -935,7 +935,7 @@ class gacl_api extends gacl {
 						$rs = $this->db->Execute($query);
 
 						if ( is_string( $this->db->ErrorNo() ) ) {
-							$this->debug_text("add_acl(): database error: ". $this->db->ErrorMsg() ." (". $this->db->ErrorNo() .")");
+							$this->debug_db('add_acl');
 							$this->db->RollBackTrans();
 							return false;
 						}
@@ -960,7 +960,7 @@ class gacl_api extends gacl {
 						$rs = $this->db->Execute($query);
 
 						if ( is_string( $this->db->ErrorNo() ) ) {
-							$this->debug_text("add_acl(): database error: ". $this->db->ErrorMsg() ." (". $this->db->ErrorNo() .")");
+							$this->debug_db('add_acl');
 							$this->db->RollBackTrans();
 							return false;
 						}
@@ -984,7 +984,7 @@ class gacl_api extends gacl {
 					$rs = $this->db->Execute($query);
 
 					if ( is_string( $this->db->ErrorNo() ) ) {
-						$this->debug_text("add_acl(): database error: ". $this->db->ErrorMsg() ." (". $this->db->ErrorNo() .")");
+						$this->debug_db('add_acl');
 						$this->db->RollBackTrans();
 						return false;
 					}
@@ -1007,7 +1007,7 @@ class gacl_api extends gacl {
 					$rs = $this->db->Execute($query);
 
 					if ( is_string( $this->db->ErrorNo() ) ) {
-						$this->debug_text("add_acl(): database error: ". $this->db->ErrorMsg() ." (". $this->db->ErrorNo() .")");
+						$this->debug_db('add_acl');
 						$this->db->RollBackTrans();
 						return false;
 					}
@@ -1020,7 +1020,7 @@ class gacl_api extends gacl {
 		}
 
 		if ( is_string( $this->db->ErrorNo() ) ) {
-			$this->debug_text("add_acl(): database error: ". $this->db->ErrorMsg() ." (". $this->db->ErrorNo() .")");
+			$this->debug_db('add_acl');
 			$this->db->RollBackTrans();
 			return false;
 		} else {
@@ -1094,7 +1094,7 @@ class gacl_api extends gacl {
 		$this->debug_text("delete query: $query");
 		$this->db->Execute($query);
 		if ( is_string( $this->db->ErrorNo() ) ) {
-			$this->debug_text("del_acl(): database error: ". $this->db->ErrorMsg() ." (". $this->db->ErrorNo() .")");
+			$this->debug_db('del_acl');
 			$this->db->RollBackTrans();
 			return false;
 		}
@@ -1102,47 +1102,47 @@ class gacl_api extends gacl {
 		$query = "delete from ".$this->_db_table_prefix."aco_map where acl_id= $acl_id";
 		$this->db->Execute($query);
 		if ( is_string( $this->db->ErrorNo() ) ) {
-			$this->debug_text("del_acl(): database error: ". $this->db->ErrorMsg() ." (". $this->db->ErrorNo() .")");
+			$this->debug_db('del_acl');
 			$this->db->RollBackTrans();
-			return false;	
+			return false;
 		}
 
 		$query = "delete from ".$this->_db_table_prefix."aro_map where acl_id = $acl_id";
 		$this->db->Execute($query);
 		if ( is_string( $this->db->ErrorNo() ) ) {
-			$this->debug_text("del_acl(): database error: ". $this->db->ErrorMsg() ." (". $this->db->ErrorNo() .")");
+			$this->debug_db('del_acl');
 			$this->db->RollBackTrans();
-			return false;	
+			return false;
 		}		
 
 		$query = "delete from ".$this->_db_table_prefix."axo_map where acl_id = $acl_id";
 		$this->db->Execute($query);
 		if ( is_string( $this->db->ErrorNo() ) ) {
-			$this->debug_text("del_acl(): database error: ". $this->db->ErrorMsg() ." (". $this->db->ErrorNo() .")");
+			$this->debug_db('del_acl');
 			$this->db->RollBackTrans();
-			return false;	
-		}		
+			return false;
+		}
 
 		$query = "delete from ".$this->_db_table_prefix."aro_groups_map where acl_id = $acl_id";
 		$this->db->Execute($query);
 		if ( is_string( $this->db->ErrorNo() ) ) {
-			$this->debug_text("del_acl(): database error: ". $this->db->ErrorMsg() ." (". $this->db->ErrorNo() .")");
-			$this->db->RollBackTrans();			
-			return false;	
-		}		
+			$this->debug_db('del_acl');
+			$this->db->RollBackTrans();
+			return false;
+		}
 
 		$query = "delete from ".$this->_db_table_prefix."axo_groups_map where acl_id = $acl_id";
-		$this->db->Execute($query);			
+		$this->db->Execute($query);
 		if ( is_string( $this->db->ErrorNo() ) ) {
-			$this->debug_text("del_acl(): database error: ". $this->db->ErrorMsg() ." (". $this->db->ErrorNo() .")");
+			$this->debug_db('del_acl');
 			$this->db->RollBackTrans();
-			return false;	
+			return false;
 		} else {
 			$this->debug_text("del_acl(): deleted ACL ID: $acl_id");
 			$this->db->CommitTrans();
 			
 			if ($this->_caching == TRUE AND $this->_force_cache_expire == TRUE) {
-				//Expire all cache.	
+				//Expire all cache.
 				$this->Cache_Lite->clean('default');
 			}
 			
@@ -1313,14 +1313,14 @@ class gacl_api extends gacl {
 		$rs = $this->db->Execute($query);
 
 		if ( is_string( $this->db->ErrorNo() ) ) {
-			$this->debug_text("get_group_id(): database error: ". $this->db->ErrorMsg() ." (". $this->db->ErrorNo() .")");
-			return false;	
+			$this->debug_db('get_group_id');
+			return false;
 		} else {
 			$row_count = $rs->RecordCount();
 			
 			if ($row_count > 1) {
 				$this->debug_text("get_group_id(): Returned $row_count rows, can only return one. Please make your names unique.");
-				return false;	
+				return false;
 			} elseif($row_count == 0) {
 				$this->debug_text("get_group_id(): Returned $row_count rows");				
 				return false;
@@ -1328,7 +1328,7 @@ class gacl_api extends gacl {
 				$rows = $rs->GetRows();
 
 				//Return only the ID in the first row.
-				return $rows[0][0];	
+				return $rows[0][0];
 			}
 		}
 	}
@@ -1360,7 +1360,7 @@ class gacl_api extends gacl {
 		
 		if (empty($group_id) ) {
 			$this->debug_text("get_group_data(): ID ($group_id) is empty, this is required");
-			return false;	
+			return false;
 		}
 			
 		$query = "select id, parent_id, name from $table where id=$group_id";
@@ -1376,8 +1376,8 @@ class gacl_api extends gacl {
 		return false;
 /*
 		if ( is_string( $this->db->ErrorNo() ) ) {
-			$this->debug_text("get_group_data(): database error: ". $this->db->ErrorMsg() ." (". $this->db->ErrorNo() .")");
-			return false;	
+			$this->debug_db('get_group_data');
+			return false;
 		} else {
 			if ($rs->RecordCount() > 0) {
 				$this->debug_text("get_group_data(): Returned Rows: ". $rs->RecordCount() ."");
@@ -1387,7 +1387,7 @@ class gacl_api extends gacl {
 				return $row[0];
 			} else {
 				$this->debug_text("get_object_data(): Returned $row_count rows");
-				return false;	
+				return false;
 			}
 		}
 */		
@@ -1412,29 +1412,29 @@ class gacl_api extends gacl {
 
 		if (empty($id) ) {
 			$this->debug_text("get_group_parent_id(): ID ($id) is empty, this is required");
-			return false;	
+			return false;
 		}
 			
 		$query = "select parent_id from $table where id=$id";
 		$rs = $this->db->Execute($query);
 
 		if ( is_string( $this->db->ErrorNo() ) ) {
-			$this->debug_text("get_group_parent_id(): database error: ". $this->db->ErrorMsg() ." (". $this->db->ErrorNo() .")");
-			return false;	
+			$this->debug_db('get_group_parent_id');
+			return false;
 		} else {
 			$row_count = $rs->RecordCount();
 			
 			if ($row_count > 1) {
 				$this->debug_text("get_group_parent_id(): Returned $row_count rows, can only return one. Please make your names unique.");
-				return false;	
+				return false;
 			} elseif($row_count == 0) {
-				$this->debug_text("get_group_parent_id(): Returned $row_count rows");				
+				$this->debug_text("get_group_parent_id(): Returned $row_count rows");
 				return false;
 			} else {
 				$rows = $rs->GetRows();
 
 				//Return only the ID in the first row.
-				return $rows[0][0];	
+				return $rows[0][0];
 			}
 		}
 	}
@@ -1457,7 +1457,7 @@ class gacl_api extends gacl {
 
 		if (empty($group_id) OR empty($path_id) ) {
 			$this->debug_text("map_group_path_to_root(): group id ($group_id) OR path id ($path_id) is empty, this is required");
-			return false;	
+			return false;
 		}
 
 		$this->db->BeginTrans();
@@ -1465,17 +1465,17 @@ class gacl_api extends gacl {
 		$query = "delete from $table where group_id=$group_id";
 		$this->db->Execute($query);
 		if ( is_string( $this->db->ErrorNo() ) ) {
-			$this->debug_text("map_group_path_to_root(): database error: ". $this->db->ErrorMsg() ." (". $this->db->ErrorNo() .")");
+			$this->debug_db('map_group_path_to_root');
 			$this->db->RollBackTrans();
-			return false;	
+			return false;
 		}
 
 		$query = "insert into $table (path_id, group_id) VALUES($path_id, $group_id)";
 		$this->db->Execute($query);
 		if ( is_string( $this->db->ErrorNo() ) ) {
-			$this->debug_text("map_group_path_to_root(): database error: ". $this->db->ErrorMsg() ." (". $this->db->ErrorNo() .")");
+			$this->debug_db('map_group_path_to_root');
 			$this->db->RollBackTrans();
-			return false;	
+			return false;
 		}
 		
 		$this->db->CommitTrans();
@@ -1544,9 +1544,9 @@ class gacl_api extends gacl {
 					$query = "insert into $table (id, group_id, tree_level) VALUES($insert_id, $group_id, $i)";
 					$this->db->Execute($query);
 					if ( is_string( $this->db->ErrorNo() ) ) {
-						$this->debug_text("put_group_path_to_root(): database error: ". $this->db->ErrorMsg() ." (". $this->db->ErrorNo() .")");
+						$this->debug_db('put_group_path_to_root');
 						$this->db->RollBackTrans();
-						return false;	
+						return false;
 					}
 					
 					$i++;
@@ -1593,8 +1593,8 @@ class gacl_api extends gacl {
 			$query = "delete from $table";
 			$this->db->Execute($query);
 			if ( is_string( $this->db->ErrorNo() ) ) {
-				$this->debug_text("clean_path_to_root(): database error: ". $this->db->ErrorMsg() ." (". $this->db->ErrorNo() .")");
-				return false;	
+				$this->debug_db('clean_path_to_root');
+				return false;
 			}
 			
 		} else {
@@ -1605,12 +1605,12 @@ class gacl_api extends gacl {
 			$query = "delete from $table where id not in ($sql_valid_path_ids)";
 			$this->db->Execute($query);
 			if ( is_string( $this->db->ErrorNo() ) ) {
-				$this->debug_text("clean_path_to_root(): database error: ". $this->db->ErrorMsg() ." (". $this->db->ErrorNo() .")");
-				return false;	
+				$this->debug_db('clean_path_to_root');
+				return false;
 			}
 		}
 
-		return true;	
+		return true;
 	}
 	
 	/*======================================================================*\
@@ -1633,7 +1633,7 @@ class gacl_api extends gacl {
 
 		if (empty($parent_id)) {
 			$this->debug_text("gen_group_path_to_root(): group id ($group_id) is empty, this is required");
-			return false;	
+			return false;
 		}
 		
 		//Without this, the last group in any branch of the tree doesn't have a path_id.
@@ -1682,16 +1682,16 @@ class gacl_api extends gacl {
 		
 		if (empty($name)) {
 			$this->debug_text("add_group(): name ($name) OR parent id ($parent_id) is empty, this is required");
-			return false;	
+			return false;
 		}
 		
 		$insert_id = $this->db->GenID($this->_db_table_prefix.$group_type.'_groups_id_seq',10);
 		$query = "insert into $table (id, parent_id,name) VALUES($insert_id, $parent_id, '$name')";
-		$rs = $this->db->Execute($query);                   
+		$rs = $this->db->Execute($query);
 
 		if ( is_string( $this->db->ErrorNo() ) ) {
-			$this->debug_text("add_group(): database error: ". $this->db->ErrorMsg() ." (". $this->db->ErrorNo() .")");
-			return false;	
+			$this->debug_db('add_group');
+			return false;
 		} else {
 			$this->debug_text("add_group(): Added group as ID: $insert_id");
 
@@ -1724,14 +1724,14 @@ class gacl_api extends gacl {
 		
 		if (empty($group_id)) {
 			$this->debug_text("get_group_objects(): Group ID:  ($group_id) is empty, this is required");
-			return false;	
+			return false;
 		}
 		
 		if ($option == 'RECURSE') {
 			$group_ids = $this->get_group_children($group_id, $group_type);
 			
 			//Include the group we're looking up of course.
-			$group_ids[] = $group_id;	
+			$group_ids[] = $group_id;
 		} else {
 			$group_ids = array($group_id);
 		}
@@ -1741,8 +1741,8 @@ class gacl_api extends gacl {
 		$rows = $rs->GetRows();
 
 		if ( is_string( $this->db->ErrorNo() ) ) {
-			$this->debug_text("get_group_objects(): database error: ". $this->db->ErrorMsg() ." (". $this->db->ErrorNo() .")");
-			return false;	
+			$this->debug_db('get_group_objects');
+			return false;
 		} else {
 			$this->debug_text("get_group_objects(): Got group objects, formatting array.");
 			
@@ -1803,7 +1803,7 @@ class gacl_api extends gacl {
 		$rs = $this->db->Execute($query);
 
 		if ( is_string( $this->db->ErrorNo() ) ) {
-			$this->debug_text("add_group_object(): database error: ". $this->db->ErrorMsg() ." (". $this->db->ErrorNo() .")");
+			$this->debug_db('add_group_object');
 			return false;
 		} else {
 			$this->debug_text("add_group_object(): Added Value: $object_value to Group ID: $group_id");
@@ -1846,7 +1846,7 @@ class gacl_api extends gacl {
 		$rs = $this->db->Execute($query);
 
 		if ( is_string( $this->db->ErrorNo() ) ) {
-			$this->debug_text("del_group_object(): database error: ". $this->db->ErrorMsg() ." (". $this->db->ErrorNo() .")");
+			$this->debug_db('del_group_object');
 			return false;
 		} else {
 			$this->debug_text("del_group_object(): Deleted Value: $object_value to Group ID: $group_id assignment");
@@ -1881,7 +1881,7 @@ class gacl_api extends gacl {
 		
 		if (empty($group_id) ) {
 			$this->debug_text("edit_group(): Group ID ($group_id) is empty, this is required");
-			return false;	
+			return false;
 		}
 
 		if ($group_id == $parent_id) {
@@ -1909,8 +1909,8 @@ class gacl_api extends gacl {
 		$rs = $this->db->Execute($query);
 
 		if ( is_string( $this->db->ErrorNo() ) ) {
-			$this->debug_text("edit_group(): database error: ". $this->db->ErrorMsg() ." (". $this->db->ErrorNo() .")");
-			return false;	
+			$this->debug_db('edit_group');
+			return false;
 		} else {
 			$this->debug_text("edit_group(): Modified group ID: $group_id");
 			
@@ -1970,7 +1970,7 @@ class gacl_api extends gacl {
 		
 		if (empty($group_id) ) {
 			$this->debug_text("del_group(): Group ID ($group_id) is empty, this is required");
-			return false;	
+			return false;
 		}
 
 		/*
@@ -1980,8 +1980,8 @@ class gacl_api extends gacl {
 		$parent_id = $this->db->GetOne($query);
 		
 		if ( is_string( $this->db->ErrorNo() ) ) {
-			$this->debug_text("del_group(): database error: ". $this->db->ErrorMsg() ." (". $this->db->ErrorNo() .")");
-			return false;	
+			$this->debug_db('del_group');
+			return false;
 		}
 		
 		$this->db->BeginTrans();
@@ -2030,10 +2030,10 @@ class gacl_api extends gacl {
 				$this->db->Execute($query);
 
 				if ( is_string( $this->db->ErrorNo() ) ) {
-					$this->debug_text("del_group(): database error: ". $this->db->ErrorMsg() ." (". $this->db->ErrorNo() .")");
+					$this->debug_db('del_group');
 					$this->db->RollBackTrans();
-					return false;	
-				}			
+					return false;
+				}
 			} else {
 				$this->debug_text("More then one ($groups_using_path) group using path (ID: $path_id), not deleting it.");
 			}
@@ -2044,9 +2044,9 @@ class gacl_api extends gacl {
 		$this->db->Execute($query);
 
 		if ( is_string( $this->db->ErrorNo() ) ) {
-			$this->debug_text("del_group(): database error: ". $this->db->ErrorMsg() ." (". $this->db->ErrorNo() .")");
+			$this->debug_db('del_group');
 			$this->db->RollBackTrans();
-			return false;	
+			return false;
 		}
 		
 		$query = "delete from $groups_map_table where group_id=$group_id";
@@ -2054,9 +2054,9 @@ class gacl_api extends gacl {
 		$this->db->Execute($query);
 	
 		if ( is_string( $this->db->ErrorNo() ) ) {
-			$this->debug_text("del_group(): database error: ". $this->db->ErrorMsg() ." (". $this->db->ErrorNo() .")");
+			$this->debug_db('del_group');
 			$this->db->RollBackTrans();
-			return false;	
+			return false;
 		} 
 
 		$query = "delete from $groups_path_map_table where group_id=$group_id";
@@ -2064,9 +2064,9 @@ class gacl_api extends gacl {
 		$this->db->Execute($query);
 	
 		if ( is_string( $this->db->ErrorNo() ) ) {
-			$this->debug_text("del_group(): database error: ". $this->db->ErrorMsg() ." (". $this->db->ErrorNo() .")");
+			$this->debug_db('del_group');
 			$this->db->RollBackTrans();
-			return false;	
+			return false;
 		} 
 
 		//Delete objects mapped to this group.
@@ -2075,9 +2075,9 @@ class gacl_api extends gacl {
 		$this->db->Execute($query);
 	
 		if ( is_string( $this->db->ErrorNo() ) ) {
-			$this->debug_text("del_group(): database error: ". $this->db->ErrorMsg() ." (". $this->db->ErrorNo() .")");
+			$this->debug_db('del_group');
 			$this->db->RollBackTrans();
-			return false;	
+			return false;
 		} 
 		
 		$this->debug_text("del_group(): deleted group ID: $group_id");
@@ -2134,11 +2134,11 @@ class gacl_api extends gacl {
 		$rs = $this->db->GetCol($query);
 
 		if ( is_string( $this->db->ErrorNo() ) ) {
-			$this->debug_text("get_object(): database error: ". $this->db->ErrorMsg() ." (". $this->db->ErrorNo() .")");
-			return false;	
+			$this->debug_db('get_object');
+			return false;
 		} else {
 			//Return all Object id's
-			return $rs;	
+			return $rs;
 		}
 	}
 
@@ -2167,12 +2167,12 @@ class gacl_api extends gacl {
 
 		if (empty($object_id) ) {
 			$this->debug_text("get_object_data(): Object ID ($object_id) is empty, this is required");
-			return false;	
+			return false;
 		}
 		
 		if (empty($object_type) ) {
 			$this->debug_text("get_object_data(): Object Type ($object_type) is empty, this is required");
-			return false;	
+			return false;
 		}
 
 		$query = "select section_value, value, order_value, name, hidden from $table where id = $object_id";
@@ -2180,8 +2180,8 @@ class gacl_api extends gacl {
 		$rs = $this->db->Execute($query);
 
 		if ( is_string( $this->db->ErrorNo() ) ) {
-			$this->debug_text("get_object_data(): database error: ". $this->db->ErrorMsg() ." (". $this->db->ErrorNo() .")");
-			return false;	
+			$this->debug_db('get_object_data');
+			return false;
 		} else {
 			if ($rs->RecordCount() > 0) {
 				$rows = $rs->GetRows();
@@ -2235,7 +2235,7 @@ class gacl_api extends gacl {
 		$rs = $this->db->Execute($query);
 
 		if ( is_string( $this->db->ErrorNo() ) ) {
-			$this->debug_text("get_object_id(): database error: ". $this->db->ErrorMsg() ." (". $this->db->ErrorNo() .")");
+			$this->debug_db('get_object_id');
 			return false;
 		} else {
 			$row_count = $rs->RecordCount();
@@ -2292,7 +2292,7 @@ class gacl_api extends gacl {
 		$rs = $this->db->Execute($query);
 
 		if ( is_string( $this->db->ErrorNo() ) ) {
-			$this->debug_text("get_object_section_value(): database error: ". $this->db->ErrorMsg() ." (". $this->db->ErrorNo() .")");
+			$this->debug_db('get_object_section_value');
 			return false;
 		} else {
 			$row_count = $rs->RecordCount();
@@ -2381,7 +2381,7 @@ class gacl_api extends gacl {
 		$rs = $this->db->Execute($query);
 
 		if ( is_string( $this->db->ErrorNo() ) ) {
-			$this->debug_text("add_object(): database error: ". $this->db->ErrorMsg() ." (". $this->db->ErrorNo() .")");
+			$this->debug_db('add_object');
 			return false;
 		} else {
 			$this->debug_text("add_object(): Added object as ID: $insert_id");
@@ -2422,17 +2422,17 @@ class gacl_api extends gacl {
 		
 		if (empty($object_id) OR empty($section_value) ) {
 			$this->debug_text("edit_object(): Object ID ($object_id) OR Section Value ($section_value) is empty, this is required");
-			return false;	
+			return false;
 		}
 
 		if (empty($name) ) {
 			$this->debug_text("edit_object(): name ($name) is empty, this is required");
-			return false;	
+			return false;
 		}
 				
 		if (empty($object_type) ) {
 			$this->debug_text("edit_object(): Object Type ($object_type) is empty, this is required");
-			return false;	
+			return false;
 		}
 
 		//Get old value incase it changed, before we do the update.
@@ -2449,8 +2449,8 @@ class gacl_api extends gacl {
 		$rs = $this->db->Execute($query);                   
 
 		if ( is_string( $this->db->ErrorNo() ) ) {
-			$this->debug_text("edit_object(): database error: ". $this->db->ErrorMsg() ." (". $this->db->ErrorNo() .")");
-			return false;	
+			$this->debug_db('edit_object');
+			return false;
 		} else {
 			$this->debug_text("edit_object(): Modified aco ID: $aco_id");
 			
@@ -2464,8 +2464,8 @@ class gacl_api extends gacl {
 				$rs = $this->db->Execute($query);                   
 
 				if ( is_string( $this->db->ErrorNo() ) ) {
-					$this->debug_text("edit_object(): database error: ". $this->db->ErrorMsg() ." (". $this->db->ErrorNo() .")");
-					return false;	
+					$this->debug_db('edit_object');
+					return false;
 				} else {
 					$this->debug_text("edit_object(): Modified aco_map value: $value");
 					return true;
@@ -2511,12 +2511,12 @@ class gacl_api extends gacl {
 		
 		if (empty($object_id) ) {
 			$this->debug_text("del_object(): Object ID ($object_id) is empty, this is required");
-			return false;	
+			return false;
 		}
 
 		if (empty($object_type) ) {
 			$this->debug_text("del_object(): Object Type ($object_type) is empty, this is required");
-			return false;	
+			return false;
 		}
 
 		$this->db->BeginTrans();
@@ -2546,14 +2546,14 @@ class gacl_api extends gacl {
 				$this->db->Execute($query);
 
 				if ( is_string( $this->db->ErrorNo() ) ) {
-					$this->debug_text("edit_object(): database error: ". $this->db->ErrorMsg() ." (". $this->db->ErrorNo() .")");
+					$this->debug_db('edit_object');
 					$this->db->RollBackTrans();
 					return false;
 				}
 				
 			}
 
-			if ($acl_ids) {		  
+			if ($acl_ids) {
 				//There are acls actually referencing the object
 
 				if ($object_type == 'aco') {
@@ -2579,7 +2579,7 @@ class gacl_api extends gacl {
 					$this->db->Execute($query);
 
 					if ( is_string( $this->db->ErrorNo() ) ) {
-						$this->debug_text("edit_object(): database error: ". $this->db->ErrorMsg() ." (". $this->db->ErrorNo() .")");
+						$this->debug_db('edit_object');
 						$this->db->RollBackTrans();
 						return false;
 					}
@@ -2616,7 +2616,7 @@ class gacl_api extends gacl {
 			$this->db->Execute($query);
 
 			if ( is_string( $this->db->ErrorNo() ) ) {
-				$this->debug_text("edit_object(): database error: ". $this->db->ErrorMsg() ." (". $this->db->ErrorNo() .")");
+				$this->debug_db('edit_object');
 				$this->db->RollBackTrans();
 				return false;
 			}
@@ -2652,7 +2652,7 @@ class gacl_api extends gacl {
 			$this->db->Execute($query);
 
 			if ( is_string( $this->db->ErrorNo() ) ) {
-				$this->debug_text("edit_object(): database error: ". $this->db->ErrorMsg() ." (". $this->db->ErrorNo() .")");
+				$this->debug_db('edit_object');
 				$this->db->RollBackTrans();
 				return false;
 			}
@@ -2719,7 +2719,7 @@ class gacl_api extends gacl {
 		$rs = $this->db->Execute($query);
 
 		if ( is_string( $this->db->ErrorNo() ) ) {
-			$this->debug_text("get_object_section_section_id(): database error: ". $this->db->ErrorMsg() ." (". $this->db->ErrorNo() .")");
+			$this->debug_db('get_object_section_section_id');
 			return false;
 		} else {
 			$row_count = $rs->RecordCount();
@@ -2789,7 +2789,7 @@ class gacl_api extends gacl {
 		$rs = $this->db->Execute($query);
 
 		if ( is_string( $this->db->ErrorNo() ) ) {
-			$this->debug_text("add_object_section(): database error: ". $this->db->ErrorMsg() ." (". $this->db->ErrorNo() .")");
+			$this->debug_db('add_object_section');
 			return false;
 		} else {
 			$this->debug_text("add_object_section(): Added object_section as ID: $insert_id");
@@ -2863,7 +2863,7 @@ class gacl_api extends gacl {
 		$rs = $this->db->Execute($query);
 
 		if ( is_string( $this->db->ErrorNo() ) ) {
-			$this->debug_text("edit_object_section(): database error: ". $this->db->ErrorMsg() ." (". $this->db->ErrorNo() .")");
+			$this->debug_db('edit_object_section');
 			return false;
 		} else {
 			$this->debug_text("edit_object_section(): Modified aco_section ID: $aco_section_id");
@@ -2877,7 +2877,7 @@ class gacl_api extends gacl {
 				$rs = $this->db->Execute($query);
 
 				if ( is_string( $this->db->ErrorNo() ) ) {
-					$this->debug_text("edit_object_section(): database error: ". $this->db->ErrorMsg() ." (". $this->db->ErrorNo() .")");
+					$this->debug_db('edit_object_section');
 					return false;
 				} else {
 					if (!empty($object_map_table)) {
@@ -2887,7 +2887,7 @@ class gacl_api extends gacl {
 						$rs = $this->db->Execute($query);
 
 						if ( is_string( $this->db->ErrorNo() ) ) {
-							$this->debug_text("edit_object_section(): database error: ". $this->db->ErrorMsg() ." (". $this->db->ErrorNo() .")");
+							$this->debug_db('edit_object_section');
 							return false;
 						} else {
 							$this->debug_text("edit_object_section(): Modified ojbect_map value: $value");
@@ -2977,7 +2977,7 @@ class gacl_api extends gacl {
 			$this->db->Execute($query);
 
 			if ( is_string( $this->db->ErrorNo() ) ) {
-				$this->debug_text("del_object_section(): database error: ". $this->db->ErrorMsg() ." (". $this->db->ErrorNo() .")");
+				$this->debug_db('del_object_section');
 				return false;
 			} else {
 				$this->debug_text("del_object_section(): deleted section ID: $object_section_id Value: $section_value");
