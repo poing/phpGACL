@@ -133,7 +133,7 @@ class gacl_api extends gacl {
 		Purpose:	Grabs phpGACL version from the database.
 	\*======================================================================*/
 	function get_version() {
-		$query = "select value from phpgacl where name = 'version'";
+		$query = "select value from {$this->_db_table_prefix}phpgacl where name = 'version'";
 		$version = $this->db->GetOne($query);
 
 		return $version;
@@ -144,7 +144,7 @@ class gacl_api extends gacl {
 		Purpose:	Grabs phpGACL schema version from the database.
 	\*======================================================================*/
 	function get_schema_version() {
-		$query = "select value from phpgacl where name = 'schema_version'";
+		$query = "select value from {$this->_db_table_prefix}phpgacl where name = 'schema_version'";
 		$version = $this->db->GetOne($query);
 
 		return $version;
@@ -321,23 +321,23 @@ class gacl_api extends gacl {
 		$this->debug_text("search_acl(): aco_section_value: $aco_section_value aco_value: $aco_value, aro_section_value: $aro_section_value, aro_value: $aro_value, aro_group_name: $aro_group_name, axo_section_value: $axo_section_value, axo_value: $axo_value, axo_group_name: $axo_group_name, return_value: $return_value");
 		
 		$query = "select 	a.id
-							from acl a";
+							from {$this->_db_table_prefix}acl a";
 		if ($aco_section_value !== FALSE AND $aco_value !== FALSE) {
-			$query .= " LEFT JOIN aco_map b ON a.id=b.acl_id";	
+			$query .= " LEFT JOIN {$this->_db_table_prefix}aco_map b ON a.id=b.acl_id";	
 		}
 		if ($aro_section_value !== FALSE AND $aro_value !== FALSE) {
-			$query .= " LEFT JOIN aro_map c ON a.id=c.acl_id";
+			$query .= " LEFT JOIN {$this->_db_table_prefix}aro_map c ON a.id=c.acl_id";	
 		}
 		if ($aro_group_name !== FALSE) {
-			$query .= " LEFT JOIN aro_groups_map d ON a.id=d.acl_id
-							LEFT JOIN aro_groups dd ON d.group_id=dd.id";	
+			$query .= " LEFT JOIN {$this->_db_table_prefix}aro_groups_map d ON a.id=d.acl_id
+							LEFT JOIN {$this->_db_table_prefix}aro_groups dd ON d.group_id=dd.id";	
 		}
 		if ($axo_section_value !== FALSE AND $axo_value !== FALSE) {
-			$query .= " LEFT JOIN axo_map e ON a.id=e.acl_id";
+			$query .= " LEFT JOIN {$this->_db_table_prefix}axo_map e ON a.id=e.acl_id";	
 		}
 		if ($axo_group_name !== FALSE) {
-			$query .= " LEFT JOIN axo_groups_map f ON a.id=f.acl_id
-							LEFT JOIN axo_groups ff ON f.group_id=ff.id";	
+			$query .= " LEFT JOIN {$this->_db_table_prefix}axo_groups_map f ON a.id=f.acl_id
+							LEFT JOIN {$this->_db_table_prefix}axo_groups ff ON f.group_id=ff.id";	
 		}
 		
 		$query .= " WHERE ";
@@ -646,12 +646,12 @@ class gacl_api extends gacl {
 		}
 
 		//Grab ACL information
-		$query = "select id, allow, enabled, return_value, note from acl where id = ".$acl_id."";
+		$query = "select id, allow, enabled, return_value, note from {$this->_db_table_prefix}acl where id = ".$acl_id."";
 		$acl_row = $this->db->GetRow($query);
 		list($retarr['acl_id'], $retarr['allow'], $retarr['enabled'], $retarr['return_value'], $retarr['note']) = $acl_row;
 
 		//Grab selected ACO's
-		$query = "select distinct a.section_value, a.value, c.name, b.name from aco_map a, aco b, aco_sections c
+		$query = "select distinct a.section_value, a.value, c.name, b.name from {$this->_db_table_prefix}aco_map a, {$this->_db_table_prefix}aco b, {$this->_db_table_prefix}aco_sections c
 							where ( a.section_value=b.section_value AND a.value = b.value) AND b.section_value=c.value AND a.acl_id = $acl_id";
 		$rs = $this->db->Execute($query);
 		$rows = $rs->GetRows();
@@ -666,7 +666,7 @@ class gacl_api extends gacl {
 		//showarray($aco);
 
 		//Grab selected ARO's
-		$query = "select distinct a.section_value, a.value, c.name, b.name from aro_map a, aro b, aro_sections c
+		$query = "select distinct a.section_value, a.value, c.name, b.name from {$this->_db_table_prefix}aro_map a, {$this->_db_table_prefix}aro b, {$this->_db_table_prefix}aro_sections c
 							where ( a.section_value=b.section_value AND a.value = b.value) AND b.section_value=c.value AND a.acl_id = $acl_id";
 		$rs = $this->db->Execute($query);
 		$rows = $rs->GetRows();
@@ -681,7 +681,7 @@ class gacl_api extends gacl {
 		//showarray($options_aro);
 
 		//Grab selected AXO's
-		$query = "select distinct a.section_value, a.value, c.name, b.name from axo_map a, axo b, axo_sections c
+		$query = "select distinct a.section_value, a.value, c.name, b.name from {$this->_db_table_prefix}axo_map a, {$this->_db_table_prefix}axo b, {$this->_db_table_prefix}axo_sections c
 							where ( a.section_value=b.section_value AND a.value = b.value) AND b.section_value=c.value AND a.acl_id = $acl_id";
 		$rs = $this->db->Execute($query);
 		$rows = $rs->GetRows();
@@ -696,12 +696,12 @@ class gacl_api extends gacl {
 		//showarray($options_aro);
 
 		//Grab selected ARO groups.
-		$query = "select distinct group_id from aro_groups_map where  acl_id = $acl_id";
+		$query = "select distinct group_id from {$this->_db_table_prefix}aro_groups_map where  acl_id = $acl_id";
 		$retarr['aro_groups'] = $this->db->GetCol($query);
 		//showarray($selected_groups);
 		
 		//Grab selected AXO groups.
-		$query = "select distinct group_id from axo_groups_map where  acl_id = $acl_id";
+		$query = "select distinct group_id from {$this->_db_table_prefix}axo_groups_map where  acl_id = $acl_id";
 		$retarr['axo_groups'] = $this->db->GetCol($query);
 		//showarray($selected_groups);
 		
@@ -824,19 +824,19 @@ class gacl_api extends gacl {
 			$acl_id = $this->db->GenID('acl_seq',10);
 
 			$this->db->BeginTrans();
-			$query = "insert into acl (id,section_id,allow,enabled,return_value, note, updated_date) VALUES($acl_id, $section_id, $allow, $enabled, ".$this->db->quote($return_value).", ".$this->db->quote($note).", ".time().")";
+			$query = "insert into {$this->_db_table_prefix}acl (id,allow,enabled,return_value, note, updated_date) VALUES($acl_id, $allow, $enabled, ".$this->db->quote($return_value).", ".$this->db->quote($note).", ".time().")";
 			$result = $this->db->Execute($query);
 		} else {
 			$this->db->BeginTrans();
 
 			//Update ACL row, and remove all mappings so they can be re-inserted.
-			$query = "update acl set section_id=$section_id,allow=$allow,enabled=$enabled,return_value=".$this->db->quote($return_value).", note=".$this->db->quote($note).",updated_date=".time()." where id=$acl_id";
+			$query = "update {$this->_db_table_prefix}acl set allow=$allow,enabled=$enabled,return_value=".$this->db->quote($return_value).", note=".$this->db->quote($note).",updated_date=".time()." where id=$acl_id";
 			$result = $this->db->Execute($query);
 
 			if ($result) {
 				$this->debug_text("Update completed without error, delete mappings...");
 				//Delete all mappings so they can be re-inserted.
-				$query = "delete from aco_map where acl_id=$acl_id";
+				$query = "delete from {$this->_db_table_prefix}aco_map where acl_id=$acl_id";
 				$this->db->Execute($query);
 
 				if ( is_string( $this->db->ErrorNo() ) ) {
@@ -845,7 +845,7 @@ class gacl_api extends gacl {
 					return false;
 				}
 
-				$query = "delete from aro_map where acl_id=$acl_id";
+				$query = "delete from {$this->_db_table_prefix}aro_map where acl_id=$acl_id";
 				$this->db->Execute($query);
 
 				if ( is_string( $this->db->ErrorNo() ) ) {
@@ -854,7 +854,7 @@ class gacl_api extends gacl {
 					return false;
 				}
 
-				$query = "delete from axo_map where acl_id=$acl_id";
+				$query = "delete from {$this->_db_table_prefix}axo_map where acl_id=$acl_id";
 				$this->db->Execute($query);
 
 				if ( is_string( $this->db->ErrorNo() ) ) {
@@ -863,7 +863,7 @@ class gacl_api extends gacl {
 					return false;
 				}
 
-				$query = "delete from aro_groups_map where acl_id=$acl_id";
+				$query = "delete from {$this->_db_table_prefix}aro_groups_map where acl_id=$acl_id";
 				$this->db->Execute($query);
 
 				if ( is_string( $this->db->ErrorNo() ) ) {
@@ -872,7 +872,7 @@ class gacl_api extends gacl {
 					return false;
 				}
 
-				$query = "delete from axo_groups_map where acl_id=$acl_id";
+				$query = "delete from {$this->_db_table_prefix}axo_groups_map where acl_id=$acl_id";
 				$this->db->Execute($query);
 
 				if ( is_string( $this->db->ErrorNo() ) ) {
@@ -902,7 +902,7 @@ class gacl_api extends gacl {
 
 					if (!empty($aco_object_id)) {
 
-						$query = "insert into aco_map (acl_id,section_value,value) VALUES($acl_id, '$aco_section_value', '$aco_value')";
+						$query = "insert into {$this->_db_table_prefix}aco_map (acl_id,section_value,value) VALUES($acl_id, '$aco_section_value', '$aco_value')";
 						$rs = $this->db->Execute($query);
 
 						if ( is_string( $this->db->ErrorNo() ) ) {
@@ -929,7 +929,7 @@ class gacl_api extends gacl {
 					if (!empty($aro_object_id)) {
 						$this->debug_text("add_acl(): ARO Object ID: $aro_object_id");
 
-						$query = "insert into aro_map (acl_id,section_value, value) VALUES($acl_id, '$aro_section_value', '$aro_value')";
+						$query = "insert into {$this->_db_table_prefix}aro_map (acl_id,section_value, value) VALUES($acl_id, '$aro_section_value', '$aro_value')";
 						$rs = $this->db->Execute($query);
 
 						if ( is_string( $this->db->ErrorNo() ) ) {
@@ -954,7 +954,7 @@ class gacl_api extends gacl {
 					$axo_object_id = &$this->get_object_id($axo_section_value, $axo_value, 'AXO');
 
 					if (!empty($axo_object_id)) {
-						$query = "insert into axo_map (acl_id,section_value, value) VALUES($acl_id, '$axo_section_value', '$axo_value')";
+						$query = "insert into {$this->_db_table_prefix}axo_map (acl_id,section_value, value) VALUES($acl_id, '$axo_section_value', '$axo_value')";
 						$rs = $this->db->Execute($query);
 
 						if ( is_string( $this->db->ErrorNo() ) ) {
@@ -978,7 +978,7 @@ class gacl_api extends gacl {
 
 				if (!empty($aro_group_data)) {
 
-					$query = "insert into aro_groups_map (acl_id,group_id) VALUES($acl_id, $aro_group_id)";
+					$query = "insert into {$this->_db_table_prefix}aro_groups_map (acl_id,group_id) VALUES($acl_id, $aro_group_id)";
 					$rs = $this->db->Execute($query);
 
 					if ( is_string( $this->db->ErrorNo() ) ) {
@@ -1001,7 +1001,7 @@ class gacl_api extends gacl {
 
 				if (!empty($axo_group_data)) {
 
-					$query = "insert into axo_groups_map (acl_id,group_id) VALUES($acl_id, $axo_group_id)";
+					$query = "insert into {$this->_db_table_prefix}axo_groups_map (acl_id,group_id) VALUES($acl_id, $axo_group_id)";
 					$rs = $this->db->Execute($query);
 
 					if ( is_string( $this->db->ErrorNo() ) ) {
@@ -1088,7 +1088,7 @@ class gacl_api extends gacl {
 
 		$this->db->BeginTrans();
 
-		$query = "delete from acl where id = $acl_id";
+		$query = "delete from {$this->_db_table_prefix}acl where id = $acl_id";
 		$this->debug_text("delete query: $query");
 		$this->db->Execute($query);
 		if ( is_string( $this->db->ErrorNo() ) ) {
@@ -1097,7 +1097,7 @@ class gacl_api extends gacl {
 			return false;	
 		}
 		
-		$query = "delete from aco_map where acl_id= $acl_id";
+		$query = "delete from {$this->_db_table_prefix}aco_map where acl_id= $acl_id";
 		$this->db->Execute($query);
 		if ( is_string( $this->db->ErrorNo() ) ) {
 			$this->debug_text("del_acl(): database error: ". $this->db->ErrorMsg() ." (". $this->db->ErrorNo() .")");
@@ -1105,7 +1105,7 @@ class gacl_api extends gacl {
 			return false;	
 		}
 
-		$query = "delete from aro_map where acl_id = $acl_id";
+		$query = "delete from {$this->_db_table_prefix}aro_map where acl_id = $acl_id";
 		$this->db->Execute($query);
 		if ( is_string( $this->db->ErrorNo() ) ) {
 			$this->debug_text("del_acl(): database error: ". $this->db->ErrorMsg() ." (". $this->db->ErrorNo() .")");
@@ -1113,7 +1113,7 @@ class gacl_api extends gacl {
 			return false;	
 		}		
 
-		$query = "delete from axo_map where acl_id = $acl_id";
+		$query = "delete from {$this->_db_table_prefix}axo_map where acl_id = $acl_id";
 		$this->db->Execute($query);
 		if ( is_string( $this->db->ErrorNo() ) ) {
 			$this->debug_text("del_acl(): database error: ". $this->db->ErrorMsg() ." (". $this->db->ErrorNo() .")");
@@ -1121,7 +1121,7 @@ class gacl_api extends gacl {
 			return false;	
 		}		
 
-		$query = "delete from aro_groups_map where acl_id = $acl_id";
+		$query = "delete from {$this->_db_table_prefix}aro_groups_map where acl_id = $acl_id";
 		$this->db->Execute($query);
 		if ( is_string( $this->db->ErrorNo() ) ) {
 			$this->debug_text("del_acl(): database error: ". $this->db->ErrorMsg() ." (". $this->db->ErrorNo() .")");
@@ -1129,7 +1129,7 @@ class gacl_api extends gacl {
 			return false;	
 		}		
 
-		$query = "delete from axo_groups_map where acl_id = $acl_id";
+		$query = "delete from {$this->_db_table_prefix}axo_groups_map where acl_id = $acl_id";
 		$this->db->Execute($query);			
 		if ( is_string( $this->db->ErrorNo() ) ) {
 			$this->debug_text("del_acl(): database error: ". $this->db->ErrorMsg() ." (". $this->db->ErrorNo() .")");
@@ -1164,10 +1164,10 @@ class gacl_api extends gacl {
 		
 		switch(strtolower($group_type)) {
 			case 'axo':
-				$table = 'axo_groups';
+				$table = $this->_db_table_prefix . 'axo_groups';
 				break;
 			default:
-				$table = 'aro_groups';
+				$table = $this->_db_table_prefix . 'aro_groups';
 				break;
 		}
 		
@@ -1262,10 +1262,10 @@ class gacl_api extends gacl {
 
 		switch(strtolower($group_type)) {
 			case 'axo':
-				$table = 'axo_groups';
+				$table = $this->_db_table_prefix . 'axo_groups';
 				break;
 			default:
-				$table = 'aro_groups';
+				$table = $this->_db_table_prefix . 'aro_groups';
 				break;
 		}
 
@@ -1318,10 +1318,10 @@ class gacl_api extends gacl {
 		
 		switch(strtolower($group_type)) {
 			case 'axo':
-				$table = 'axo_groups';
+				$table = $this->_db_table_prefix . 'axo_groups';
 				break;
 			default:
-				$table = 'aro_groups';
+				$table = $this->_db_table_prefix . 'aro_groups';
 				break;
 		}
 		
@@ -1370,10 +1370,10 @@ class gacl_api extends gacl {
 		
 		switch(strtolower($group_type)) {
 			case 'axo':
-				$table = 'axo_groups';
+				$table = $this->_db_table_prefix . 'axo_groups';
 				break;
 			default:
-				$table = 'aro_groups';
+				$table = $this->_db_table_prefix . 'aro_groups';
 				break;
 		}
 
@@ -1415,10 +1415,10 @@ class gacl_api extends gacl {
 		
 		switch(strtolower($group_type)) {
 			case 'axo':
-				$table = 'axo_groups_path_map';
+				$table = $this->_db_table_prefix . 'axo_groups_path_map';
 				break;
 			default:
-				$table = 'aro_groups_path_map';
+				$table = $this->_db_table_prefix . 'aro_groups_path_map';
 				break;
 		}
 
@@ -1460,10 +1460,10 @@ class gacl_api extends gacl {
 
 		switch(strtolower($group_type)) {
 			case 'axo':
-				$table = 'axo_groups_path';
+				$table = $this->_db_table_prefix . 'axo_groups_path';
 				break;
 			default:
-				$table = 'aro_groups_path';
+				$table = $this->_db_table_prefix . 'aro_groups_path';
 				break;
 		}
 
@@ -1540,12 +1540,12 @@ class gacl_api extends gacl {
 
 		switch(strtolower($group_type)) {
 			case 'axo':
-				$table = 'axo_groups_path';
-				$group_path_map_table = 'axo_groups_path_map';
+				$table = $this->_db_table_prefix . 'axo_groups_path';
+				$group_path_map_table = $this->_db_table_prefix . 'axo_groups_path_map';
 				break;
 			default:
-				$table = 'aro_groups_path';
-				$group_path_map_table = 'aro_groups_path_map';
+				$table = $this->_db_table_prefix . 'aro_groups_path';
+				$group_path_map_table = $this->_db_table_prefix . 'aro_groups_path_map';
 				break;
 		}
 
@@ -1588,10 +1588,10 @@ class gacl_api extends gacl {
 
 		switch(strtolower($group_type)) {
 			case 'axo':
-				$table = 'axo_groups';
+				$table = $this->_db_table_prefix . 'axo_groups';
 				break;
 			default:
-				$table = 'aro_groups';
+				$table = $this->_db_table_prefix . 'aro_groups';
 				break;
 		}
 
@@ -1634,10 +1634,10 @@ class gacl_api extends gacl {
 		
 		switch(strtolower($group_type)) {
 			case 'axo':
-				$table = 'axo_groups';
+				$table = $this->_db_table_prefix . 'axo_groups';
 				break;
 			default:
-				$table = 'aro_groups';
+				$table = $this->_db_table_prefix . 'aro_groups';
 				break;
 		}
 
@@ -1676,12 +1676,12 @@ class gacl_api extends gacl {
 		
 		switch(strtolower($group_type)) {
 			case 'axo':
-				$table = 'groups_axo_map';
-				$path_table = 'axo_groups_path';
+				$table = $this->_db_table_prefix . 'groups_axo_map';
+				$path_table = $this->_db_table_prefix . 'axo_groups_path';
 				break;
 			default:
-				$table = 'groups_aro_map';
-				$path_table = 'aro_groups_path';
+				$table = $this->_db_table_prefix . 'groups_aro_map';
+				$path_table = $this->_db_table_prefix . 'aro_groups_path';
 				break;
 		}
 
@@ -1733,10 +1733,10 @@ class gacl_api extends gacl {
 
 		switch(strtolower($group_type)) {
 			case 'axo':
-				$table = 'groups_axo_map';
+				$table = $this->_db_table_prefix . 'groups_axo_map';
 				break;
 			default:
-				$table = 'groups_aro_map';
+				$table = $this->_db_table_prefix . 'groups_aro_map';
 				break;
 		}
 
@@ -1790,10 +1790,10 @@ class gacl_api extends gacl {
 
 		switch(strtolower($group_type)) {
 			case 'axo':
-				$table = 'groups_axo_map';
+				$table = $this->_db_table_prefix . 'groups_axo_map';
 				break;
 			default:
-				$table = 'groups_aro_map';
+				$table = $this->_db_table_prefix . 'groups_aro_map';
 				break;
 		}
 
@@ -1833,10 +1833,10 @@ class gacl_api extends gacl {
 
 		switch(strtolower($group_type)) {
 			case 'axo':
-				$table = 'axo_groups';
+				$table = $this->_db_table_prefix . 'axo_groups';
 				break;
 			default:
-				$table = 'aro_groups';
+				$table = $this->_db_table_prefix . 'aro_groups';
 				break;
 		}
 
@@ -1916,18 +1916,18 @@ class gacl_api extends gacl {
 		
 		switch(strtolower($group_type)) {
 			case 'axo':
-				$table = 'axo_groups';
-				$groups_map_table = 'axo_groups_map';
-				$groups_object_map_table = 'groups_axo_map';
-				$groups_path_table = 'axo_groups_path';
-				$groups_path_map_table = 'axo_groups_path_map';
+				$table = $this->_db_table_prefix . 'axo_groups';
+				$groups_map_table = $this->_db_table_prefix . 'axo_groups_map';
+				$groups_object_map_table = $this->_db_table_prefix . 'groups_axo_map';
+				$groups_path_table = $this->_db_table_prefix . 'axo_groups_path';
+				$groups_path_map_table = $this->_db_table_prefix . 'axo_groups_path_map';
 				break;
 			default:
-				$table = 'aro_groups';
-				$groups_map_table = 'aro_groups_map';
-				$groups_object_map_table = 'groups_aro_map';
-				$groups_path_table = 'aro_groups_path';
-				$groups_path_map_table = 'aro_groups_path_map';
+				$table = $this->_db_table_prefix . 'aro_groups';
+				$groups_map_table = $this->_db_table_prefix . 'aro_groups_map';
+				$groups_object_map_table = $this->_db_table_prefix . 'groups_aro_map';
+				$groups_path_table = $this->_db_table_prefix . 'aro_groups_path';
+				$groups_path_map_table = $this->_db_table_prefix . 'aro_groups_path_map';
 				break;
 		}
 
@@ -2073,18 +2073,21 @@ class gacl_api extends gacl {
 		switch(strtolower(trim($object_type))) {
 			case 'aco':
 				$object_type = 'aco';
+				$table = $this->_db_table_prefix . 'aco';
 				break;
 			case 'aro':
 				$object_type = 'aro';
+				$table = $this->_db_table_prefix . 'aro';
 				break;
 			case 'axo':
 				$object_type = 'axo';
+				$table = $this->_db_table_prefix . 'axo';
 				break;
 		}
 
 		$this->debug_text("get_object(): Section Value: $section_value Object Type: $object_type");
 		
-		$query = "select id from $object_type ";
+		$query = "select id from $table ";
 		if (!empty($section_value) ) {
 			$query .= " where section_value = '$section_value'";
 		}
@@ -2113,12 +2116,15 @@ class gacl_api extends gacl {
 		switch(strtolower(trim($object_type))) {
 			case 'aco':
 				$object_type = 'aco';
+				$table = $this->_db_table_prefix . 'aco';
 				break;
 			case 'aro':
 				$object_type = 'aro';
+				$table = $this->_db_table_prefix . 'aro';
 				break;
 			case 'axo':
 				$object_type = 'axo';
+				$table = $this->_db_table_prefix . 'axo';
 				break;
 		}
 
@@ -2134,7 +2140,7 @@ class gacl_api extends gacl {
 			return false;	
 		}
 
-		$query = "select section_value, value, order_value, name, hidden from $object_type where id = $object_id";
+		$query = "select section_value, value, order_value, name, hidden from $table where id = $object_id";
 
 		$rs = $this->db->Execute($query);
 
@@ -2163,12 +2169,15 @@ class gacl_api extends gacl {
 		switch(strtolower(trim($object_type))) {
 			case 'aco':
 				$object_type = 'aco';
+				$table = $this->_db_table_prefix . 'aco';
 				break;
 			case 'aro':
 				$object_type = 'aro';
+				$table = $this->_db_table_prefix . 'aro';
 				break;
 			case 'axo':
 				$object_type = 'axo';
+				$table = $this->_db_table_prefix . 'axo';
 				break;
 		}
 
@@ -2187,7 +2196,7 @@ class gacl_api extends gacl {
 			return false;
 		}
 
-		$query = "select id from $object_type where section_value='$section_value' AND value='$value'";
+		$query = "select id from $table where section_value='$section_value' AND value='$value'";
 		$rs = $this->db->Execute($query);
 
 		if ( is_string( $this->db->ErrorNo() ) ) {
@@ -2220,12 +2229,15 @@ class gacl_api extends gacl {
 		switch(strtolower(trim($object_type))) {
 			case 'aco':
 				$object_type = 'aco';
+				$table = $this->_db_table_prefix . 'aco';
 				break;
 			case 'aro':
 				$object_type = 'aro';
+				$table = $this->_db_table_prefix . 'aro';
 				break;
 			case 'axo':
 				$object_type = 'axo';
+				$table = $this->_db_table_prefix . 'axo';
 				break;
 		}
 
@@ -2241,7 +2253,7 @@ class gacl_api extends gacl {
 			return false;
 		}
 
-		$query = "select section_value from $object_type where id=$object_id";
+		$query = "select section_value from $table where id=$object_id";
 		$rs = $this->db->Execute($query);
 
 		if ( is_string( $this->db->ErrorNo() ) ) {
@@ -2274,15 +2286,18 @@ class gacl_api extends gacl {
 		switch(strtolower(trim($object_type))) {
 			case 'aco':
 				$object_type = 'aco';
-				$object_sections_table = 'aco_sections';
+				$table = $this->_db_table_prefix . 'aco';
+				$object_sections_table = $this->_db_table_prefix . 'aco_sections';
 				break;
 			case 'aro':
 				$object_type = 'aro';
-				$object_sections_table = 'aro_sections';
+				$table = $this->_db_table_prefix . 'aro';
+				$object_sections_table = $this->_db_table_prefix . 'aro_sections';
 				break;
 			case 'axo':
 				$object_type = 'axo';
-				$object_sections_table = 'axo_sections';
+				$table = $this->_db_table_prefix . 'axo';
+				$object_sections_table = $this->_db_table_prefix . 'axo_sections';
 				break;
 		}
 
@@ -2327,7 +2342,7 @@ class gacl_api extends gacl {
 		}
 
 		$insert_id = $this->db->GenID($object_type.'_seq',10);
-		$query = "insert into $object_type (id,section_value, value,order_value,name,hidden) VALUES($insert_id, '$section_value', '$value', '$order', '$name', $hidden)";
+		$query = "insert into $table (id,section_value, value,order_value,name,hidden) VALUES($insert_id, '$section_value', '$value', '$order', '$name', $hidden)";
 		$rs = $this->db->Execute($query);
 
 		if ( is_string( $this->db->ErrorNo() ) ) {
@@ -2348,14 +2363,17 @@ class gacl_api extends gacl {
 		switch(strtolower(trim($object_type))) {
 			case 'aco':
 				$object_type = 'aco';
+				$table = $this->_db_table_prefix . 'aco';
 				$object_map_table = 'aco_map';
 				break;
 			case 'aro':
 				$object_type = 'aro';
+				$table = $this->_db_table_prefix . 'aro';
 				$object_map_table = 'aro_map';
 				break;
 			case 'axo':
 				$object_type = 'axo';
+				$table = $this->_db_table_prefix . 'axo';
 				$object_map_table = 'axo_map';
 				break;
 		}
@@ -2383,10 +2401,10 @@ class gacl_api extends gacl {
 		}
 
 		//Get old value incase it changed, before we do the update.
-		$query = "select value from $object_type where id=$object_id";
+		$query = "select value from $table where id=$object_id";
 		$old_value = $this->db->GetOne($query);
 
-		$query = "update $object_type set
+		$query = "update $table set
 																section_value='$section_value',
 																value='$value',
 																order_value='$order',
@@ -2435,16 +2453,19 @@ class gacl_api extends gacl {
 		switch(strtolower(trim($object_type))) {
 			case 'aco':
 				$object_type = 'aco';
+				$table = $this->_db_table_prefix . 'aco';
 				$object_map_table = 'aco_map';
 				break;
 			case 'aro':
 				$object_type = 'aro';
+				$table = $this->_db_table_prefix . 'aro';
 				$object_map_table = 'aro_map';
 				$groups_map_table = 'aro_groups_map';
 				$object_group_table = 'groups_aro_map';
 				break;
 			case 'axo':
 				$object_type = 'axo';
+				$table = $this->_db_table_prefix . 'axo';
 				$object_map_table = 'axo_map';
 				$groups_map_table = 'axo_groups_map';
 				$object_group_table = 'groups_axo_map';
@@ -2466,7 +2487,7 @@ class gacl_api extends gacl {
 		$this->db->BeginTrans();
 
 		// Get Object section_value/value (needed to look for referencing objects)
-		$query = "SELECT section_value, value FROM $object_type WHERE id = '$object_id'";
+		$query = "SELECT section_value, value FROM $table WHERE id = '$object_id'";
 		$object = $this->db->GetRow($query);
 		$section_value = $object[0];
 		$value = $object[1];
@@ -2534,7 +2555,7 @@ class gacl_api extends gacl {
 					$sql_acl_ids = implode(",", $acl_ids);
 
 					$query = "SELECT a.id
-										FROM acl a
+										FROM {$this->_db_table_prefix}acl a
 											LEFT JOIN $object_map_table b ON a.id=b.acl_id
 											LEFT JOIN $groups_map_table c ON a.id=c.acl_id
 										WHERE value IS NULL
@@ -2556,7 +2577,7 @@ class gacl_api extends gacl {
 			} // End of if ($acl_ids)
 
 			// Finally delete the Object itself
-			$query = "DELETE FROM $object_type WHERE id = '$object_id'";
+			$query = "DELETE FROM $table WHERE id = '$object_id'";
 			$this->db->Execute($query);
 
 			if ( is_string( $this->db->ErrorNo() ) ) {
@@ -2592,7 +2613,7 @@ class gacl_api extends gacl {
 		} else {
 			// The Object is NOT referenced anywhere, delete it
 
-			$query = "DELETE FROM $object_type WHERE id = '$object_id'";
+			$query = "DELETE FROM $table WHERE id = '$object_id'";
 			$this->db->Execute($query);
 
 			if ( is_string( $this->db->ErrorNo() ) ) {
@@ -2624,19 +2645,23 @@ class gacl_api extends gacl {
 		switch(strtolower(trim($object_type))) {
 			case 'aco':
 				$object_type = 'aco';
-				$object_sections_table = 'aco_sections';
+				$table = $this->_db_table_prefix . 'aco';
+				$object_sections_table = $this->_db_table_prefix . 'aco_sections';
 				break;
 			case 'aro':
 				$object_type = 'aro';
-				$object_sections_table = 'aro_sections';
+				$table = $this->_db_table_prefix . 'aro';
+				$object_sections_table = $this->_db_table_prefix . 'aro_sections';
 				break;
 			case 'axo':
 				$object_type = 'axo';
-				$object_sections_table = 'axo_sections';
+				$table = $this->_db_table_prefix . 'aro';
+				$object_sections_table = $this->_db_table_prefix . 'axo_sections';
 				break;
 			case 'acl':
 				$object_type = 'acl';
-				$object_sections_table = 'acl_sections';
+				$table = $this->_db_table_prefix . 'acl';
+				$object_sections_table = $this->_db_table_prefix . 'acl_sections';
 				break;
 		}
 
@@ -2688,19 +2713,19 @@ class gacl_api extends gacl {
 		switch(strtolower(trim($object_type))) {
 			case 'aco':
 				$object_type = 'aco';
-				$object_sections_table = 'aco_sections';
+				$object_sections_table = $this->_db_table_prefix . 'aco_sections';
 				break;
 			case 'aro':
 				$object_type = 'aro';
-				$object_sections_table = 'aro_sections';
+				$object_sections_table = $this->_db_table_prefix . 'aro_sections';
 				break;
 			case 'axo':
 				$object_type = 'axo';
-				$object_sections_table = 'axo_sections';
+				$object_sections_table = $this->_db_table_prefix . 'axo_sections';
 				break;
 			case 'acl':
 				$object_type = 'acl';
-				$object_sections_table = 'acl_sections';
+				$object_sections_table = $this->_db_table_prefix . 'acl_sections';
 				break;
 		}
 
@@ -2746,22 +2771,26 @@ class gacl_api extends gacl {
 		switch(strtolower(trim($object_type))) {
 			case 'aco':
 				$object_type = 'aco';
-				$object_sections_table = 'aco_sections';
-				$object_map_table = 'aco_map';
+				$table = $this->_db_table_prefix . 'aco';
+				$object_sections_table = $this->_db_table_prefix . 'aco_sections';
+				$object_map_table = $this->_db_table_prefix . 'aco_map';
 				break;
 			case 'aro':
 				$object_type = 'aro';
-				$object_sections_table = 'aro_sections';
-				$object_map_table = 'aro_map';
+				$table = $this->_db_table_prefix . 'aro';
+				$object_sections_table = $this->_db_table_prefix . 'aro_sections';
+				$object_map_table = $this->_db_table_prefix . 'aro_map';
 				break;
 			case 'axo':
 				$object_type = 'axo';
-				$object_sections_table = 'axo_sections';
-				$object_map_table = 'axo_map';
+				$table = $this->_db_table_prefix . 'axo';
+				$object_sections_table = $this->_db_table_prefix . 'axo_sections';
+				$object_map_table = $this->_db_table_prefix . 'axo_map';
 				break;
 			case 'acl':
 				$object_type = 'acl';
-				$object_sections_table = 'acl_sections';
+				$table = $this->_db_table_prefix . 'acl';
+				$object_sections_table = $this->_db_table_prefix . 'acl_sections';
 				break;
 		}
 
@@ -2807,7 +2836,7 @@ class gacl_api extends gacl {
 			if ($old_value != $value) {
 				$this->debug_text("edit_object_section(): Value Changed, update other tables.");
 
-				$query = "update $object_type set
+				$query = "update $table set
 																section_value='$value'
 													where section_value = '$old_value'";
 				$rs = $this->db->Execute($query);
@@ -2851,19 +2880,19 @@ class gacl_api extends gacl {
 		switch(strtolower(trim($object_type))) {
 			case 'aco':
 				$object_type = 'aco';
-				$object_sections_table = 'aco_sections';
+				$object_sections_table = $this->_db_table_prefix . 'aco_sections';
 				break;
 			case 'aro':
 				$object_type = 'aro';
-				$object_sections_table = 'aro_sections';
+				$object_sections_table = $this->_db_table_prefix . 'aro_sections';
 				break;
 			case 'axo':
 				$object_type = 'axo';
-				$object_sections_table = 'axo_sections';
+				$object_sections_table = $this->_db_table_prefix . 'axo_sections';
 				break;
 			case 'acl':
 				$object_type = 'acl';
-				$object_sections_table = 'acl_sections';
+				$object_sections_table = $this->$this->_db_table_prefix . 'acl_sections';
 				break;
 		}
 

@@ -11,13 +11,17 @@ if ($_GET['group_type'] != '') {
 switch(strtolower(trim($group_type))) {
     case 'axo':
         $group_type = 'axo';
-		$group_table = 'axo_groups';
-		$group_sections_table = 'axo_sections';
+	$table = $gacl_api->_db_table_prefix . 'axo';
+		$group_table = $gacl_api->_db_table_prefix . 'axo_groups';
+		$group_sections_table = $gacl_api->_db_table_prefix . 'axo_sections';
+		$group_map_table = $gacl_api->_db_table_prefix . 'axo_groups_map';
         break;
     default:
         $group_type = 'aro';
-		$group_table = 'aro_groups';
-		$group_sections_table = 'aro_sections';
+	$table = $gacl_api->_db_table_prefix . 'aro';
+		$group_table = $gacl_api->_db_table_prefix . 'aro_groups';
+		$group_sections_table = $gacl_api->_db_table_prefix . 'aro_sections';
+		$group_map_table = $gacl_api->_db_table_prefix . 'aro_groups_map';
         break;
 }
 
@@ -99,7 +103,7 @@ switch ($_POST['action']) {
         //
         //Grab all ARO's for select box
         //
-        $query = "select section_value, value, name from $group_type order by section_value, order_value limit $gacl_api->_max_select_box_items";
+        $query = "select section_value, value, name from $table order by section_value, order_value limit $gacl_api->_max_select_box_items";
         $rs = $db->Execute($query);
         $rows = $rs->GetRows();
 
@@ -135,8 +139,8 @@ switch ($_POST['action']) {
                                         b.value,
                                         b.name,
                                         c.name
-                            from    groups_".$group_type."_map a,
-                                        $group_type b,
+                            from    $group_map_table a,
+                                        $table b,
                                         $group_sections_table c
                             where   a.group_id = $_GET[group_id]
                                         AND a.section_value=b.section_value

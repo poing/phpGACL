@@ -31,8 +31,9 @@
 require_once(dirname(__FILE__).'/../gacl.class.php');
 require_once(dirname(__FILE__).'/../gacl_api.class.php');
 
+
 $gacl_options = array(
-								'debug' => FALSE,
+								'debug' => TRUE,
 								'items_per_page' => 100,
 								'max_select_box_items' => 100,
 								'max_search_return_items' => 200,
@@ -41,6 +42,7 @@ $gacl_options = array(
 								'db_user' => 'root',
 								'db_password' => '',
 								'db_name' => 'gacl',
+								'db_table_prefix' => 'gacl_',
 								'caching' => FALSE,
 								'force_cache_expire' => TRUE,
 								'cache_dir' => '/tmp/phpgacl_cache',
@@ -76,7 +78,7 @@ $author_email = 'ipso@snappymail.ca';
 
 /*
  * Don't need to show notices, some of them are pretty lame and people get overly worried when they see them.
- * Mean while I will try to fix most of these. ;) Please submit patches if you find any I may have missed. 
+ * Mean while I will try to fix most of these. ;) Please submit patches if you find any I may have missed.
  */
 error_reporting (E_ALL ^ E_NOTICE);
 

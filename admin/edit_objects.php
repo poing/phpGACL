@@ -11,15 +11,18 @@ if ($_GET['object_type'] != '') {
 switch(strtolower(trim($object_type))) {
     case 'aco':
         $object_type = 'aco';
-		$object_sections_table = 'aco_sections';
+	$object_table = $gacl_api->_db_table_prefix . 'aco';
+		$object_sections_table = $gacl_api->_db_table_prefix . 'aco_sections';
         break;
     case 'aro':
         $object_type = 'aro';
-		$object_sections_table = 'aro_sections';
+	$object_table = $gacl_api->_db_table_prefix . 'aro';
+		$object_sections_table = $gacl_api->_db_table_prefix . 'aro_sections';
         break;
     case 'axo':
         $object_type = 'axo';
-		$object_sections_table = 'axo_sections';
+	$object_table = $gacl_api->_db_table_prefix . 'axo';
+		$object_sections_table = $gacl_api->_db_table_prefix . 'axo_sections';
         break;
     default:
         echo "ERROR: Must select an object type<br>\n";
@@ -77,7 +80,7 @@ switch ($_POST['action']) {
                                     value,
                                     order_value,
                                     name
-                        from    $object_type
+                        from    $object_table
                         where   section_value='". $_GET['section_value'] ."'
                         order by order_value";
         $rs = $db->pageexecute($query, $gacl_api->_items_per_page, $_GET['page']);        

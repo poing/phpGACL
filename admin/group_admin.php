@@ -11,13 +11,13 @@ if ($_GET['group_type'] != '') {
 switch(strtolower(trim($group_type))) {
     case 'axo':
         $group_type = 'axo';
-        $group_table = 'axo_groups';
-        $group_map_table = 'groups_axo_map';
+        $group_table = $gacl_api->_db_table_prefix . 'axo_groups';
+        $group_map_table = $gacl_api->_db_table_prefix . 'groups_axo_map';
         break;
     default:
         $group_type = 'aro';
-        $group_table = 'aro_groups';
-        $group_map_table = 'groups_aro_map';
+        $group_table = $gacl_api->_db_table_prefix . 'aro_groups';
+        $group_map_table = $gacl_api->_db_table_prefix . 'groups_aro_map';
         break;
 }
 

@@ -53,6 +53,7 @@ class gacl {
 	var $_db_user = 'root';
 	var $_db_password = '';
 	var $_db_name = 'gacl';
+	var $_db = '';
 
 	/*
 	 * NOTE: 	This cache must be manually cleaned each time ACL's are modified.
@@ -68,7 +69,7 @@ class gacl {
 	 */
 	function gacl($options = NULL) {
 
-		$available_options = array('debug','items_per_page','max_select_box_items','max_search_return_items','db_table_prefix','db_type','db_host','db_user','db_password','db_name','caching','force_cache_expire','cache_dir','cache_expire_time');
+		$available_options = array('db','debug','items_per_page','max_select_box_items','max_search_return_items','db_table_prefix','db_type','db_host','db_user','db_password','db_name','caching','force_cache_expire','cache_dir','cache_expire_time');
 		if (is_array($options)) {
 			foreach ($options as $key => $value) {
 					$this->debug_text("Option: $key");
@@ -91,9 +92,13 @@ class gacl {
 		//If your using ADODB v3.5+ feel free to comment out the following line if its giving you problems.
 		$ADODB_FETCH_MODE = ADODB_FETCH_NUM;
 		
-		$this->db = ADONewConnection($this->_db_type);
-		$this->db->SetFetchMode(ADODB_FETCH_NUM);
-		$this->db->PConnect($this->_db_host, $this->_db_user, $this->_db_password, $this->_db_name);
+		if ($this->_db) {
+			$this->db = &$this->_db;
+		} else {
+			$this->db = ADONewConnection($this->_db_type);
+			$this->db->SetFetchMode(ADODB_FETCH_NUM);
+			$this->db->PConnect($this->_db_host, $this->_db_user, $this->_db_password, $this->_db_name);
+		}
 		$this->db->debug = $this->_debug;
 
 		if (!class_exists('Hashed_Cache_Lite')) {
@@ -182,7 +187,7 @@ class gacl {
 				}
 			}
 		}
-		
+
 		return $retarr;
 
 	}
@@ -212,7 +217,7 @@ class gacl {
 			 * Grab the path_to_root for all the above group parents.
 			 * This is so we can perform the group inheritance.
 			 */
-			$aro_path_ids = $this->acl_get_group_path($aro_group_ids['parent_ids'], 'ARO');	
+			$aro_path_ids = $this->acl_get_group_path($aro_group_ids['parent_ids'], 'ARO');
 			if ($axo_section_value != '' AND $axo_value != '') {
 				$axo_path_ids = $this->acl_get_group_path($axo_group_ids['parent_ids'], 'AXO');
 			}
@@ -221,81 +226,81 @@ class gacl {
 			 * Generate SQL text for SQL's in () statements
 			 */
 			if ( isset($aro_group_ids['group_ids']) AND is_array($aro_group_ids['group_ids']) ) {
-				$sql_aro_group_ids = implode(",", $aro_group_ids['group_ids']);   
+				$sql_aro_group_ids = implode(",", $aro_group_ids['group_ids']);
 			}
 
-			if ( isset($aro_path_ids) AND is_array($aro_path_ids) ) {		
-				$sql_aro_path_ids = implode(",", $aro_path_ids);   
+			if ( isset($aro_path_ids) AND is_array($aro_path_ids) ) {
+				$sql_aro_path_ids = implode(",", $aro_path_ids);
 			}
 
 			if ( isset($axo_group_ids['group_ids']) AND is_array($axo_group_ids['group_ids']) ) {
-				$sql_axo_group_ids = implode(",", $axo_group_ids['group_ids']);   
+				$sql_axo_group_ids = implode(",", $axo_group_ids['group_ids']);
 			}
 
 			if ( isset($axo_path_ids) AND is_array($axo_path_ids) ) {
-				$sql_axo_path_ids = implode(",", $axo_path_ids);   
+				$sql_axo_path_ids = implode(",", $axo_path_ids);
 			}
 
 			/*
 			 * This query is where all the magic happens.
-			 * The ordering is very important here, as well very tricky to get correct. 
+			 * The ordering is very important here, as well very tricky to get correct.
 			 * Currently there can be  duplicate ACLs, or ones that step on each other toes. In this case, the ACL that was last updated/created
 			 * is used.
 			 *
 			 * This is probably where the most optimizations can be made.
 			 */
 
-			$query ="
-								select a.id,a.allow,a.return_value
-									from    acl a
-										LEFT JOIN aco_map b ON a.id=b.acl_id 
-										LEFT JOIN aro_map c ON a.id=c.acl_id 
-										LEFT JOIN axo_map h ON a.id=h.acl_id";
+			$query ='
+						select a.id,a.allow,a.return_value
+							from    '. $this->$_db_table_prefix .'acl a
+								LEFT JOIN '. $this->$_db_table_prefix .'aco_map b ON a.id=b.acl_id
+								LEFT JOIN '. $this->$_db_table_prefix .'aro_map c ON a.id=c.acl_id
+								LEFT JOIN '. $this->$_db_table_prefix .'axo_map h ON a.id=h.acl_id";
 
 			//If there are no groups, don't bother doing the join.
 			if (isset($sql_aro_group_ids)) {
-				$query .= "        LEFT JOIN aro_groups_map d ON a.id=d.acl_id";
+				$query .= '		LEFT JOIN '. $this->$_db_table_prefix.'aro_groups_map d ON a.id=d.acl_id';
 			}
 
 			if (isset($sql_aro_path_ids)) {
-				$query .= "		LEFT JOIN aro_groups_path e ON d.group_id=e.group_id";
+				$query .= '		LEFT JOIN '. $this->$_db_table_prefix.'aro_groups_path e ON d.group_id=e.group_id';
 			}
 
 			if (isset($sql_axo_group_ids)) {
-				$query .= "        LEFT JOIN axo_groups_map f ON a.id=f.acl_id";
+				$query .= '		LEFT JOIN '. $this->$_db_table_prefix.'axo_groups_map f ON a.id=f.acl_id';
 			}
 
 			if (isset($sql_axo_path_ids)) {
-				$query .= "		LEFT JOIN axo_groups_path g ON f.group_id=g.group_id";
+				$query .= '		LEFT JOIN '. $this->$_db_table_prefix.'axo_groups_path g ON f.group_id=g.group_id';
 			}
 
-			$query .= "       where   a.enabled = 1
-												AND ( b.section_value = '$aco_section_value' AND b.value = '$aco_value' )
-												AND	( (c.section_value= '$aro_section_value' AND c.value = '$aro_value') ";
+			$query .= '       where   a.enabled = 1
+												AND ( b.section_value = \''. $aco_section_value .'\' AND b.value = \''. $aco_value .'\' )
+												AND	( (c.section_value= \''. $aro_section_value .'\' AND c.value = \''. $aro_value .'\') ';
 
 			if (isset($sql_aro_group_ids)) {
-				$query .= "								OR d.group_id in ($sql_aro_group_ids)";
+				$query .= '								OR d.group_id in ('. $sql_aro_group_ids .')';
 			}
 
 			if (isset($sql_aro_path_ids)) {
-				$query .= "								OR e.id in ($sql_aro_path_ids) ";
+				$query .= '								OR e.id in ('. $sql_aro_path_ids .') ';
 			}
 
 			if ($axo_section_value == '' AND $axo_value == '') {
-				$query .= "					)
-													AND ( ( h.section_value is NULL AND h.value is NULL ) ";
+				$query .= '					)
+													AND ( ( h.section_value is NULL AND h.value is NULL ) ';
 
 			} else {
-				$query .= "					)
-													AND ( ( h.section_value = '$axo_section_value' AND h.value = '$axo_value' ) ";
+				$query .= '					)
+													AND ( ( h.section_value = \''. $axo_section_value .'\' AND h.value = \''. $axo_value .'\' ) ';
 			}
 
 			if (isset($sql_axo_group_ids)) {
-				$query .= "								OR f.group_id in ($sql_axo_group_ids)";
+				$query .= '								OR f.group_id in ('. $sql_axo_group_ids .')';
 			}
 
 			if (isset($sql_axo_path_ids)) {
-				$query .= "								OR g.id in ($sql_axo_path_ids) ";
+				$query .= '								OR g.id in ('. $sql_axo_path_ids .') ';
 			}
 
 
@@ -304,9 +309,9 @@ class gacl {
 			 * Order c.aro_value is not null desc should put ACL's given to specific ARO's
 			 * ahead of any ACLs given to groups. This works well for exceptions to groups.
 			 */
-			$query .=                           "	)
-									order by c.value is not null desc,";
-			
+			$query .= '	)
+									order by c.value is not null desc,';
+
 			/*
 			 * Tree levels are 0 furthest from root. The highest value is always the root, and this
 			 * can of course differ depending on the depth of the tree. Because of this, we want to
@@ -315,24 +320,24 @@ class gacl {
 			 * need an exception for it, which is the "null" part of the ordering.
 			 */
 			if (isset($sql_aro_path_ids)) {
-				$query .= "										e.tree_level is null desc, e.tree_level asc, ";
+				$query .= '										e.tree_level is null desc, e.tree_level asc, ';
 			}
 			if (isset($sql_axo_path_ids)) {
-				$query .= "										g.tree_level is null desc, g.tree_level asc, ";
+				$query .= '										g.tree_level is null desc, g.tree_level asc, ';
 			}
 
-			$query .= "											a.updated_date desc";
+			$query .= '											a.updated_date desc';
 
 			if ($debug != TRUE) {
-				$query .= "		limit 1";
+				$query .= '		limit 1';
 			}
-				
+
 			$rs = &$this->db->Execute($query);
 			$row = &$rs->GetRows();
-				
+
 			/*
 			 * Permission granted?
-			 * Now why did I not choose to use TRUE/FALSE in the first place? 
+			 * Now why did I not choose to use TRUE/FALSE in the first place?
 			 */
 			if ( isset($row[0][1]) AND $row[0][1] == 1 ) {
 				$allow = TRUE;
@@ -349,8 +354,8 @@ class gacl {
 				$retarr = array('acl_id' => NULL, 'return_value' => NULL, 'allow' => &$allow);
 			}
 			/*
-			 * Return the query that we ran if in debug mode. 
-			 */		
+			 * Return the query that we ran if in debug mode.
+			 */
 			if ($debug == TRUE) {
 				$retarr['query'] = &$query;
 			}
@@ -371,14 +376,14 @@ class gacl {
 
 		switch(strtolower($group_type)) {
 			case 'axo':
-				$group_table = 'axo_groups';
-				$group_map_table = 'groups_axo_map';
-				$group_path_table = 'axo_groups_path';
+				$group_table = $this->_db_table_prefix .'axo_groups';
+				$group_map_table = $this->_db_table_prefix .'groups_axo_map';
+				$group_path_table = $this->_db_table_prefix .'axo_groups_path';
 				break;
 			default:
-				$group_table = 'aro_groups';
-				$group_map_table = 'groups_aro_map';
-				$group_path_table = 'aro_groups_path';
+				$group_table = $this->_db_table_prefix .'aro_groups';
+				$group_map_table = $this->_db_table_prefix .'groups_aro_map';
+				$group_path_table = $this->_db_table_prefix .'aro_groups_path';
 				break;
 		}
 
@@ -405,7 +410,7 @@ class gacl {
 				* Find the path_to_root given for the root_group_id argument. This will help give us the parent_ids of all the groups
 				* in the subtree.
 				*/
-				$query = "select id, tree_level from $group_path_table where group_id = $root_group_id order by tree_level desc limit 1";
+				$query = 'select id, tree_level from '. $group_path_table .' where group_id = '. $root_group_id .' order by tree_level desc limit 1';
 				$row = &$this->db->GetRow($query);
 
 				$path_id = $row[0];
@@ -417,7 +422,7 @@ class gacl {
 					 * Using the path_id, grab all group parent_id's. This simple flat query replaces the more complex
 					 * recursive query.
 					 */
-					$query = "select group_id from $group_path_table where id = $path_id AND tree_level <= $tree_level";
+					$query = 'select group_id from '. $group_path_table .' where id = '. $path_id .' AND tree_level <= '. $tree_level;
 					$parent_ids_sql = @implode($this->db->GetCol($query),',');
 				}
 				//else {
@@ -426,14 +431,14 @@ class gacl {
 					 * This is irrelevant.
 					 */
 					//$parent_ids_sql = array(-1);
-					
+
 				//}
 			}
 
 			/*
 			 * Make sure we get the groups and their parents
 			 */
-			$query = "select a.id, a.parent_id from $group_table a, $group_map_table b where a.id=b.group_id AND ( b.section_value = '$section_value' AND b.value = '$value' )";
+			$query = 'select a.id, a.parent_id from '. $group_table .' a, '. $group_map_table .' b where a.id=b.group_id AND ( b.section_value = \''. $section_value .'\' AND b.value = \''. $value .'\' )';
 
 			/*
 			 * If root_group_id is specified, we have to narrow this query down
@@ -443,11 +448,11 @@ class gacl {
 			 */
 			if (isset($parent_ids_sql)) {
 				//$query .= " AND (a.id = $root_group_id OR a.parent_id = $root_group_id)";
-				$query .= " AND ( a.parent_id in ($parent_ids_sql) )";
+				$query .= ' AND ( a.parent_id in ('. $parent_ids_sql .') )';
 			}
 			$rs = &$this->db->Execute($query);
 			$rows = &$rs->GetRows();
-			
+
 			/*
 			 * Seperate the group_ids from the parent_ids so we can work with them easy later on.
 			 */
@@ -461,9 +466,8 @@ class gacl {
 			$this->put_cache($retarr, $cache_id);
 
 		}
-		//$profiler->stopTimer( "acl_get_groups()");
 
-		return $retarr;       
+		return $retarr;
 	}
 
 	/*======================================================================*\
@@ -474,10 +478,10 @@ class gacl {
 
 		switch(strtolower($group_type)) {
 			case 'axo':
-				$group_path_table = 'axo_groups_path';
+				$group_path_table = $this->_db_table_prefix .'axo_groups_path';
 				break;
 			default:
-				$group_path_table = 'aro_groups_path';
+				$group_path_table = $this->_db_table_prefix .'aro_groups_path';
 				break;
 		}
 
@@ -495,12 +499,12 @@ class gacl {
 				$groups_array = array_unique($groups_array);
 
 				/*
-				 * This is a topic for debate. How to figure out proper group inheritance. 
+				 * This is a topic for debate. How to figure out proper group inheritance.
 				 * I opted for a method that requires the least amount of work for doing inheritance lookups.
 				 * Most of the work is done when inserting/updating a group.
 				 * This makes it so we don't need any recursive functions when speed is required.
 				 */
-				$query = "select id from $group_path_table where group_id in (". implode(",",$groups_array) .") and tree_level=0";
+				$query = 'select id from '. $group_path_table .' where group_id in ('. implode(",",$groups_array) .') and tree_level=0';
 				$path_ids = &$this->db->GetCol($query);
 
 				//Cache data.
@@ -523,12 +527,12 @@ class gacl {
 	function get_cache($cache_id) {
 
 		$this->debug_text("get_cache(): on ID: $cache_id");
-		
+
 		if ( is_string($this->Cache_Lite->get($cache_id) ) ) {
 			return unserialize($this->Cache_Lite->get($cache_id) );
 		}
-		
-		return false;	
+
+		return false;
 	}
 
 	/*======================================================================*\
@@ -539,7 +543,7 @@ class gacl {
 	function put_cache($data, $cache_id) {
 
 		$this->debug_text("put_cache(): Cache MISS on ID: $cache_id");
-		
+
 		return $this->Cache_Lite->save(serialize($data), $cache_id);
 	}
 }
