@@ -2076,8 +2076,7 @@ class gacl_api extends gacl {
 
 	/*======================================================================*\
 		Function:	get_object_id()
-		Purpose:	Gets the object_id given the name OR value of the object.
-						so if there are duplicate names, it will return false.
+		Purpose:	Gets the object_id given the section_value AND value of the object.
 	\*======================================================================*/
 	function get_object_id($section_value, $value, $object_type=NULL) {
 		
@@ -2095,11 +2094,11 @@ class gacl_api extends gacl {
 
 		$this->debug_text("get_object_id(): Section Value: $section_value Value: $value Object Type: $object_type");
 		
-		$name = trim($name);
+		$section_value = trim($section_value);
 		$value = trim($value);
 		
-		if (empty($name) AND empty($value) ) {
-			$this->debug_text("get_object_id(): name ($name) OR value ($value) is empty, this is required");
+		if (empty($section_value) AND empty($value) ) {
+			$this->debug_text("get_object_id(): Section Value ($value) AND value ($value) is empty, this is required");
 			return false;	
 		}
 
@@ -2118,7 +2117,7 @@ class gacl_api extends gacl {
 			$row_count = $rs->RecordCount();
 			
 			if ($row_count > 1) {
-				$this->debug_text("get_object_id(): Returned $row_count rows, can only return one. Please search by value not name, or make your names unique.");
+				$this->debug_text("get_object_id(): Returned $row_count rows, can only return one. This should never happen, the database may be missing a unique key.");
 				return false;	
 			} elseif($row_count == 0) {
 				$this->debug_text("get_object_id(): Returned $row_count rows");				
@@ -2172,7 +2171,7 @@ class gacl_api extends gacl {
 			$row_count = $rs->RecordCount();
 			
 			if ($row_count > 1) {
-				$this->debug_text("get_object_section_value(): Returned $row_count rows, can only return one. Please search by value not name, or make your names unique.");
+				$this->debug_text("get_object_section_value(): Returned $row_count rows, can only return one.");
 				return false;	
 			} elseif($row_count == 0) {
 				$this->debug_text("get_object_section_value(): Returned $row_count rows");				
