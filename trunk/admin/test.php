@@ -96,22 +96,18 @@ $gacl_api->add_acl(	array('system' => array(99)),
 
 
 /*
-$query = "select 		a.value,
-								a.name,
-								b.value,
-								b.name,
-
-								c.value,
-								c.name,
-								d.value,
-								d.name
-					from 	aco_sections as a,
-								aco as b,
-								aro_sections as c,
-								aro as d
-					where	a.value=b.section_value
-						AND c.value=d.section_value
-					order by a.value, b.value, c.value, d.value";
+$query = '
+	SELECT		a.value AS a_value, a.name AS a_name,
+				b.value AS b_value, b.name AS b_name,
+				c.value AS c_value, c.name AS c_name,
+				d.value AS d_value, d.name AS d_name
+	FROM		aco_sections a,
+				aco b,
+				aro_sections c,
+				aro d
+	WHERE		a.value=b.section_value
+	AND			c.value=d.section_value
+	ORDER BY	a.value, b.value, c.value, d.value';
 //$rs = $db->Execute($query);
 //$rows = $rs->GetRows();
 $rs = $db->pageexecute($query, 100, 2);

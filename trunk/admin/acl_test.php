@@ -1,32 +1,27 @@
-
-
 <?php
 /*
 if (!empty($_GET['debug'])) {
 	$debug = $_GET['debug'];
 }
 */
-set_time_limit(600);
+@set_time_limit(600);
 
 require_once('../profiler.inc');
 $profiler = new Profiler(true,true);
 
 require_once("gacl_admin.inc.php");
 
-$query = "select 		a.value,
-								a.name,
-								b.value,
-								b.name,
+$query = '
+	SELECT		a.value AS a_value, a.name AS a_name,
+				b.value AS b_value, b.name AS b_name,
+				c.value AS c_value, c.name AS c_name,
+				d.value AS d_value, d.name AS d_name
+	FROM		'. $gacl_api->_db_table_prefix .'aco_sections a
+	LEFT JOIN	'. $gacl_api->_db_table_prefix .'aco b ON a.value=b.section_value,
+				'. $gacl_api->_db_table_prefix .'aro_sections c
+	LEFT JOIN	'. $gacl_api->_db_table_prefix .'aro d ON c.value=d.section_value
+	ORDER BY	a.value, b.value, c.value, d.value';
 
-								c.value,
-								c.name,
-								d.value,
-								d.name
-					from 	".$gacl_api->_db_table_prefix."aco_sections as a
-						LEFT JOIN ".$gacl_api->_db_table_prefix."aco as b ON a.value=b.section_value,
-						".$gacl_api->_db_table_prefix."aro_sections as c
-						LEFT JOIN ".$gacl_api->_db_table_prefix."aro as d ON c.value=d.section_value
-					order by a.value, b.value, c.value, d.value";
 //$rs = $db->Execute($query);
 $rs = $db->pageexecute($query, $gacl_api->_items_per_page, $_GET['page']);
 $rows = $rs->GetRows();
