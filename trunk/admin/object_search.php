@@ -49,14 +49,14 @@ switch ($_GET['action']) {
         //break;    
     default:
 		
+        $smarty->assign("src_form", $_GET['src_form']);
         $smarty->assign("section_value", $_GET['section_value']);
         $smarty->assign("section_value_name", ucfirst($_GET['section_value']));
         $smarty->assign("object_type", $_GET['object_type']);
         $smarty->assign("object_type_name", strtoupper($_GET['object_type']));
 
-
         break;
 }
 
-$smarty->display('object_search.tpl');
+$smarty->display('phpgacl/object_search.tpl');
 ?>

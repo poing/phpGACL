@@ -122,5 +122,5 @@ $smarty->assign('object_type', $object_type);
 //$smarty->assign('return_page', $_GET[return_page]);
 $smarty->assign('return_page', $_SERVER['REQUEST_URI']);
 
-$smarty->display('edit_objects.tpl');
+$smarty->display('phpgacl/edit_objects.tpl');
 ?>

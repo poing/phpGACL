@@ -235,5 +235,5 @@ switch ($_GET['action']) {
 
 $smarty->assign("return_page", $_SERVER['PHP_SELF'] );
 
-$smarty->display('acl_list.tpl');
+$smarty->display('phpgacl/acl_list.tpl');
 ?>

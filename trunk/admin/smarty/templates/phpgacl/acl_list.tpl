@@ -1,6 +1,6 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
 
-{include file="header.tpl"} 
+{include file="phpgacl/header.tpl"} 
     <meta name="generator" content="HTML Tidy, see www.w3.org">
     <title>phpGACL Admin</title>
     <meta http-equiv="content-type" content="text/html; charset=ISO-8859-1">
@@ -109,7 +109,7 @@
 <table cellpadding="2" cellspacing="2" border="2" width="100%">  
   <tr>
 	<td valign="top" colspan="11" bgcolor="#cccccc">
-		{include file="pager.tpl" pager_data=$paging_data link="?filter_aco_section_name=$filter_aco_section_name&filter_aco_name=$filter_aco_name&filter_aro_section_name=$filter_aro_section_name&filter_aro_name=$filter_aro_name&filter_axo_section_name=$filter_axo_section_name&filter_axo_name=$filter_axo_name&filter_aro_group_name=$filter_aro_group_name&filter_axo_group_name=$filter_axo_group_name&filter_return_value=$filter_return_value&filter_allow=$filter_allow&filter_enabled=$filter_enabled&"}
+		{include file="phpgacl/pager.tpl" pager_data=$paging_data link="?filter_aco_section_name=$filter_aco_section_name&filter_aco_name=$filter_aco_name&filter_aro_section_name=$filter_aro_section_name&filter_aro_name=$filter_aro_name&filter_axo_section_name=$filter_axo_section_name&filter_axo_name=$filter_axo_name&filter_aro_group_name=$filter_aro_group_name&filter_axo_group_name=$filter_axo_group_name&filter_return_value=$filter_return_value&filter_allow=$filter_allow&filter_enabled=$filter_enabled&"}
 	</td>
   </tr>
   <tr>
@@ -227,7 +227,7 @@
     {/section}
   <tr>
 	<td valign="top" colspan="11" bgcolor="#cccccc">
-		{include file="pager.tpl" pager_data=$paging_data link="?filter_aco_section_name=$filter_aco_section_name&filter_aco_name=$filter_aco_name&filter_aro_section_name=$filter_aro_section_name&filter_aro_name=$filter_aro_name&filter_axo_section_name=$filter_axo_section_name&filter_axo_name=$filter_axo_name&filter_aro_group_name=$filter_aro_group_name&filter_axo_group_name=$filter_axo_group_name&filter_return_value=$filter_return_value&filter_allow=$filter_allow&filter_enabled=$filter_enabled&"}
+		{include file="phpgacl/pager.tpl" pager_data=$paging_data link="?filter_aco_section_name=$filter_aco_section_name&filter_aco_name=$filter_aco_name&filter_aro_section_name=$filter_aro_section_name&filter_aro_name=$filter_aro_name&filter_axo_section_name=$filter_axo_section_name&filter_axo_name=$filter_axo_name&filter_aro_group_name=$filter_aro_group_name&filter_axo_group_name=$filter_axo_group_name&filter_return_value=$filter_return_value&filter_allow=$filter_allow&filter_enabled=$filter_enabled&"}
 	</td>
   </tr>
 	  <tr>
@@ -242,5 +242,5 @@
     </table>
     <input type="hidden" name="return_page" value="{$return_page}">
 </form>
-{include file="footer.tpl"}
+{include file="phpgacl/footer.tpl"}
 

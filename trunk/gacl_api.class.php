@@ -725,21 +725,23 @@ class gacl_api extends gacl {
 			$axo_group_ids = array_unique($axo_group_ids);
 		}
 
-		//Check for conflicting ACLs, only on adding however. 
+		//Check for conflicting ACLs.
 		if ($this->is_conflicting_acl($aco_array,$aro_array, NULL, NULL, NULL, array($acl_id)) ) {
 			$this->debug_text("add_acl(): Detected possible ACL conflict, not adding ACL!");
 			return false;
 		}
 		
-		$this->db->BeginTrans();
-		
 		//Edit ACL if acl_id is set. This is simply if we're being called by edit_acl(). 
 		if (empty($acl_id)) {
 			//Create ACL row first, so we have the acl_id
 			$acl_id = $this->db->GenID('acl_seq',10);
+
+			$this->db->BeginTrans();
 			$query = "insert into acl (id,allow,enabled,return_value, note, updated_date) VALUES($acl_id, $allow, $enabled, ".$this->db->quote($return_value).", ".$this->db->quote($note).", ".time().")";
 			$result = $this->db->Execute($query);
 		} else {
+			$this->db->BeginTrans();
+			
 			//Update ACL row, and remove all mappings so they can be re-inserted.
 			$query = "update acl set allow=$allow,enabled=$enabled,return_value=".$this->db->quote($return_value).", note=".$this->db->quote($note).",updated_date=".time()." where id=$acl_id";
 			$result = $this->db->Execute($query);			
@@ -1081,10 +1083,14 @@ class gacl_api extends gacl {
 		/*
 		 * Save groups in an array sorted by parent. Should be make it easier for later on.
 		 */
-		while (list(,$row) = @each($rows)) {
-			list($id, $parent_id, $name) = $row;
-			
-			$sorted_groups[$parent_id][$id] = $name;
+		if ($rows != FALSE) {
+			foreach ($rows as $row) {
+				$id = &$row[0];
+				$parent_id = &$row[1];
+				$name = &$row[2];
+				
+				$sorted_groups[$parent_id][$id] = $name;
+			}
 		}
 
 		return $sorted_groups;
@@ -1094,46 +1100,52 @@ class gacl_api extends gacl {
 		Function:	format_groups()
 		Purpose:	Takes the array returned by sort_groups() and formats for human consumption.
 	\*======================================================================*/
-	function format_groups($sorted_groups, $type='TEXT', $root_id=0, $level=0) {
+	function format_groups($sorted_groups, $type='TEXT', $root_id=0, $level=0, $formatted_groups=NULL) {
 		/*
 		 * Recursing with a global array, not the most effecient or safe way to do it, but it will work for now.
 		 */
-		global $formatted_groups;
-
-		while (list($id,$name) = @each($sorted_groups[$root_id])) {
-			switch ($type) {
-				case 'TEXT':
-					/*
-					 * Formatting optimized for TEXT (combo box) output.
-					 */
-					//$spacing = str_repeat("|&nbsp;&nbsp;", $level * 1);
-					$spacing = str_repeat("|  &nbsp;", $level * 1);
-					$text = $spacing.$name;
-					break;
-				case 'HTML':
-					/*
-					 * Formatting optimized for HTML (tables) output.
-					 */
-					$width= $level * 20;
-					$spacing = "<img src=\"s.gif\" width=\"$width\">";
-					$text = $spacing." ".$name;
-					break;
-				case "ARRAY":
-					break;
-			}
-			$formatted_groups[$id] = $text;
-			/*
-			 * Recurse if we can.
-			 */
-			if (isset($sorted_groups[$id]) AND count($sorted_groups[$id]) > 0) {
-				$this->debug_text("format_groups(): Recursing! Level: $level");
-				$this->format_groups($sorted_groups, $type, $id, $level + 1);
-			} else {
-				$this->debug_text("format_groups(): Found last branch!");
+		//$this->showarray($formatted_groups);
+		
+		//while (list($id,$name) = @each($sorted_groups[$root_id])) {
+		if (isset($sorted_groups[$root_id])) {
+			foreach ($sorted_groups[$root_id] as $id => $name) {
+				switch ($type) {
+					case 'TEXT':
+						/*
+						 * Formatting optimized for TEXT (combo box) output.
+						 */
+						//$spacing = str_repeat("|&nbsp;&nbsp;", $level * 1);
+						$spacing = str_repeat("|  &nbsp;", $level * 1);
+						$text = $spacing.$name;
+						break;
+					case 'HTML':
+						/*
+						 * Formatting optimized for HTML (tables) output.
+						 */
+						$width= $level * 20;
+						$spacing = "<img src=\"s.gif\" width=\"$width\">";
+						$text = $spacing." ".$name;
+						break;
+					case "ARRAY":
+						break;
+				}
+				
+				$formatted_groups[$id] = $text;
+				/*
+				 * Recurse if we can.
+				 */
+				 
+				//if (isset($sorted_groups[$id]) AND count($sorted_groups[$id]) > 0) {
+				if (isset($sorted_groups[$id]) ) {
+					//$this->debug_text("format_groups(): Recursing! Level: $level");
+					$formatted_groups = $this->format_groups($sorted_groups, $type, $id, $level + 1, $formatted_groups);
+				} else {
+					//$this->debug_text("format_groups(): Found last branch!");
+				}
 			}
 		}
-
-		$this->debug_text("format_groups(): Returning final array.");
+		
+		//$this->debug_text("format_groups(): Returning final array.");
 
 		return $formatted_groups;
 	}
@@ -1360,10 +1372,11 @@ class gacl_api extends gacl {
 			
 
 			if (empty($path_id)) {
-				$this->db->BeginTrans();
-				
+			
 				$this->debug_text("put_group_path_to_root(): Unique path not found, inserting...");
 				$insert_id = $this->db->GenID($table.'_id_seq',10);
+				
+				$this->db->BeginTrans();
 				
 				$i=0;
 				foreach ($path_to_root as $group_id) {
@@ -1529,13 +1542,18 @@ class gacl_api extends gacl {
 		$this->debug_text("add_group_object(): Group ID: $group_id Section Value: $object_section_value Value: $object_value Group Type: $group_type");
 		
 		$object_section_value = trim($object_section_value);
-		$object__value = trim($object_value);
+		$object_value = trim($object_value);
 		
 		if (empty($group_id) OR empty($object_value) OR empty($object_section_value)) {
 			$this->debug_text("add_group_object(): Group ID:  ($group_id) OR Value ($object_value) OR Section value ($object_section_value) is empty, this is required");
 			return false;	
 		}
 			
+		if(!$this->get_object_id($object_section_value, $object_value, $group_type)) {
+			$this->debug_text("add_group_object(): Group ID:  ($group_id) OR Value ($object_value) OR Section value ($object_section_value) is invalid. Does this object exist?");
+			return false;
+		}
+
         $query = "insert into $table (group_id,section_value, value) VALUES($group_id, '$object_section_value', '$object_value')";
 		$rs = $this->db->Execute($query);                   
 
@@ -1935,8 +1953,8 @@ class gacl_api extends gacl {
 	}
 
 	/*======================================================================*\
-		Function:	add_aco()
-		Purpose:	Inserts a new ARO
+		Function:	add_object()
+		Purpose:	Inserts a new object
 	\*======================================================================*/
 	function add_object($section_value, $name, $value=0, $order=0, $hidden=0, $object_type=NULL) {
 		
@@ -1971,9 +1989,19 @@ class gacl_api extends gacl {
 			return false;	
 		}
 		
+		if (strlen($name) >= 255 OR strlen($value) >= 230 ) {
+			$this->debug_text("add_object(): name ($name) OR value ($value) is too long.");
+			return false;	
+		}
+
 		if (empty($object_type) ) {
 			$this->debug_text("add_object(): Object Type ($object_type) is empty, this is required");
 			return false;	
+		}
+		
+		if (get_object_section_section_id(NULL, $section_value, $object_type == FALSE) ) {
+			$this->debug_text("add_object(): Section Value: $section_value Object Type ($object_type) does not exist, this is required");
+			return false;				
 		}
 
 		$insert_id = $this->db->GenID($object_type.'_seq',10);

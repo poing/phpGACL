@@ -109,5 +109,5 @@ switch ($_POST[action]) {
 $smarty->assign('object_type', $object_type);
 $smarty->assign('return_page', $_SERVER['REQUEST_URI']);
 
-$smarty->display('edit_object_sections.tpl');
+$smarty->display('phpgacl/edit_object_sections.tpl');
 ?>

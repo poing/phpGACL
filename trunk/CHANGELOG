@@ -1,5 +1,9 @@
 Tue Feb 04 2003
 	- Fixed bug in edit_group(), added more error checking.
+	- Added object searching to the assign group pages.
+	- Moved all templates to $smarty_template_dir/phpgacl/ to better integrate with existing smarty installations.
+	- Fixed recursion in format_groups() so it doesn't use globals anymore.
+	- Greatly improved performance in sort_groups() (50% improvement) and format_groups() (20%) functions.
 	
 Thu Jan 31 2003
 	- Added conflict detection to add_acl();

@@ -1,6 +1,6 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
 
-{include file="header.tpl"} 
+{include file="phpgacl/header.tpl"} 
     <meta name="generator" content="HTML Tidy, see www.w3.org">
     <title>phpGACL Admin</title>
     <meta http-equiv="content-type" content="text/html; charset=ISO-8859-1">
@@ -9,7 +9,7 @@
 <script LANGUAGE="JavaScript">
 </script>
 
-{include file="acl_admin_js.tpl"}
+{include file="phpgacl/acl_admin_js.tpl"}
 
 <body onload="document.object_search.name_search_str.focus();">
     <form method="get" name="object_search" action="object_search.php">
@@ -60,5 +60,5 @@
 	<input type="hidden" name="section_value" value="{$section_value}">
 	
     </form>
-{include file="footer.tpl"} 
+{include file="phpgacl/footer.tpl"} 
 
