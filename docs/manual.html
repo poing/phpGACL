@@ -6,7 +6,7 @@
 	<META NAME="GENERATOR" CONTENT="OpenOffice.org 1.1.3  (Linux)">
 	<META NAME="AUTHOR" CONTENT="jrussell">
 	<META NAME="CREATED" CONTENT="20030206;8320000">
-	<META NAME="CHANGED" CONTENT="20041107;17110600">
+	<META NAME="CHANGED" CONTENT="20041128;19250900">
 	<STYLE>
 	<!--
 		@page { size: 8.27in 11.69in; margin: 1.18in }
@@ -46,8 +46,8 @@ Dambekalns &lt;<A HREF="mailto:k.dambekalns@fishfarm.de">k.dambekalns@fishfarm.d
 <P CLASS="western">Copyright &copy; 2002,2003,2004 Mike
 Benoit<BR>Copyright &copy; 2003, James Russell<BR>Copyright &copy;
 2003, Karsten Dambekalns</P>
-<P CLASS="western">Document Version: 55</P>
-<P CLASS="western">Last Updated:<B> <SDFIELD TYPE=DATETIME SDNUM="9;1033;MMMM D, YYYY">November 7, 2004</SDFIELD>
+<P CLASS="western">Document Version: 57</P>
+<P CLASS="western">Last Updated:<B> <SDFIELD TYPE=DATETIME SDNUM="9;1033;MMMM D, YYYY">November 28, 2004</SDFIELD>
 - <SDFIELD TYPE=DATETIME SDVAL="37761.788287037" SDNUM="9;1033;HH:MM AM/PM">06:55 pm</SDFIELD></B></P>
 <H1 LANG="en-GB" CLASS="western">Table of Contents</H1>
 <DIV ID="Table of Contents1" DIR="LTR" STYLE="background: transparent">
@@ -903,10 +903,10 @@ ACO &quot;Section &gt; Values&quot;:</B></FONT></FONT></P>
 <UL>
 	<LI><P CLASS="western" STYLE="font-weight: medium; line-height: 0.17in">
 	<FONT FACE="Helv, Arial, sans-serif"><FONT SIZE=2>acl_check (
-	aro_section, aro_value, aco_section, aco_value);</FONT></FONT></P>
+	aco_section, aco_value, aro_section, aro_value);</FONT></FONT></P>
 	<LI><P CLASS="western" STYLE="font-weight: medium; line-height: 0.17in">
 	<FONT FACE="Helv, Arial, sans-serif"><FONT SIZE=2>acl_check (
-	'People', 'John_Smith', 'Floors', '2nd');</FONT></FONT></P>
+	'Floors', '2nd', 'People', 'John_Smith' );</FONT></FONT></P>
 </UL>
 <P CLASS="western" STYLE="line-height: 0.17in"><FONT FACE="Helv, Arial, sans-serif"><FONT SIZE=2><B>Valid
 Naming Restrictions Examples:</B></FONT></FONT></P>
@@ -1215,13 +1215,10 @@ acl_check() in this code. What does it do? Well, it</P>
 </P>
 <H1 LANG="en-GB" CLASS="western">Using the ACL admin utility</H1>
 <P CLASS="western">If you want to get a grip on the included ACL
-admin utitlity, it will help you a lot to import the demonstration
-data into the database. You find a MySQL dump in the file
-<FONT COLOR="#ff0000">phpgacl/admin/mysql_db_demo_data.sql (Mike -
-NOT AVAILABLE??)</FONT>. It contains some ACO, ARO and AXO objects,
-as well as some ACL defined using those objects. After importing the
-dump, calling the ACL admin and going to the ACL list should show
-this:<BR><BR><BR>
+admin utitlity, it will help you a lot if you run the example.php
+file. It contains some ACO, ARO and AXO objects, as well as some ACL
+defined using those objects. After running it, you should see some
+sample data in the admin interface.<BR><BR><BR>
 </P>
 <P CLASS="western"><IMG SRC="manual_html_4b803670.png" NAME="Graphic5" ALIGN=LEFT WIDTH=567 HEIGHT=520 BORDER=0><BR CLEAR=LEFT><BR><BR>
 </P>
