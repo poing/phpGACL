@@ -11,7 +11,7 @@
 </script>
 {include file="acl_admin_js.tpl"}
 
-  <body onload="populate(document.acl_admin.section,document.acl_admin.elements['objects[]'], '{$js_array_name}')">
+  <body onload="populate(document.assign_group.section,document.assign_group.elements['objects[]'], '{$js_array_name}')">
     <br>
 
     <form method="post" name="assign_group" action="assign_group.php">
@@ -39,23 +39,23 @@
           <tr>
             <td valign="middle" bgcolor="#cccccc" align="center">[ <a href="edit_{$group_type}_sections.php?return_page={$return_page}">Edit</a> ]<br>
              <br>
-             <select name="section" tabindex="0" size="10" width="200" onclick="populate(document.acl_admin.section,document.acl_admin.elements['objects[]'],'{$js_array_name}')">
+             <select name="section" tabindex="0" size="10" width="200" onclick="populate(document.assign_group.section,document.assign_group.elements['objects[]'],'{$js_array_name}')">
                 {html_options options=$options_sections selected=$section_value}              
             </select> <br>
              </td>
 
             <td valign="middle" bgcolor="#cccccc" align="center">
-            [ <a href="javascript: location.href = 'edit_aro.php?section_value=' + document.acl_admin.aro_section.options[document.acl_admin.aro_section.selectedIndex].value + '&return_page={$return_page}';">Edit</a> ]<br>
+            [ <a href="javascript: location.href = 'edit_aro.php?section_value=' + document.assign_group.aro_section.options[document.assign_group.aro_section.selectedIndex].value + '&return_page={$return_page}';">Edit</a> ]<br>
              <br>
              <select name="objects[]" tabindex="0" size="10" width="200" multiple>
             </select> <br>
              </td>
 
             <td valign="middle" bgcolor="#cccccc" align="center">
-                <input type="BUTTON" name="select" value="&nbsp;>>&nbsp;" onClick="select_item(document.acl_admin.section, document.acl_admin.elements['objects[]'], document.acl_admin.elements['selected_objects[]'])">
+                <input type="BUTTON" name="select" value="&nbsp;>>&nbsp;" onClick="select_item(document.assign_group.section, document.assign_group.elements['objects[]'], document.assign_group.elements['selected_objects[]'])">
                 <br>
                 <br>
-                <input type="BUTTON" name="deselect" value="&nbsp;<<&nbsp;" onClick="deselect_item(document.acl_admin.elements['selected_objects[]'])">
+                <input type="BUTTON" name="deselect" value="&nbsp;<<&nbsp;" onClick="deselect_item(document.assign_group.elements['selected_objects[]'])">
              </td>
 
             <td valign="middle" bgcolor="#cccccc" align="center">

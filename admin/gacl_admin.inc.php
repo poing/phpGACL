@@ -39,7 +39,8 @@ require_once($adodb_dir.'/adodb.inc.php');
 $ADODB_FETCH_MODE = ADODB_FETCH_NUM;
 
 $db = ADONewConnection($db_type);
-if (isset($debug)) {
+if (isset($debug) OR isset($_GET['debug'])) {
+	$debug=1;
     $db->debug = true;
 }
 $db->Connect($db_host, $db_user, $db_password, $db_name);

@@ -8,7 +8,7 @@
 <form method="post" name="acl_list" action="acl_list.php">
     <table cellpadding="2" cellspacing="2" border="2" width="100%">
   <tr align="center">
-	<td valign="top" colspan="6" bgcolor="#cccccc"><b>phpGACL ACL List
+	<td valign="top" colspan="10" bgcolor="#cccccc"><b>phpGACL ACL List
 		[ <a href="group_admin.php?group_type=aro">ARO Group Admin</a> ]
 		[ <a href="group_admin.php?group_type=axo">AXO Group Admin</a> ]
 		[ <a href="acl_admin.php?return_page=acl_list.php">ACL Admin</a> ]
@@ -25,6 +25,19 @@
     <td valign="top" bgcolor="#cccccc" align="center">
         <b>Section > ACO</b>
      </td>
+    <td valign="top" bgcolor="#cccccc" align="center">
+        <b>Section > ARO</b>
+     </td>
+    <td valign="top" bgcolor="#cccccc" align="center">
+        <b>ARO Group</b>
+     </td>
+    <td valign="top" bgcolor="#cccccc" align="center">
+        <b>Section > AXO</b>
+     </td>
+    <td valign="top" bgcolor="#cccccc" align="center">
+        <b>AXO Group</b>
+     </td>
+
     <td valign="top" bgcolor="#cccccc" align="center">
         <b>Access</b>
      </td>
@@ -46,12 +59,44 @@
             {$acls[x].id}
      </td>
 
-    <td valign="top" bgcolor="#cccccc" align="center">
+    <td valign="top" bgcolor="#cccccc" align="left">
 		{section name=y loop=$acls[x].aco}
-			{$acls[x].aco[y].aco_section} > {$acls[x].aco[y].aco}
+			<b>{$smarty.section.y.iteration}.</b> {$acls[x].aco[y].aco}
 			<br>
 		{/section}
+		<br>
      </td>
+
+    <td valign="top" bgcolor="#cccccc" align="left">
+		{section name=y loop=$acls[x].aro}
+			<b>{$smarty.section.y.iteration}.</b> {$acls[x].aro[y].aro}
+			<br>
+		{/section}
+		<br>
+     </td>
+    <td valign="top" bgcolor="#cccccc" align="left">
+		{section name=y loop=$acls[x].aro_groups}
+			<b>{$smarty.section.y.iteration}.</b> {$acls[x].aro_groups[y].group}
+			<br>
+		{/section}
+		<br>
+     </td>
+     
+    <td valign="top" bgcolor="#cccccc" align="left">
+		{section name=y loop=$acls[x].axo}
+			<b>{$smarty.section.y.iteration}.</b> {$acls[x].axo[y].axo}
+			<br>
+		{/section}
+		<br>
+     </td>
+    <td valign="top" bgcolor="#cccccc" align="left">
+		{section name=y loop=$acls[x].axo_groups}
+			<b>{$smarty.section.y.iteration}.</b> {$acls[x].axo_groups[y].group}
+			<br>
+		{/section}
+		<br>
+     </td>
+
     <td valign="middle" bgcolor="{if $acls[x].allow}green{else}red{/if}" align="center">
 		{if $acls[x].allow}
 			ALLOW
@@ -61,9 +106,9 @@
      </td>
     <td valign="middle" bgcolor="{if $acls[x].enabled}green{else}red{/if}" align="center">
 		{if $acls[x].enabled}
-			ENABLED
+			Yes
 		{else}
-			DISABLED
+			No
 		{/if}
      </td>
     <td valign="middle" bgcolor="#cccccc" align="center">
@@ -77,7 +122,7 @@
   </tr>
     {/section}
 	  <tr>
-		<td valign="top" bgcolor="#999999" colspan="5">
+		<td valign="top" bgcolor="#999999" colspan="9">
 		</td>
 		<td valign="top" bgcolor="#999999">
 		  <div align="center">
