@@ -848,7 +848,7 @@ class gacl_api {
 				$groups_map_table = 'axo_groups_map';
 				break;
 			default:
-				$table = 'groups';
+				$table = 'aro_groups';
 				$groups_map_table = 'aro_groups_map';
 				break;
 		}
