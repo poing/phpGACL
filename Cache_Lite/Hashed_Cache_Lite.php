@@ -27,7 +27,7 @@
  * http://phpgacl.sourceforge.net/
  *
  */
-require_once("Cache_Lite.php");
+require_once(dirname(__FILE__) .'Cache_Lite.php');
 
 define('DIR_SEP', DIRECTORY_SEPARATOR);
 
