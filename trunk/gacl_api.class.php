@@ -2784,7 +2784,7 @@ class gacl_api extends gacl {
 		if ( ( isset($acl_ids) AND $acl_ids !== FALSE ) OR ( isset($groups_ids) AND $groups_ids !== FALSE) ) {
 			// The Object is referenced somewhere (group or acl), can't delete it
 
-			$this->debug_text("del_object(): Can't delete the object as it is being referenced by GROUPs (".@implode($group_ids).") or ACLs (".@implode($acl_ids,",").")");
+			$this->debug_text("del_object(): Can't delete the object as it is being referenced by GROUPs (".@implode($groups_ids).") or ACLs (".@implode($acl_ids,",").")");
 
 			return false;
 		} else {
