@@ -1,9 +1,11 @@
 {include file="phpgacl/header.tpl"}
   </head>
   <body>
-    {if $first_run != 1}
-	{include file="phpgacl/navigation.tpl"}
+    {if $first_run == 1}
+    {assign var="hidemenu" value="1"}
 	{/if}
+	{include file="phpgacl/navigation.tpl"}
+    <div style="text-align: center;">
       <table cellpadding="2" cellspacing="2" border="2" align="center">
         <tbody>
 		{if $first_run != 1}
@@ -33,15 +35,15 @@
 				Time working on phpGACL means less time that I can work to get paid.<br />
 				Therefore any donations I receive will help me to devote more time to developing phpGACL.
 				<p>However, I'd much rather donations in the form of code and/or documentation.</p>
-				<div align="center"><form action="https://www.paypal.com/cgi-bin/webscr" method="post">
+				<form action="https://www.paypal.com/cgi-bin/webscr" method="post" align="center">
 				<input type="hidden" name="cmd" value="_xclick">
 				<input type="hidden" name="business" value="ipso@snappymail.ca">
 				<input type="hidden" name="item_name" value="php Generic Access Control List">
 				<input type="hidden" name="no_note" value="1">
 				<input type="hidden" name="currency_code" value="USD">
 				<input type="hidden" name="tax" value="0">
-				<input type="image" src="https://www.paypal.com/images/x-click-but04.gif" border="0" name="submit" alt="Make payments with PayPal - it's fast, free and secure!">
-				</form></div>
+				<input type="image" class="paypal" src="https://www.paypal.com/images/x-click-but04.gif" border="0" name="submit" alt="Make payments with PayPal - it's fast, free and secure!">
+				</form>
 			</td>
           </tr>
         {/if}
@@ -59,12 +61,12 @@
 				Report some basic information back to the phpGACL project so we know where to spend our time.<br />
 				<b>All information will be kept private, will not be sold, and will only be used for informational purposes regarding phpGACL.</b>
 				<br /><br />
-    			<div align="center"><form method="post" name="about" action="about.php">
+    		<form method="post" name="about" action="about.php" align="center">
 				<textarea name="system_information" rows="10" cols="60" wrap="VIRTUAL">{$system_info}</textarea>
 				<br />
 				<input type="hidden" name="system_info_md5" value="{$system_info_md5}" />
 				<input type="submit" name="action" value="Submit" />
-				</form></div>
+				</form>
 			</td>
           </tr>
 		{if $first_run != 1}
@@ -83,4 +85,5 @@
         {/if}
         </tbody>
       </table>
+    </div>
 {include file="phpgacl/footer.tpl"}

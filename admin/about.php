@@ -80,6 +80,7 @@ switch ($_POST['action']) {
 $smarty->assign("first_run", $_GET['first_run'] );
 $smarty->assign("return_page", $_SERVER['PHP_SELF'] );
 
+$smarty->assign('current','about');
 $smarty->assign("phpgacl_version", $gacl_api->get_version() );
 $smarty->assign("phpgacl_schema_version", $gacl_api->get_schema_version() );
 

@@ -13,11 +13,13 @@ switch(strtolower(trim($group_type))) {
         $group_type = 'axo';
         $group_table = $gacl_api->_db_table_prefix . 'axo_groups';
         $group_map_table = $gacl_api->_db_table_prefix . 'groups_axo_map';
+        $smarty->assign('current','axo_group');
         break;
     default:
         $group_type = 'aro';
         $group_table = $gacl_api->_db_table_prefix . 'aro_groups';
         $group_map_table = $gacl_api->_db_table_prefix . 'groups_aro_map';
+        $smarty->assign('current','aro_group');
         break;
 }
 
