@@ -1,6 +1,6 @@
 <?php
 /* 
-V3.90 5 Sep 2003  (c) 2000-2003 John Lim (jlim@natsoft.com.my). All rights reserved.
+V4.10 12 Jan 2003  (c) 2000-2004 John Lim (jlim@natsoft.com.my). All rights reserved.
   Released under both BSD license and Lesser GPL library license. 
   Whenever there is any discrepancy between the two licenses, 
   the BSD license will take precedence. 
@@ -29,6 +29,9 @@ class  ADODB_odbc_mssql extends ADODB_odbc {
 	var $sysTimeStamp = 'GetDate()';
 	var $leftOuter = '*=';
 	var $rightOuter = '=*';
+	var $upperCase = 'upper';
+	var $substr = 'substring';
+	var $length = 'len';
 	var $ansiOuter = true; // for mssql7 or later
 	var $identitySQL = 'select @@IDENTITY'; // 'select SCOPE_IDENTITY'; # for mssql 2000
 	var $hasInsertID = true;
@@ -54,7 +57,11 @@ class  ADODB_odbc_mssql extends ADODB_odbc {
 		$arr['version'] = ADOConnection::_findvers($arr['description']);
 		return $arr;
 	}
-	
+
+	function IfNull( $field, $ifNull ) 
+	{
+		return " ISNULL($field, $ifNull) "; // if MS SQL Server
+	}
 	
 	function _insertid()
 	{
@@ -151,9 +158,11 @@ order by constraint_name, referenced_table_name, keyno";
 		if ($nrows > 0 && $offset <= 0) {
 			$sql = preg_replace(
 				'/(^\s*select\s+(distinctrow|distinct)?)/i','\\1 '.$this->hasTop." $nrows ",$sql);
-			return $this->Execute($sql,$inputarr);
+			$rs =& $this->Execute($sql,$inputarr);
 		} else
-			return ADOConnection::SelectLimit($sql,$nrows,$offset,$inputarr,$secs2cache);
+			$rs =& ADOConnection::SelectLimit($sql,$nrows,$offset,$inputarr,$secs2cache);
+			
+		return $rs;
 	}
 	
 	// Format date column in sql string given an input format that understands Y M D
@@ -190,7 +199,7 @@ order by constraint_name, referenced_table_name, keyno";
 				break;
 			
 			case 'H':
-				$s .= "replace(str(datepart(mi,$col),2),' ','0')";
+				$s .= "replace(str(datepart(hh,$col),2),' ','0')";
 				break;
 				
 			case 'i':

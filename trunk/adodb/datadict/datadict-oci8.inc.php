@@ -1,7 +1,7 @@
 <?php
 
 /**
-  V3.90 5 Sep 2003  (c) 2000-2003 John Lim (jlim@natsoft.com.my). All rights reserved.
+  V4.10 12 Jan 2003  (c) 2000-2004 John Lim (jlim@natsoft.com.my). All rights reserved.
   Released under both BSD license and Lesser GPL library license. 
   Whenever there is any discrepancy between the two licenses, 
   the BSD license will take precedence.
@@ -135,6 +135,10 @@ class ADODB2_oci8 extends ADODB_DataDict {
 	
 	function _DropAutoIncrement($t)
 	{
+		if (strpos($t,'.') !== false) {
+			$tarr = explode('.',$t);
+			return "drop sequence ".$tarr[0].".seq_".$tarr[1];
+		}
 		return "drop sequence seq_".$t;
 	}
 	
@@ -181,11 +185,7 @@ end;
 		}
 		if (isset($tableoptions['REPLACE'])) $sql[] = "DROP SEQUENCE $seqname";
 		$sql[] = "CREATE SEQUENCE $seqname";
-		$sql[] = "CREATE OR REPLACE TRIGGER $trigname BEFORE insert ON $tabname 
-		FOR EACH ROW
-		BEGIN
-		  select $seqname.nextval into :new.$this->seqField from dual;
-		END;";
+		$sql[] = "CREATE OR REPLACE TRIGGER $trigname BEFORE insert ON $tabname FOR EACH ROW BEGIN select $seqname.nextval into :new.$this->seqField from dual; END;";
 		
 		$this->seqField = false;
 		return $sql;
@@ -211,18 +211,37 @@ end;
 	
 	function _IndexSQL($idxname, $tabname, $flds,$idxoptions)
 	{
-		if (isset($idxoptions['REPLACE'])) $sql[] = "DROP INDEX $idxname";
+		$sql = array();
+		
+		if ( isset($idxoptions['REPLACE']) || isset($idxoptions['DROP']) ) {
+			$sql[] = sprintf ($this->dropIndex, $idxname);
+			if ( isset($idxoptions['DROP']) )
+				return $sql;
+		}
+		
+		if ( empty ($flds) ) {
+			return $sql;
+		}
+		
 		if (isset($idxoptions['BITMAP'])) {
 			$unique = ' BITMAP'; 
-		} else if (isset($idxoptions['UNIQUE'])) 
+		} elseif (isset($idxoptions['UNIQUE'])) {
 			$unique = ' UNIQUE';
-		else 
+		} else {
 			$unique = '';
+		}
 		
-		if (is_array($flds)) $flds = implode(', ',$flds);
-		$s = "CREATE$unique INDEX $idxname ON $tabname ($flds)";
-		if (isset($idxoptions[$this->upperName])) $s .= $idxoptions[$this->upperName];
-		if (isset($idxoptions['oci8'])) $s .= $idxoptions['oci8'];
+		if ( is_array($flds) )
+			$flds = implode(', ',$flds);
+		$s = 'CREATE' . $unique . ' INDEX ' . $idxname . ' ON ' . $tabname . ' (' . $flds . ')';
+		
+		if ( isset($idxoptions[$this->upperName]) )
+			$s .= $idxoptions[$this->upperName];
+		
+		if (isset($idxoptions['oci8']))
+			$s .= $idxoptions['oci8'];
+		
+
 		$sql[] = $s;
 		
 		return $sql;

@@ -1,6 +1,10 @@
 <?php
+
+global $ADODB_INCLUDED_LIB;
+$ADODB_INCLUDED_LIB = 1;
+
 /* 
-V3.90 5 Sep 2003  (c) 2000-2003 John Lim (jlim@natsoft.com.my). All rights reserved.
+V4.10 12 Jan 2003  (c) 2000-2004 John Lim (jlim@natsoft.com.my). All rights reserved.
   Released under both BSD license and Lesser GPL library license. 
   Whenever there is any discrepancy between the two licenses, 
   the BSD license will take precedence. See License.txt. 
@@ -15,13 +19,82 @@ V3.90 5 Sep 2003  (c) 2000-2003 John Lim (jlim@natsoft.com.my). All rights reser
 function _array_change_key_case($an_array)
 {
 	if (is_array($an_array)) {
-      	foreach($an_array as $key => $value)
+		foreach($an_array as $key=>$value)
         	$new_array[strtoupper($key)] = $value;
 
        	return $new_array;
    }
 
 	return $an_array;
+}
+
+function _adodb_replace(&$zthis, $table, $fieldArray, $keyCol, $autoQuote, $has_autoinc)
+{
+		if (count($fieldArray) == 0) return 0;
+		$first = true;
+		$uSet = '';
+		
+		if (!is_array($keyCol)) {
+			$keyCol = array($keyCol);
+		}
+		foreach($fieldArray as $k => $v) {
+			if ($autoQuote && !is_numeric($v) and strncmp($v,"'",1) !== 0 and strcasecmp($v,'null')!=0) {
+				$v = $zthis->qstr($v);
+				$fieldArray[$k] = $v;
+			}
+			if (in_array($k,$keyCol)) continue; // skip UPDATE if is key
+			
+			if ($first) {
+				$first = false;			
+				$uSet = "$k=$v";
+			} else
+				$uSet .= ",$k=$v";
+		}
+		 
+		$where = false;
+		foreach ($keyCol as $v) {
+			if ($where) $where .= " and $v=$fieldArray[$v]";
+			else $where = "$v=$fieldArray[$v]";
+		}
+		
+		if ($uSet && $where) {
+			$update = "UPDATE $table SET $uSet WHERE $where";
+			
+			$rs = $zthis->Execute($update);
+			if ($rs) {
+				if ($zthis->poorAffectedRows) {
+				/*
+				 The Select count(*) wipes out any errors that the update would have returned. 
+				http://phplens.com/lens/lensforum/msgs.php?id=5696
+				*/
+					if ($zthis->ErrorNo()<>0) return 0;
+					
+				# affected_rows == 0 if update field values identical to old values
+				# for mysql - which is silly. 
+			
+					$cnt = $zthis->GetOne("select count(*) from $table where $where");
+					if ($cnt > 0) return 1; // record already exists
+				} else
+					 if (($zthis->Affected_Rows()>0)) return 1;
+			}
+		}
+	//	print "<p>Error=".$this->ErrorNo().'<p>';
+		$first = true;
+		foreach($fieldArray as $k => $v) {
+			if ($has_autoinc && in_array($k,$keyCol)) continue; // skip autoinc col
+			
+			if ($first) {
+				$first = false;			
+				$iCols = "$k";
+				$iVals = "$v";
+			} else {
+				$iCols .= ",$k";
+				$iVals .= ",$v";
+			}				
+		}
+		$insert = "INSERT INTO $table ($iCols) VALUES ($iVals)"; 
+		$rs = $zthis->Execute($insert);
+		return ($rs) ? 2 : 0;
 }
 
 // Requires $ADODB_FETCH_MODE = ADODB_FETCH_NUM
@@ -134,9 +207,12 @@ function _adodb_getcount(&$zthis, $sql,$inputarr=false,$secs2cache=0)
 		if ($qryRecs !== false) return $qryRecs;
 	}
 	
+	//--------------------------------------------
 	// query rewrite failed - so try slower way...
+	
+	// strip off unneeded ORDER BY
 	$rewritesql = preg_replace('/(\sORDER\s+BY\s.*)/is','',$sql); 
-	$rstest = &$zthis->Execute($rewritesql);
+	$rstest = &$zthis->Execute($rewritesql,$inputarr);
 	if ($rstest) {
    		$qryRecs = $rstest->RecordCount();
 		if ($qryRecs == -1) { 
@@ -293,7 +369,7 @@ function _adodb_getupdatesql(&$zthis,&$rs, $arrFields,$forceUpdate=false,$magicq
 			// If the recordset field is one
 			// of the fields passed in then process.
 			$upperfname = strtoupper($field->name);
-			if (isset($arrFields[$upperfname])) {
+			if (adodb_key_exists($upperfname,$arrFields)) {
 
 				// If the existing field value in the recordset
 				// is different from the value passed in then
@@ -378,12 +454,16 @@ function _adodb_getupdatesql(&$zthis,&$rs, $arrFields,$forceUpdate=false,$magicq
    		};
 }
 
-function adodb_key_exists(&$arr,$key)
+function adodb_key_exists($key, &$arr)
 {
+	if (!defined('ADODB_FORCE_NULLS')) {
+		// the following is the old behaviour where null or empty fields are ignored
+		return (!empty($arr[$key])) || (isset($arr[$key]) && strlen($arr[$key])>0);
+	}
+
 	if (isset($arr[$key])) return true;
-	
 	## null check below
-	if (ADODB_PHPVER >= 0x4010) return array_key_exists($arr,$key);
+	if (ADODB_PHPVER >= 0x4010) return array_key_exists($key,$arr);
 	return false;
 }
 

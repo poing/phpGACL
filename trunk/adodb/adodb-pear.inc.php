@@ -1,6 +1,6 @@
 <?php
 /** 
- * @version V3.90 5 Sep 2003 (c) 2000-2003 John Lim (jlim@natsoft.com.my). All rights reserved.
+ * @version V4.10 12 Jan 2003 (c) 2000-2004 John Lim (jlim@natsoft.com.my). All rights reserved.
  * Released under both BSD license and Lesser GPL library license. 
  * Whenever there is any discrepancy between the two licenses, 
  * the BSD license will take precedence. 
@@ -38,9 +38,9 @@
  */
  
 define('ADODB_PEAR',dirname(__FILE__));
-require_once "PEAR.php";
-require_once ADODB_PEAR."/adodb-errorpear.inc.php";
-require_once ADODB_PEAR."/adodb.inc.php";
+include_once "PEAR.php";
+include_once ADODB_PEAR."/adodb-errorpear.inc.php";
+include_once ADODB_PEAR."/adodb.inc.php";
 
 if (!defined('DB_OK')) {
 define("DB_OK",	1);
@@ -175,7 +175,7 @@ class DB
 		if($persist) $ok = $obj->PConnect($dsninfo['hostspec'], $dsninfo['username'],$dsninfo['password'],$dsninfo['database']);
 		else  $ok = $obj->Connect($dsninfo['hostspec'], $dsninfo['username'],$dsninfo['password'],$dsninfo['database']);
 		
-		if (!$ok) return ADODB_PEAR_Error();
+		if (!$ok) $obj = ADODB_PEAR_Error();
 		return $obj;
 	}
 
