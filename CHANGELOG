@@ -6,6 +6,7 @@ Mon Nov 24 2003
 	mikeb - Fixed PosgresSQL LEFT JOIN issue with acl_check()
 	mikeb - Fixed PostgreSQL transaction issue, where generating sequences causes the transaction to abort. 
 			Simply move the transaction start _after_ the GenID() call.
+	dcech - cleaned up get_object_section_section_id - fixed bug if invalid object type specified, and bug if no value specified.
 Wed Nov 19 2003
 	mikeb - Added transactions to edit_object_section()
 	mikeb - Added more API test_suite functions.
