@@ -1260,24 +1260,33 @@ class gacl_api {
 
 	/*======================================================================*\
 		Function:	del_object()
-		Purpose:	Deletes a given Object
+		Purpose:	Deletes a given Object and, if instructed to do so,
+						erase all referencing objects
+						ERASE feature by: Martino Piccinato
 	\*======================================================================*/
-	function del_object($object_id, $object_type=NULL) {
+	function del_object($object_id, $object_type=NULL, $erase=FALSE) {
 		global $db;
 		
 		switch(strtolower(trim($object_type))) {
 			case 'aco':
 				$object_type = 'aco';
+				$object_map_table = 'aco_map';
 				break;
 			case 'aro':
 				$object_type = 'aro';
+				$object_map_table = 'aro_map';
+				$groups_map_table = 'aro_groups_map';
+				$object_group_table = 'groups_aro_map';
 				break;
 			case 'axo':
 				$object_type = 'axo';
+				$object_map_table = 'axo_map';
+				$groups_map_table = 'axo_groups_map';
+				$object_group_table = 'groups_axo_map';
 				break;
 		}
 
-		debug("del_object(): ID: $object_id Object Type: $object_type");
+		debug("del_object(): ID: $object_id Object Type: $object_type, Erase all referencing objects: $erase");
 		
 		if (empty($object_id) ) {
 			debug("del_object(): Object ID ($object_id) is empty, this is required");
@@ -1289,19 +1298,121 @@ class gacl_api {
 			return false;	
 		}
 
-		$query = "delete from $object_type where id=$object_id";
-		$db->Execute($query);
+		// Get Object section_value/value (needed to look for referencing objects)
+		$query = "SELECT section_value, value FROM $object_type WHERE id = '$object_id'";
+		$object = $db->GetRow($query);
+		$section_value = $object[0];
+		$value = $object[1];
+
+		// Get ids of acl referencing the Object (if any)
+		$query = "SELECT acl_id FROM $object_map_table WHERE value = '$value' AND  section_value = '$section_value'";
+		$acl_ids = $db->GetCol($query);
+
+		if ($erase) {
+			// We were asked to erase all acl referencing it
+
+			debug("del_object(): Erase was set to TRUE, delete all referencing objects");
+
+			if ($object_type == "aro" OR $object_type == "axo") {
+				// The object can be referenced in groups_X_map tables
+				// in the future this branching may become useless because
+				// ACO might me "groupable" too
+
+				// Get rid of groups_map referencing the Object
+				$query = "DELETE FROM $object_group_table WHERE section_value = '$section_value' AND value = '$value'";
+				$db->Execute($query);
+			}
+
+			if ($acl_ids) {		  
+				//There are acls actually referencing the object
+
+				if ($object_type == 'aco') {
+					// I know it's extremely dangerous but
+					// if asked to really erase an ACO
+					// we should delete all acl referencing it
+					// (and relative maps)
+
+					// Do this below this branching
+					// where it uses $orphan_acl_ids as
+					// the array of the "orphaned" acl
+					// in this case all referenced acl are
+					// orhpaned acl
+
+					$orphan_acl_ids = $acl_ids;					
+				} else {
+					// The object is not an ACO and might be referenced
+					// in still valid acls regarding also other object.
+					// In these cases the acl MUST NOT be deleted
+
+					// Get rid of $object_id map referencing erased objects
+					$query = "DELETE FROM $object_map_table WHERE section_value = '$section_value' AND value = '$value'";
+					$db->Execute($query);
 	
-		if ($db->ErrorNo() != 0) {
-			debug("del_object(): database error: ". $db->ErrorMsg() ." (". $db->ErrorNo() .")");
-			return false;	
+					// Find the "orphaned" acl. I mean acl referencing the erased Object (map)
+					// not referenced anymore by other objects
+
+					$sql_acl_ids = implode(",", $acl_ids);
+
+					$query = "SELECT a.id
+										FROM acl a
+											LEFT JOIN $object_map_table b ON a.id=b.acl_id
+											LEFT JOIN $groups_map_table c ON a.id=c.acl_id
+										WHERE value IS NULL
+											AND section_value IS NULL
+											AND group_id IS NULL
+											AND a.id in ($sql_acl_ids)";
+					$orphan_acl_ids = $db->GetCol($query);
+
+				} // End of else section of "if ($object_type == "aco")"
+
+				if ($orphan_acl_ids) {
+				// If there are orphaned acls get rid of them
+
+					foreach ($orphan_acl_ids as $acl) {
+						$this->del_acl($acl);
+					}
+				}
+
+			} // End of if ($acl_ids)
+
+			// Finally delete the Object itself
+			$query = "DELETE FROM $object_type WHERE id = '$object_id'";
+			$db->Execute($query);
+
+			return true;
+
+		} // End of "if ($erase)"
+
+
+		if ($object_type == 'axo' OR $object_type == 'aro') {
+			// If the object is "groupable" (may become unnecessary,
+			// see above
+
+			// Get id of groups where the object is assigned:
+			// you must explicitly remove the object from its groups before
+			// deleting it (don't know if this is really needed, anyway it's safer ;-)
+
+			$query = "SELECT group_id FROM $object_group_table WHERE section_value = '$section_value' AND value = '$value'";
+			$groups_ids = $db->GetCol($query);
+		}
+
+		if ($acl_ids OR $groups_ids) {
+			// The Object is referenced somewhere (group or acl), can't delete it
+
+			debug("del_object(): Can't delete the object as it is being referenced by GROUPs (".@implode($group_ids).") or ACLs (".@implode($acl_ids,",").")");
+
+			return false;
 		} else {
-			debug("del_object(): deleted object ID: $aco_id");
+			// The Object is NOT referenced anywhere, delete it
+
+			$query = "DELETE FROM $object_type WHERE id = '$object_id'";
+			$db->Execute($query);
+
 			return true;
 		}
 
+		return false;
 	}
-
 
 	/*
 	 *
@@ -1519,9 +1630,11 @@ class gacl_api {
 
 	/*======================================================================*\
 		Function:	del_object_section()
-		Purpose:	Deletes a given Object Section
+		Purpose:	Deletes a given Object Section and, if explicitly
+						asked, all the section objects
+						ERASE feature by: Martino Piccinato
 	\*======================================================================*/
-	function del_object_section($object_section_id, $object_type=NULL) {
+	function del_object_section($object_section_id, $object_type=NULL, $erase=FALSE) {
 		global $db;
 		
 		switch(strtolower(trim($object_type))) {
@@ -1539,7 +1652,7 @@ class gacl_api {
 				break;
 		}
 
-		debug("del_object_section(): ID: $object_section_id Object Type: $object_type");
+		debug("del_object_section(): ID: $object_section_id Object Type: $object_type, Erase all: $erase");
 		
 		if (empty($object_section_id) ) {
 			debug("del_object_section(): Section ID ($object_section_id) is empty, this is required");
@@ -1551,18 +1664,48 @@ class gacl_api {
 			return false;	
 		}
 
-		$query = "delete from $object_sections_table where id=$object_section_id";
-		$db->Execute($query);
-	
-		if ($db->ErrorNo() != 0) {
-			debug("del_object_section(): database error: ". $db->ErrorMsg() ." (". $db->ErrorNo() .")");
-			return false;	
-		} else {
-			debug("del_object_section(): deleted aco_section ID: $object_section_id");
-			return true;
+		// Get the value of the section
+		$query="SELECT value FROM $object_sections_table WHERE id='$object_section_id'";
+		$section_value = $db->GetOne($query);
+
+		// Get all objects ids in the section
+		$object_ids = $this->get_object($section_value, 1, $object_type);
+
+		if($erase) {
+			// Delete all objects in the section and for
+			// each object delete the referencing object
+			// (see del_object method)
+
+			foreach ($object_ids as $id) {
+				$this->del_object($id, $object_type, TRUE);
+			}
 		}
 
-	}
+		if($object_ids AND !$erase) {
+			// There are objects in the section and we 
+			// were not asked to erase them: don't delete it 
 
+			debug("del_object_section(): Could not delete the section ($section_value) as it is not empty.");
+
+			return false;
+
+		} else {
+			// The section is empty (or emptied by this method)
+			
+			$query = "DELETE FROM $object_sections_table where id='$object_section_id'";
+			$db->Execute($query);
+	
+			if ($db->ErrorNo() != 0) {
+				debug("del_object_section(): database error: ". $db->ErrorMsg() ." (". $db->ErrorNo() .")");
+				return false;	
+			} else {
+				debug("del_object_section(): deleted section ID: $object_section_id Value: $section_value");
+				return true;
+			}
+
+		}
+	
+		return false;	
+	}
 }
 ?>
