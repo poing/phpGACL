@@ -138,15 +138,17 @@ switch ($_POST['action']) {
 			$query = "select group_id from ".$gacl_api->_db_table_prefix."axo_groups_map where  acl_id = $acl_id";
 			$selected_axo_groups = $db->GetCol($query);
 			//showarray($selected_groups);
-
+			
+			$show_axo = !empty($selected_axo_groups) OR !empty($options_selected_axo);
 		} else {
 			$gacl_api->debug_text("NOT EDITING ACL");
 			$allow=1;
 			$enabled=1;
 			$acl_section_value='user';
+			
+			$show_axo = isset ($_COOKIE['show_axo']) && $_COOKIE['show_axo'] == '1';
 		}
-
-
+		
         //
         //Grab all ACL sections for select box
         //
@@ -383,10 +385,9 @@ switch ($_POST['action']) {
 		$selected_axo = @array_keys($options_selected_axo);
 
 		$smarty->assign("selected_axo", $selected_axo);
+		
 		//Show AXO layer if AXO's are selected.
-		if (count($selected_axo) > 0) {
-			$smarty->assign("show_axo", TRUE);
-		}
+		$smarty->assign('show_axo', $show_axo);
 
 		if (isset($_GET['acl_id'])) {
 			$smarty->assign("acl_id", $_GET['acl_id'] );

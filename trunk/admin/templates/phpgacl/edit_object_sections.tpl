@@ -11,109 +11,72 @@
     <form method="post" name="edit_object_sections" action="edit_object_sections.php">
       <table cellpadding="2" cellspacing="2" border="2" width="100%">
         <tbody>
-          <tr>
-            <td valign="top" colspan="11" bgcolor="#cccccc">
-                {include file="phpgacl/pager.tpl" pager_data=$paging_data link="?object_type=$object_type&"}
-            </td>
-          </tr>
-
-          <tr>
-            <td valign="top" bgcolor="#d3dce3" align="center"><b>ID</b> </td>
-            <td valign="top" bgcolor="#d3dce3" align="center"><b>Value</b> </td>
-            <td valign="top" bgcolor="#d3dce3" align="center"><b>Order</b> </td>
-            <td valign="top" bgcolor="#d3dce3" align="center"><b>Name</b> </td>
-            <td valign="top" bgcolor="#d3dce3" align="center"><b>Functions</b> </td>
-            <td valign="top" bgcolor="#d3dce3" align="center">
-                <input type="checkbox" name="select_all" onClick="checkAll(this)"/>
-            </td>
-            
-          </tr>
-            {section name=x loop=$sections}
-          <tr>
-            <td valign="top" bgcolor="#cccccc" align="center">
-                    {$sections[x].id}
-                    <input type="hidden" name="sections[{$sections[x].id}][]" value="{$sections[x].id}">
-             </td>
-
-            <td valign="top" bgcolor="#cccccc" align="center">
-                <input type="text" size="10" name="sections[{$sections[x].id}][]" value="{$sections[x].value}">
-             </td>
-
-            <td valign="top" bgcolor="#cccccc" align="center">
-                <input type="text" size="10" name="sections[{$sections[x].id}][]" value="{$sections[x].order}">
-             </td>
-
-            <td valign="top" bgcolor="#cccccc" align="center">
-                <input type="text" size="40" name="sections[{$sections[x].id}][]" value="{$sections[x].name}">                
-             </td>
-            <td valign="top" bgcolor="#cccccc" align="center">
-                <br>
-             </td>
-            <td valign="top" bgcolor="#cccccc" align="center">
-                <input type="checkbox" name="delete_sections[]" value="{$sections[x].id}">                
-             </td>
-
-          </tr>
-            {/section}
-          <tr>
-            <td valign="top" colspan="11" bgcolor="#cccccc">
+          <tr class="pager">
+            <td colspan="11">
                 {include file="phpgacl/pager.tpl" pager_data=$paging_data link="?object_type=$object_type&"}
             </td>
           </tr>
           <tr>
-            <td colspan="6" valign="top" bgcolor="#d3dce3" align="center"><b>Add {$object_type|upper} Section's</b> </td>
+            <th>ID</th>
+            <th>Value</th>
+            <th>Order</th>
+            <th>Name</th>
+            <th>Functions</th>
+            <th><input type="checkbox" class="checkbox" name="select_all" onClick="checkAll(this)"/></th>
           </tr>
-          <tr>
-            <td valign="top" bgcolor="#d3dce3" align="center"><b>ID</b> </td>
-            <td valign="top" bgcolor="#d3dce3" align="center"><b>Value</b> </td>
-            <td valign="top" bgcolor="#d3dce3" align="center"><b>Order</b> </td>
-            <td valign="top" bgcolor="#d3dce3" align="center"><b>Name</b> </td>
-            <td valign="top" bgcolor="#d3dce3" align="center"><b>Functions</b> </td>
-            <td valign="top" bgcolor="#d3dce3" align="center"><br> </td>
-          </tr>
-            {section name=y loop=$new_sections}
-          <tr>
-            <td valign="top" bgcolor="#cccccc" align="center">
-                    N/A
-             </td>
-
-            <td valign="top" bgcolor="#cccccc" align="center">
-                <input type="text" size="10" name="new_sections[{$new_sections[y].id}][]" value="">
-             </td>
-
-            <td valign="top" bgcolor="#cccccc" align="center">
-                <input type="text" size="10" name="new_sections[{$new_sections[y].id}][]" value="">
-             </td>
-
-            <td valign="top" bgcolor="#cccccc" align="center">
-                <input type="text" size="40" name="new_sections[{$new_sections[y].id}][]" value="">                
-             </td>
-            <td valign="top" bgcolor="#cccccc" align="center">
-                &nbsp;
-             </td>
-            <td valign="top" bgcolor="#cccccc" align="center">
-                &nbsp;
-             </td>
-          </tr>
-            {/section}
-
-          <tr>
-            <td valign="top" bgcolor="#999999" colspan="4">
-              <div align="center">
-                <input type="submit" name="action" value="Submit"> <input type="reset" value="Reset"><br>
-              </div>
+{section name=x loop=$sections}
+          <tr valign="top" align="center">
+            <td>
+              {$sections[x].id}
+              <input type="hidden" name="sections[{$sections[x].id}][]" value="{$sections[x].id}">
             </td>
-            <td valign="top" bgcolor="#999999" colspan="2">
-              <div align="center">
-                <input type="submit" name="action" value="Delete">
-              </div>
+            <td><input type="text" size="10" name="sections[{$sections[x].id}][]" value="{$sections[x].value}"></td>
+            <td><input type="text" size="10" name="sections[{$sections[x].id}][]" value="{$sections[x].order}"></td>
+            <td><input type="text" size="40" name="sections[{$sections[x].id}][]" value="{$sections[x].name}"></td>
+            <td>&nbsp;</td>
+            <td><input type="checkbox" class="checkbox" name="delete_sections[]" value="{$sections[x].id}"></td>
+          </tr>
+{/section}
+          <tr class="pager">
+            <td colspan="6">
+                {include file="phpgacl/pager.tpl" pager_data=$paging_data link="?object_type=$object_type&"}
             </td>
-
+          </tr>
+          <tr class="spacer">
+            <td colspan="6"></td>
+          </tr>
+          <tr align="center">
+            <td colspan="6"><b>Add {$object_type|upper} Sections</b></td>
+          </tr>
+          <tr>
+            <th>ID</th>
+            <th>Value</th>
+            <th>Order</th>
+            <th>Name</th>
+            <th>Functions</th>
+            <th>&nbsp;</td>
+          </tr>
+{section name=y loop=$new_sections}
+          <tr valign="top" align="center">
+            <td>N/A</td>
+            <td><input type="text" size="10" name="new_sections[{$new_sections[y].id}][]" value=""></td>
+            <td><input type="text" size="10" name="new_sections[{$new_sections[y].id}][]" value=""></td>
+            <td><input type="text" size="40" name="new_sections[{$new_sections[y].id}][]" value=""></td>
+            <td>&nbsp;</td>
+            <td>&nbsp;</td>
+          </tr>
+{/section}
+          <tr class="controls" align="center">
+            <td colspan="4">
+              <input type="submit" name="action" value="Submit"> <input type="reset" value="Reset">
+            </td>
+            <td colspan="2">
+              <input type="submit" name="action" value="Delete">
+            </td>
           </tr>
         </tbody>
       </table>
     <input type="hidden" name="object_type" value="{$object_type}">
     <input type="hidden" name="return_page" value="{$return_page}">
     </form>
-{include file="phpgacl/footer.tpl"}   
-
+{include file="phpgacl/footer.tpl"}

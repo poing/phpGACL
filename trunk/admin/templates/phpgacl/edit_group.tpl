@@ -11,32 +11,24 @@
       <table cellpadding="2" cellspacing="2" border="2" width="100%">
         <tbody>
           <tr>
-            <td valign="top" bgcolor="#d3dce3" align="center"><b>ID</b> </td>
-            <td valign="top" bgcolor="#d3dce3" align="center"><b>Parent</b> </td>
-            <td valign="top" bgcolor="#d3dce3" align="center"><b>Name</b> </td>
+            <th>ID</th>
+            <th>Parent</th>
+            <th>Name</th>
           </tr>
-          <tr>
-            <td valign="top" bgcolor="#cccccc" align="center">
-                    {$id|default:"N/A"}
-            </td>
-
-            <td valign="top" bgcolor="#cccccc" align="center">
+          <tr valign="top" align="center">
+            <td>{$id|default:"N/A"}</td>
+            <td>
                 <select name="parent_id" tabindex="0" multiple>
                     {html_options options=$options_groups selected=$parent_id}
                 </select>
              </td>
-
-            <td valign="top" bgcolor="#cccccc" align="center">
+            <td>
                 <input type="text" size="50" name="name" value="{$name}">
-             </td>
-
+            </td>
           </tr>
-
-          <tr>
-            <td valign="top" bgcolor="#999999" colspan="3">
-              <div align="center">
-                <input type="submit" name="action" value="Submit"> <input type="reset" value="Reset"><br>
-              </div>
+          <tr class="controls" align="center">
+            <td colspan="3">
+              <input type="submit" name="action" value="Submit"> <input type="reset" value="Reset">
             </td>
           </tr>
         </tbody>
@@ -44,8 +36,5 @@
     <input type="hidden" name="group_id" value="{$id}">
     <input type="hidden" name="group_type" value="{$group_type}">
     <input type="hidden" name="return_page" value="{$return_page}">
-    
-    </form>
-  </body>
+  </form>
 {include file="phpgacl/footer.tpl"}
-

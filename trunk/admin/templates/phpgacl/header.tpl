@@ -1,3 +1,3 @@
 <html>
   <body>
-        <link rel="stylesheet" href="admin.css" type="text/css" />
+        <link rel="stylesheet" href="admin.css" type="text/css" title="phpGACL"/>

@@ -27,7 +27,6 @@
  *
  */
 
-var selectedObject = null;
 var selectedTab = null;
 
 //Function to totally clear a select box.
@@ -121,52 +120,46 @@ function unselect_all(form_element) {
 }
 
 function edit_link(link, parent_id) {
-    alert('edit_aco.php?section_id=' + parent_id + '&return_page={$return_page}')    
+    alert('edit_aco.php?section_id=' + parent_id + '&return_page={$return_page}')
 }
 
 function toggleObject(objectID) {
-		if(document.getElementById) {
-				hideObject();
-				showObject(objectID);
+	if(document.getElementById) {
+		if(document.getElementById(objectID).className == 'hide') {
+			showObject(objectID);
+		} else {
+			hideObject(objectID);
 		}
+	}
 }
 
 function showObject(objectID) {
-		if(document.getElementById) {
-				if(selectedObject != objectID) {
-						document.getElementById(objectID).style.display = 'inline';
-						//document.getElementById(objectID).style.display = 'block';
-						//document.getElementById(objectID).style.visibility = 'visible';
-						selectedObject = objectID;
-				}
-		}
+	if(document.getElementById) {
+		document.getElementById(objectID).className = 'show';
+	}
 }
 
-function hideObject() {
-		if(document.getElementById) {
-				if(selectedObject) {
-						document.getElementById(selectedObject).style.display = 'none';
-						//document.getElementById(selectedObject).style.visibility = 'hidden';
-						selectedObject = null;
-				}
-		}
+function hideObject(objectID) {
+	if(document.getElementById) {
+		document.getElementById(objectID).className = 'hide';
+	}
 }
 
 function showTab(objectID) {
-		if(document.getElementById) {
-				if(selectedObject != objectID) {
-						document.getElementById(objectID).className = 'tabon';
-						selectedTab = objectID;
-				}
+	if(document.getElementById) {
+		if(selectedObject != objectID) {
+			document.getElementById(objectID).className = 'tabon';
+			selectedTab = objectID;
 		}
+	}
 }
 
 function hideTab() {
-		if(document.getElementById) {
-				if(selectedTab) {
-						document.getElementById(selectedTab).className = 'taboff';
-				}
+	if(document.getElementById) {
+		if(selectedTab) {
+			document.getElementById(selectedTab).className = 'taboff';
 		}
+	}
 }
 
 function checkAll(checkbox) {
@@ -176,4 +169,73 @@ function checkAll(checkbox) {
 		}
 	}
 	return true;
+}
+
+/**
+ * Sets a Cookie with the given name and value.
+ *
+ * name       Name of the cookie
+ * value      Value of the cookie
+ * [expires]  Expiration date of the cookie (default: end of current session)
+ * [path]     Path where the cookie is valid (default: path of calling document)
+ * [domain]   Domain where the cookie is valid
+ *              (default: domain of calling document)
+ * [secure]   Boolean value indicating if the cookie transmission requires a
+ *              secure transmission
+ */
+function setCookie(name, value, expires, path, domain, secure)
+{
+    document.cookie= name + "=" + escape(value) +
+        ((expires) ? "; expires=" + expires.toGMTString() : "") +
+        ((path) ? "; path=" + path : "") +
+        ((domain) ? "; domain=" + domain : "") +
+        ((secure) ? "; secure" : "");
+}
+
+/**
+ * Gets the value of the specified cookie.
+ *
+ * name  Name of the desired cookie.
+ *
+ * Returns a string containing value of specified cookie,
+ *   or null if cookie does not exist.
+ */
+function getCookie(name)
+{
+    var dc = document.cookie;
+    var prefix = name + "=";
+    var begin = dc.indexOf("; " + prefix);
+    if (begin == -1)
+    {
+        begin = dc.indexOf(prefix);
+        if (begin != 0) return null;
+    }
+    else
+    {
+        begin += 2;
+    }
+    var end = document.cookie.indexOf(";", begin);
+    if (end == -1)
+    {
+        end = dc.length;
+    }
+    return unescape(dc.substring(begin + prefix.length, end));
+}
+
+/**
+ * Deletes the specified cookie.
+ *
+ * name      name of the cookie
+ * [path]    path of the cookie (must be same as path used to create cookie)
+ * [domain]  domain of the cookie (must be same as domain used to create cookie)
+ */
+function deleteCookie(name, path, domain)
+{
+    if (getCookie(name))
+    {
+        document.cookie = name + "=" + 
+            ((path) ? "; path=" + path : "") +
+            ((domain) ? "; domain=" + domain : "") +
+            "; expires=Thu, 01-Jan-70 00:00:01 GMT";
+    }
 }

@@ -14,12 +14,12 @@
         <tbody>
 		{if $first_run != 1}
           <tr>
-			<td valign="top" align="center" rowspan="1" colspan="4" bgcolor="#cccccc">
-				<b>Help</b>
-			</td>
+			<th>
+				Help
+			</th>
           </tr>
           <tr>
-			<td valign="top" align="center" rowspan="1" colspan="4" bgcolor="#cccccc">
+			<td align="center">
 				Please join the <a href="https://sourceforge.net/mail/?group_id=57103">Mailing Lists</a> if you have
 				any questions, comments, or support questions.
 				<br>
@@ -36,12 +36,12 @@
 			</td>
           </tr>
           <tr>
-			<td valign="top" align="center" rowspan="1" colspan="4" bgcolor="#cccccc">
-				<b>Donate</b>
-			</td>
+			<th>
+				Donate
+			</th>
           </tr>
           <tr>
-			<td valign="top" align="center" rowspan="1" colspan="4" bgcolor="#cccccc">
+			<td align="center">
 				Time working on phpGACL means less time that I can work to get paid.
 				<br>
 				Therefore any donations I receive will help me to devote more time to developing phpGACL.
@@ -62,16 +62,16 @@
           </tr>
         {/if}
           <tr>
-			<td valign="top" align="center" rowspan="1" colspan="4" bgcolor="#cccccc">
+			<th>
 				{if $first_run != 1}
 					<b>Report</b>
 				{else}
 					<font color="#ff0000">* <b>Report</b> *</font>
 				{/if}
-			</td>
+			</th>
           </tr>
           <tr>
-			<td valign="top" align="center" rowspan="1" colspan="4" bgcolor="#cccccc">
+			<td align="center">
     			<form method="post" name="about" action="about.php">
 				Report some basic information back to the phpGACL project so we know where to spend our time.
 				<br>
@@ -87,12 +87,12 @@
           </tr>
 		{if $first_run != 1}
 		  <tr>
-			<td valign="top" align="center" rowspan="1" colspan="4" bgcolor="#cccccc">
-				<b>Credits</b>
-			</td>
+			<th>
+				Credits
+			</th>
           </tr>
           <tr>
-			<td valign="top" align="center" rowspan="1" colspan="4" bgcolor="#cccccc">
+			<td align="center">
 <pre>
 {$credits}
 </pre>
