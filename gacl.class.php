@@ -289,7 +289,6 @@ class gacl {
 			if ($axo_section_value == '' AND $axo_value == '') {
 				$query .= '					)
 													AND ( ( h.section_value is NULL AND h.value is NULL ) ';
-
 			} else {
 				$query .= '					)
 													AND ( ( h.section_value = \''. $axo_section_value .'\' AND h.value = \''. $axo_value .'\' ) ';
@@ -297,10 +296,16 @@ class gacl {
 
 			if (isset($sql_axo_group_ids)) {
 				$query .= '								OR f.group_id in ('. $sql_axo_group_ids .')';
+			} else {
+				//Should these be ANDs or ORs? ... This needs some testing
+				$query .= '								AND f.group_id is NULL';
 			}
 
 			if (isset($sql_axo_path_ids)) {
 				$query .= '								OR g.id in ('. $sql_axo_path_ids .') ';
+			} else {
+				//Should these be ANDs or ORs? ... This needs some testing
+				$query .= '								AND g.id is NULL';
 			}
 
 

@@ -1,3 +1,8 @@
+Sun Oct 05 2003
+	- Attempted fix for major bug in AXOs, if you don't specify AXO values in acl_check(), it could 
+		still match ACLs that have AXOs assigned to them. Discovered by Dan Cech <dcech@phpwerx.net>. 
+Sun Oct 03 2003
+	- Released 3.2.1
 Mon Sep 29 2003
 	- Fixed possible bug with re-using database connection objects.
 	- Fixed bug in assign_group.tpl where it was hard coded to reference AROs. 
