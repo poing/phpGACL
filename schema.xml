@@ -13,9 +13,11 @@
 	<sql>
 		<descr>SQL to be executed only to insert default rows</descr>
 		<query>
-			insert into #PREFIX#phpgacl (name, value) VALUES('version','3.2.0b2');
+			delete from #PREFIX#phpgacl where name = 'version';
+			insert into #PREFIX#phpgacl (name, value) VALUES('version','3.2.0');
 		</query>
 		<query>
+			delete from #PREFIX#phpgacl where name = 'schema_version';
 			insert into #PREFIX#phpgacl (name, value) VALUES('schema_version','2.0');
 		</query>
 	</sql>

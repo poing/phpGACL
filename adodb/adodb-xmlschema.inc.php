@@ -601,7 +601,7 @@ class adoSchema {
 				foreach( $this->dict->MetaTables() as $table ) {
 					$this->legacyTables[ strtoupper( $table ) ] = $table;
 				}
-				showDebug( $this->legacyTables, "LEGACY table" );
+				#showDebug( $this->legacyTables, "LEGACY table" );
 			} 
 			
 			$forceReplace == TRUE ? $this->upgradeMethod = 'REPLACE' : $this->upgradeMethod = 'ALTER';
