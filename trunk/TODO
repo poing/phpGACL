@@ -3,7 +3,3 @@
 * Write "mock" implementations to show off some of phpGACL's benefits.
 
 * Write tutorial, some people may find phpGACL difficult to figure out.
-
-* Implement some sort of caching (custom version of Pears Cache Lite with hashed directories?) , it seems ADODB's caching is very poor.
-    It didn't improve the speed at all.
-
