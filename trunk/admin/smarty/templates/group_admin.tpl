@@ -14,13 +14,14 @@
       <table cellpadding="2" cellspacing="2" border="2" width="100%">
         <tbody>
           <tr align="center">
-            <td valign="top" colspan="3" bgcolor="#cccccc"><b>phpGACL</b> <b>{$group_type|upper} Group Administrator [ <a href="acl_list.php">ACL List</a> ]</b><br>
+            <td valign="top" colspan="4" bgcolor="#cccccc"><b>phpGACL</b> <b>{$group_type|upper} Group Administrator [ <a href="acl_list.php">ACL List</a> ]</b><br>
              </td>
           </tr>
 
           <tr>
             <td valign="top" bgcolor="#d3dce3" align="center"><b>ID</b> </td>
             <td valign="top" bgcolor="#d3dce3" align="center"><b>Name</b> </td>
+            <td valign="top" bgcolor="#d3dce3" align="center"><b>Objects</b> </td>
             <td valign="top" bgcolor="#d3dce3" align="center"><b>Functions</b> </td>
           </tr>
             {section name=x loop=$groups}
@@ -31,7 +32,9 @@
             <td valign="top" bgcolor="#cccccc" align="left">
                     {$groups[x].name}
              </td>
-
+            <td valign="top" bgcolor="#cccccc" align="center">
+                    {$groups[x].object_count}
+             </td>
             <td valign="top" bgcolor="#cccccc" align="center">
                 Don't forget, to click here --> 
                 [ <a href="assign_group.php?group_type={$group_type}&group_id={$groups[x].id}&return_page={$return_page}">Assign {$group_type|upper}</a> ]
@@ -44,7 +47,7 @@
             {/section}
 
           <tr>
-            <td valign="top" bgcolor="#999999" colspan="2">
+            <td valign="top" bgcolor="#999999" colspan="3">
                 &nbsp;
             </td>
             <td valign="top" bgcolor="#999999">
