@@ -1,3 +1,10 @@
+* FIX bug where creating an ACL with two ARO's of the same value, in different sections.
+	Same problem with groups, two AROs with the same values in difference sections cause problems.
+
+* FIX subtree bug? Does subtree'ing actually check more then one or two levels deep?
+
+* Fix the demo data .sql file to support the new schema.
+
 * Add "3rd layer" support for ACL'ing individual items.
     Two ways we can do this:
         1. Use the current ACO's, and add a 3rd param to acl_check($aco_id, $aro_id, $aco_id) or acl_check(array($aco_id,$aco_id), $aro_id)
@@ -7,12 +14,28 @@
 
 * Create include files with queries in each for the different databases. ie: include($db->db_type."-custom_sql.php");
 
+* Investigate a way to detect ACL conflicts and alert the user.
+
 * Write "mock" implementations to show off some of phpGACL's benefits.
 
 * Write tutorial, some people may find phpGACL difficult to figure out.
 
 * Oracle compatibility: Apply second path from Fred Cohen
     
+* FUTURE: Possibly support tree'd ACOs.
+
+* FUTURE: Add a "reason" table which maps to ACLs. this can be used purely for the admins sanity to help
+	remember why certain ACLs were added, as well to help resolve conflicts.
+
+* FUTURE: Allow phpGACL to set permissions on its own administration interface. 
+Having said that, I think going 99.9% of the way would be inside said scope and
+would be something to seriously consider. We could add all the ACO's, ARO's, Groups, and 
+mark them "system" so they can't be deleted, as well as all the acl_check()'s. 
+Then in an include file or something we could place a hook to plugin with any 
+existing login/authentication mechanism and disable all this by default. Once the
+user enables it and plugs in a simple ARO value, it would all come to life and allow
+them the ability to use phpGACL to set permissions on itself. 
+
 > There are a few things:
 > 1) 'LEVEL' is a reserved word in Oracle. I had to change the column in
 > GROUPS_PATH to 'glevel' and update
