@@ -31,9 +31,16 @@ function get_system_info() {
 
 	$database_server_info = $gacl_api->db->ServerInfo();
 	$system_info .= '  Database Version: '.$database_server_info['version']."\n";
-	$system_info .= '  Database Description: '.$database_server_info['description']."\n";
+	$system_info .= '  Database Description: '.$database_server_info['description']."\n\n";
 
-	$system_info .= "\n".'Kernel Version: '.`uname -a`."\n";
+	$system_info .= 'Server Name: '. $_SERVER["SERVER_NAME"] ."\n";
+	$system_info .= ' OS: '. PHP_OS ."\n";
+	$system_info .= ' IP Address: '. $_SERVER["REMOTE_ADDR"] ."\n";
+	$system_info .= ' Browser: '. $_SERVER["HTTP_USER_AGENT"] ."\n\n";
+	
+	if ( strtoupper(substr(PHP_OS, 0,3)) == 'LIN' ) {
+		$system_info .= 'Kernel Version: '.`uname -a`."\n";
+	}
 
 	return trim($system_info);
 }
