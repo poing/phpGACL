@@ -34,7 +34,7 @@ require_once(dirname(__FILE__).'/../gacl_api.class.php');
 
 $gacl_options = array(
 								'debug' => FALSE,
-								'items_per_page' => 50,
+								'items_per_page' => 100,
 								'max_select_box_items' => 100,
 								'max_search_return_items' => 200,
 								'db_type' => 'mysql',
@@ -42,7 +42,7 @@ $gacl_options = array(
 								'db_user' => 'root',
 								'db_password' => '',
 								'db_name' => 'gacl',
-								'caching' => TRUE,
+								'caching' => FALSE,
 								'cache_dir' => '/tmp/phpgacl_cache',
 								'cache_expire_time' => 600
 							);

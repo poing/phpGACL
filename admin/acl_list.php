@@ -1,18 +1,18 @@
 <?php
 require_once("gacl_admin.inc.php");
 
-switch ($_POST['action']) {
+switch ($_GET['action']) {
     case Delete:
 	    debug("Delete!");
 
-        if (count($_POST['delete_acl']) > 0) {
-            foreach($_POST['delete_acl'] as $id) {
+        if (count($_GET['delete_acl']) > 0) {
+            foreach($_GET['delete_acl'] as $id) {
                 $gacl_api->del_acl($id);            
             }
         }   
 
         //Return page.
-        return_page($_POST['return_page']);
+        return_page($_GET['return_page']);
 	
         break;
     case Submit:
@@ -63,9 +63,53 @@ switch ($_POST['action']) {
 
                                         LEFT JOIN axo l ON ( j.section_value=l.section_value AND j.value = l.value )
                                         LEFT JOIN axo_sections m ON l.section_value=m.value
-										LEFT JOIN axo_groups n ON n.id=k.group_id
+										LEFT JOIN axo_groups n ON n.id=k.group_id ";
+		
+		if ( isset($_GET['filter_aco_section_name']) AND $_GET['filter_aco_section_name'] != '') {
+			$filter_query[] = "			( f.value LIKE '".$_GET['filter_aco_section_name']."' OR f.name LIKE '".$_GET['filter_aco_section_name']."') ";
+		}
+		if ( isset($_GET['filter_aco_name']) AND $_GET['filter_aco_name'] != '') {
+			$filter_query[] = "			( e.value LIKE '".$_GET['filter_aco_name']."' OR e.name LIKE '".$_GET['filter_aco_name']."') ";
+		}
 
-                                order by a.id, f.name, e.name, h.name, g.name, i.name";
+		if ( isset($_GET['filter_aro_section_name']) AND $_GET['filter_aro_section_name'] != '') {
+			$filter_query[] = "			( h.value LIKE '".$_GET['filter_aro_section_name']."' OR h.name LIKE '".$_GET['filter_aro_section_name']."') ";
+		}
+		if ( isset($_GET['filter_aro_name']) AND $_GET['filter_aro_name'] != '') {
+			$filter_query[] = "			( g.value LIKE '".$_GET['filter_aro_name']."' OR g.name LIKE '".$_GET['filter_aro_name']."') ";
+		}
+		if ( isset($_GET['filter_aro_group_name']) AND $_GET['filter_aro_group_name'] != '') {
+			$filter_query[] = "			( i.name LIKE '".$_GET['filter_aro_group_name']."') ";
+		}
+		
+		if ( isset($_GET['filter_axo_section_name']) AND $_GET['filter_axo_section_name'] != '') {
+			$filter_query[] = "			( m.value LIKE '".$_GET['filter_axo_section_name']."' OR m.name LIKE '".$_GET['filter_axo_section_name']."') ";
+		}
+		if ( isset($_GET['filter_axo_name']) AND $_GET['filter_axo_name'] != '') {
+			$filter_query[] = "			( l.value LIKE '".$_GET['filter_axo_name']."' OR l.name LIKE '".$_GET['filter_axo_name']."') ";
+		}
+		if ( isset($_GET['filter_axo_group_name']) AND $_GET['filter_axo_group_name'] != '') {
+			$filter_query[] = "			( n.name LIKE '".$_GET['filter_axo_group_name']."') ";
+		}
+
+		if ( isset($_GET['filter_return_value']) AND $_GET['filter_return_value'] != '') {
+			$filter_query[] = "			( a.return_value LIKE '".$_GET['filter_return_value']."') ";
+		}
+		if ( isset($_GET['filter_allow']) AND $_GET['filter_allow'] != '-1') {
+			$filter_query[] = "			( a.allow LIKE '".$_GET['filter_allow']."') ";
+		}
+		if ( isset($_GET['filter_enabled']) AND $_GET['filter_enabled'] != '-1') {
+			$filter_query[] = "			( a.enabled LIKE '".$_GET['filter_enabled']."') ";
+		}
+
+
+		if (isset($_GET['action']) AND $_GET['action'] == 'Filter' AND is_array($filter_query)) {
+			$query .= "	where ";
+			$query .= implode($filter_query, " AND ");
+		}
+		
+        $query .= "		order by a.id, f.name, e.name, h.name, g.name, i.name";
+        
         //$rs = $db->Execute($query);
         $rs = $db->pageexecute($query, $gacl_api->_items_per_page, $_GET['page']);
         $rows = $rs->GetRows();
@@ -160,6 +204,32 @@ switch ($_POST['action']) {
 
         $smarty->assign("paging_data", get_paging_data($rs));
         
+        $smarty->assign("filter_aco_section_name", $_GET['filter_aco_section_name']);
+        $smarty->assign("filter_aco_name", $_GET['filter_aco_name']);
+
+        $smarty->assign("filter_aro_section_name", $_GET['filter_aro_section_name']);
+        $smarty->assign("filter_aro_name", $_GET['filter_aro_name']);
+        $smarty->assign("filter_aro_group_name", $_GET['filter_aro_group_name']);
+        
+        $smarty->assign("filter_axo_section_name", $_GET['filter_axo_section_name']);
+        $smarty->assign("filter_axo_name", $_GET['filter_axo_name']);
+		$smarty->assign("filter_axo_group_name", $_GET['filter_axo_group_name']);
+
+		$smarty->assign("filter_return_value", $_GET['filter_return_value']);
+
+		$smarty->assign("options_filter_allow", array('-1' => 'Any', 1 => 'Allow', 0 => 'Deny'));
+		$smarty->assign("options_filter_enabled", array('-1' => 'Any', 1 => 'Yes', 0 => 'No'));
+
+		if (!isset($_GET['filter_allow']) OR $_GET['filter_allow'] == '') {
+			$_GET['filter_allow'] = '-1';
+		}
+		if (!isset($_GET['filter_enabled']) OR $_GET['filter_enabled'] == '') {
+			$_GET['filter_enabled'] = '-1';
+		}
+
+		$smarty->assign("filter_allow", $_GET['filter_allow']);
+		$smarty->assign("filter_enabled", $_GET['filter_enabled']);
+       
         break;
 }
 

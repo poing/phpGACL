@@ -152,7 +152,7 @@ class gacl {
 						that should be used if you want to "hook" in other applications. Such as pricing
 						etc...
 	\*======================================================================*/
-	function acl_query($aco_section_value, $aco_value, $aro_section_value, $aro_value, $axo_section_value=NULL, $axo_value=NULL, $root_aro_group_id=NULL, $root_axo_group_id=NULL) {
+	function acl_query($aco_section_value, $aco_value, $aro_section_value, $aro_value, $axo_section_value=NULL, $axo_value=NULL, $root_aro_group_id=NULL, $root_axo_group_id=NULL, $debug=NULL) {
 
 		$cache_id = $aco_section_value.'-'.$aco_value.'-'.$aro_section_value.'-'.$aro_value.'-'.$axo_section_value.'-'.$axo_value.'-'.$root_aro_group_id.'-'.$root_axo_group_id;
 
@@ -160,17 +160,17 @@ class gacl {
 
 		if (!$retarr) {
 			/*
-			* Grab all groups mapped to this ARO/AXO
-			*/
+			 * Grab all groups mapped to this ARO/AXO
+			 */
 			$aro_group_ids = $this->acl_get_groups($aro_section_value, $aro_value, $root_aro_group_id,'ARO');
 			if ($axo_section_value != '' AND $axo_value != '') {
 				$axo_group_ids = $this->acl_get_groups($axo_section_value, $axo_value, $root_axo_group_id,'AXO');
 			}
 
 			/*
-			* Grab the path_to_root for all the above group parents.
-			* This is so we can perform the group inheritance.
-			*/
+			 * Grab the path_to_root for all the above group parents.
+			 * This is so we can perform the group inheritance.
+			 */
 			$aro_path_ids = $this->acl_get_group_path($aro_group_ids['parent_ids'], 'ARO');	
 			if ($axo_section_value != '' AND $axo_value != '') {
 				$axo_path_ids = $this->acl_get_group_path($axo_group_ids['parent_ids'], 'AXO');
@@ -179,8 +179,8 @@ class gacl {
 			//$profiler->startTimer( "acl_query()");
 
 			/*
-			* Generate SQL text for SQL's in () statements
-			*/
+			 * Generate SQL text for SQL's in () statements
+			 */
 			if ($aro_group_ids['group_ids']) {
 				$sql_aro_group_ids = implode(",", $aro_group_ids['group_ids']);   
 			}
@@ -198,13 +198,13 @@ class gacl {
 			}
 
 			/*
-			* This query is where all the magic happens.
-			* The ordering is very important here, as well very tricky to get correct. 
-			* Currently there can be  duplicate ACLs, or ones that step on each other toes. In this case, the ACL that was last updated/created
-			* is used.
-			*
-			* This is probably where the most optimizations can be made.
-			*/
+			 * This query is where all the magic happens.
+			 * The ordering is very important here, as well very tricky to get correct. 
+			 * Currently there can be  duplicate ACLs, or ones that step on each other toes. In this case, the ACL that was last updated/created
+			 * is used.
+			 *
+			 * This is probably where the most optimizations can be made.
+			 */
 
 			/*
 			These are currently useless to us. 
@@ -214,10 +214,7 @@ class gacl {
 												d.group_id
 			*/
 			$query ="
-								select
-												a.id,
-												a.allow,
-												a.return_value
+								select a.id,a.allow,a.return_value
 									from    acl a
 										LEFT JOIN aco_map b ON a.id=b.acl_id 
 										LEFT JOIN aro_map c ON a.id=c.acl_id 
@@ -271,10 +268,10 @@ class gacl {
 
 
 			/*
-			* The ordering is always very tricky and makes all the difference in the world.
-			* Order c.aro_value is not null desc should put ACL's given to specific ARO's
-			* ahead of any ACLs given to groups. This works well for exceptions to groups.
-			*/
+			 * The ordering is always very tricky and makes all the difference in the world.
+			 * Order c.aro_value is not null desc should put ACL's given to specific ARO's
+			 * ahead of any ACLs given to groups. This works well for exceptions to groups.
+			 */
 			$query .=                           "	)
 									order by c.value is not null desc,";
 
@@ -284,24 +281,32 @@ class gacl {
 			*/
 			
 			/*
-			* Tree levels are 0 furthest from root. The highest value is always the root, and this
-			* can of course differ depending on the depth of the tree. Because of this, we want to
-			* prefer (order) permissions by level asc, putting the deepest groups first.
-			* However due to this method, the deepest group does not have a level at all, so we need
-			* need an exception for it, which is the "null" part of the ordering.
-			*/
+			 * Tree levels are 0 furthest from root. The highest value is always the root, and this
+			 * can of course differ depending on the depth of the tree. Because of this, we want to
+			 * prefer (order) permissions by level asc, putting the deepest groups first.
+			 * However due to this method, the deepest group does not have a level at all, so we need
+			 * need an exception for it, which is the "null" part of the ordering.
+			 */
 			if (isset($sql_aro_path_ids)) {
 				$query .= "										e.tree_level is null desc, e.tree_level asc, ";
 			}
-			$query .= "											a.updated_date desc
-									limit 1";
+			if (isset($sql_axo_path_ids)) {
+				$query .= "										g.tree_level is null desc, g.tree_level asc, ";
+			}
 
-			$row = $this->db->GetRow($query);
+			$query .= "											a.updated_date desc";
 
+			if ($debug != TRUE) {
+				$query .= "		limit 1";
+			}
+				
+			$rs = &$this->db->Execute($query);
+			$row = &$rs->GetRows();
+				
 			/*
-			* Permission granted?
-			*/
-			if ($row[1] == 1) {
+			 * Permission granted?
+			 */
+			if ($row[0][1] == 1) {
 				$allow = 1;
 			} else {
 				$allow = 0;
@@ -309,9 +314,16 @@ class gacl {
 			//$profiler->stopTimer( "acl_query()");
 
 			/*
-			* Return ACL ID. This is the key to "hooking" extras like pricing assigned to ACLs etc... Very useful.
-			*/
-			$retarr = array('acl_id' => &$row[0], 'return_value' => &$row[2], 'allow' => &$allow);    
+			 * Return ACL ID. This is the key to "hooking" extras like pricing assigned to ACLs etc... Very useful.
+			 */
+			$retarr = array('acl_id' => &$row[0][0], 'return_value' => &$row[0][2], 'allow' => &$allow);
+
+			/*
+			 * Return the query that we ran if in debug mode. 
+			 */		
+			if ($debug == TRUE) {
+				$retarr['query'] = &$query;
+			}
 
 			//Cache data.
 			$this->put_cache($retarr, $cache_id);

@@ -1,8 +1,27 @@
 <?php
 $debug=1;
 require_once("gacl_admin.inc.php");
+include('../adodb/tohtml.inc.php');
 //require_once("../gacl.inc.php");
+/*
+function acl_query($aco_section_value, $aco_value,
+				   $aro_section_value, $aro_value,
+				   $axo_section_value=NULL, $axo_value=NULL,
+				   $root_aro_group_id=NULL, $root_axo_group_id=NULL, $debug=NULL) {
+*/					   
+$result = $gacl_api->acl_query('system', 'email_pw', 'users', '1', NULL, NULL, NULL, NULL, TRUE);
 
+$result['query'] = str_replace("\n","",$result['query']);
+$result['query'] = str_replace("a.id,a.allow,a.return_value","*",$result['query']);
+showarray($result);
+$rs = $gacl_api->db->Execute($result['query']);
+rs2html($rs);
+
+//$rows = $rs->GetRows();
+//showarray($rows);
+
+
+/*
 $query = "select 		a.value,
 								a.name,
 								b.value,
@@ -25,6 +44,7 @@ $rs = $db->pageexecute($query, 100, 2);
 showarray($rows);
 $rows = $rs->GetRows();
 showarray($rows);
+*/
 
 //$test=$gacl-> acl_query('system', 'email_pw', 'users', '1');
 //showarray($test);

@@ -31,7 +31,6 @@
                     {$groups[x].object_count}
              </td>
             <td valign="top" bgcolor="#cccccc" align="center">
-                Don't forget, to click here --> 
                 [ <a href="assign_group.php?group_type={$group_type}&group_id={$groups[x].id}&return_page={$return_page}">Assign {$group_type|upper}</a> ]
                 [ <a href="edit_group.php?group_type={$group_type}&parent_id={$groups[x].id}&return_page={$return_page}">Add Child</a> ]
                 [ <a href="edit_group.php?group_type={$group_type}&group_id={$groups[x].id}&return_page={$return_page}">Edit</a> ]
