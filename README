@@ -18,7 +18,8 @@ SYNOPSIS:
 
 	require_once("gacl.inc.php");
 
-	if ( acl_check( <Access Control Object ID> , <Access Request Object ID> ) ) {
+
+	if ( acl_check( <ACO Section VALUE>, <Access Control Object VALUE> , <ARO Section VALUE>, <Access Request Object VALUE> ) ) {
 		echo "Access Granted!";
 	} else {
 		echo "Access Denied!";
