@@ -38,7 +38,6 @@ switch ($_POST['action']) {
 		} else {
 			//Insert new ACL.
 			$acl_id = $gacl_api->add_acl($_POST['selected_aco'], $_POST['selected_aro'], $_POST['groups'], $_POST['allow'], $enabled);
-			showarray($acl_id);
 		}       
 
         return_page($_POST[return_page]);
