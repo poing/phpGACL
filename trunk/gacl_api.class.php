@@ -1644,14 +1644,15 @@ class gacl_api extends gacl {
 		}
 				
         $query = "select section_value, value from $table where group_id = $group_id";
-		$rs = $this->db->GetRows($query);
-		
+		$rs = $this->db->Execute($query);
+		$rows = $rs->GetRows();
+
 		if ($this->db->ErrorNo() != 0) {
 			$this->debug_text("get_group_objects(): database error: ". $this->db->ErrorMsg() ." (". $this->db->ErrorNo() .")");
 			return false;	
 		} else {
 			$this->debug_text("get_group_objects(): Got group objects");			
-			return $rs;
+			return $rows;
 		}		
 	}
 
@@ -1837,12 +1838,14 @@ class gacl_api extends gacl {
 			case 'axo':
 				$table = 'axo_groups';
 				$groups_map_table = 'axo_groups_map';
+				$groups_object_map_table = 'groups_axo_map';
 				$groups_path_table = 'axo_groups_path';
 				$groups_path_map_table = 'axo_groups_path_map';
 				break;
 			default:
 				$table = 'aro_groups';
 				$groups_map_table = 'aro_groups_map';
+				$groups_object_map_table = 'groups_aro_map';
 				$groups_path_table = 'aro_groups_path';
 				$groups_path_map_table = 'aro_groups_path_map';
 				break;
@@ -1951,6 +1954,17 @@ class gacl_api extends gacl {
 			return false;	
 		} 
 
+		//Delete objects mapped to this group.
+		$query = "delete from $groups_object_map_table where group_id=$group_id";
+		$this->debug_text("delete query: $query");
+		$this->db->Execute($query);
+	
+		if ($this->db->ErrorNo() != 0) {
+			$this->debug_text("del_group(): database error: ". $this->db->ErrorMsg() ." (". $this->db->ErrorNo() .")");
+			$this->db->RollBackTrans();
+			return false;	
+		} 
+		
 		$this->debug_text("del_group(): deleted group ID: $group_id");
 		$this->db->CommitTrans();
 
