@@ -15,7 +15,7 @@
 /**
 	\mainpage 	
 	
-	 @version V3.50 19 May 2003 (c) 2000-2003 John Lim (jlim\@natsoft.com.my). All rights reserved.
+	 @version V3.60 16 June 2003 (c) 2000-2003 John Lim (jlim\@natsoft.com.my). All rights reserved.
 
 	Released under both BSD license and Lesser GPL library license. 
  	Whenever there is any discrepancy between the two licenses, 
@@ -71,7 +71,7 @@
 	 */
 	if (!defined('ADODB_DIR')) define('ADODB_DIR',dirname(__FILE__));
 	
-	define('TIMESTAMP_FIRST_YEAR',100);
+	if (!defined('TIMESTAMP_FIRST_YEAR')) define('TIMESTAMP_FIRST_YEAR',100);
 	
 	//==============================================================================================	
 	// GLOBAL VARIABLES
@@ -150,7 +150,7 @@
 		/**
 		 * ADODB version as a string.
 		 */
-		$ADODB_vers = 'V3.50 19 May 2003 (c) 2000-2003 John Lim (jlim@natsoft.com.my). All rights reserved. Released BSD & LGPL.';
+		$ADODB_vers = 'V3.60 16 June 2003 (c) 2000-2003 John Lim (jlim@natsoft.com.my). All rights reserved. Released BSD & LGPL.';
 	
 		/**
 		 * Determines whether recordset->RecordCount() is used. 
@@ -188,12 +188,7 @@
 		var $default_value; // default, if any, and supported. Check has_default first.
 	}
 	
-	
-	//==============================================================================================	
-	// CLASS ADOConnection
-	//==============================================================================================	
-	
-	
+
 	
 	function ADODB_TransMonitor($dbms, $fn, $errno, $errmsg, $p1, $p2, &$thisConnection)
 	{
@@ -206,6 +201,9 @@
 		}
 	}
 	
+	//==============================================================================================	
+	// CLASS ADOConnection
+	//==============================================================================================	
 	
     /**
 	 * Connection object. For connecting to databases, and executing queries.
@@ -232,6 +230,7 @@
 	var $metaDatabasesSQL = '';
 	var $metaTablesSQL = '';
 	var $uniqueOrderBy = false; /// All order by columns have to be unique
+	var $emptyDate = '&nbsp;';
 	//--
 	var $hasInsertID = false; 		/// supports autoincrement ID?
 	var $hasAffectedRows = false; 	/// supports affected rows for update/delete?
@@ -368,7 +367,6 @@
 			}
 		}
 		if ($this->debug) ADOConnection::outp( $this->host.': '.$this->ErrorMsg());
-		
 		return false;
 	}	
 	
@@ -424,7 +422,6 @@
 			if ($this->_pconnect($this->host, $this->user, $this->password, $this->database)) return true;
 
 		if ($this->debug) ADOConnection::outp( $this->host.': '.$this->ErrorMsg());
-		
 		return false;
 	}
 
@@ -707,8 +704,7 @@
 				}
 				$ss = "[ $ss ]";
 			}
-			if (is_array($sql)) $sqlTxt = $sql[0];
-			else $sqlTxt = $sql;
+			$sqlTxt = str_replace(',',', ',is_array($sql) ?$sql[0] : $sql);
 			
 			// check if running from browser or command-line
 			$inBrowser = isset($HTTP_SERVER_VARS['HTTP_USER_AGENT']);
@@ -771,7 +767,7 @@
 		
 		if ($rs->_numOfRows <= 0) {
 		global $ADODB_COUNTRECS;
-		
+	
 			if ($ADODB_COUNTRECS) {
 				if (!$rs->EOF){ 
 					$rs = &$this->_rs2rs($rs,-1,-1,!is_array($sql));
@@ -903,7 +899,7 @@
 	{
 	// owner not used in base class - see oci8
 		$p = array();
-		$objs = $this->MetaColumns($table);
+		$objs =& $this->MetaColumns($table);
 		if ($objs) {
 			foreach($objs as $v) {
 				if (!empty($v->primary_key))
@@ -1033,7 +1029,7 @@
 		for ($i=0, $max=$rs->FieldCount(); $i < $max; $i++) {
 			$flds[] = $rs->FetchField($i);
 		}
-		$arr = $rs->GetArrayLimit($nrows,$offset);
+		$arr =& $rs->GetArrayLimit($nrows,$offset);
 		//print_r($arr);
 		if ($close) $rs->Close();
 		
@@ -1047,6 +1043,11 @@
 		return $rs2;
 	}
 	
+	
+	function &GetArray($sql, $inputarr=false)
+	{
+		return $this->GetAll($sql,$inputarr);
+	}
 	
 	/**
 	* Return first element of first row of sql statement. Recordset is disposed
@@ -1145,7 +1146,7 @@
 	* @param sql			SQL statement
 	* @param [inputarr]		input bind array
 	*/
-	function GetAll($sql,$inputarr=false)
+	function &GetAll($sql,$inputarr=false)
 	{
 	global $ADODB_COUNTRECS;
 		
@@ -1157,12 +1158,12 @@
 		if (!$rs) 
 			if (defined('ADODB_PEAR')) return ADODB_PEAR_Error();
 			else return false;
-		$arr = $rs->GetArray();
+		$arr =& $rs->GetArray();
 		$rs->Close();
 		return $arr;
 	}
 	
-	function CacheGetAll($secs2cache,$sql=false,$inputarr=false)
+	function &CacheGetAll($secs2cache,$sql=false,$inputarr=false)
 	{
 	global $ADODB_COUNTRECS;
 		
@@ -1175,7 +1176,7 @@
 			if (defined('ADODB_PEAR')) return ADODB_PEAR_Error();
 			else return false;
 		
-		$arr = $rs->GetArray();
+		$arr =& $rs->GetArray();
 		$rs->Close();
 		return $arr;
 	}
@@ -1188,7 +1189,7 @@
 	* @param sql			SQL statement
 	* @param [inputarr]		input bind array
 	*/
-	function GetRow($sql,$inputarr=false)
+	function &GetRow($sql,$inputarr=false)
 	{
 	global $ADODB_COUNTRECS;
 		$crecs = $ADODB_COUNTRECS;
@@ -1198,7 +1199,7 @@
 		
 		$ADODB_COUNTRECS = $crecs;
 		if ($rs) {
-			$arr = false;
+			$arr = array();
 			if (!$rs->EOF) $arr = $rs->fields;
 			$rs->Close();
 			return $arr;
@@ -1207,7 +1208,7 @@
 		return false;
 	}
 	
-	function CacheGetRow($secs2cache,$sql=false,$inputarr=false)
+	function &CacheGetRow($secs2cache,$sql=false,$inputarr=false)
 	{
 		$rs = $this->CacheExecute($secs2cache,$sql,$inputarr);
 		if ($rs) {
@@ -1705,7 +1706,7 @@
 	/**
 	 * @return  array of tables for current database.
 	 */ 
-	function MetaTables() 
+	function &MetaTables() 
 	{
 	global $ADODB_FETCH_MODE;
 	
@@ -1721,7 +1722,7 @@
 			$ADODB_FETCH_MODE = $save; 
 			
 			if ($rs === false) return false;
-			$arr = $rs->GetArray();
+			$arr =& $rs->GetArray();
 			$arr2 = array();
 			for ($i=0; $i < sizeof($arr); $i++) {
 				$arr2[] = $arr[$i][0];
@@ -1742,10 +1743,10 @@
 	 *
 	 * @return  array of ADOFieldObjects for current table.
 	 */ 
-	function MetaColumns($table,$upper=true) 
+	function &MetaColumns($table,$upper=true) 
 	{
 	global $ADODB_FETCH_MODE;
-	
+
 		if (!empty($this->metaColumnsSQL)) {
 			$save = $ADODB_FETCH_MODE;
 			$ADODB_FETCH_MODE = ADODB_FETCH_NUM;
@@ -1760,7 +1761,13 @@
 				$fld = new ADOFieldObject();
 				$fld->name = $rs->fields[0];
 				$fld->type = $rs->fields[1];
-				$fld->max_length = $rs->fields[2];
+				if (isset($rs->fields[3]) && $rs->fields[3]) {
+					if ($rs->fields[3]>0) $fld->max_length = $rs->fields[3];
+					$fld->scale = $rs->fields[4];
+					if ($fld->scale>0) $fld->max_length += 1;
+				} else
+					$fld->max_length = $rs->fields[2];
+				
 				$retarr[strtoupper($fld->name)] = $fld;	
 				
 				$rs->MoveNext();
@@ -1777,9 +1784,9 @@
 	 *
 	 * @return  array of column names for current table.
 	 */ 
-	function MetaColumnNames($table) 
+	function &MetaColumnNames($table) 
 	{
-		$objarr = $this->MetaColumns($table);
+		$objarr =& $this->MetaColumns($table);
 		if (!is_array($objarr)) return false;
 		
 		$arr = array();
@@ -1818,9 +1825,11 @@
 	
 		if (empty($d) && $d !== 0) return 'null';
 
-		if (is_string($d) && !is_numeric($d)) 
+		if (is_string($d) && !is_numeric($d)) {
+			if ($d === 'null') return $d;
 			if ($this->isoDates) return "'$d'";
-			else $d = ADOConnection::UnixDate($d);
+			$d = ADOConnection::UnixDate($d);
+		}
 			
 		return adodb_date($this->fmtDate,$d);
 	}
@@ -1837,9 +1846,11 @@
 	{
 		if (empty($ts) && $ts !== 0) return 'null';
 
-		if (is_string($ts) && !is_numeric($ts)) 
+		if (is_string($ts) && !is_numeric($ts)) {
+			if ($ts === 'null') return $ts;
 			if ($this->isoDates) return "'$ts'";
 			else $ts = ADOConnection::UnixTimeStamp($ts);
+		}
 			
 		return adodb_date($this->fmtTimeStamp,$ts);
 	}
@@ -2104,7 +2115,9 @@
 			$this->_numOfRows = 0;
 			$this->_numOfFields = 0;
 		}
+	
 		if ($this->_numOfRows != 0 && $this->_numOfFields && $this->_currentRow == -1) {
+			
 			$this->_currentRow = 0;
 			if ($this->EOF = ($this->_fetch() === false)) {
 				$this->_numOfRows = 0; // _numOfRows could be -1
@@ -2165,7 +2178,7 @@
 	 *
 	 * @return an array indexed by the rows (0-based) from the recordset
 	 */
-	function GetArray($nRows = -1) 
+	function &GetArray($nRows = -1) 
 	{
 	global $ADODB_EXTENSION; if ($ADODB_EXTENSION) return adodb_getall($this,$nRows);
 		
@@ -2197,7 +2210,7 @@
 	 *
 	 * @return an array indexed by the rows (0-based) from the recordset
 	 */
-	function GetArrayLimit($nrows,$offset=-1) 
+	function &GetArrayLimit($nrows,$offset=-1) 
 	{	
 		if ($offset <= 0) {
 			return $this->GetArray($nrows);
@@ -2223,7 +2236,7 @@
 	 *
 	 * @return an array indexed by the rows (0-based) from the recordset
 	 */
-	function GetRows($nRows = -1) 
+	function &GetRows($nRows = -1) 
 	{
 		return $this->GetArray($nRows);
 	}
@@ -2244,7 +2257,7 @@
 	 * @return an associative array indexed by the first column of the array, 
 	 * 	or false if the  data has less than 2 cols.
 	 */
-	function GetAssoc($force_array = false, $first2cols = false) {
+	function &GetAssoc($force_array = false, $first2cols = false) {
 		$cols = $this->_numOfFields;
 		if ($cols < 2) {
 			return false;
@@ -2333,7 +2346,7 @@
 		if (!preg_match( "|^([0-9]{4})[-/\.]?([0-9]{1,2})[-/\.]?([0-9]{1,2})|", 
 			($v), $rr)) return false;
 			
-		if ($rr[1] <= 1903) return 0;
+		if ($rr[1] <= TIMESTAMP_FIRST_YEAR) return 0;
 		// h-m-s-MM-DD-YY
 		return @adodb_mktime(0,0,0,$rr[2],$rr[3],$rr[1]);
 	}
@@ -2350,7 +2363,7 @@
 		if (!preg_match( 
 			"|^([0-9]{4})[-/\.]?([0-9]{1,2})[-/\.]?([0-9]{1,2})[ -]?(([0-9]{1,2}):?([0-9]{1,2}):?([0-9\.]{1,4}))?|", 
 			($v), $rr)) return false;
-		if ($rr[1] <= 1903 && $rr[2]<= 1) return 0;
+		if ($rr[1] <= TIMESTAMP_FIRST_YEAR && $rr[2]<= 1) return 0;
 	
 		// h-m-s-MM-DD-YY
 		if (!isset($rr[5])) return  adodb_mktime(0,0,0,$rr[2],$rr[3],$rr[1]);
@@ -2830,6 +2843,7 @@
 		'COUNTER' => 'R',
 		'R' => 'R',
 		'SERIAL' => 'R', // ifx
+		'INT IDENTITY' => 'R',
 		##
 		'INT' => 'I',
 		'INTEGER' => 'I',
@@ -3021,7 +3035,7 @@
 			$this->Init();
 		}
 		
-		function GetArray($nRows=-1)
+		function &GetArray($nRows=-1)
 		{
 			if ($nRows == -1 && $this->_currentRow <= 0 && !$this->_skiprow1) {
 				return $this->_array;
@@ -3194,26 +3208,32 @@
 		}
 		
 		$cls = 'ADODB_'.$ADODB_Database;
-		$obj = new $cls();
-		if ($errorfn) {
-			$obj->raiseErrorFn = $errorfn;
-		}
+		$obj =& new $cls();
+		if ($errorfn) $obj->raiseErrorFn = $errorfn;
+		
 		return $obj;
 	}
 	
 	function &NewDataDictionary(&$conn)
 	{
 		$provider = $conn->dataProvider;
+		$drivername = $conn->databaseType;
 		if ($provider !== 'native' && $provider != 'odbc' && $provider != 'ado') 
 			$drivername = $conn->dataProvider;
 		else {
-			$drivername = $conn->databaseType;
 			if (substr($drivername,0,5) == 'odbc_') $drivername = substr($drivername,5);
 			else if (substr($drivername,0,4) == 'ado_') $drivername = substr($drivername,4);
-			else if ($drivername == 'oracle') $drivername = 'oci8';
-			else if ($drivername == 'sybase') $drivername = 'mssql';
-			else if ($drivername == 'access') $drivername = 'access';
-			else $drivername = 'generic';
+			else 
+			switch($drivername) {
+			case 'oracle': $drivername = 'oci8';break;
+			case 'sybase': $drivername = 'mssql';break;
+			case 'access':
+			case 'db2':		
+				break;
+			default:
+				$drivername = 'generic';
+				break;
+			}
 		}
 		include_once(ADODB_DIR.'/adodb-lib.inc.php');
 		include_once(ADODB_DIR.'/adodb-datadict.inc.php');
@@ -3225,7 +3245,7 @@
 		}
 		include_once($path);
 		$class = "ADODB2_$drivername";
-		$dict = new $class();
+		$dict =& new $class();
 		$dict->dataProvider = $conn->dataProvider;
 		$dict->connection = &$conn;
 		$dict->upperName = strtoupper($drivername);
@@ -3299,12 +3319,15 @@
 			$traceArr = debug_backtrace();
 			array_shift($traceArr);
 			$tabs = sizeof($traceArr)-1;
+			
 			foreach ($traceArr as $arr) {
+				$args = array();
 				for ($i=0; $i < $tabs; $i++) $s .= ' &nbsp; ';
 				$tabs -= 1;
 				$s .= '<font face="Courier New,Courier">';
 				if (isset($arr['class'])) $s .= $arr['class'].'.';
-				foreach($arr['args'] as $v) {
+				if (isset($arr['args']))
+				 foreach($arr['args'] as $v) {
 					if (is_null($v)) $args[] = 'null';
 					else if (is_array($v)) $args[] = 'Array['.sizeof($v).']';
 					else if (is_object($v)) $args[] = 'Object:'.get_class($v);
@@ -3316,9 +3339,8 @@
 						$args[] = $str;
 					}
 				}
-				
 				$s .= $arr['function'].'('.implode(', ',$args).')';
-				$s .= sprintf("</font><font color=#808080 size=-1> # line %4d, file: <a href=\"file:/%s\">%s</a></font>",
+				$s .= @sprintf("</font><font color=#808080 size=-1> # line %4d, file: <a href=\"file:/%s\">%s</a></font>",
 					$arr['line'],$arr['file'],$arr['file']);
 				$s .= "\n";
 			}	

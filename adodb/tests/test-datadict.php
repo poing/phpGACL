@@ -1,7 +1,7 @@
 <?php
 /*
 
-  V3.50 19 May 2003  (c) 2000-2003 John Lim (jlim@natsoft.com.my). All rights reserved.
+  V3.60 16 June 2003  (c) 2000-2003 John Lim (jlim@natsoft.com.my). All rights reserved.
   Released under both BSD license and Lesser GPL library license. 
   Whenever there is any discrepancy between the two licenses, 
   the BSD license will take precedence.
@@ -52,6 +52,7 @@ LASTNAME      VARCHAR(28) DEFAULT 'Chen' key,
 averylonglongfieldname X(1024) DEFAULT 'test',
 price         N(7.2)  DEFAULT '0.00',
 MYDATE        D      DEFDATE,
+BIGFELLOW     X      NOTNULL,
 TS            T      DEFTIMESTAMP";
 
 
@@ -73,6 +74,20 @@ TS            T      DEFTIMESTAMP";
 	$sqli = $dict->AlterColumnSQL('testtable',$addflds);
 	$sqla = array_merge($sqla,$sqli);
 	
+	
+	printsqla($dbType,$sqla);
+	
+	if ($dbType == 'mysql') {
+		$db->Connect('localhost', "root", "", "test");
+		$dict->SetSchema('');
+		$sqla2 = $dict->ChangeTableSQL('adoxyz',$flds);
+		if ($sqla2) printsqla($dbType,$sqla2);
+	}
+	
+}
+
+function printsqla($dbType,$sqla)
+{
 	print "<pre>";
 	//print_r($dict->MetaTables());
 	foreach($sqla as $s) {

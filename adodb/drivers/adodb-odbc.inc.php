@@ -1,6 +1,6 @@
 <?php
 /* 
-V3.50 19 May 2003  (c) 2000-2003 John Lim (jlim@natsoft.com.my). All rights reserved.
+V3.60 16 June 2003  (c) 2000-2003 John Lim (jlim@natsoft.com.my). All rights reserved.
   Released under both BSD license and Lesser GPL library license. 
   Whenever there is any discrepancy between the two licenses, 
   the BSD license will take precedence. 
@@ -48,7 +48,11 @@ class ADODB_odbc extends ADOConnection {
 			$dsn = strtoupper($this->host);
 			$first = true;
 			$found = false;
+			
+			if (!function_exists('odbc_data_source')) return false;
+			
 			while(true) {
+				
 				$rez = odbc_data_source($this->_connectionID,
 					$first ? SQL_FETCH_FIRST : SQL_FETCH_NEXT);
 				$first = false;
@@ -150,7 +154,8 @@ class ADODB_odbc extends ADOConnection {
 		if ($this->curmode === false) $this->_connectionID = odbc_connect($argDSN,$argUsername,$argPassword);
 		else $this->_connectionID = odbc_connect($argDSN,$argUsername,$argPassword,$this->curmode);
 		$this->_errorMsg = $php_errormsg;
-
+		if (isset($this->connectStmt)) $this->Execute($this->connectStmt);
+		
 		//if ($this->_connectionID) odbc_autocommit($this->_connectionID,true);
 		return $this->_connectionID != false;
 	}
@@ -169,6 +174,8 @@ class ADODB_odbc extends ADOConnection {
 		
 		$this->_errorMsg = $php_errormsg;
 		if ($this->_connectionID && $this->autoRollback) @odbc_rollback($this->_connectionID);
+		if (isset($this->connectStmt)) $this->Execute($this->connectStmt);
+		
 		return $this->_connectionID != false;
 	}
 
@@ -220,7 +227,7 @@ class ADODB_odbc extends ADOConnection {
 		if (!$rs) return false;
 		$rs->_has_stupid_odbc_fetch_api_change = $this->_has_stupid_odbc_fetch_api_change;
 		
-		$arr = $rs->GetArray();
+		$arr =& $rs->GetArray();
 		$rs->Close();
 		//print_r($arr);
 		$arr2 = array();
@@ -230,7 +237,7 @@ class ADODB_odbc extends ADOConnection {
 		return $arr2;
 	}
 	
-	function MetaTables()
+	function &MetaTables()
 	{
 	global $ADODB_FETCH_MODE;
 	
@@ -246,7 +253,7 @@ class ADODB_odbc extends ADOConnection {
 		$rs->_has_stupid_odbc_fetch_api_change = $this->_has_stupid_odbc_fetch_api_change;
 		
 		//print_r($rs);
-		$arr = $rs->GetArray();
+		$arr =& $rs->GetArray();
 		
 		$rs->Close();
 		$arr2 = array();
@@ -319,7 +326,7 @@ class ADODB_odbc extends ADOConnection {
 		}
 	}
 	
-	function MetaColumns($table)
+	function &MetaColumns($table)
 	{
 	global $ADODB_FETCH_MODE;
 	
@@ -327,7 +334,7 @@ class ADODB_odbc extends ADOConnection {
 
 		$savem = $ADODB_FETCH_MODE;
 		$ADODB_FETCH_MODE = ADODB_FETCH_NUM;
-
+	
 		if (false) { // after testing, confirmed that the following does not work becoz of a bug
 			$qid2 = odbc_tables($this->_connectionID);
 			$rs = new ADORecordSet_odbc($qid2);		
@@ -347,11 +354,19 @@ class ADODB_odbc extends ADOConnection {
 			$rs->Close();
 			
 			$qid = odbc_columns($this->_connectionID,$q,$o,strtoupper($table),'%');
-		} else if ($this->databaseType == 'access') {
+		} else switch ($this->databaseType) {
+		case 'access':
+		case 'vfp':
+		case 'db2':
 			$qid = odbc_columns($this->_connectionID);
-		} else {
-			$qid = odbc_columns($this->_connectionID,'%','%',strtoupper($table),'%');
+			break;
+			
+		default:
+			$qid = @odbc_columns($this->_connectionID,'%','%',strtoupper($table),'%');
+			if (empty($qid)) $qid = odbc_columns($this->_connectionID);
+			break;
 		}
+		if (empty($qid)) return false;
 		
 		$rs = new ADORecordSet_odbc($qid);
 		$ADODB_FETCH_MODE = $savem;
@@ -397,6 +412,7 @@ class ADODB_odbc extends ADOConnection {
 				} else 
 					$fld->max_length = $rs->fields[7];
 				$fld->not_null = !empty($rs->fields[10]);
+				$fld->scale = $rs->fields[8];
 				$retarr[strtoupper($fld->name)] = $fld;	
 			} else if (sizeof($retarr)>0)
 				break;
@@ -450,15 +466,18 @@ class ADODB_odbc extends ADOConnection {
 		} else
 			$stmtid = odbc_exec($this->_connectionID,$sql);
 		
+		$this->_lastAffectedRows = 0;
 		if ($stmtid) {
 			if (@odbc_num_fields($stmtid) == 0) {
 				$this->_lastAffectedRows = odbc_num_rows($stmtid);
 				$stmtid = true;
 			} else {
+				$this->_lastAffectedRows = 0;
 				odbc_binmode($stmtid,$this->binmode);
 				odbc_longreadlen($stmtid,$this->maxblobsize);
 			}
 		}
+		
 		$this->_errorMsg = $php_errormsg;
 		return $stmtid;
 	}
@@ -531,7 +550,8 @@ class ADORecordSet_odbc extends ADORecordSet {
 		$o->name = @odbc_field_name($this->_queryID,$off);
 		$o->type = @odbc_field_type($this->_queryID,$off);
 		$o->max_length = @odbc_field_len($this->_queryID,$off);
-		
+		if (ADODB_ASSOC_CASE == 0) $o->name = strtolower($o->name);
+		else if (ADODB_ASSOC_CASE == 1) $o->name = strtoupper($o->name);
 		return $o;
 	}
 	
@@ -568,7 +588,7 @@ class ADORecordSet_odbc extends ADORecordSet {
 	}
 	
 	// speed up SelectLimit() by switching to ADODB_FETCH_NUM as ADODB_FETCH_ASSOC is emulated
-	function GetArrayLimit($nrows,$offset=-1) 
+	function &GetArrayLimit($nrows,$offset=-1) 
 	{
 		if ($offset <= 0) return $this->GetArray($nrows);
 		$savem = $this->fetchMode;

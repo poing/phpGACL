@@ -1,7 +1,7 @@
 <?php
 
 /**
-  V3.50 19 May 2003  (c) 2000-2003 John Lim (jlim@natsoft.com.my). All rights reserved.
+  V3.60 16 June 2003  (c) 2000-2003 John Lim (jlim@natsoft.com.my). All rights reserved.
   Released under both BSD license and Lesser GPL library license. 
   Whenever there is any discrepancy between the two licenses, 
   the BSD license will take precedence.
@@ -151,6 +151,8 @@ class ADODB_DataDict {
 	var $serverInfo = array();
 	var $autoIncrement = false;
 	var $dataProvider;
+	var $blobSize = 100; 	/// any varchar/char field this size or greater is treated as a blob
+							/// in other words, we use a text area for editting.
 	
 	function GetCommentSQL($table,$col)
 	{
@@ -162,17 +164,17 @@ class ADODB_DataDict {
 		return false;
 	}
 	
-	function MetaTables()
+	function &MetaTables()
 	{
 		return $this->connection->MetaTables();
 	}
 	
-	function MetaColumns($tab)
+	function &MetaColumns($tab)
 	{
 		return $this->connection->MetaColumns($tab);
 	}
 	
-	function MetaPrimaryKeys($tab,$owner=false,$intkey=false)
+	function &MetaPrimaryKeys($tab,$owner=false,$intkey=false)
 	{
 		return $this->connection->MetaPrimaryKeys($tab.$owner,$intkey);
 	}
@@ -311,7 +313,8 @@ class ADODB_DataDict {
 	function _GenFields($flds)
 	{
 		if (is_string($flds)) {
-			$txt = $flds;
+			$padding = '     ';
+			$txt = $flds.$padding;
 			$flds = array();
 			$flds0 = Lens_ParseArgs($txt,',');
 			$hasparam = false;
@@ -352,6 +355,8 @@ class ADODB_DataDict {
 			$fdefdate = false;
 			$fconstraint = false;
 			$fnotnull = false;
+			$funsigned = false;
+			
 			//-----------------
 			// Parse attributes
 			foreach($fld as $attr => $v) {
@@ -370,6 +375,7 @@ class ADODB_DataDict {
 									$fprec = substr($v,$dotat+1);
 								}
 								break;
+				case 'UNSIGNED': $funsigned = true; break;
 				case 'AUTOINCREMENT':
 				case 'AUTO':	$fautoinc = true; $fnotnull = true; break;
 				case 'KEY':
@@ -394,10 +400,13 @@ class ADODB_DataDict {
 			if (!strlen($ftype)) {
 				if ($this->debug) ADOConnection::outp("Undefined TYPE for field '$fname'");
 				return false;
-			} else
+			} else {
 				$ftype = strtoupper($ftype);
+			}
 			
 			$ftype = $this->_GetSize($ftype, $ty, $fsize, $fprec);
+			
+			if ($ty == 'X' || $ty == 'X2' || $ty == 'B') $fnotnull = false; // some blob types do not accept nulls
 			
 			if ($fprimary) $pkey[] = $fname;
 			
@@ -423,9 +432,9 @@ class ADODB_DataDict {
 					( substr($fdefault,0,1) != "'" && !is_numeric($fdefault)))
 					if (strlen($fdefault) != 1 && substr($fdefault,0,1) == ' ' && substr($fdefault,strlen($fdefault)-1) == ' ') 
 						$fdefault = trim($fdefault);
-					else
+					else if (strtolower($fdefault) != 'null')
 						$fdefault = $this->connection->qstr($fdefault);
-			$suffix = $this->_CreateSuffix($fname,$ftype,$fnotnull,$fdefault,$fautoinc,$fconstraint);
+			$suffix = $this->_CreateSuffix($fname,$ftype,$fnotnull,$fdefault,$fautoinc,$fconstraint,$funsigned);
 			
 			$fname = str_pad($fname,16);
 			$lines[] = "$fname $ftype$suffix";
@@ -443,9 +452,9 @@ class ADODB_DataDict {
 	*/
 	function _GetSize($ftype, $ty, $fsize, $fprec)
 	{
-		if (strlen($fsize) && $ty != 'X' && $ty != 'B') {
+		if (strlen($fsize) && $ty != 'X' && $ty != 'B' && strpos($ftype,'(') === false) {
 			$ftype .= "(".$fsize;
-			if ($fprec) $ftype .= ",".$fprec;				
+			if ($fprec) $ftype .= ",".$fprec;
 			$ftype .= ')';
 		}
 		return $ftype;
@@ -534,5 +543,40 @@ class ADODB_DataDict {
 		}
 		return $newopts;
 	}
-}
+
+
+/*
+"Florian Buzin [ easywe ]" <florian.buzin@easywe.de>
+
+This function changes/adds new fields to your table. You  
+ dont have to know if the col is new or not. It will check on its 
+own.
+
+*/
+	function ChangeTableSQL($tablename, $flds)
+	{
+		if ($this->schema) $tabname = $this->schema.'.'.$tablename;
+		else $tabname = $tablename;
+		
+		$conn = &$this->connection;
+		if (!$conn) return false;
+		
+		$colarr = $conn->MetaColumns($tabname);
+		if (!$colarr) return $this->CreateTableSQL($tablename,$flds);
+		foreach($colarr as $col) $cols[strtoupper($col->name)] = " ALTER ";
+		
+		$sql = array();
+		list($lines,$pkey) = $this->_GenFields($flds);
+		
+		foreach($lines as $v) {
+			$f = explode(" ",$v);
+			if(!empty($cols[strtoupper($f[0])])){
+				$sql[] = "ALTER TABLE $tabname $this->alterCol $v";
+			}else{
+				$sql[] = "ALTER TABLE $tabname $this->addCol $v";
+			}
+		}
+		return $sql;
+	}
+} // class
 ?>

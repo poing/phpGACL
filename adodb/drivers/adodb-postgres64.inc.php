@@ -1,6 +1,6 @@
 <?php
 /*
- V3.50 19 May 2003  (c) 2000-2003 John Lim (jlim@natsoft.com.my). All rights reserved.
+ V3.60 16 June 2003  (c) 2000-2003 John Lim (jlim@natsoft.com.my). All rights reserved.
   Released under both BSD license and Lesser GPL library license. 
   Whenever there is any discrepancy between the two licenses, 
   the BSD license will take precedence.
@@ -49,7 +49,9 @@ class ADODB_postgres64 extends ADOConnection{
 UNION 
 SELECT tablename FROM pg_tables WHERE tablename NOT LIKE 'pg_%' ORDER BY 1"
 */
-	var $metaColumnsSQL = "SELECT a.attname,t.typname,a.attlen,a.atttypmod,a.attnotnull,a.atthasdef,a.attnum  FROM pg_class c, pg_attribute a,pg_type t WHERE relkind = 'r' AND c.relname='%s' AND a.attnum > 0 AND a.atttypid = t.oid AND a.attrelid = c.oid ORDER BY a.attnum";
+	var $metaColumnsSQL = "SELECT a.attname,t.typname,a.attlen,a.atttypmod,a.attnotnull,a.atthasdef,a.attnum 
+		FROM pg_class c, pg_attribute a,pg_type t 
+		WHERE relkind = 'r' AND c.relname='%s' AND a.attnum > 0 AND a.atttypid = t.oid AND a.attrelid = c.oid ORDER BY a.attnum";
 	// get primary key etc -- from Freek Dijkstra
 	var $metaKeySQL = "SELECT ic.relname AS index_name, a.attname AS column_name,i.indisunique AS unique_key, i.indisprimary AS primary_key FROM pg_class bc, pg_class ic, pg_index i, pg_attribute a WHERE bc.oid = i.indrelid AND ic.oid = i.indexrelid AND (i.indkey[0] = a.attnum OR i.indkey[1] = a.attnum OR i.indkey[2] = a.attnum OR i.indkey[3] = a.attnum OR i.indkey[4] = a.attnum OR i.indkey[5] = a.attnum OR i.indkey[6] = a.attnum OR i.indkey[7] = a.attnum) AND a.attrelid = bc.oid AND bc.relname = '%s'";
 	
@@ -349,7 +351,7 @@ a different OID if a database must be reloaded. */
 				
 				$rskey = $this->Execute(sprintf($this->metaKeySQL,($table)));
 				// fetch all result in once for performance.
-				$keys = $rskey->GetArray();
+				$keys =& $rskey->GetArray();
 				if (isset($savem)) $this->SetFetchMode($savem);
 				$ADODB_FETCH_MODE = $save;
 				
@@ -431,24 +433,25 @@ a different OID if a database must be reloaded. */
 	// 	$db->Connect("host=host1 user=user1 password=secret port=4341");
 	// 	$db->Connect('host1','user1','secret');
 	function _connect($str,$user='',$pwd='',$db='',$persist=false)
-	{		   
+	{
 		if ($user || $pwd || $db) {
-			$str = adodb_addslashes($str);
 			$user = adodb_addslashes($user);
 			$pwd = adodb_addslashes($pwd);
 			if (strlen($db) == 0) $db = 'template1';
 			$db = adodb_addslashes($db);
 		   	if ($str)  {
 			 	$host = split(":", $str);
-				if ($host[0]) $str = "host=$host[0]";
-				else $str = 'localhost';
+				if ($host[0]) $str = "host=".adodb_addslashes($host[0]);
+				else $str = 'host=localhost';
 				if (isset($host[1])) $str .= " port=$host[1]";
+			} else {
+				$str = 'host=localhost';
 			}
 		   		if ($user) $str .= " user=".$user;
 		   		if ($pwd)  $str .= " password=".$pwd;
 				if ($db)   $str .= " dbname=".$db;
 		}
-		
+
 		//if ($user) $linea = "user=$user host=$linea password=$pwd dbname=$db port=5432";
 		if ($persist) $this->_connectionID = pg_pconnect($str);
 		else $this->_connectionID = pg_connect($str);

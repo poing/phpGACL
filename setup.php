@@ -77,7 +77,7 @@ switch ($db_type) {
 		 */
 		echo_normal("Attempting to create tables in \"<b>$db_name</b>\"");
 
-		$table_array = 	array (		acl =>
+		$table_array = 	array (						acl =>
 																"
 																CREATE TABLE acl (
 																  id int(12) NOT NULL default '0',
@@ -271,7 +271,7 @@ switch ($db_type) {
 																  PRIMARY KEY  (acl_id,group_id),
 																  INDEX (acl_id)
 																) TYPE=MyISAM
-																",	
+																",
 													axo_groups_path =>
 																"
 																CREATE TABLE axo_groups_path (
@@ -311,7 +311,7 @@ switch ($db_type) {
 				}
 			}		
 		}
-		
+
 		break;
 	case postgres7:
 		echo_success("Compatible database type \"<b>$db_type</b>\" detected!");
@@ -341,7 +341,7 @@ switch ($db_type) {
 		 */
 		echo_normal("Attempting to create tables in \"<b>$db_name</b>\"");
 
-		$table_array = array ( 	acl =>
+		$table_array = array ( 				acl =>
 																	"
 																	CREATE TABLE acl (
 																	   id integer NOT NULL default 0,
@@ -771,6 +771,6 @@ and give it <b>write permissions</b> for the user your web server runs as.
 Please read the manual, and example.php, then <a href=\"admin/acl_admin.php\"><b>Go here!</b></a> to get started.
 ");	
 } else {
-	echo_failed("Please fix the above errors and try again.");	
+	echo_failed("Please fix the above errors and try again.");
 }
 ?>

@@ -1,7 +1,7 @@
 <?php
 /*
 
-  version V3.50 19 May 2003 (c) 2000-2003 John Lim. All rights reserved.
+  version V3.60 16 June 2003 (c) 2000-2003 John Lim. All rights reserved.
 
   Released under both BSD license and Lesser GPL library license. 
   Whenever there is any discrepancy between the two licenses, 
@@ -46,7 +46,7 @@ class ADODB_oci8 extends ADOConnection {
 	var $_commit = OCI_COMMIT_ON_SUCCESS;
 	var $_initdate = true; // init date to YYYY-MM-DD
 	var $metaTablesSQL = "select table_name from cat where table_type in ('TABLE','VIEW')";
-	var $metaColumnsSQL = "select cname,coltype,width from col where tname='%s' order by colno";
+	var $metaColumnsSQL = "select cname,coltype,width, SCALE, PRECISION, NULLS, DEFAULTVAL from col where tname='%s' order by colno"; //changed by smondino@users.sourceforge. net
 	var $_bindInputArray = true;
 	var $hasGenID = true;
 	var $_genIDSQL = "SELECT (%s.nextval) FROM DUAL";
@@ -74,7 +74,41 @@ class ADODB_oci8 extends ADOConnection {
 		$this->_hasOCIFetchStatement = ADODB_PHPVER >= 0x4200;
 	}
 	
+	/*  Function &MetaColumns($table) added by smondino@users.sourceforge.net*/
+	function &MetaColumns($table) 
+	{
+	global $ADODB_FETCH_MODE;
 	
+		$save = $ADODB_FETCH_MODE;
+		$ADODB_FETCH_MODE = ADODB_FETCH_NUM;
+		if ($this->fetchMode !== false) $savem = $this->SetFetchMode(false);
+		
+		$rs = $this->Execute(sprintf($this->metaColumnsSQL,strtoupper($table)));
+		
+		if (isset($savem)) $this->SetFetchMode($savem);
+		$ADODB_FETCH_MODE = $save;
+		if (!$rs) return false;
+		$retarr = array();
+		while (!$rs->EOF) { //print_r($rs->fields);
+			$fld = new ADOFieldObject();
+	   		$fld->name = $rs->fields[0];
+	   		$fld->type = $rs->fields[1];
+	   		$fld->max_length = $rs->fields[2];
+			$fld->scale = $rs->fields[3];
+			if ($rs->fields[1] == 'NUMBER' && $rs->fields[3] == 0) {
+				$fld->type ='INT';
+	     		$fld->max_length = $rs->fields[4];
+	    	}
+	   	
+			$fld->not_null = $rs->fields[5];
+			$fld->default_value = $rs->fields[6];
+			$retarr[strtoupper($fld->name)] = $fld; 
+			$rs->MoveNext();
+		}
+		$rs->Close();
+		return $retarr;
+	}
+ 
 /*
 
   Multiple modes of connection are supported:
@@ -764,7 +798,7 @@ SELECT /*+ RULE */ distinct b.column_name
 
  		$rs = $this->Execute($sql);
 		if ($rs && !$rs->EOF) {
-			$arr = $rs->GetArray();
+			$arr =& $rs->GetArray();
 			$a = array();
 			foreach($arr as $v) {
 				$a[] = $v[0];
@@ -928,7 +962,7 @@ class ADORecordset_oci8 extends ADORecordSet {
 	}	
 	
 	/* Optimize SelectLimit() by using OCIFetch() instead of OCIFetchInto() */
-	function GetArrayLimit($nrows,$offset=-1) 
+	function &GetArrayLimit($nrows,$offset=-1) 
 	{
 		if ($offset <= 0) return $this->GetArray($nrows);
 		for ($i=1; $i < $offset; $i++) 
@@ -996,6 +1030,7 @@ class ADORecordset_oci8 extends ADORecordSet {
 		case 'BINARY':
 		case 'NCHAR':
 		case 'NVARCHAR':
+		case 'NVARCHAR2':
 				 if (isset($this) && $len <= $this->blobSize) return 'C';
 		
 		case 'NCLOB':
