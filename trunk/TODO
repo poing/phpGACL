@@ -2,12 +2,11 @@
 reports perhaps? Ask user if they wish to submit system info for record keeping perhaps?
 
 * Create upgrade.php script, to handle as much of the upgrade process as possible. Have it display the changelog as well?
+	Have setup.php handle this?
 
 * Create "demo" script that creates sample objects/ACLs using only API commands.
 
 * Array ACL Checks for select boxes. - Half done currently.
-
-* Use ADODB's XML Schema to simplify the setup.php?
 
 * Add visual notification when a section has hit the $max_select_box_items.
 
