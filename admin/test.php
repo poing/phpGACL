@@ -1,8 +1,19 @@
 <?php
 $debug=1;
 //require_once("gacl_admin.inc.php");
-require_once("./gacl.inc.php");
+require_once("../gacl.inc.php");
 
+echo "Blah: ". dirname(__FILE__)."<br>\n";
+echo "Blah: ". $gacl_dir."<br>\n";
+
+//Test subtree'ing
+$test=acl_get_groups('test_section2','user1',0);
+showarray($test);
+
+$test=acl_get_groups('test_section2','user1');
+showarray($test);
+
+/*
 //require_once('../Cache_Lite.php');
 require_once('./profiler.inc');
 $profiler = new Profiler(true,true);
@@ -30,6 +41,7 @@ for ($i=0; $i < 2; $i++) {
 $profiler->stopTimer( "acl_query()");
 
 $profiler->printTimers();
+*/
 /*
 //Test multi-layer ACOs
 $test = acl_query(array(21,19), 10);

@@ -118,6 +118,7 @@ switch ($_POST[action]) {
                                         aro b,
                                         aro_sections c
                             where   a.group_id = $_GET[group_id]
+                                        AND a.aro_section_value=b.section_value
                                         AND a.aro_value=b.value
                                         AND b.section_value=c.value
                             order by c.name, b.name";

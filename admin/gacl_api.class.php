@@ -128,10 +128,10 @@ class gacl_api {
 		if ($rs) {
 			debug("Insert or Update completed without error, insert new mappings.");
 			//Insert ACO mappings
-			while (list($aco_section_value,$aco_array) = @each($aco_array)) {
-				debug("Insert: ACO Section Value: $aco_section_value ACO VALUE: $aco_value");   
-
-				foreach ($aco_array as $aco_value) {
+			while (list($aco_section_value,$aco_value_array) = @each($aco_array)) {
+				debug("Insert: ACO Section Value: $aco_section_value ACO VALUE: $aco_value_array");   
+				showarray($aco_array);
+				foreach ($aco_value_array as $aco_value) {
 					$query = "insert into aco_map (acl_id,aco_section_value,aco_value) VALUES($acl_id, '$aco_section_value', '$aco_value')";
 					$rs = $db->Execute($query);
 
@@ -143,10 +143,10 @@ class gacl_api {
 			}
 
 			//Insert ARO mappings
-			while (list($aro_section_value,$aro_array) = @each($aro_array)) {
-				debug("Insert: ARO Section Value: $aro_section_value ARO VALUE: $aro_value");   
+			while (list($aro_section_value,$aro_value_array) = @each($aro_array)) {
+				debug("Insert: ARO Section Value: $aro_section_value ARO VALUE: $aro_value_array");   
 
-				foreach ($aro_array as $aro_value) {
+				foreach ($aro_value_array as $aro_value) {
 					$query = "insert into aro_map (acl_id,aro_section_value, aro_value) VALUES($acl_id, '$aro_section_value', '$aro_value')";
 					$rs = $db->Execute($query);
 
