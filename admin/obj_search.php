@@ -3,7 +3,7 @@ require_once("gacl_admin.inc.php");
 
 switch ($_GET['action']) {
     case Search:
-        debug("Submit!!");
+        $gacl_api->debug_text("Submit!!");
 		
 		$value_search_str = addslashes(trim($_GET['value_search_str']));
 		$name_search_str = addslashes(trim($_GET['name_search_str']));

@@ -23,7 +23,7 @@ switch(strtolower(trim($group_type))) {
 
 switch ($_POST[action]) {
     case Delete:
-	    debug("Delete!!");
+	    $gacl_api->debug_text("Delete!!");
 
 		//Parse the form values
 		//foreach ($_POST['delete_assigned_aro'] as $aro_value) {
@@ -34,7 +34,7 @@ switch ($_POST[action]) {
 
         //Insert Object -> GROUP mappings
         while (list($object_section_value,$object_array) = @each($selected_object_array)) {
-            debug("Assign: Object ID: $object_section_value to Group: $_POST[group_id]");   
+            $gacl_api->debug_text("Assign: Object ID: $object_section_value to Group: $_POST[group_id]");   
 
 			foreach ($object_array as $object_value) {
                 $gacl_api->del_group_object($_POST['group_id'], $object_section_value, $object_value, $group_type);
@@ -42,11 +42,11 @@ switch ($_POST[action]) {
         }
          
         //Return page.
-        return_page($_POST[return_page]);
+        $gacl_api->return_page($_POST[return_page]);
 		
         break;
     case Submit:
-        debug("Submit!!");
+        $gacl_api->debug_text("Submit!!");
 
 		//showarray($_POST['selected_objects']);
 		//Parse the form values
@@ -58,14 +58,14 @@ switch ($_POST[action]) {
 
         //Insert ARO -> GROUP mappings
         while (list($object_section_value,$object_array) = @each($selected_object_array)) {
-            debug("Assign: Object ID: $object_section_value to Group: $_POST[group_id]");   
+            $gacl_api->debug_text("Assign: Object ID: $object_section_value to Group: $_POST[group_id]");   
 
 			foreach ($object_array as $object_value) {
 				$gacl_api->add_group_object($_POST['group_id'], $object_section_value, $object_value, $group_type);
 			}
         }
                 
-        return_page();
+        $gacl_api->return_page();
 
         break;    
     default:
@@ -172,7 +172,7 @@ switch ($_POST[action]) {
         
         $smarty->assign("group_id", $_GET['group_id']);
         
-        $smarty->assign("paging_data", get_paging_data($rs));
+        $smarty->assign("paging_data", $gacl_api->get_paging_data($rs));
         
         break;
 }

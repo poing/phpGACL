@@ -28,23 +28,23 @@ switch(strtolower(trim($group_type))) {
 
 switch ($_POST['action']) {
     case Delete:
-        debug("Delete");
+        $gacl_api->debug_text("Delete");
     
         if (count($_POST[delete_group]) > 0) {
 			//Always reparent children when deleting a group.
 			foreach ($_POST[delete_group] as $group_id) {
-				debug("Deleting group_id: $group_id");
+				$gacl_api->debug_text("Deleting group_id: $group_id");
 
 				$gacl_api->del_group($group_id, TRUE, $group_type);
 			}
         }   
             
         //Return page.
-        return_page($return_page);
+        $gacl_api->return_page($return_page);
         
         break;
     case Submit:
-        debug("Submit");
+        $gacl_api->debug_text("Submit");
         
         if (empty($_POST[parent_id])) {
             $parent_id = 0;   
@@ -60,16 +60,16 @@ switch ($_POST['action']) {
 
         //No parent, assume a "root" group, generate a new parent id.
         if (empty($_POST[group_id])) {
-            debug("Insert");
+            $gacl_api->debug_text("Insert");
 
 			$insert_id = $gacl_api->add_group($_POST[name], $parent_id, $group_type);
         } else {
-            debug("Update");
+            $gacl_api->debug_text("Update");
 
 			$gacl_api->edit_group($_POST['group_id'], $_POST['name'], $parent_id, $group_type);
         }
         
-        return_page("$return_page");
+        $gacl_api->return_page("$return_page");
         break;    
     default:
         //Grab specific group data

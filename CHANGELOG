@@ -1,3 +1,6 @@
+Tue Feb 04 2003
+	- Fixed bug in edit_group(), added more error checking.
+	
 Thu Jan 31 2003
 	- Added conflict detection to add_acl();
 	
@@ -7,6 +10,7 @@ Thu Jan 30 2003
 	
 Wed Jan 29 2003
 	- Created append_acl() function for simply appending ACO/ARO/ARO Groups/AXO/AXO Groups on to an already existing ACL.
+	
 Mon Jan 28 2003
 	- Added ACL searching.
 	- Added ACL debug page.

@@ -179,7 +179,7 @@ $aco_section_id = $gacl_api->get_aco_section_section_id("Stress Test");
 if (!$aco_section_id) {
 	//Add an ACO section.
 	$aco_section_id = $gacl_api->add_aco_section("Stress Test", 999,999);
-	debug("Stress Test: ACO Section ID: $aco_section_id");
+	$gacl_api->debug_text("Stress Test: ACO Section ID: $aco_section_id");
 }
 
 //Add 100 random ACO's
@@ -203,7 +203,7 @@ $aro_section_id = $gacl_api->get_aro_section_section_id("Stress Test");
 if (!$aro_section_id) {
 	//Add an ACO section.
 	$aro_section_id = $gacl_api->add_aro_section("Stress Test", 999,999);
-	debug("Stress Test: ARO Section ID: $aro_section_id");
+	$gacl_api->debug_text("Stress Test: ARO Section ID: $aro_section_id");
 }
 
 //Add 10,000 random ARO's
@@ -243,7 +243,7 @@ if (count($aco_ids) > 1 AND count($aro_ids) > 1) {
 		//Random ALLOW
 		$allow = mt_rand(0,1);
 
-		debug("Inserting ACL with ". count($rand_aco_ids) ." ACOs and ". count($rand_aro_ids) ." AROs - Allow: $allow");
+		$gacl_api->debug_text("Inserting ACL with ". count($rand_aco_ids) ." ACOs and ". count($rand_aro_ids) ." AROs - Allow: $allow");
 		$gacl_api->add_acl($rand_aco_ids, $rand_aro_ids, NULL, $allow, 1);
 	}
 }		
@@ -268,7 +268,7 @@ $aco_section_id = $gacl_api->get_aco_section_section_id("Stress Test Decoy");
 if (!$aco_section_id) {
 	//Add an ACO section.
 	$aco_section_id = $gacl_api->add_aco_section("Stress Test Decoy", 1000,1000);
-	debug("Stress Test: ACO Section ID: $aco_section_id");
+	$gacl_api->debug_text("Stress Test: ACO Section ID: $aco_section_id");
 }
 
 //Add 100 random ACO's
@@ -292,7 +292,7 @@ $aro_section_id = $gacl_api->get_aro_section_section_id("Stress Test Decoy");
 if (!$aro_section_id) {
 	//Add an ACO section.
 	$aro_section_id = $gacl_api->add_aro_section("Stress Test Decoy", 1000,1000);
-	debug("Stress Test: ARO Section ID: $aro_section_id");
+	$gacl_api->debug_text("Stress Test: ARO Section ID: $aro_section_id");
 }
 
 //Add 10,000 random ARO's
@@ -332,7 +332,7 @@ if (count($aco_ids) > 1 AND count($aro_ids) > 1) {
 		//Random ALLOW
 		$allow = mt_rand(0,1);
 
-		debug("Inserting ACL with ". count($rand_aco_ids) ." ACOs and ". count($rand_aro_ids) ." AROs - Allow: $allow");
+		$gacl_api->debug_text("Inserting ACL with ". count($rand_aco_ids) ." ACOs and ". count($rand_aro_ids) ." AROs - Allow: $allow");
 		$gacl_api->add_acl($rand_aco_ids, $rand_aro_ids, NULL, $allow, 1);
 	}
 }		
@@ -369,9 +369,9 @@ for ($i=0; $i < $max_aros; $i++) {
 	$aro_id = $gacl_api->add_aro(41,"$i First $i Last", $i, $i);
 
 	if ($aro_id) {
-		debug("ARO ID: $aro_id");
+		$gacl_api->debug_text("ARO ID: $aro_id");
 	} else {
-		debug("Insert ARO ID FAILED!");
+		$gacl_api->debug_text("Insert ARO ID FAILED!");
 	}
 }
 */
