@@ -76,8 +76,10 @@ switch ($db_type) {
 																  id int(12) NOT NULL default '0',
 																  allow smallint(1) NOT NULL default '0',
 																  enabled smallint(1) NOT NULL default '0',
-																  updated_date int(12) NOT NULL default '0'
-																) TYPE=MyISAM
+																  updated_date int(12) NOT NULL default '0',
+																  UNIQUE KEY id (id),
+																  INDEX (enabled)
+																  ) TYPE=MyISAM
 																",
 													aco =>
 																"
@@ -95,7 +97,8 @@ switch ($db_type) {
 																"
 																CREATE TABLE aco_map (
 																  acl_id int(12) NOT NULL default '0',
-																  aco_id int(12) NOT NULL default '0'
+																  aco_id int(12) NOT NULL default '0',
+																  INDEX (acl_id)
 																) TYPE=MyISAM
 																",
 													aco_sections =>
@@ -125,7 +128,8 @@ switch ($db_type) {
 																"
 																 CREATE TABLE aro_map (
 																  acl_id int(12) NOT NULL default '0',
-																  aro_id int(12) NOT NULL default '0'
+																  aro_id int(12) NOT NULL default '0',
+																  INDEX (acl_id)
 																) TYPE=MyISAM
 																",
 													aro_sections =>
@@ -162,7 +166,8 @@ switch ($db_type) {
 																CREATE TABLE groups_map (
 																  acl_id int(12) NOT NULL default '0',
 																  group_id int(12) NOT NULL default '0',
-																  PRIMARY KEY  (acl_id,group_id)
+																  PRIMARY KEY  (acl_id,group_id),
+																  INDEX (acl_id)
 																) TYPE=MyISAM
 																",	
 													groups_path =>

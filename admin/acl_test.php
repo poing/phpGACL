@@ -1,5 +1,10 @@
 <?php
 //$debug=1;
+set_time_limit(0);
+
+require_once('../profiler.inc');
+$profiler = new Profiler(true,true);
+
 require_once("../gacl.inc.php");
 
 echo "<center>You'll find profile information displayed at the bottom of this page.<br>
@@ -59,8 +64,10 @@ while (list(,$row) = @each(&$rows)) {
 //
 // Loop through each ACO, checking every single ARO.
 //
+$profiler->startTimer( "acl_test()");
+$x=0;
 foreach ($aco as $aco_id => $aco_name) {
-	    echo "<b>Access Control Object:  $aco_name (ID: $aco_id) </b><br>\n";
+	echo "<b>Access Control Object:  $aco_name (ID: $aco_id) </b><br>\n";
     
     foreach ($aro as $aro_id => $aro_name) {
         echo "&nbsp;&nbsp;&nbsp;&nbsp; Access Request Object:  <b>$aro_name</b> (ID: $aro_id) ACCESS: ";
@@ -70,12 +77,16 @@ foreach ($aco as $aco_id => $aco_name) {
         } else {
             echo "<font color=red><b>DENIED!</b></font>";   
         }
-        
+        $x++;
+
         echo "<br>\n";
     }
 
     debug("<hr>");
 }
+$profiler->stopTimer( "acl_test()");
+
+echo "$x ACL_CHECK()'s<br>\n";
 
 $profiler->printTimers();
 ?>

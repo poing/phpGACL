@@ -328,7 +328,9 @@ class gacl_api {
 					$width= $level * 20;
 					$spacing = "<img src=\"s.gif\" width=\"$width\">";
 					$text = $spacing." ".$name;
-					break;                
+					break;
+				case "ARRAY":
+					break;
 			}
 			$formatted_groups[$id] = $text;
 
@@ -647,9 +649,13 @@ class gacl_api {
 			return false;
 		}
 
-		/*
-		 * FIXME: We need  a check in here to make sure we aren't reparenting to a groups own child. This would be bad.
-		 */
+		//Make sure we don't re-parent to our own children.
+		//Grab all children of this group_id.
+		$children_ids = array_keys( $this->format_groups($this->sort_groups(), 'ARRAY', $group_id) );
+		if (in_array($parent_id, $children_ids) ) {
+			debug("edit_group(): Groups can not be re-parented to there own children, this would be incestuous!");
+			return false;
+		}
 		
 		$query = "update groups set
 																name = '$name',

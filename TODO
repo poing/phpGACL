@@ -1,3 +1,5 @@
+* Create templates_c for Smarty in setup.php, figure out permissions for it as well. Write this in the FAQ/README.
+
 * Write "mock" implementations to show off some of phpGACL's benefits.
 
 * Write tutorial, some people may find phpGACL difficult to figure out.
