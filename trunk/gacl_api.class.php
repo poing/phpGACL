@@ -1230,7 +1230,7 @@ class gacl_api extends gacl {
 						 */
 						
 						if ( is_numeric($level) ) {
-							$level = str_repeat ('&nbsp;&nbsp; ', $level);
+							$level = str_repeat('&nbsp;&nbsp; ', $level);
 						}
 						
 						if ( strlen($level) >= 8 ) {
