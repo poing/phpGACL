@@ -1,3 +1,6 @@
+Mon Feb 17 2003
+	- Added "limit" to ARO select query in group_assign.php
+	
 Fri Feb 14 2003
 	- Tweeked consolidate_edit_acl() to better consolidate ACLs in the expected manor.
 	- Fixed cache ID in acl_get_group_path() so it doesn't contain non-alphanumeric characters.
