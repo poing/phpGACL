@@ -2554,7 +2554,7 @@ class gacl_api extends gacl {
 					defaults to only get direct parents.
 	\*======================================================================*/
 	function get_object_groups($object_id, $object_type = 'ARO', $option = 'NO_RECURSE') {
-		$this->debug_text('get_object_groups(): Object ID: '. $group_id .' Object Type: '. $object_type .' Option: '. $option);
+		$this->debug_text('get_object_groups(): Object ID: '. $object_id .' Object Type: '. $object_type .' Option: '. $option);
 
 		switch(strtolower(trim($object_type))) {
 			case 'axo':
