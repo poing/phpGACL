@@ -1,3 +1,5 @@
+* Use ADODB's XML Schema to simplify the setup.php?
+
 * Add filters/AXO's to ACL Test page.
 
 * Try to use paths more when including files, so require_once works
