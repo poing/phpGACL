@@ -107,25 +107,27 @@ class gacl_api extends gacl {
 
 	/*======================================================================*\
 		Function:	count_all()
-		Purpose:	Recursively counts elements in an array.
+		Purpose:	Recursively counts elements in an array and sub-arrays.
+					The returned count is a count of all scalar elements found.
+					
+					This is different from count($arg, COUNT_RECURSIVE)
+					in PHP >= 4.2.0, which includes sub-arrays in the count.
 	\*======================================================================*/
-	function count_all($arg) {
-		unset($count);
-		// skip if argument is empty
-		if ($arg) {
-			// not an array, return 1 (base case)
-			if (!is_array($arg)) {
+	function count_all($arg = NULL) {
+		switch (TRUE) {
+			case is_scalar($arg):
+			case is_object($arg):
+				// single object
 				return 1;
-			}
-			// else call recursively for all elements $arg
-			foreach($arg as $key => $val) {
-				$count += $this->count_all($val);
-			}
-			$this->debug_text("count_all(): Count: $count");
-			return $count;
+			case is_array($arg):
+				// call recursively for all elements of $arg
+				$count = 0;
+				foreach ($arg as $val) {
+					$count += $this->count_all($val);
+				}
+				return $count;
 		}
-
-		return false;
+		return FALSE;
 	}
 
 	/*======================================================================*\
@@ -1161,10 +1163,6 @@ class gacl_api extends gacl {
 		Purpose:	Takes the array returned by sort_groups() and formats for human consumption.
 	\*======================================================================*/
 	function format_groups($sorted_groups, $type='TEXT', $root_id=0, $level=0, $formatted_groups=NULL) {
-		/*
-		 * Recursing with a global array, not the most effecient or safe way to do it, but it will work for now.
-		 */
-		
 		if ( !is_array ($sorted_groups) ) {
 			return FALSE;
 		}
@@ -1483,9 +1481,15 @@ class gacl_api extends gacl {
 			$query = 'SELECT id FROM '. $table .' WHERE parent_id=0';
 			$rs = $this->db->Execute($query);
 			
-			if ($rs->RowCount() > 0) {
+			if (!is_object($rs)) {
+				$this->debug_db('add_group');
 				$this->db->RollBackTrans();
+				return FALSE;
+			}
+			
+			if ($rs->RowCount() > 0) {
 				$this->debug_text('add_group (): A root group already exists.');
+				$this->db->RollBackTrans();
 				return FALSE;
 			}
 			
@@ -1502,14 +1506,14 @@ class gacl_api extends gacl {
 			$row = $this->db->GetRow($query);
 			
 			if (!is_array($row) OR is_string($this->db->ErrorNo())) {
-				$this->db->RollBackTrans();
 				$this->debug_db('add_group');
+				$this->db->RollBackTrans();
 				return FALSE;
 			}
 			
 			if (empty($row)) {
-				$this->db->RollBackTrans();
 				$this->debug_text('add_group (): Parent ID: '. $parent_id .' not found.');
+				$this->db->RollBackTrans();
 				return FALSE;
 			}
 			
@@ -1521,8 +1525,8 @@ class gacl_api extends gacl {
 			$rs = $this->db->Execute($query);
 			
 			if (!is_object($rs)) {
-				$this->db->RollBackTrans();
 				$this->debug_db('add_group');
+				$this->db->RollBackTrans();
 				return FALSE;
 			}
 			
@@ -1530,8 +1534,8 @@ class gacl_api extends gacl {
 			$rs = $this->db->Execute($query);
 			
 			if (!is_object($rs)) {
-				$this->db->RollBackTrans();
 				$this->debug_db('add_group');
+				$this->db->RollBackTrans();
 				return FALSE;
 			}
 		}
@@ -1540,8 +1544,8 @@ class gacl_api extends gacl {
 		$rs = $this->db->Execute($query);
 		
 		if (!is_object($rs)) {
-			$this->db->RollBackTrans();
 			$this->debug_db('add_group');
+			$this->db->RollBackTrans();
 			return FALSE;
 		}
 		
@@ -1562,14 +1566,14 @@ class gacl_api extends gacl {
 		switch(strtolower(trim($group_type))) {
 			case 'axo':
 				$group_type = 'axo';
-				$object_table = $this->_db_prefix .'axo';
-				$group_table = $this->_db_prefix .'axo_groups';
+				$object_table = $this->_db_table_prefix .'axo';
+				$group_table = $this->_db_table_prefix .'axo_groups';
 				$map_table = $this->_db_table_prefix .'groups_axo_map';
 				break;
 			default:
 				$group_type = 'aro';
-				$object_table = $this->_db_prefix .'aro';
-				$group_table = $this->_db_prefix .'aro_groups';
+				$object_table = $this->_db_table_prefix .'aro';
+				$group_table = $this->_db_table_prefix .'aro_groups';
 				$map_table = $this->_db_table_prefix .'groups_aro_map';
 				break;
 		}
@@ -1593,7 +1597,7 @@ class gacl_api extends gacl {
 				WHERE		g2.id='. $group_id;
 		} else {
 			$query .= '
-				WHERE		gm.id='. $group_id;
+				WHERE		gm.group_id='. $group_id;
 		}
 		
 		$rs = $this->db->Execute($query);
@@ -2686,7 +2690,7 @@ class gacl_api extends gacl {
 					$this->debug_db('edit_object');
 					$this->db->RollBackTrans();
 					return false;
-				}				
+				}
 			}
 
 			if ($acl_ids) {
