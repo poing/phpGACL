@@ -7,13 +7,12 @@
   </head>
 
   <body>
-    <form method="post" name="about" action="about.php">
+
       <table cellpadding="2" cellspacing="2" border="2" width="100%">
         <tbody>
           <tr align="center">
             <td valign="top" rowspan="1" colspan="4" bgcolor="#cccccc"><b>phpGACL</b> <b>About [ <a href="acl_list.php">ACL List</a> ] </b><br></td>
           </tr>
-
           <tr>
 			<td valign="top" align="center" rowspan="1" colspan="4" bgcolor="#cccccc">
 				<b>Help</b>
@@ -36,6 +35,31 @@
 				But if you must email me (Mike Benoit) directly, click <a href="mailto:ipso@snappymail.ca">here</a>.
 			</td>
           </tr>
+          <tr>
+			<td valign="top" align="center" rowspan="1" colspan="4" bgcolor="#cccccc">
+				<b>Donate</b>
+			</td>
+          </tr>
+          <tr>
+			<td valign="top" align="center" rowspan="1" colspan="4" bgcolor="#cccccc">
+				Time working on phpGACL means less time that I can work to get paid.
+				<br>
+				Therefore any donations I receive will help me to devote more time to developing phpGACL.
+				<br>
+				<br>
+				However, I'd much rather donations in the form of code and/or documentation.
+
+				<form action="https://www.paypal.com/cgi-bin/webscr" method="post">
+				<input type="hidden" name="cmd" value="_xclick">
+				<input type="hidden" name="business" value="ipso@snappymail.ca">
+				<input type="hidden" name="item_name" value="php Generic Access Control List">
+				<input type="hidden" name="no_note" value="1">
+				<input type="hidden" name="currency_code" value="USD">
+				<input type="hidden" name="tax" value="0">
+				<input type="image" src="https://www.paypal.com/images/x-click-but04.gif" border="0" name="submit" alt="Make payments with PayPal - it's fast, free and secure!">
+				</form>
+			</td>
+          </tr>
 
           <tr>
 			<td valign="top" align="center" rowspan="1" colspan="4" bgcolor="#cccccc">
@@ -44,6 +68,7 @@
           </tr>
           <tr>
 			<td valign="top" align="center" rowspan="1" colspan="4" bgcolor="#cccccc">
+    			<form method="post" name="about" action="about.php">
 				Report some basic information back to the phpGACL project so we know where to spend our time.
 				<br>
 				<b>All information will be kept private, will not be sold, and will only be used for informational purposes regarding phpGACL.</b>
@@ -53,6 +78,7 @@
 				<br>
 				<input type="hidden" name="system_info_md5" value="{$system_info_md5}">
 				<input type="submit" name="action" value="Submit">
+				</form>
 			</td>
           </tr>
 
@@ -71,6 +97,4 @@
 
         </tbody>
       </table>
-
-</form>
 {include file="phpgacl/footer.tpl"}
