@@ -1,3 +1,5 @@
+Fri Mar 19 2004
+	dcech - Fixed minor typo in gacl_api.class.php.  Thanks to Andrew Eddie <eddieajau@iprimus.com.au>
 Wed Mar 03 2004
 	dcech - Updated admin interface and gacl class for value patch.
 		acl_* functions now all accept group values rather than IDs.
