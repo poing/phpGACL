@@ -1130,7 +1130,7 @@ class gacl_api extends gacl {
 									parent_id,
 									name
 						from    $table
-						order by parent_id";
+						order by parent_id, name asc";
 		$rs = $this->db->Execute($query);
 		$rows = $rs->GetRows();
 		   
