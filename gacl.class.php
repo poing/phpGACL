@@ -64,6 +64,9 @@ class gacl {
 	var $_cache_dir = '/tmp/phpgacl_cache'; // NO trailing slash
 	var $_cache_expire_time=600; //600 == Ten Minutes	
 	
+	// switch to put acl_check into '_group_' mode
+	var $_group_switch = '_group_';
+	
 	/*
 	 * Constructor
 	 */
@@ -245,9 +248,17 @@ class gacl {
 
 			$query = '
 					SELECT		a.id,a.allow,a.return_value
-					FROM		'. $this->_db_table_prefix .'acl a,'. $this->_db_table_prefix .'aco_map ac
-					LEFT JOIN	'. $this->_db_table_prefix .'aro_map ar ON ar.acl_id=a.id
+					FROM		'. $this->_db_table_prefix .'acl a,'. $this->_db_table_prefix .'aco_map ac';
+			
+			if ($aro_section_value != $this->_group_switch) {
+				$query .= '
+					LEFT JOIN	'. $this->_db_table_prefix .'aro_map ar ON ar.acl_id=a.id';
+			}
+			
+			if ($aro_section_value != $this->_group_switch) {
+				$query .= '
 					LEFT JOIN	'. $this->_db_table_prefix .'axo_map ax ON ax.acl_id=a.id';
+			}
 			
 			/*
 			 * if there are no aro groups, don't bother doing the join.
@@ -273,26 +284,50 @@ class gacl {
 			
 			$query .= '
 					WHERE		a.enabled=1 AND	ac.acl_id=a.id
-						AND		(ac.section_value=\''. $aco_section_value .'\' AND ac.value=\''. $aco_value .'\')
-						AND		((ar.section_value=\''. $aro_section_value .'\' AND ar.value=\''. $aro_value .'\')';
+						AND		(ac.section_value='. $this->db->quote($aco_section_value) .' AND ac.value='. $this->db->quote($aco_value) .')
+						AND		(';
 			
-			if ( isset ($sql_aro_group_ids) ) {
-				$query .= ' OR rg.id IN ('. $sql_aro_group_ids .')';
+			// if we are querying an aro group
+			if ($aro_section_value == $this->_group_switch) {
+				// if acl_get_groups did not return an array
+				if ( !isset ($sql_aro_group_ids) ) {
+					$this->debug_text ('acl_query(): Invalid ARO Group: '. $aro_value);
+					return FALSE;
+				}
+				
+				$query .= 'rg.id IN ('. $sql_aro_group_ids .')';
+			} else {
+				$query .= '(ar.section_value='. $this->db->quote($aro_section_value) .' AND ar.value='. $this->db->quote($aro_value) .')';
+				
+				if ( isset ($sql_aro_group_ids) ) {
+					$query .= ' OR rg.id IN ('. $sql_aro_group_ids .')';
+				}
 			}
 			
 			$query .= ')
 						AND		(';
 
-			if ($axo_section_value == '' AND $axo_value == '') {
-				$query .= '(ax.section_value IS NULL AND ax.value IS NULL)';
+			// if we are querying an axo group
+			if ($axo_section_value == $this->_group_switch) {
+				// if acl_get_groups did not return an array
+				if ( !isset ($sql_axo_group_ids) ) {
+					$this->debug_text ('acl_query(): Invalid AXO Group: '. $axo_value);
+					return FALSE;
+				}
+				
+				$query .= 'xg.id IN ('. $sql_axo_group_ids .')';
 			} else {
-				$query .= '(ax.section_value=\''. $axo_section_value .'\' AND ax.value=\''. $axo_value .'\')';
-			}
+				if ($axo_section_value == '' AND $axo_value == '') {
+					$query .= '(ax.section_value IS NULL AND ax.value IS NULL)';
+				} else {
+					$query .= '(ax.section_value='. $this->db->quote($axo_section_value) .' AND ax.value='. $this->db->quote($axo_value) .')';
+				}
 
-			if (isset($sql_axo_group_ids)) {
-				$query .= ' OR xg.id IN ('. $sql_axo_group_ids .')';
-			} else {
-				$query .= ' AND axg.group_id IS NULL';
+				if (isset($sql_axo_group_ids)) {
+					$query .= ' OR xg.id IN ('. $sql_axo_group_ids .')';
+				} else {
+					$query .= ' AND axg.group_id IS NULL';
+				}
 			}
 			
 			$query .= ')
@@ -394,13 +429,23 @@ class gacl {
 
 			// Make sure we get the groups
 			$query = '
-					SELECT 		DISTINCT g2.id
-					FROM		'. $object_table .' o,'. $group_map_table .' gm,'. $group_table .' g1,'. $group_table .' g2';
+					SELECT 		DISTINCT g2.id';
 			
-			$where = '
+			if ($section_value == $this->_group_switch) {
+				$query .= '
+					FROM		' . $group_table . ' g1,' . $group_table . ' g2';
+				
+				$where = '
+					WHERE		g1.id=' . $value;
+			} else {
+				$query .= '
+					FROM		'. $object_table .' o,'. $group_map_table .' gm,'. $group_table .' g1,'. $group_table .' g2';
+				
+				$where = '
 					WHERE		(o.section_value='. $this->db->quote($section_value) .' AND o.value='. $this->db->quote($value) .')
 						AND		gm.'. $group_type .'_id=o.id
 						AND		g1.id=gm.group_id';
+			}
 
 			/*
 			 * If root_group_id is specified, we have to narrow this query down
