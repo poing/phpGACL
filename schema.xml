@@ -16,7 +16,7 @@
 			delete from #PREFIX#phpgacl where name = 'version';
 		</query>
 		<query>
-			insert into #PREFIX#phpgacl (name, value) VALUES('version','3.2.1');
+			insert into #PREFIX#phpgacl (name, value) VALUES('version','3.2.2');
 		</query>
 		<query>
 			delete from #PREFIX#phpgacl where name = 'schema_version';
