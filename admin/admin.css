@@ -6,7 +6,7 @@ body, td, th {
 input, select, textarea {
 	font-family: verdana, sans-serif;
 	font-size: 9pt;
-	border: 1px solid #000000;
+	border: 1px solid #333333;
 }
 
 .navigation {
