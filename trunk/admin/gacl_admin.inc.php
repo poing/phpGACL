@@ -22,6 +22,9 @@
 
 require_once('../config.inc.php');
 
+require_once('gacl_api.class.php');
+$gacl_api = new gacl_api;
+
 require_once('../'.$adodb_dir.'/adodb.inc.php');
 $ADODB_FETCH_MODE = ADODB_FETCH_NUM;
 

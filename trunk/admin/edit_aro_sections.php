@@ -7,9 +7,14 @@ switch ($_POST[action]) {
         //showarray($_POST[delete_sections]);
     
         if (count($_POST[delete_sections]) > 0) {
+            foreach($_POST[delete_sections] as $id) {
+                $gacl_api->del_aro_section($id);            
+            }
+/*
             $query = "delete from aro_sections where id in (".implode(",", $_POST[delete_sections]).")";
             debug("delete query: $query");
             $db->Execute($query);
+*/            
         }   
             
         //Return page.
@@ -25,14 +30,15 @@ switch ($_POST[action]) {
         //Update sections
         while (list(,$row) = @each($_POST[sections])) {
             list($id, $value, $order, $name) = $row;
-
+            $gacl_api->edit_aro_section($id, $name, $value, $order);
+/*            
             $query = "update aro_sections set
                                                                     value='$value',
                                                                     order_value='$order',
                                                                     name='$name'
                                                         where   id=$id";
             $rs = $db->Execute($query);                   
-            
+*/            
         }
         unset($id);
         unset($value);
@@ -44,9 +50,12 @@ switch ($_POST[action]) {
             list($value, $order, $name) = $row;
             
             if (!empty($value) AND !empty($order) AND !empty($name)) {
+                $aro_section_id = $gacl_api->add_aro_section($name, $value, $order);
+/*                
                 $insert_id = $db->GenID('aro_sections_seq',10);
                 $query = "insert into aro_sections (id,value,order_value,name) VALUES($insert_id, '$value', '$order', '$name')";
-                $rs = $db->Execute($query);                   
+                $rs = $db->Execute($query);
+*/                
             }
         }
         debug("return_page: $_POST[return_page]");

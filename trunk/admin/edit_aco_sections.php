@@ -1,15 +1,14 @@
 <?php
 require_once("gacl_admin.inc.php");
-
-
+   
 switch ($_POST[action]) {
     case Delete:
         //showarray($_POST[delete_sections]);
     
         if (count($_POST[delete_sections]) > 0) {
-            $query = "delete from aco_sections where id in (".implode(",", $_POST[delete_sections]).")";
-            debug("delete query: $query");
-            $db->Execute($query);
+            foreach($_POST[delete_sections] as $id) {
+                $gacl_api->del_aco_section($id);            
+            }
         }   
             
         //Return page.
@@ -25,14 +24,7 @@ switch ($_POST[action]) {
         //Update sections
         while (list(,$row) = @each($_POST[sections])) {
             list($id, $value, $order, $name) = $row;
-
-            $query = "update aco_sections set
-                                                                    value='$value',
-                                                                    order_value='$order',
-                                                                    name='$name'
-                                                        where   id=$id";
-            $rs = $db->Execute($query);                   
-            
+            $gacl_api->edit_aco_section($id, $name, $value, $order );
         }
         unset($id);
         unset($value);
@@ -44,9 +36,9 @@ switch ($_POST[action]) {
             list($value, $order, $name) = $row;
             
             if (!empty($value) AND !empty($order) AND !empty($name)) {
-                $insert_id = $db->GenID('aco_sections_seq',10);
-                $query = "insert into aco_sections (id,value,order_value,name) VALUES($insert_id, '$value', '$order', '$name')";
-                $rs = $db->Execute($query);                   
+
+                $aco_section_id = $gacl_api->add_aco_section($name, $value, $order);
+                debug("Section ID: $aco_section_id");
             }
         }
         debug("return_page: $_POST[return_page]");
