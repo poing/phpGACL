@@ -1,5 +1,5 @@
 Thu Feb 25 2003
-	- Fixed invalid DB reference in acl_get_groups();
+	- Fixed invalid DB reference in acl_get_groups(); Thanks to Gianluca Faieta <gfaieta@iname.com> for the patch.
 	
 Thu Feb 20 2003
 	- Fixed bug in get_group_objects() that caused it to return the query record set, not the data itself. Thanks to Thomas <tstruebi@pentacon.ch> for submitting a patch.
