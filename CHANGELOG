@@ -1,3 +1,5 @@
+Tue Apr 06 2004
+	mikeb - applied code documentation patch thanks to Andrew Eddie <eddieajau@iprimus.com.au>
 Mon Apr 05 2004
 	dcech - added index.php to admin directory, fixed bug in format_groups.  Thanks to Andrew Eddie <eddieajau@iprimus.com.au>
 	dcech - Fixed object_search javascript bug, cleaned up admin navigation html.
