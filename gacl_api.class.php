@@ -2714,17 +2714,17 @@ class gacl_api extends gacl {
 			case 'aco':
 				$object_type = 'aco';
 				$table = $this->_db_table_prefix .'aco';
-				$object_map_table = 'aco_map';
+				$object_map_table = $this->_db_table_prefix .'aco_map';
 				break;
 			case 'aro':
 				$object_type = 'aro';
 				$table = $this->_db_table_prefix .'aro';
-				$object_map_table = 'aro_map';
+				$object_map_table = $this->_db_table_prefix .'aro_map';
 				break;
 			case 'axo':
 				$object_type = 'axo';
 				$table = $this->_db_table_prefix .'axo';
-				$object_map_table = 'axo_map';
+				$object_map_table = $this->_db_table_prefix .'axo_map';
 				break;
 		}
 

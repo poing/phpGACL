@@ -1,20 +1,23 @@
+Tue Jul 27 2004
+        dcech - Fixed missing table prefix in edit_object function.
+                Thanks to Martin Salo <salo@laborint.com>.
 Mon Jul 26 2004
-	mikeb - Fixed bug in is_conflicting_acl() where it would detect an incorrect conflict when using certain AXO combinations. Thanks to a patch from Jeff McDonald <jeff@beefstudio.com>
+        mikeb - Fixed bug in is_conflicting_acl() where it would detect an incorrect conflict when using certain AXO combinations. Thanks to a patch from Jeff McDonald <jeff@beefstudio.com>
 Sat Jul 17 2004
-	mikeb - Fixed group_admin SQL query to be standard complaint so it works on PostgreSQL.
-	mikeb - Made aro_groups/axo_groups value column unique.
+        mikeb - Fixed group_admin SQL query to be standard complaint so it works on PostgreSQL.
+        mikeb - Made aro_groups/axo_groups value column unique.
 Sat Jul 10 2004
-	mikeb - Released v3.3.2
-	mikeb - upgraded to ADOdb v4.50
-	mikeb - upgraded to Smarty v2.6.3
-	mikeb - Fixed group_admin.php bug with hardcoded group_type column name.
+        mikeb - Released v3.3.2
+        mikeb - upgraded to ADOdb v4.50
+        mikeb - upgraded to Smarty v2.6.3
+        mikeb - Fixed group_admin.php bug with hardcoded group_type column name.
 Sat Jun 19 2004
         dcech - cleaned up setup script a little
         dcech - upgraded to adodb-xmlschema CVS to get fixes for prefix-related problems.
 Fri Jun 18 2004
         dcech - upgraded to ADOdb v4.23
 Thu Jun 17 2004
-	mikeb - Removed admin/mysql_db_demo_data.sql as it was the old 3.2.x format and useless now.
+        mikeb - Removed admin/mysql_db_demo_data.sql as it was the old 3.2.x format and useless now.
         mikeb - Fixed issue with links and group names with spaces in them. Thanks to Gordon Luk <gordon.luk@dfafunds.com>
         dcech - fixed object count in group admin for groups without objects
 Tue May 24 2004
