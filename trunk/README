@@ -12,7 +12,10 @@ MAILING LISTS:
 
 INSTALL:
 	
-	Please see MANUAL.HTML	or http://phpgacl.sourceforge.net/MANUAL.HTML
+	Please refer to the MANUAL (OpenOffice format, or the poor HTML conversion thereof)
+	or the "Documentation" link at http://phpgacl.sourceforge.net/
+	
+	Consult the example.php file in this directory. 
 
 SYNOPSIS:
 

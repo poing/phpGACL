@@ -1,7 +1,7 @@
 <?php
 /*
  * phpGACL - Generic Access Control List
- * Copyright (C) 2002 Mike Benoit
+ * Copyright (C) 2002,2003 Mike Benoit
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -31,7 +31,7 @@
 /*
  * Path to ADODB.
  */
-if ( !defined(ADODB_DIR) ) {
+if ( !defined('ADODB_DIR') ) {
 	define('ADODB_DIR', dirname(__FILE__).'/adodb');
 }
 
@@ -496,7 +496,7 @@ class gacl {
 
 		$this->debug_text("get_cache(): on ID: $cache_id");
 		
-		if ( is_string($this->Cache_Lite->get($cache_id) ) {
+		if ( is_string($this->Cache_Lite->get($cache_id) ) ) {
 			return unserialize($this->Cache_Lite->get($cache_id) );
 		}
 		

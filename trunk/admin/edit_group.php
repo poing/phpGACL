@@ -46,7 +46,7 @@ switch ($_POST['action']) {
     case 'Submit':
         $gacl_api->debug_text("Submit");
         
-        if (empty($_POST['parent_id]')) {
+        if (empty($_POST['parent_id'])) {
             $parent_id = 0;   
         } else {
             $parent_id = $_POST['parent_id'];
