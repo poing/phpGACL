@@ -1,3 +1,5 @@
+* Allow search fields to take new line deliminated lists.
+
 * Use ADODB's XML Schema to simplify the setup.php?
 
 * Figure out best way to do ACLs on select boxes.
