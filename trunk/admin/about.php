@@ -38,9 +38,7 @@ function get_system_info() {
 	$system_info .= ' IP Address: '. $_SERVER["REMOTE_ADDR"] ."\n";
 	$system_info .= ' Browser: '. $_SERVER["HTTP_USER_AGENT"] ."\n\n";
 	
-	if ( strtoupper(substr(PHP_OS, 0,3)) == 'LIN' ) {
-		$system_info .= 'Kernel Version: '.`uname -a`."\n";
-	}
+	$system_info .= 'System Information: '. php_uname() ."\n";
 
 	return trim($system_info);
 }
