@@ -1,3 +1,5 @@
+Wed May 21 2003
+	- Fixed add_acl() for AXOs, as it was previously completely broken.
 Mon May 19 2003
 	- Fixed ACL List filtering so it returns all ACL rows, not just the ones matching the LIKE query.
 Fri May 16 2003
