@@ -28,8 +28,8 @@
           </tr>
 {/foreach}
           <tr class="controls" align="center">
-            <td colspan="3"><input type="submit" class="button" name="action" value="Add" /></td>
-            <td colspan="2"><input type="submit" class="button" name="action" value="Delete" /></td>
+            <td colspan="3">&nbsp;</td>
+            <td colspan="2" nowrap><input type="submit" class="button" name="action" value="Add" /> <input type="submit" class="button" name="action" value="Delete" /></td>
           </tr>
         </tbody>
       </table>
