@@ -193,7 +193,9 @@ print "</pre><br>\n";
 */
 
 // Execute the SQL on the database
-$result = $schema->ExecuteSchema($sql, FALSE); //Don't continue on error.
+#$result = $schema->ExecuteSchema($sql, FALSE); //Don't continue on error.
+#ADODB's xmlschema is being lame, continue on error.
+$result = $schema->ExecuteSchema($sql, TRUE); //Don't continue on error.
 
 if ($result != 2) {
   echo_failed("Failed creating tables. Please enable DEBUG mode (set it to TRUE in \$gacl_options near top of admin/gacl_admin.inc.php) to see the error and try again. You will most likely need to delete any tables already created.");
