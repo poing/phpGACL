@@ -1,3 +1,5 @@
+Sat Apr 03 2004
+	dcech - Fixed JavaScript bug in IE, minor cleanup of admin_functions.js
 Fri Mar 19 2004
 	dcech - Fixed minor typo in gacl_api.class.php.  Thanks to Andrew Eddie <eddieajau@iprimus.com.au>
 Wed Mar 03 2004

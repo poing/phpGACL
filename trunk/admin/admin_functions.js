@@ -38,30 +38,31 @@ function depopulate(form_element) {
 
 //Populates a select box based off the value of "parent" select box. 
 function populate(parent_form_element, child_form_element, src_array) {
-    //alert('Parent: ' + parent_form_element);
-    //alert('Child: ' + child_form_element);
-       
-    //Grab the current selected value from the parent
-    parent_id = parent_form_element.options[parent_form_element.selectedIndex].value;
+	//alert('Parent: ' + parent_form_element);
+	//alert('Child: ' + child_form_element);
 	
-    //Clear the child form element
-    depopulate(child_form_element);
-	
-    //Populate child form element
-    if (options[src_array][parent_id]) {		
-		for (i=0; i < options[src_array][parent_id].length; i++) {
-			child_form_element.options[i] = new Option(options[src_array][parent_id][i][1], options[src_array][parent_id][i][0]);
+	if (parent_form_element.selectedIndex >= 0) {
+		//Grab the current selected value from the parent
+		parent_id = parent_form_element.options[parent_form_element.selectedIndex].value;
+		
+		//Clear the child form element
+		depopulate(child_form_element);
+		
+		//Populate child form element
+		if (options[src_array][parent_id]) {
+			for (i=0; i < options[src_array][parent_id].length; i++) {
+				child_form_element.options[i] = new Option(options[src_array][parent_id][i][1], options[src_array][parent_id][i][0]);
+			}
 		}
 	}
 }
 
 //Select an item by "copying" it from one select box to another
 function select_item(parent_form_element, src_form_element, dst_form_element) {
-   //alert('Src: ' + src_form_element);
-   //alert('Dst: ' + dst_form_element);
-   found_dup=false;
-   
-   //Copy it over to the dst element
+	//alert('Src: ' + src_form_element);
+	//alert('Dst: ' + dst_form_element);
+	found_dup=false;
+	//Copy it over to the dst element
 	for (i=0; i < src_form_element.options.length; i++) {
 		if (src_form_element.options[i].selected) {
 			//Check to see if duplicate entries exist.
@@ -92,13 +93,12 @@ function select_item(parent_form_element, src_form_element, dst_form_element) {
 
 //Used for moving items to and from the selected combo box.
 function deselect_item(form_element) {
-   //alert('Src: ' + src_form_element);
-   //alert('Dst: ' + dst_form_element);
-   
-   //Copy it over to the dst element
+	//alert('Src: ' + src_form_element);
+	//alert('Dst: ' + dst_form_element);
+	
+	//Copy it over to the dst element
 	for (i=0; i < form_element.options.length; i++) {
 		if (form_element.options[i].selected) {
-			
 			form_element.options[i] = null;
 			i=i - 1;
 		}
@@ -185,13 +185,12 @@ function checkAll(checkbox) {
  * [secure]   Boolean value indicating if the cookie transmission requires a
  *              secure transmission
  */
-function setCookie(name, value, expires, path, domain, secure)
-{
-    document.cookie= name + "=" + escape(value) +
-        ((expires) ? "; expires=" + expires.toGMTString() : "") +
-        ((path) ? "; path=" + path : "") +
-        ((domain) ? "; domain=" + domain : "") +
-        ((secure) ? "; secure" : "");
+function setCookie(name, value, expires, path, domain, secure) {
+	document.cookie= name + "=" + escape(value) +
+		((expires) ? "; expires=" + expires.toGMTString() : "") +
+		((path) ? "; path=" + path : "") +
+		((domain) ? "; domain=" + domain : "") +
+		((secure) ? "; secure" : "");
 }
 
 /**
@@ -202,26 +201,21 @@ function setCookie(name, value, expires, path, domain, secure)
  * Returns a string containing value of specified cookie,
  *   or null if cookie does not exist.
  */
-function getCookie(name)
-{
-    var dc = document.cookie;
-    var prefix = name + "=";
-    var begin = dc.indexOf("; " + prefix);
-    if (begin == -1)
-    {
-        begin = dc.indexOf(prefix);
-        if (begin != 0) return null;
-    }
-    else
-    {
-        begin += 2;
-    }
-    var end = document.cookie.indexOf(";", begin);
-    if (end == -1)
-    {
-        end = dc.length;
-    }
-    return unescape(dc.substring(begin + prefix.length, end));
+function getCookie(name) {
+	var dc = document.cookie;
+	var prefix = name + "=";
+	var begin = dc.indexOf("; " + prefix);
+	if (begin == -1) {
+		begin = dc.indexOf(prefix);
+		if (begin != 0) return null;
+	} else {
+		begin += 2;
+	}
+	var end = document.cookie.indexOf(";", begin);
+	if (end == -1) {
+		end = dc.length;
+	}
+	return unescape(dc.substring(begin + prefix.length, end));
 }
 
 /**
@@ -231,13 +225,11 @@ function getCookie(name)
  * [path]    path of the cookie (must be same as path used to create cookie)
  * [domain]  domain of the cookie (must be same as domain used to create cookie)
  */
-function deleteCookie(name, path, domain)
-{
-    if (getCookie(name))
-    {
-        document.cookie = name + "=" + 
-            ((path) ? "; path=" + path : "") +
-            ((domain) ? "; domain=" + domain : "") +
-            "; expires=Thu, 01-Jan-70 00:00:01 GMT";
-    }
+function deleteCookie(name, path, domain) {
+	if (getCookie(name)) {
+		document.cookie = name + "=" + 
+			((path) ? "; path=" + path : "") +
+			((domain) ? "; domain=" + domain : "") +
+			"; expires=Thu, 01-Jan-70 00:00:01 GMT";
+	}
 }
