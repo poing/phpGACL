@@ -345,7 +345,13 @@ switch ($_POST['action']) {
 		if (isset($options_selected_axo)) {
 			$smarty->assign("options_selected_axo", $options_selected_axo);
 		}
-		$smarty->assign("selected_axo", @array_keys($options_selected_axo));
+		$selected_axo = @array_keys($options_selected_axo);
+		
+		$smarty->assign("selected_axo", $selected_axo);
+		//Show AXO layer if AXO's are selected.
+		if (count($selected_axo) > 0) {
+			$smarty->assign("show_axo", TRUE);
+		}
 
 		if (isset($_GET['acl_id'])) {
 			$smarty->assign("acl_id", $_GET['acl_id'] );

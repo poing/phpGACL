@@ -111,7 +111,8 @@ function toggleObject(objectID) {
 function showObject(objectID) {
 		if(document.getElementById) {
 				if(selectedObject != objectID) {
-						document.getElementById(objectID).style.display = 'block';
+						document.getElementById(objectID).style.display = 'inline';
+						//document.getElementById(objectID).style.display = 'block';
 						//document.getElementById(objectID).style.visibility = 'visible';
 						selectedObject = objectID;
 				}
