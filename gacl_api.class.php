@@ -2973,78 +2973,76 @@ class gacl_api extends gacl {
 
 	/*======================================================================*\
 		Function:	get_object_section_section_id()
-		Purpose:	Gets the object_section_id given the name OR value of the section.
-						Will only return one section id, so if there are duplicate names, it will return false.
+		Purpose:	Gets the object_section_id given the name AND/OR value of the section.
+					Will only return one section id, so if there are duplicate names it will return false.
 	\*======================================================================*/
-	function get_object_section_section_id($name = null, $value = null, $object_type=NULL) {
-
+	function get_object_section_section_id($name = NULL, $value = NULL, $object_type = NULL) {
+		$this->debug_text("get_object_section_section_id(): Value: $value Name: $name Object Type: $object_type");
+		
 		switch(strtolower(trim($object_type))) {
 			case 'aco':
-				$object_type = 'aco';
-				$table = $this->_db_table_prefix .'aco';
-				$object_sections_table = $this->_db_table_prefix .'aco_sections';
-				break;
 			case 'aro':
-				$object_type = 'aro';
-				$table = $this->_db_table_prefix .'aro';
-				$object_sections_table = $this->_db_table_prefix .'aro_sections';
-				break;
 			case 'axo':
-				$object_type = 'axo';
-				$table = $this->_db_table_prefix .'aro';
-				$object_sections_table = $this->_db_table_prefix .'axo_sections';
-				break;
 			case 'acl':
-				$object_type = 'acl';
-				$table = $this->_db_table_prefix .'acl';
-				$object_sections_table = $this->_db_table_prefix .'acl_sections';
+				$object_type = strtolower(trim($object_type));
+				$table = $this->_db_table_prefix . $object_type;
+				$object_sections_table = $this->_db_table_prefix . $object_type .'_sections';
 				break;
+			default:
+				$this->debug_text('get_object_section_section_id(): Invalid Object Type ('. $object_type . ')');
+				return FALSE;
 		}
-
-		$this->debug_text("get_aco_section_section_id(): Value: $value Name: $name Object Type: $object_type");
-
+		
 		$name = trim($name);
 		$value = trim($value);
-
+		
 		if (empty($name) AND empty($value) ) {
-			$this->debug_text("get_object_section_section_id(): name ($name) OR value ($value) is empty, this is required");
-			return false;
+			$this->debug_text('get_object_section_section_id(): Both Name ('. $name .') and Value ('. $value .') are empty, you must specify at least one.');
+			return FALSE;
 		}
-
-		if (empty($object_type) ) {
-			$this->debug_text("get_object_section_section_id(): Object Type ($object_type) is empty, this is required");
-			return false;
+		
+		$query = 'SELECT id FROM '. $object_sections_table;
+		$where = ' WHERE ';
+		
+		// limit by value if specified
+		if (!empty($value)) {
+			$query .= $where .'value='. $this->db->quote($value);
+			$where = ' AND ';
 		}
-
-		$query  = 'SELECT id FROM '. $object_sections_table .' WHERE value='. $this->db->quote($value);
 		
 		// only use name if asked, this is SLOW
 		if (!empty($name)) {
-			$query .= ' OR name='. $this->db->quote($name);
+			$query .= $where .'name='. $this->db->quote($name);
 		}
+		
 		$rs = $this->db->Execute($query);
-
+		
 		if (!is_object($rs)) {
 			$this->debug_db('get_object_section_section_id');
-			return false;
-		} else {
-			$row_count = $rs->RecordCount();
-
-			if ($row_count > 1) {
-				$this->debug_text("get_object_section_section_id(): Returned $row_count rows, can only return one. Please search by value not name, or make your names unique.");
-				return false;
-			} elseif($row_count == 0) {
-				$this->debug_text("get_object_section_section_id(): Returned $row_count rows");
-				return false;
-			} else {
-				$rows = $rs->GetRows();
-
-				//Return only the ID in the first row.
-				return $rows[0][0];
-			}
+			return FALSE;
 		}
+		
+		$row_count = $rs->RecordCount();
+		
+		// If only one row is returned
+		if ($row_count == 1) {
+			// Return only the ID in the first row.
+			$row = $rs->FetchRow();
+			return $row[0];
+		}
+		
+		// If more than one row is returned
+		// should only ever occur when using name as values are unique.
+		if ($row_count > 1) {
+			$this->debug_text('get_object_section_section_id(): Returned '. $row_count .' rows, can only return one. Please search by value not name, or make your names unique.');
+			return FALSE;
+		}
+		
+		// No rows returned, no matching section found
+		$this->debug_text('get_object_section_section_id(): Returned '. $row_count .' rows, no matching section found.');
+		return FALSE;
 	}
-
+	
 	/*======================================================================*\
 		Function:	add_object_section()
 		Purpose:	Inserts an object Section
@@ -3180,7 +3178,7 @@ class gacl_api extends gacl {
 			
 			return false;
 		} else {
-			$this->debug_text("edit_object_section(): Modified aco_section ID: $aco_section_id");
+			$this->debug_text("edit_object_section(): Modified aco_section ID: $object_section_id");
 
 			if ($old_value != $value) {
 				$this->debug_text("edit_object_section(): Value Changed, update other tables.");
