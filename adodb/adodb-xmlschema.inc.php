@@ -1780,7 +1780,7 @@ class adoSchema {
 			// prefix too long
 			case strlen( $prefix ) > XMLS_PREFIX_MAXLEN:
 			// prefix contains invalid characters
-			case !preg_match( '/^[a-z][a-z0-9]+$/i', $prefix ):
+			case !preg_match( '/^[a-z][a-z0-9_]+$/i', $prefix ):
 				logMsg( 'Invalid prefix: ' . $prefix );
 				return FALSE;
 		}
