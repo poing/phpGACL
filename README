@@ -1,8 +1,8 @@
 NAME:
 
-    phpGACL - PHP based Access Control Lists.
+    phpGACL - PHP Generic Access Control List.
 
-VERSION: v0.9.2beta
+VERSION: v0.9.3beta
 
 AUTHORS:
     
@@ -35,7 +35,7 @@ INSTALL:
 
 SYNOPSIS:
 
-    require("gacl.inc.php");
+    require_once("gacl.inc.php");
 
     if ( acl_check( <Access Control Object ID> , <Access Request Object ID> ) ) {
 		echo "Access Granted!";
