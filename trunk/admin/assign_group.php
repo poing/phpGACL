@@ -65,7 +65,7 @@ switch ($_POST[action]) {
 			}
         }
                 
-        $gacl_api->return_page();
+        $gacl_api->return_page("$PHP_SELF?group_type=".$_POST['group_type']."&group_id=".$_POST['group_id']."");
 
         break;    
     default:
