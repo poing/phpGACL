@@ -33,7 +33,7 @@ switch ($_POST[action]) {
     
         if (count($_POST[delete_sections]) > 0) {
             foreach($_POST[delete_sections] as $id) {
-                $gacl_api->del_object_section($id, $object_type);
+                $gacl_api->del_object_section($id, $object_type, TRUE);
             }
         }   
             

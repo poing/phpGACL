@@ -1,3 +1,5 @@
+Sun Nov 30 2002
+	- Merged ERASE feature to API functions, del_object() and del_object_section() thanks to Martino.
 Sun Nov 17 2002
 	- format_groups() function wasn't recursing efficiently. Fixed.
 	- Re-wrote API aro/aco/group specific functions to be generic to help support AXO's.

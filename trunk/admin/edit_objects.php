@@ -32,7 +32,7 @@ switch ($_POST[action]) {
    
         if (count($_POST[delete_object]) > 0) {
             foreach($_POST[delete_object] as $id) {
-                $gacl_api->del_object($id, $object_type);
+                $gacl_api->del_object($id, $object_type, TRUE);
             }
         }   
             
