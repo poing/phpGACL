@@ -1,6 +1,6 @@
 <?php
 /* 
-V3.90 5 Sep 2003  (c) 2000-2003 John Lim (jlim@natsoft.com.my). All rights reserved.
+V4.10 12 Jan 2003  (c) 2000-2004 John Lim (jlim@natsoft.com.my). All rights reserved.
   Released under both BSD license and Lesser GPL library license. 
   Whenever there is any discrepancy between the two licenses, 
   the BSD license will take precedence. 
@@ -74,6 +74,9 @@ class ADODB_mssql extends ADOConnection {
 	var $fmtDate = "'Y-m-d'";
 	var $fmtTimeStamp = "'Y-m-d h:i:sA'";
 	var $hasInsertID = true;
+	var $substr = "substring";
+	var $length = 'len';
+	var $upperCase = 'upper';
 	var $hasAffectedRows = true;
 	var $metaDatabasesSQL = "select name from sysdatabases where name <> 'master'";
 	var $metaTablesSQL="select name,case when type='U' then 'T' else 'V' end from sysobjects where (type='U' or type='V') and (name not in ('sysallocations','syscolumns','syscomments','sysdepends','sysfilegroups','sysfiles','sysfiles1','sysforeignkeys','sysfulltextcatalogs','sysindexes','sysindexkeys','sysmembers','sysobjects','syspermissions','sysprotects','sysreferences','systypes','sysusers','sysalternates','sysconstraints','syssegments','REFERENTIAL_CONSTRAINTS','CHECK_CONSTRAINTS','CONSTRAINT_TABLE_USAGE','CONSTRAINT_COLUMN_USAGE','VIEWS','VIEW_TABLE_USAGE','VIEW_COLUMN_USAGE','SCHEMATA','TABLES','TABLE_CONSTRAINTS','TABLE_PRIVILEGES','COLUMNS','COLUMN_DOMAIN_USAGE','COLUMN_PRIVILEGES','DOMAINS','DOMAIN_CONSTRAINTS','KEY_COLUMN_USAGE','dtproperties'))";
@@ -97,6 +100,7 @@ class ADODB_mssql extends ADOConnection {
 	var $identitySQL = 'select @@IDENTITY'; // 'select SCOPE_IDENTITY'; # for mssql 2000
 	var $uniqueOrderBy = true;
 	var $_bindInputArray = true;
+	
 	
 	function ADODB_mssql() 
 	{		
@@ -129,6 +133,11 @@ class ADODB_mssql extends ADOConnection {
 		$arr['description'] = $row[2];
 		$arr['version'] = ADOConnection::_findvers($arr['description']);
 		return $arr;
+	}
+	
+	function IfNull( $field, $ifNull ) 
+	{
+		return " ISNULL($field, $ifNull) "; // if MS SQL Server
 	}
 	
 	function _insertid()
@@ -190,10 +199,13 @@ class ADODB_mssql extends ADOConnection {
 		if ($nrows > 0 && $offset <= 0) {
 			$sql = preg_replace(
 				'/(^\s*select\s+(distinctrow|distinct)?)/i','\\1 '.$this->hasTop." $nrows ",$sql);
-			return $this->Execute($sql,$inputarr);
+			$rs =& $this->Execute($sql,$inputarr);
 		} else
-			return ADOConnection::SelectLimit($sql,$nrows,$offset,$inputarr,$secs2cache);
+			$rs =& ADOConnection::SelectLimit($sql,$nrows,$offset,$inputarr,$secs2cache);
+	
+		return $rs;
 	}
+	
 	
 	// Format date column in sql string given an input format that understands Y M D
 	function SQLDate($fmt, $col=false)
@@ -229,7 +241,7 @@ class ADODB_mssql extends ADOConnection {
 				break;
 			
 			case 'H':
-				$s .= "replace(str(datepart(mi,$col),2),' ','0')";
+				$s .= "replace(str(datepart(hh,$col),2),' ','0')";
 				break;
 				
 			case 'i':
@@ -408,6 +420,7 @@ order by constraint_name, referenced_table_name, keyno";
 	
 	function ErrorNo() 
 	{
+		if ($this->_logsql && $this->_errorCode !== false) return $this->_errorCode;
 		if (empty($this->_errorMsg)) {
 			$this->_errorMsg = mssql_get_last_message();
 		}
@@ -422,6 +435,7 @@ order by constraint_name, referenced_table_name, keyno";
 	// returns true or false
 	function _connect($argHostname, $argUsername, $argPassword, $argDatabasename)
 	{
+		if (!function_exists('mssql_pconnect')) return false;
 		$this->_connectionID = mssql_connect($argHostname,$argUsername,$argPassword);
 		if ($this->_connectionID === false) return false;
 		if ($argDatabasename) return $this->SelectDB($argDatabasename);
@@ -432,6 +446,7 @@ order by constraint_name, referenced_table_name, keyno";
 	// returns true or false
 	function _pconnect($argHostname, $argUsername, $argPassword, $argDatabasename)
 	{
+		if (!function_exists('mssql_pconnect')) return false;
 		$this->_connectionID = mssql_pconnect($argHostname,$argUsername,$argPassword);
 		if ($this->_connectionID === false) return false;
 		
@@ -447,6 +462,7 @@ order by constraint_name, referenced_table_name, keyno";
 	function Prepare($sql)
 	{
 		$sqlarr = explode('?',$sql);
+		if (sizeof($sqlarr) <= 1) return $sql;
 		$sql2 = $sqlarr[0];
 		for ($i = 1, $max = sizeof($sqlarr); $i < $max; $i++) {
 			$sql2 .=  '@P'.($i-1) . $sqlarr[$i];
@@ -504,7 +520,17 @@ order by constraint_name, referenced_table_name, keyno";
 		if  ($this->debug) {
 			ADOConnection::outp( "Parameter(\$stmt, \$php_var='$var', \$name='$name'); (type=$type)");
 		}
-		return mssql_bind($stmt[1], '@'.$name, $var, $type, $isOutput, $isNull, $maxLen);
+		/*
+			See http://phplens.com/lens/lensforum/msgs.php?id=7231
+			
+			RETVAL is HARD CODED into php_mssql extension:
+			The return value (a long integer value) is treated like a special OUTPUT parameter, 
+			called "RETVAL" (without the @). See the example at mssql_execute to 
+			see how it works. - type: one of this new supported PHP constants. 
+				SQLTEXT, SQLVARCHAR,SQLCHAR, SQLINT1,SQLINT2, SQLINT4, SQLBIT,SQLFLT8 
+		*/
+		if ($name !== 'RETVAL') $name = '@'.$name;
+		return mssql_bind($stmt[1], $name, $var, $type, $isOutput, $isNull, $maxLen);
 	}
 	
 	/* 
@@ -544,7 +570,9 @@ order by constraint_name, referenced_table_name, keyno";
 					$params .= ', ';
 				}	
 				if (is_string($v)) {
-					$decl .= "@P$i NVARCHAR(".strlen($v).")";
+					$len = strlen($v);
+					if ($len == 0) $len = 1;
+					$decl .= "@P$i NVARCHAR($len)";
 					$params .= "@P$i=N". (strncmp($v,"'",1)==0? $v : $this->qstr($v));
 				} else if (is_integer($v)) {
 					$decl .= "@P$i INT";

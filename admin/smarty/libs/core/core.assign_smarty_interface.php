@@ -5,7 +5,7 @@
  * @subpackage plugins
  */
 
-/*
+/**
  * Smarty assign_smarty_interface core plugin
  *
  * Type:     core<br>
@@ -18,7 +18,7 @@ function smarty_core_assign_smarty_interface($params, &$smarty)
 {
         if (isset($smarty->_smarty_vars) && isset($smarty->_smarty_vars['request'])) {
             return;
-		}
+        }
 
         $_globals_map = array('g'  => 'HTTP_GET_VARS',
                              'p'  => 'HTTP_POST_VARS',

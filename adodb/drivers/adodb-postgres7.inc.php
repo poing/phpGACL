@@ -1,6 +1,6 @@
 <?php
 /*
- V3.90 5 Sep 2003  (c) 2000-2003 John Lim (jlim@natsoft.com.my). All rights reserved.
+ V4.10 12 Jan 2003  (c) 2000-2004 John Lim (jlim@natsoft.com.my). All rights reserved.
   Released under both BSD license and Lesser GPL library license. 
   Whenever there is any discrepancy between the two licenses, 
   the BSD license will take precedence.
@@ -28,15 +28,25 @@ class ADODB_postgres7 extends ADODB_postgres64 {
 	// which makes obsolete the LIMIT limit,offset syntax
 	 function &SelectLimit($sql,$nrows=-1,$offset=-1,$inputarr=false,$secs2cache=0) 
 	 {
-	  $offsetStr = ($offset >= 0) ? " OFFSET $offset" : '';
-	  $limitStr  = ($nrows >= 0)  ? " LIMIT $nrows" : '';
-	  return $secs2cache ?
-	   $this->CacheExecute($secs2cache,$sql."$limitStr$offsetStr",$inputarr)
-	  :
-	   $this->Execute($sql."$limitStr$offsetStr",$inputarr);
+		 $offsetStr = ($offset >= 0) ? " OFFSET $offset" : '';
+		 $limitStr  = ($nrows >= 0)  ? " LIMIT $nrows" : '';
+		 if ($secs2cache)
+		  	$rs =& $this->CacheExecute($secs2cache,$sql."$limitStr$offsetStr",$inputarr);
+		 else
+		  	$rs =& $this->Execute($sql."$limitStr$offsetStr",$inputarr);
+		
+		return $rs;
 	 }
- 
- 
+ 	/*
+ 	function Prepare($sql)
+	{
+		$info = $this->ServerInfo();
+		if ($info['version']>=7.3) {
+			return array($sql,false);
+		}
+		return $sql;
+	}
+ 	*/
     function MetaForeignKeys($table, $owner=false, $upper=false)
 	{
 
@@ -127,7 +137,7 @@ class ADORecordSet_postgres7 extends ADORecordSet_postgres64{
 				$this->fields = @pg_fetch_array($this->_queryID,$this->_currentRow,$this->fetchMode);
 			
 				if (is_array($this->fields)) {
-					if (isset($this->_blobArr)) $this->_fixblobs();
+					if ($this->fields && isset($this->_blobArr)) $this->_fixblobs();
 					return true;
 				}
 			}

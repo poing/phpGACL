@@ -9,10 +9,10 @@
  * load a resource plugin
  *
  * @param string $type
- */    
+ */
 
-// $type 
- 
+// $type
+
 function smarty_core_load_resource_plugin($params, &$smarty)
 {
     /*
@@ -26,8 +26,8 @@ function smarty_core_load_resource_plugin($params, &$smarty)
     if (isset($_plugin)) {
         if (!$_plugin[1] && count($_plugin[0])) {
             $_plugin[1] = true;
-            foreach ($_plugin[0] as $_plugin_func) {                 
-                if (!$smarty->_plugin_implementation_exists($_plugin_func)) {
+            foreach ($_plugin[0] as $_plugin_func) {
+                if (!is_callable($_plugin_func)) {
                     $_plugin[1] = false;
                     break;
                 }

@@ -90,6 +90,7 @@ class acl_setup {
 		$this->acl[] = $this->gacl_api->add_acl(array('test_aco'=>array('access')),array('test_human'=>array('luke')),NULL,array('test_location'=>array('guns')),NULL,1,1,NULL,'Luke can access the guns');
 		
 		$this->acl[] = $this->gacl_api->add_acl(array('test_aco'=>array('access')),NULL,array($this->aro_group['engineers']),array('test_location'=>array('engines','guns')),NULL,1,1,NULL,'Engineers can access the engines and guns');
+		
 	}
 	
 	function teardown() {
