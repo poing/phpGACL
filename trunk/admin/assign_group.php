@@ -16,7 +16,7 @@ switch(strtolower(trim($group_type))) {
         break;
     default:
         $group_type = 'aro';
-		$group_table = 'groups';
+		$group_table = 'aro_groups';
 		$group_sections_table = 'aro_sections';
         break;
 }
@@ -164,7 +164,13 @@ switch ($_POST[action]) {
         
         $smarty->assign("rows", $object_rows);
         
-        $smarty->assign("group_id", $_GET[group_id]);
+		//Get group name.
+		$query= "select name from $group_table where id = ". $_GET['group_id'] ."";
+		$group_name = $db->GetOne($query);
+		
+        $smarty->assign("group_name", $group_name);
+        
+        $smarty->assign("group_id", $_GET['group_id']);
         
         break;
 }

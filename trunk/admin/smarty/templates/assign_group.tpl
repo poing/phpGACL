@@ -14,7 +14,7 @@
   <body onload="populate(document.acl_admin.section,document.acl_admin.elements['objects[]'], '{$js_array_name}')">
     <br>
 
-    <form method="post" name="acl_admin" action="assign_group.php">
+    <form method="post" name="assign_group" action="assign_group.php">
       <table cellpadding="2" cellspacing="2" border="2" width="100%">
         <tbody>
           <tr align="center">
@@ -78,11 +78,11 @@
     <br>
     <table cellpadding="2" cellspacing="2" border="2" width="100%">
   <tr align="center">
-	<td valign="top" colspan="4" bgcolor="#cccccc"><b>phpGACL</b> <b>Assigned {$group_type|upper}'s</b><br>
+	<td valign="top" colspan="4" bgcolor="#cccccc"><b>Assigned {$group_type|upper}'s to Group: {$group_name}</b><br>
 	 </td>
   </tr>
   <tr>
-	<td valign="top" align="center" bgcolor="#d3dce3"><b>ID</b><br>
+	<td valign="top" align="center" bgcolor="#d3dce3"><b>Value</b><br>
 	 </td>
 
 	<td valign="top" align="center" bgcolor="#d3dce3"><b>Sections</b><br>
