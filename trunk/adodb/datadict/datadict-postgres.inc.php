@@ -127,7 +127,7 @@ class ADODB2_postgres extends ADODB_DataDict {
 	function DropColumnSQL($tabname, $flds)
 	{
 		if ($this->debug) ADOConnection::outp("DropColumnSQL only works with PostgreSQL 7.3+");
-		return ADODB_DataDict::DropColumnSQL($tabname, $flds)."/* only works for PostgreSQL 7.3+ */";
+		return ADODB_DataDict::DropColumnSQL($tabname, $flds);
 	}
 
 	// return string must begin with space
