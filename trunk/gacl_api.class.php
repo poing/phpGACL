@@ -2318,7 +2318,7 @@ class gacl_api extends gacl {
 		}
 
 		//Test to see if the object already exists.
-		$query = "select id from $object_table where section_value='$section_value' AND value='$value'";
+		$query = "select id from $object_type where section_value='$section_value' AND value='$value'";
 		$rs = $this->db->Execute($query);
 
 		if ($rs->RecordCount() == 1) {

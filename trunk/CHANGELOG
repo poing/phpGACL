@@ -1,3 +1,6 @@
+Wed Aug 13 2003
+	- Decreased column lengths to varchar(240) so MySQL can index multiple columns. Thanks to Ben Margolin (ben@prince.org)
+	- Fixed bug in add_object(), it was selecting from a non-existent table. Thanks to Ben Margolin  (ben@prince.org)
 Tue July 08 2003
 	- Create a new setup.php from scratch using ADODB XML-Schema. This should greatly ease table creation on many different databases.
 	- Modified ADODB XML-Schema to support all types of indexes. Submitted patch to Richard Tango-Lowy <richtl@arscognita.com>
