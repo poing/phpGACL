@@ -1,5 +1,8 @@
 #!/usr/bin/perl
 
+#
+#  SOAP Lite needs to be installed for this to work correctly.
+#
 use SOAP::Lite;
 
 #
