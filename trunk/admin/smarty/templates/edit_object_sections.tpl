@@ -5,11 +5,7 @@
     <title>phpGACL Admin</title>
     <meta http-equiv="content-type" content="text/html; charset=ISO-8859-1">
   </head>
-
   <body>
-    <br>
-     
-
     <form method="post" name="edit_object_sections" action="edit_object_sections.php">
       <table cellpadding="2" cellspacing="2" border="2" width="100%">
         <tbody>
