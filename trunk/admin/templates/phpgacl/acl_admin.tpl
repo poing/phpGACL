@@ -89,7 +89,7 @@
 			  <select name="aro_groups[]" tabindex="0" size="8" multiple>
 			    {html_options options=$options_aro_groups selected=$selected_aro_groups}
 			  </select>
-			  <input type="button" class="un-select" name="Un-Select" value="Un-Select" onClick="unselect_all(document.acl_admin.elements['aro_groups[]'])">
+			  <br /><input type="button" class="un-select" name="Un-Select" value="Un-Select" onClick="unselect_all(document.acl_admin.elements['aro_groups[]'])">
             </td>
           </tr>
 
@@ -137,7 +137,7 @@
               <select name="axo_groups[]" tabindex="0" size="8" multiple>
                 {html_options options=$options_axo_groups selected=$selected_axo_groups}
               </select>
-              <input type="button" class="un-select" name="Un-Select" value="Un-Select" onClick="unselect_all(document.acl_admin.elements['axo_groups[]'])">
+              <br /><input type="button" class="un-select" name="Un-Select" value="Un-Select" onClick="unselect_all(document.acl_admin.elements['axo_groups[]'])">
             </td>
         </tr>
 
