@@ -97,5 +97,52 @@ function unselect_all(form_element) {
 function edit_link(link, parent_id) {
     alert('edit_aco.php?section_id=' + parent_id + '&return_page={$return_page}')    
 }
+
+var selectedObject = null;
+var selectedTab = null;
+
+function toggleObject(objectID) {
+		if(document.getElementById) {
+				hideObject();
+				showObject(objectID);
+		}
+}
+
+function showObject(objectID) {
+		if(document.getElementById) {
+				if(selectedObject != objectID) {
+						document.getElementById(objectID).style.display = 'block';
+						//document.getElementById(objectID).style.visibility = 'visible';
+						selectedObject = objectID;
+				}
+		}
+}
+
+function hideObject() {
+		if(document.getElementById) {
+				if(selectedObject) {
+						document.getElementById(selectedObject).style.display = 'none';
+						//document.getElementById(selectedObject).style.visibility = 'hidden';
+						selectedObject = null;
+				}
+		}
+}
+
+function showTab(objectID) {
+		if(document.getElementById) {
+				if(selectedObject != objectID) {
+						document.getElementById(objectID).className = 'tabon';
+						selectedTab = objectID;
+				}
+		}
+}
+
+function hideTab() {
+		if(document.getElementById) {
+				if(selectedTab) {
+						document.getElementById(selectedTab).className = 'taboff';
+				}
+		}
+}
 </script>
 {/literal}

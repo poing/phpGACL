@@ -1,3 +1,6 @@
+Thu Feb 27 2003
+	- Attempted to add javascript show/hide to the AXO section of the acl_admin. 
+
 Thu Feb 25 2003
 	- Fixed invalid DB reference in acl_get_groups(); Thanks to Gianluca Faieta <gfaieta@iname.com> for the patch.
 	
