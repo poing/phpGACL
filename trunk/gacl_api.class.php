@@ -3159,6 +3159,8 @@ class gacl_api extends gacl {
 			return false;
 		}
 
+		$this->db->BeginTrans();
+		
 		//Get old value incase it changed, before we do the update.
 		$query = "select value from $object_sections_table where id=$object_section_id";
 		$old_value = $this->db->GetOne($query);
@@ -3173,6 +3175,9 @@ class gacl_api extends gacl {
 
 		if (!is_object($rs)) {
 			$this->debug_db('edit_object_section');
+			
+			$this->db->RollbackTrans();
+			
 			return false;
 		} else {
 			$this->debug_text("edit_object_section(): Modified aco_section ID: $aco_section_id");
@@ -3187,6 +3192,9 @@ class gacl_api extends gacl {
 
 				if (!is_object($rs)) {
 					$this->debug_db('edit_object_section');
+					
+					$this->db->RollbackTrans();
+					
 					return false;
 				} else {
 					if (!empty($object_map_table)) {
@@ -3197,13 +3205,21 @@ class gacl_api extends gacl {
 
 						if ( is_string( $this->db->ErrorNo() ) ) {
 							$this->debug_db('edit_object_section');
+							
+							$this->db->RollbackTrans();
+							
 							return false;
 						} else {
 							$this->debug_text("edit_object_section(): Modified ojbect_map value: $value");
+							
+							$this->db->CommitTrans();
 							return true;
 						}
 					} else {
 						//ACL sections, have no mapping table. Return true.
+						
+						$this->db->CommitTrans();
+						
 						return true;
 					}
 				}

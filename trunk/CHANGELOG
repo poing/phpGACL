@@ -1,4 +1,5 @@
 Wed Nov 19 2003
+	mikeb - Added transactions to edit_object_section()
 	mikeb - Added more API test_suite functions.
 	mikeb - Fixed minor display issue with pager.tpl.
 	dcech - numerous fixes in gacl_api. edit_group, add_group_object, rebuild_tree & _rebuild_tree.
