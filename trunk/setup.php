@@ -142,20 +142,20 @@ $schema = new adoSchema($db);
 $schema->SetPrefix($db_table_prefix);
 
 // Build the SQL array
-$sql = $schema->ParseSchema('schema.xml');
+$schema->ParseSchema('schema.xml');
 
-/*
 // maybe display this if $gacl->debug is true?
-print "Here's the SQL to do the build:<br>\n<pre>";
-print_r( $sql );
-print "</pre><br>\n";
-exit;
-*/
+if ($gacl->_debug) {
+	print "Here's the SQL to do the build:<br />\n<code>";
+	print $schema->getSQL('html');
+	print "</code>\n";
+	// exit;
+}
 
 // Execute the SQL on the database
-#$result = $schema->ExecuteSchema($sql, FALSE); //Don't continue on error.
 #ADODB's xmlschema is being lame, continue on error.
-$result = $schema->ExecuteSchema($sql, TRUE); //Don't continue on error.
+$schema->ContinueOnError(TRUE);
+$result = $schema->ExecuteSchema();
 
 if ($result != 2) {
   echo_failed('Failed creating tables. Please enable DEBUG mode (set it to TRUE in $gacl_options near top of admin/gacl_admin.inc.php) to see the error and try again. You will most likely need to delete any tables already created.');
