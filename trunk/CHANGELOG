@@ -1,5 +1,6 @@
 Sat Sep 20 2003
 	- Released 3.2.0-final.
+	- Upgraded ADODB to 3.90.
 Sat Sep 06 2003
 	- Fixed minor bug when assigning objects to groups. Thanks Jos Vanlanduyt <jos.vanlanduyt@higis.eu.org> for pointing this out.
 Mon Aug 25 2003
