@@ -1,20 +1,13 @@
 * Use ADODB's XML Schema to simplify the setup.php?
 
-* Add filters/AXO's to ACL Test page.
-
-* Try to use paths more when including files, so require_once works
-correctly if they already included Smarty or something.
-
 * Figure out best way to do ACLs on select boxes.
-
 
 * Add visual notification when a section has hit the $max_select_box_items.
 
-* Write "mock" implementations to show off some of phpGACL's benefits.
-
-* Write tutorial, some people may find phpGACL difficult to figure out.
+* Add filters/AXO's to ACL Test page.
 
 * Oracle compatibility.
+
 * Create include files with queries in each for the different databases. ie: include($db->db_type."-custom_sql.php");
 
 * FUTURE: Build framework for the plugin system.
@@ -33,53 +26,4 @@ existing login/authentication mechanism and disable all this by default. Once th
 user enables it and plugs in a simple ARO value, it would all come to life and allow
 them the ability to use phpGACL to set permissions on itself. 
 
-> There are a few things:
-> 1) 'LEVEL' is a reserved word in Oracle. I had to change the column in
-> GROUPS_PATH to 'glevel' and update
-> gacl_api.class.php accordingly.
-
-> 2) Oracle doesn't like the "AS" syntax used in the table list of a SELECT. 
-> 
-> ie: (line 57 of acl_admin.php)
-> 
-> select	b.id, c.name, b.name 
-> from		aco_map as a, 	
-> 		aco as b, 
-> 		aco_sections as c 
-> where 	a.aco_id=b.id 
-> 		AND b.section_id=c.id 
-> 		AND a.acl_id = $acl_id
-> 
-> Would have to change to:
-> 
-> select	b.id, c.name, b.name 
-> from		aco_map  a, 	
-> 		aco  b, 
-> 		aco_sections c 
-> where 	a.aco_id=b.id 
-> 		AND b.section_id=c.id 
-> 		AND a.acl_id = $acl_id
-
-> 3) LEFT JOINs don't have the same syntax in Oracle. (that I know of)
-> In acl_list.php I had to modify the "Glab all ACLs" query to look like this:
-> 
->                        select        distinct
->                                         a.id,
->                                         f.name,
->                                         e.name,
->                                         a.allow,
->                                         a.enabled,
->                                         a.updated_date
->                        from     acl a,
->                                 aco_map  b,
->                                 aro_map  c ,
->                                 groups_map d,
->                                 aco  e ,
->                                 aco_sections  f
->                         where
->                                 a.id=b.acl_id (+)
->                                 and a.id=c.acl_id (+)
->                                 and a.id=d.acl_id (+)
->                                 and b.aco_id = e.id (+)
->                                 and e.section_id  = f.id (+)
->                         order by a.id, f.name, e.name
+* Write "mock" implementations to show off some of phpGACL's benefits.

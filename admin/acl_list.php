@@ -224,7 +224,7 @@ switch ($_GET['action']) {
 									'enabled' => (bool)$acl_array['acl']['enabled'],
 									'return_value' => $acl_array['acl']['return_value'],
 									'note' => $acl_array['acl']['note'],
-									'updated_date' => date("d-M-y H:m:i",$acl_array[acl][updated_date]),
+									'updated_date' => date("d-M-y H:m:i",$acl_array['acl']['updated_date']),
 									'aco' => $aco_array,
 									'aro' => $aro_array,
 									'aro_groups' => $aro_groups_array,

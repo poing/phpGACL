@@ -23,8 +23,8 @@ switch ($_GET['action']) {
 							from ".$_GET['object_type']."
 							where section_value = '".$_GET['section_value']."'
 								AND 	(
-											value LIKE '".$value_search_str."'
-												OR name LIKE '".$name_search_str."'
+											lower(value) LIKE '". strtolower($value_search_str) ."'
+												OR lower(name) LIKE '". strtolower($name_search_str) ."'
 											)
 							order by section_value, order_value
 							limit $gacl_api->_max_search_return_items";

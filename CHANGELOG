@@ -1,5 +1,10 @@
+Sun June 8 2003
+	- Fixed more warnings.
+	
 Wed May 28 2003
 	- More minor warning fixes.
+	- Moved the manual to the documentation directory.
+	- Case insensitive object searching when assigning to groups.
 	
 Mon May 26 2003
 	- Fixed many more PHP warnings all over.
