@@ -1,4 +1,5 @@
 Mon Sep 29 2003
+	- Fixed major bug with table prefixes and del_object() function. Thanks to Ian Eure <ieure@debian.org> for reporting this.
 	- Fixed minor bug in generating javascript arrays with values containing quotes. Bug found by: Martino Piccinato <m.piccinato@nexus.it>
 Sat Sep 20 2003
 	- Released 3.2.0-final.

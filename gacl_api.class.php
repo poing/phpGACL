@@ -2455,22 +2455,22 @@ class gacl_api extends gacl {
 		switch(strtolower(trim($object_type))) {
 			case 'aco':
 				$object_type = 'aco';
-				$table = $this->_db_table_prefix . 'aco';
-				$object_map_table = 'aco_map';
+				$table = $this->_db_table_prefix .'aco';
+				$object_map_table = $this->_db_table_prefix .'aco_map';
 				break;
 			case 'aro':
 				$object_type = 'aro';
 				$table = $this->_db_table_prefix . 'aro';
-				$object_map_table = 'aro_map';
-				$groups_map_table = 'aro_groups_map';
-				$object_group_table = 'groups_aro_map';
+				$object_map_table = $this->_db_table_prefix .'aro_map';
+				$groups_map_table = $this->_db_table_prefix .'aro_groups_map';
+				$object_group_table = $this->_db_table_prefix .'groups_aro_map';
 				break;
 			case 'axo':
 				$object_type = 'axo';
 				$table = $this->_db_table_prefix . 'axo';
-				$object_map_table = 'axo_map';
-				$groups_map_table = 'axo_groups_map';
-				$object_group_table = 'groups_axo_map';
+				$object_map_table = $this->_db_table_prefix .'axo_map';
+				$groups_map_table = $this->_db_table_prefix .'axo_groups_map';
+				$object_group_table = $this->_db_table_prefix .'groups_axo_map';
 				break;
 		}
 
