@@ -320,73 +320,82 @@ class gacl_api extends gacl {
 	function search_acl($aco_section_value=NULL, $aco_value=NULL, $aro_section_value=NULL, $aro_value=NULL, $aro_group_name=NULL, $axo_section_value=NULL, $axo_value=NULL, $axo_group_name=NULL, $return_value=NULL) {
 		$this->debug_text("search_acl(): aco_section_value: $aco_section_value aco_value: $aco_value, aro_section_value: $aro_section_value, aro_value: $aro_value, aro_group_name: $aro_group_name, axo_section_value: $axo_section_value, axo_value: $axo_value, axo_group_name: $axo_group_name, return_value: $return_value");
 		
-		$query = "select 	a.id
-							from ".$this->_db_table_prefix."acl a";
+		$query = 'SELECT		a.id
+			FROM		' . $this->_db_table_prefix . 'acl a';
+		
+		$where_query = array ();
+		
+		// ACO
 		if ($aco_section_value !== FALSE AND $aco_value !== FALSE) {
-			$query .= " LEFT JOIN ".$this->_db_table_prefix."aco_map b ON a.id=b.acl_id";
-		}
-		if ($aro_section_value !== FALSE AND $aro_value !== FALSE) {
-			$query .= " LEFT JOIN ".$this->_db_table_prefix."aro_map c ON a.id=c.acl_id";
-		}
-		if ($aro_group_name !== FALSE) {
-			$query .= " LEFT JOIN ".$this->_db_table_prefix."aro_groups_map d ON a.id=d.acl_id
-							LEFT JOIN ".$this->_db_table_prefix."aro_groups dd ON d.group_id=dd.id";
-		}
-		if ($axo_section_value !== FALSE AND $axo_value !== FALSE) {
-			$query .= " LEFT JOIN ".$this->_db_table_prefix."axo_map e ON a.id=e.acl_id";
-		}
-		if ($axo_group_name !== FALSE) {
-			$query .= " LEFT JOIN ".$this->_db_table_prefix."axo_groups_map f ON a.id=f.acl_id
-							LEFT JOIN ".$this->_db_table_prefix."axo_groups ff ON f.group_id=ff.id";
-		}
-
-		$query .= " WHERE ";
-
-		//Where clauses
-		if ($aco_section_value !== FALSE AND $aco_value !== FALSE) {
+			$query .= '
+			LEFT JOIN	' . $this->_db_table_prefix . 'aco_map ac ON a.id=ac.acl_id';
+			
 			if ($aco_section_value == NULL AND $aco_value == NULL) {
-				$where_query[] = " ( b.section_value is NULL AND b.value is NULL )";
+				$where_query[] = '(ac.section_value IS NULL AND ac.value IS NULL)';
 			} else {
-				$where_query[] = " ( b.section_value='$aco_section_value' AND b.value='$aco_value' )";
+				$where_query[] = '(ac.section_value=\'' . $aco_section_value . '\' AND ac.value=\'' . $aco_value . '\')';
 			}
 		}
+		
+		// ARO
 		if ($aro_section_value !== FALSE AND $aro_value !== FALSE) {
+			$query .= '
+			LEFT JOIN	' . $this->_db_table_prefix . 'aro_map ar ON a.id=ar.acl_id';
+			
 			if ($aro_section_value == NULL AND $aro_value == NULL) {
-				$where_query[] = " ( c.section_value is NULL AND c.value is NULL )";
+				$where_query[] = '(ar.section_value IS NULL AND ar.value IS NULL)';
 			} else {
-				$where_query[] = " ( c.section_value='$aro_section_value' AND c.value='$aro_value' )";
+				$where_query[] = '(ar.section_value=\'' . $aro_section_value . '\' AND ar.value=\'' . $aro_value . '\')';
 			}
 		}
-		if ($aro_group_name !== FALSE) {
-			if ($aro_group_name == NULL) {
-				$where_query[] = " ( dd.name is NULL ) ";
-			} else {
-				$where_query[] = " ( dd.name='$aro_group_name' ) ";
-			}
-		}
+		
+		// AXO
 		if ($axo_section_value !== FALSE AND $axo_value !== FALSE) {
+			$query .= '
+			LEFT JOIN	' . $this->_db_table_prefix . 'axo_map ax ON a.id=ax.acl_id';
+			
 			if ($axo_section_value == NULL AND $axo_value == NULL) {
-				$where_query[] = " ( e.section_value is NULL AND e.value is NULL )";
+				$where_query[] = '(ax.section_value IS NULL AND ax.value IS NULL)';
 			} else {
-				$where_query[] = " ( e.section_value='$axo_section_value' AND e.value='$axo_value' )";
+				$where_query[] = '(ax.section_value=\'' . $axo_section_value . '\' AND ax.value=\'' . $axo_value . '\')';
 			}
 		}
-		if ($axo_group_name !== FALSE) {
-			if ($axo_group_name == NULL) {
-				$where_query[] = " ( ff.name is NULL ) ";
+		
+		// ARO Group
+		if ($aro_group_name !== FALSE) {
+			$query .= '
+			LEFT JOIN	' . $this->_db_table_prefix . 'aro_groups_map arg ON a.id=arg.acl_id
+			LEFT JOIN	' . $this->_db_table_prefix . 'aro_groups rg ON arg.group_id=rg.id';
+			
+			if ($aro_group_name == NULL) {
+				$where_query[] = '(rg.name IS NULL)';
 			} else {
-				$where_query[] = " ( ff.name='$axo_group_name' ) ";
+				$where_query[] = '(rg.name=' . $this->db->quote($aro_group_name) . ')';
+			}
+		}
+		
+		// AXO Group
+		if ($axo_group_name !== FALSE) {
+			$query .= '
+			LEFT JOIN	' . $this->_db_table_prefix . 'axo_groups_map axg ON a.id=axg.acl_id
+			LEFT JOIN	' . $this->_db_table_prefix . 'axo_groups xg ON axg.group_id=xg.id';
+			
+			if ($axo_group_name == NULL) {
+				$where_query[] = '(xg.name IS NULL)';
+			} else {
+				$where_query[] = '(xg.name=' . $this->db->quote($axo_group_name) . ')';
 			}
 		}
 		if ($return_value != FALSE) {
 			if ($return_value == NULL) {
-				$where_query[] = " ( a.return_value is NULL ) ";
+				$where_query[] = '(a.return_value IS NULL)';
 			} else {
-				$where_query[] = " ( a.return_value='$return_value' ) ";
+				$where_query[] = '(a.return_value=\'' . $return_value . '\')';
 			}
 		}
-
-		$query .= implode($where_query, " AND ");
+		
+		$query .= '
+			WHERE		' . implode (' AND ', $where_query);
 		
 		return $this->db->GetCol($query);
 	}
@@ -465,7 +474,7 @@ class gacl_api extends gacl {
 					$update=1;
 				} else {
 					$this->debug_text("append_acl(): Duplicate ARO_Group_ID, ignoring... ");
-				}				
+				}
 			}
 		}
 
@@ -490,7 +499,6 @@ class gacl_api extends gacl {
 			//function edit_acl($acl_id, $aco_array, $aro_array, $aro_group_ids=NULL, $axo_array=NULL, $axo_group_ids=NULL, $allow=1, $enabled=1, $return_value=NULL, $note=NULL) {
 			return $this->edit_acl($acl_id, $acl_array['aco'], $acl_array['aro'], $acl_array['aro_groups'], $acl_array['axo'], $acl_array['axo_groups'], $acl_array['allow'], $acl_array['enabled'], $acl_array['return_value'], $acl_array['note']);
 		}
-
 
 		//Return true if everything is duplicate and no ACL id updated.
 		$this->debug_text("append_acl(): Update flag not set, NOT updating ACL.");
@@ -820,220 +828,133 @@ class gacl_api extends gacl {
 			return false;
 		}
 
+		$this->db->BeginTrans();
+
 		//Edit ACL if acl_id is set. This is simply if we're being called by edit_acl().
 		if (empty($acl_id)) {
 			//Create ACL row first, so we have the acl_id
 			$acl_id = $this->db->GenID($this->_db_table_prefix.'acl_seq',10);
 
-			$this->db->BeginTrans();
-			$query = "insert into ".$this->_db_table_prefix."acl (id,section_value,allow,enabled,return_value, note, updated_date) VALUES($acl_id, ".$this->db->quote($section_value).", $allow, $enabled, ".$this->db->quote($return_value).", ".$this->db->quote($note).", ".time().")";
+			$query = 'INSERT INTO '.$this->_db_table_prefix."acl (id,section_value,allow,enabled,return_value,note,updated_date) VALUES($acl_id,".$this->db->quote($section_value).",$allow,$enabled,".$this->db->quote($return_value).','.$this->db->quote($note).','.time().')';
 			$result = $this->db->Execute($query);
 		} else {
-			$this->db->BeginTrans();
-
 			//Update ACL row, and remove all mappings so they can be re-inserted.
-			$query = "update ".$this->_db_table_prefix."acl set section_value=".$this->db->quote($section_value).",allow=$allow,enabled=$enabled,return_value=".$this->db->quote($return_value).", note=".$this->db->quote($note).",updated_date=".time()." where id=$acl_id";
+			$query  = '			UPDATE	' . $this->_db_table_prefix . 'acl
+			SET		section_value=' . $this->db->quote ($section_value) . ',
+					allow=' . $allow . ',
+					enabled=' . $enabled . ',
+					return_value=' . $this->db->quote ($return_value) . ',
+					note=' . $this->db->quote ($note) . ',
+					updated_date=' . time () . '
+			WHERE	id=' . $acl_id;
 			$result = $this->db->Execute($query);
 
 			if ($result) {
 				$this->debug_text("Update completed without error, delete mappings...");
 				//Delete all mappings so they can be re-inserted.
-				$query = "delete from ".$this->_db_table_prefix."aco_map where acl_id=$acl_id";
-				$this->db->Execute($query);
-
-				if ( is_string( $this->db->ErrorNo() ) ) {
-					$this->debug_db('add_acl');
-					$this->db->RollBackTrans();
-					return false;
-				}
-
-				$query = "delete from ".$this->_db_table_prefix."aro_map where acl_id=$acl_id";
-				$this->db->Execute($query);
-
-				if ( is_string( $this->db->ErrorNo() ) ) {
-					$this->debug_db('add_acl');
-					$this->db->RollBackTrans();
-					return false;
-				}
-
-				$query = "delete from ".$this->_db_table_prefix."axo_map where acl_id=$acl_id";
-				$this->db->Execute($query);
-
-				if ( is_string( $this->db->ErrorNo() ) ) {
-					$this->debug_db('add_acl');
-					$this->db->RollBackTrans();
-					return false;
-				}
-
-				$query = "delete from ".$this->_db_table_prefix."aro_groups_map where acl_id=$acl_id";
-				$this->db->Execute($query);
-
-				if ( is_string( $this->db->ErrorNo() ) ) {
-					$this->debug_db('add_acl');
-					$this->db->RollBackTrans();
-					return false;
-				}
-
-				$query = "delete from ".$this->_db_table_prefix."axo_groups_map where acl_id=$acl_id";
-				$this->db->Execute($query);
-
-				if ( is_string( $this->db->ErrorNo() ) ) {
-					$this->debug_db('add_acl');
-					$this->db->RollBackTrans();
-					return false;
+				foreach (array('aco_map', 'aro_map', 'axo_map', 'aro_groups_map', 'axo_groups_map') as $map) {
+					$query = 'DELETE FROM ' . $this->_db_table_prefix . $map . ' WHERE acl_id=' . $acl_id;
+					$rs = $this->db->Execute($query);
+					
+					if (!is_object($rs))
+					{
+						$this->debug_db('add_acl');
+						$this->db->RollBackTrans();
+						return FALSE;
+					}
 				}
 			}
 		}
 
-		if ( is_string( $this->db->ErrorNo() ) ) {
+		if (!is_object($result)) {
 			$this->debug_db('add_acl');
 			$this->db->RollBackTrans();
 			return false;
 		}
 
-		if ($result) {
-			$this->debug_text("Insert or Update completed without error, insert new mappings.");
-			//Insert ACO mappings
-			while (list($aco_section_value,$aco_value_array) = @each($aco_array)) {
-				$this->debug_text("Insert: ACO Section Value: $aco_section_value ACO VALUE: $aco_value_array");
-				//$this->showarray($aco_value_array);
-				$aco_value_array = array_unique($aco_value_array);
-
-				foreach ($aco_value_array as $aco_value) {
-					$aco_object_id = &$this->get_object_id($aco_section_value, $aco_value, 'ACO');
-
-					if (!empty($aco_object_id)) {
-
-						$query = "insert into ".$this->_db_table_prefix."aco_map (acl_id,section_value,value) VALUES($acl_id, '$aco_section_value', '$aco_value')";
-						$rs = $this->db->Execute($query);
-
-						if ( is_string( $this->db->ErrorNo() ) ) {
-							$this->debug_db('add_acl');
-							$this->db->RollBackTrans();
-							return false;
-						}
-					} else {
-						$this->debug_text("add_acl(): ACO Object Section Value: $aco_section_value Value: $aco_value DOES NOT exist in the database. Skipping...");
+		$this->debug_text("Insert or Update completed without error, insert new mappings.");
+		// Insert ACO/ARO/AXO mappings
+		foreach (array('aco', 'aro', 'axo') as $map) {
+			$map_array = ${$map . '_array'};
+			
+			if (!is_array ($map_array)) {
+				continue;
+			}
+			
+			foreach ($map_array as $section_value => $value_array) {
+				$this->debug_text ('Insert: ' . strtoupper($map) . ' Section Value: ' . $section_value . ' ' . strtoupper($map) . ' VALUE: ' . $value_array);
+				// $this->showarray ($aco_value_array);
+				
+				if (!is_array($value_array)) {
+					$this->debug_text ('add_acl (): Invalid Format for ' . strtoupper ($map) . ' Array item. Skipping...');
+					continue;
+					// return true;
+				}
+				
+				$value_array = array_unique($value_array);
+				
+				foreach ($value_array as $value) {
+					$object_id = &$this->get_object_id($section_value, $value, $map);
+					
+					if (empty($object_id))
+					{
+						$this->debug_text('add_acl(): ' . strtoupper($map) . " Object Section Value: $section_value Value: $value DOES NOT exist in the database. Skipping...");
 						$this->db->RollBackTrans();
 						return false;
 					}
-				}
-			}
-
-			//Insert ARO mappings
-			while (list($aro_section_value,$aro_value_array) = @each($aro_array)) {
-				$this->debug_text("Insert: ARO Section Value: $aro_section_value ARO VALUE: $aro_value_array");
-
-				$aro_value_array = array_unique($aro_value_array);
-				foreach ($aro_value_array as $aro_value) {
-					$aro_object_id = &$this->get_object_id($aro_section_value, $aro_value, 'ARO');
-
-					if (!empty($aro_object_id)) {
-						$this->debug_text("add_acl(): ARO Object ID: $aro_object_id");
-
-						$query = "insert into ".$this->_db_table_prefix."aro_map (acl_id,section_value, value) VALUES($acl_id, '$aro_section_value', '$aro_value')";
-						$rs = $this->db->Execute($query);
-
-						if ( is_string( $this->db->ErrorNo() ) ) {
-							$this->debug_db('add_acl');
-							$this->db->RollBackTrans();
-							return false;
-						}
-					} else {
-						$this->debug_text("add_acl(): ARO Object Section Value: $aro_section_value Value: $aro_value DOES NOT exist in the database. Skipping...");
-						$this->db->RollBackTrans();
-						return false;
-					}
-				}
-			}
-
-			//Insert AXO mappings
-			while (list($axo_section_value,$axo_value_array) = @each($axo_array)) {
-				$this->debug_text("Insert: AXO Section Value: $axo_section_value AXO VALUE: $axo_value_array");
-
-				$axo_value_array = array_unique($axo_value_array);
-				foreach ($axo_value_array as $axo_value) {
-					$axo_object_id = &$this->get_object_id($axo_section_value, $axo_value, 'AXO');
-
-					if (!empty($axo_object_id)) {
-						$query = "insert into ".$this->_db_table_prefix."axo_map (acl_id,section_value, value) VALUES($acl_id, '$axo_section_value', '$axo_value')";
-						$rs = $this->db->Execute($query);
-
-						if ( is_string( $this->db->ErrorNo() ) ) {
-							$this->debug_db('add_acl');
-							$this->db->RollBackTrans();
-							return false;
-						}
-					} else {
-						$this->debug_text("add_acl(): AXO Object Section Value: $axo_section_value Value: $axo_value DOES NOT exist in the database. Skipping...");
-						$this->db->RollBackTrans();
-						return false;
-					}
-				}
-			}
-
-			//Insert ARO GROUP mappings
-			while (list(,$aro_group_id) = @each($aro_group_ids)) {
-				$this->debug_text("Insert: ARO GROUP ID: $aro_group_id");
-
-				$aro_group_data = &$this->get_group_data($aro_group_id, 'ARO');
-
-				if (!empty($aro_group_data)) {
-
-					$query = "insert into ".$this->_db_table_prefix."aro_groups_map (acl_id,group_id) VALUES($acl_id, $aro_group_id)";
+					
+					$query  = 'INSERT INTO ' . $this->_db_table_prefix . $map . '_map (acl_id,section_value,value) VALUES (' . $acl_id . ', \'' . $section_value . '\', \'' . $value . '\')';
 					$rs = $this->db->Execute($query);
-
-					if ( is_string( $this->db->ErrorNo() ) ) {
+					
+					if (!is_object($rs))
+					{
 						$this->debug_db('add_acl');
 						$this->db->RollBackTrans();
 						return false;
 					}
-				} else {
-					$this->debug_text("add_acl(): ARO Group: $aro_group_id DOES NOT exist in the database. Skipping...");
+				}
+			}
+		}
+		
+		// Insert ARO/AXO GROUP mappings
+		foreach (array('aro', 'axo') as $map) {
+			$map_group_ids = ${$map . '_group_ids'};
+			
+			if (!is_array($map_group_ids)) {
+				continue;
+			}
+			
+			foreach ($map_group_ids as $group_id) {
+				$this->debug_text ('Insert: ' . strtoupper($map) . ' GROUP ID: ' . $group_id);
+				
+				$group_data = &$this->get_group_data($group_id, $map);
+				
+				if (empty($group_data)) {
+					$this->debug_text('add_acl(): ' . strtoupper($map) . " Group: $group_id DOES NOT exist in the database. Skipping...");
 					$this->db->RollBackTrans();
 					return false;
 				}
-			}
-
-			//Insert AXO GROUP mappings
-			while (list(,$axo_group_id) = @each($axo_group_ids)) {
-				$this->debug_text("Insert: AXO GROUP ID: $axo_group_id");
-
-				$axo_group_data = &$this->get_group_data($axo_group_id, 'AXO');
-
-				if (!empty($axo_group_data)) {
-
-					$query = "insert into ".$this->_db_table_prefix."axo_groups_map (acl_id,group_id) VALUES($acl_id, $axo_group_id)";
-					$rs = $this->db->Execute($query);
-
-					if ( is_string( $this->db->ErrorNo() ) ) {
-						$this->debug_db('add_acl');
-						$this->db->RollBackTrans();
-						return false;
-					}
-				} else {
-					$this->debug_text("add_acl(): AXO Group: $axo_group_id DOES NOT exist in the database. Skipping...");
+				
+				$query  = 'INSERT INTO ' . $this->_db_table_prefix . $map . '_groups_map (acl_id,group_id) VALUES (' . $acl_id . ', ' . $group_id . ')';
+				$rs = $this->db->Execute($query);
+				
+				if (!is_object($rs)) {
+					$this->debug_db('add_acl');
 					$this->db->RollBackTrans();
 					return false;
 				}
 			}
 		}
 
-		if ( is_string( $this->db->ErrorNo() ) ) {
-			$this->debug_db('add_acl');
-			$this->db->RollBackTrans();
-			return false;
-		} else {
-			$this->db->CommitTrans();
+		$this->db->CommitTrans();
 
-			if ($this->_caching == TRUE AND $this->_force_cache_expire == TRUE) {
-				//Expire all cache.
-				$this->Cache_Lite->clean('default');
-			}
-
-			//Return only the ID in the first row.
-			return $acl_id;
+		if ($this->_caching == TRUE AND $this->_force_cache_expire == TRUE) {
+			//Expire all cache.
+			$this->Cache_Lite->clean('default');
 		}
+
+		//Return only the ID in the first row.
+		return $acl_id;
 	}
 
 	/*======================================================================*\
@@ -1090,65 +1011,38 @@ class gacl_api extends gacl {
 
 		$this->db->BeginTrans();
 
-		$query = "delete from ".$this->_db_table_prefix."acl where id = $acl_id";
-		$this->debug_text("delete query: $query");
-		$this->db->Execute($query);
-		if ( is_string( $this->db->ErrorNo() ) ) {
-			$this->debug_db('del_acl');
-			$this->db->RollBackTrans();
-			return false;
-		}
-
-		$query = "delete from ".$this->_db_table_prefix."aco_map where acl_id= $acl_id";
-		$this->db->Execute($query);
-		if ( is_string( $this->db->ErrorNo() ) ) {
-			$this->debug_db('del_acl');
-			$this->db->RollBackTrans();
-			return false;
-		}
-
-		$query = "delete from ".$this->_db_table_prefix."aro_map where acl_id = $acl_id";
-		$this->db->Execute($query);
-		if ( is_string( $this->db->ErrorNo() ) ) {
-			$this->debug_db('del_acl');
-			$this->db->RollBackTrans();
-			return false;
-		}		
-
-		$query = "delete from ".$this->_db_table_prefix."axo_map where acl_id = $acl_id";
-		$this->db->Execute($query);
-		if ( is_string( $this->db->ErrorNo() ) ) {
-			$this->debug_db('del_acl');
-			$this->db->RollBackTrans();
-			return false;
-		}
-
-		$query = "delete from ".$this->_db_table_prefix."aro_groups_map where acl_id = $acl_id";
-		$this->db->Execute($query);
-		if ( is_string( $this->db->ErrorNo() ) ) {
-			$this->debug_db('del_acl');
-			$this->db->RollBackTrans();
-			return false;
-		}
-
-		$query = "delete from ".$this->_db_table_prefix."axo_groups_map where acl_id = $acl_id";
-		$this->db->Execute($query);
-		if ( is_string( $this->db->ErrorNo() ) ) {
-			$this->debug_db('del_acl');
-			$this->db->RollBackTrans();
-			return false;
-		} else {
-			$this->debug_text("del_acl(): deleted ACL ID: $acl_id");
-			$this->db->CommitTrans();
+		// Delete all mappings to the ACL first
+		foreach (array('aco_map', 'aro_map', 'axo_map', 'aro_groups_map', 'axo_groups_map') as $map) {
+			$query  = 'DELETE FROM ' . $this->_db_table_prefix . $map . ' WHERE acl_id=' . $acl_id;
+			$rs = $this->db->Execute($query);
 			
-			if ($this->_caching == TRUE AND $this->_force_cache_expire == TRUE) {
-				//Expire all cache.
-				$this->Cache_Lite->clean('default');
+			if (!is_object($rs)) {
+				$this->debug_db('del_acl');
+				$this->db->RollBackTrans();
+				return false;
 			}
-			
-			return true;
 		}
-
+		
+		// Delete the ACL
+		$query  = 'DELETE FROM ' . $this->_db_table_prefix . 'acl WHERE id=' . $acl_id;
+		$this->debug_text('delete query: ' . $query);
+		$rs = $this->db->Execute($query);
+		
+		if (!is_object($rs)) {
+			$this->debug_db('del_acl');
+			$this->db->RollBackTrans();
+			return false;
+		}
+		
+		$this->debug_text("del_acl(): deleted ACL ID: $acl_id");
+		$this->db->CommitTrans();
+		
+		if ($this->_caching == TRUE AND $this->_force_cache_expire == TRUE) {
+			//Expire all cache.	
+			$this->Cache_Lite->clean('default');
+		}
+		
+		return TRUE;
 	}
 
 
@@ -1164,7 +1058,7 @@ class gacl_api extends gacl {
 	\*======================================================================*/
 	function sort_groups($group_type='ARO') {
 		
-		switch(strtolower($group_type)) {
+		switch(strtolower(trim($group_type))) {
 			case 'axo':
 				$table = $this->_db_table_prefix . 'axo_groups';
 				break;
@@ -1174,26 +1068,25 @@ class gacl_api extends gacl {
 		}
 		
 		//Grab all groups from the database.
-		$query = "select
-									id,
-									parent_id,
-									name
-						from    $table
-						order by parent_id, name asc";
+		$query  = 'SELECT id, parent_id, name FROM ' . $table . ' ORDER BY parent_id, name';
 		$rs = $this->db->Execute($query);
-		$rows = $rs->GetRows();
+		
+		if (!is_object($rs)) {
+			$this->debug_db('sort_groups');
+			return false;
+		}
 		   
 		/*
 		 * Save groups in an array sorted by parent. Should be make it easier for later on.
 		 */
-		if ($rows != FALSE) {
-			foreach ($rows as $row) {
-				$id = &$row[0];
-				$parent_id = &$row[1];
-				$name = &$row[2];
-				
-				$sorted_groups[$parent_id][$id] = $name;
-			}
+		$sorted_groups = array();
+		
+		while ($row = $rs->FetchRow()) {
+			$id = &$row[0];
+			$parent_id = &$row[1];
+			$name = &$row[2];
+			
+			$sorted_groups[$parent_id][$id] = $name;
 		}
 
 		return $sorted_groups;
@@ -1223,7 +1116,7 @@ class gacl_api extends gacl {
 			$last_id = end( array_keys($sorted_groups[$root_id]));
 			
 			foreach ($sorted_groups[$root_id] as $id => $name) {
-				switch ($type) {
+				switch (strtoupper($type)) {
 					case 'TEXT':
 						/*
 						 * Formatting optimized for TEXT (combo box) output.
@@ -1293,7 +1186,7 @@ class gacl_api extends gacl {
 
 		$this->debug_text("get_group_id(): Name: $name");
 
-		switch(strtolower($group_type)) {
+		switch(strtolower(trim($group_type))) {
 			case 'axo':
 				$table = $this->_db_table_prefix . 'axo_groups';
 				break;
@@ -1309,36 +1202,72 @@ class gacl_api extends gacl {
 			return false;
 		}
 
-		$query = "select id from $table where name='$name'";
+		$query = "SELECT id FROM $table WHERE name='$name'";
 		$rs = $this->db->Execute($query);
 
-		if ( is_string( $this->db->ErrorNo() ) ) {
+		if (!is_object($rs)) {
 			$this->debug_db('get_group_id');
 			return false;
-		} else {
-			$row_count = $rs->RecordCount();
-			
-			if ($row_count > 1) {
-				$this->debug_text("get_group_id(): Returned $row_count rows, can only return one. Please make your names unique.");
-				return false;
-			} elseif($row_count == 0) {
-				$this->debug_text("get_group_id(): Returned $row_count rows");				
-				return false;
-			} else {
-				$rows = $rs->GetRows();
-
-				//Return only the ID in the first row.
-				return $rows[0][0];
-			}
 		}
+		
+		$row_count = $rs->RecordCount();
+		
+		if ($row_count > 1) {
+			$this->debug_text("get_group_id(): Returned $row_count rows, can only return one. Please make your names unique.");
+			return false;	
+		}
+		
+		if ($row_count == 0) {
+			$this->debug_text("get_group_id(): Returned $row_count rows");
+			return false;
+		}
+		
+		$row = $rs->FetchRow();
+
+		//Return the ID.
+		return $row[0];
 	}
 
 	/*======================================================================*\
 		Function:	get_group_children()
 		Purpose:	Gets a groups child IDs
 	\*======================================================================*/
-	function get_group_children($group_id, $group_type = 'ARO') {
-		return @array_keys( $this->format_groups($this->sort_groups($group_type), 'ARRAY', $group_id) );
+	function get_group_children($group_id, $group_type = 'ARO', $recurse = 'NO_RECURSE') {
+		$this->debug_text("get_group_children(): Group_ID: $group_id Group Type: $group_type Recurse: $recurse");
+		
+		switch (strtolower(trim($group_type))) {
+			case 'axo':
+				$group_type = 'axo';
+				$table = $this->_db_table_prefix . 'axo_groups';
+				break;
+			default:
+				$group_type = 'aro';
+				$table = $this->_db_table_prefix . 'aro_groups';
+		}
+		
+		if (empty($group_id)) {
+			$this->debug_text("get_group_children(): ID ($group_id) is empty, this is required");
+			return FALSE;
+		}
+		
+		$query  = '				SELECT		g1.id
+				FROM		' . $table . ' g1';
+		
+		switch (strtoupper($recurse)) {
+			case 'RECURSE':
+				$query .= '
+				LEFT JOIN 	' . $table . ' g2 ON g2.lft<g1.lft AND g2.rgt>g1.rgt
+				WHERE		g2.id=\'' . $group_id . '\'';
+				break;
+			default:
+				$query .= '
+				WHERE		g1.parent_id=\'' . $group_id . '\'';
+		}
+		
+		$query .= '
+				ORDER BY	g1.name';
+		
+		return $this->db->GetCol($query);
 	}
 		
 	/*======================================================================*\
@@ -1349,11 +1278,13 @@ class gacl_api extends gacl {
 		
 		$this->debug_text("get_group_data(): Group_ID: $group_id Group Type: $group_type");
 		
-		switch(strtolower($group_type)) {
+		switch(strtolower(trim($group_type))) {
 			case 'axo':
+				$group_type = 'axo';
 				$table = $this->_db_table_prefix . 'axo_groups';
 				break;
 			default:
+				$group_type = 'aro';
 				$table = $this->_db_table_prefix . 'aro_groups';
 				break;
 		}
@@ -1363,7 +1294,7 @@ class gacl_api extends gacl {
 			return false;
 		}
 			
-		$query = "select id, parent_id, name from $table where id=$group_id";
+		$query  = 'SELECT id, parent_id, name, lft, rgt FROM ' . $table . ' WHERE id=' . $group_id;
 		//$rs = $this->db->Execute($query);
 		$row = $this->db->GetRow($query);
 		
@@ -1374,23 +1305,6 @@ class gacl_api extends gacl {
 		
 		$this->debug_text("get_object_data(): Group does not exist.");
 		return false;
-/*
-		if ( is_string( $this->db->ErrorNo() ) ) {
-			$this->debug_db('get_group_data');
-			return false;
-		} else {
-			if ($rs->RecordCount() > 0) {
-				$this->debug_text("get_group_data(): Returned Rows: ". $rs->RecordCount() ."");
-				$row = $rs->GetRows();
-
-				//Return just first row. As there should never be more then that.
-				return $row[0];
-			} else {
-				$this->debug_text("get_object_data(): Returned $row_count rows");
-				return false;
-			}
-		}
-*/		
 	}
 
 	/*======================================================================*\
@@ -1401,7 +1315,7 @@ class gacl_api extends gacl {
 		
 		$this->debug_text("get_group_parent_id(): ID: $id Group Type: $group_type");
 		
-		switch(strtolower($group_type)) {
+		switch(strtolower(trim($group_type))) {
 			case 'axo':
 				$table = $this->_db_table_prefix . 'axo_groups';
 				break;
@@ -1415,28 +1329,30 @@ class gacl_api extends gacl {
 			return false;
 		}
 			
-		$query = "select parent_id from $table where id=$id";
+		$query = 'SELECT parent_id FROM ' . $table . ' WHERE id=' . $id;
 		$rs = $this->db->Execute($query);
 
-		if ( is_string( $this->db->ErrorNo() ) ) {
+		if (!is_object($rs)) {
 			$this->debug_db('get_group_parent_id');
 			return false;
-		} else {
-			$row_count = $rs->RecordCount();
-			
-			if ($row_count > 1) {
-				$this->debug_text("get_group_parent_id(): Returned $row_count rows, can only return one. Please make your names unique.");
-				return false;
-			} elseif($row_count == 0) {
-				$this->debug_text("get_group_parent_id(): Returned $row_count rows");
-				return false;
-			} else {
-				$rows = $rs->GetRows();
-
-				//Return only the ID in the first row.
-				return $rows[0][0];
-			}
 		}
+		
+		$row_count = $rs->RecordCount();
+			
+		if ($row_count > 1) {
+			$this->debug_text("get_group_parent_id(): Returned $row_count rows, can only return one. Please make your names unique.");
+			return false;	
+		}
+	
+		if ($row_count == 0) {
+			$this->debug_text("get_group_parent_id(): Returned $row_count rows");				
+			return false;
+		}
+	
+		$row = $rs->FetchRow();
+
+		//Return the ID.
+		return $row[0];
 	}
 
 	/*======================================================================*\
@@ -1444,44 +1360,7 @@ class gacl_api extends gacl {
 		Purpose:	Maps a unique path to root to a specific group. Each group can only have
 						one path to root.
 	\*======================================================================*/
-	function map_group_path_to_root($group_id, $path_id, $group_type='ARO') {
-		
-		switch(strtolower($group_type)) {
-			case 'axo':
-				$table = $this->_db_table_prefix . 'axo_groups_path_map';
-				break;
-			default:
-				$table = $this->_db_table_prefix . 'aro_groups_path_map';
-				break;
-		}
-
-		if (empty($group_id) OR empty($path_id) ) {
-			$this->debug_text("map_group_path_to_root(): group id ($group_id) OR path id ($path_id) is empty, this is required");
-			return false;
-		}
-
-		$this->db->BeginTrans();
-		
-		$query = "delete from $table where group_id=$group_id";
-		$this->db->Execute($query);
-		if ( is_string( $this->db->ErrorNo() ) ) {
-			$this->debug_db('map_group_path_to_root');
-			$this->db->RollBackTrans();
-			return false;
-		}
-
-		$query = "insert into $table (path_id, group_id) VALUES($path_id, $group_id)";
-		$this->db->Execute($query);
-		if ( is_string( $this->db->ErrorNo() ) ) {
-			$this->debug_db('map_group_path_to_root');
-			$this->db->RollBackTrans();
-			return false;
-		}
-		
-		$this->db->CommitTrans();
-		return true;
-	}
-
+	/** REMOVED **/
 	/*======================================================================*\
 		Function:	put_path_to_root()
 		Purpose:	Writes the unique path to root to the database. There should really only be
@@ -1489,175 +1368,17 @@ class gacl_api extends gacl {
 						10 levels deep, there should only be 10 unique path to roots. These of course
 						overlap each other more and more the closer to the root/trunk they get.
 	\*======================================================================*/
-	function put_group_path_to_root($path_to_root, $group_type='ARO') {
-
-		switch(strtolower($group_type)) {
-			case 'axo':
-				$table = $this->_db_table_prefix . 'axo_groups_path';
-				break;
-			default:
-				$table = $this->_db_table_prefix . 'aro_groups_path';
-				break;
-		}
-
-		if (count($path_to_root) > 0) {
-			/*
-			 * See if the path has already been created.
-			 */
-			
-			$query = "select
-										id
-							from    $table
-							where group_id = $path_to_root[0]
-									AND tree_level = 0";
-			$path_id = $this->db->GetOne($query);
-			$this->debug_text("put_group_path_to_root(): Path ID: $path_id");
-						
-			if (!empty($path_id) ) {
-				$this->debug_text("put_group_path_to_root(): Checking all steps in path ID: $path_id");
-				
-				//Possible path found, make sure all steps are correct.
-				$query= "select group_id from $table where id = $path_id";
-				$path_group_ids = $this->db->GetCol($query);
-				
-				//$this->showarray($path_group_ids);
-				//$this->showarray($path_to_root);
-				
-				$path_diff = array_diff($path_to_root, $path_group_ids);
-				if (count($path_diff) > 0) {
-					$this->debug_text("put_group_path_to_root(): Paths differ by ".count($path_diff) .", bogus path. Insert new one.");
-					unset($path_id);
-				} else {
-					$this->debug_text("put_group_path_to_root(): Path matches perfect, unique path FOUND, returning ID: $path_id");
-					$retval = $path_id;
-				}
-			}
-
-			if (empty($path_id)) {
-				$this->debug_text("put_group_path_to_root(): Unique path not found, inserting...");
-				$insert_id = $this->db->GenID($table.'_id_seq',10);
-
-				$this->db->BeginTrans();
-				$i=0;
-				foreach ($path_to_root as $group_id) {
-
-					$query = "insert into $table (id, group_id, tree_level) VALUES($insert_id, $group_id, $i)";
-					$this->db->Execute($query);
-					if ( is_string( $this->db->ErrorNo() ) ) {
-						$this->debug_db('put_group_path_to_root');
-						$this->db->RollBackTrans();
-						return false;
-					}
-					
-					$i++;
-				}
-				$this->db->CommitTrans();
-				
-				$retval = $insert_id;
-			}
-		
-			/*
-			 * Return path to root ID.
-			 */
-			return $retval;
-		}
-		
-		return false;
-	}
-
+	/** REMOVED **/
 	/*======================================================================*\
 		Function:	clean_path_to_root()
 		Purpose:	Cleans up any paths that are not being used.
 	\*======================================================================*/
-	function clean_path_to_root($group_type = 'ARO') {
-
-		switch(strtolower($group_type)) {
-			case 'axo':
-				$table = $this->_db_table_prefix . 'axo_groups_path';
-				$group_path_map_table = $this->_db_table_prefix . 'axo_groups_path_map';
-				break;
-			default:
-				$table = $this->_db_table_prefix . 'aro_groups_path';
-				$group_path_map_table = $this->_db_table_prefix . 'aro_groups_path_map';
-				break;
-		}
-
-		$this->debug_text("clean_path_to_root(): Cleaning any orphaned path_to_root's.");
-		
-		$query = "select distinct path_id from $group_path_map_table";
-		$valid_path_ids = $this->db->GetCol($query);
-		
-		//$this->showarray($valid_path_ids);
-		if ($valid_path_ids == FALSE) {
-			//Delete all paths, as none should be in use.
-			$query = "delete from $table";
-			$this->db->Execute($query);
-			if ( is_string( $this->db->ErrorNo() ) ) {
-				$this->debug_db('clean_path_to_root');
-				return false;
-			}
-			
-		} else {
-			//Format path_id's for a SQL query.
-			$sql_valid_path_ids = implode($valid_path_ids, ",");
-			unset($valid_path_ids);
-			
-			$query = "delete from $table where id not in ($sql_valid_path_ids)";
-			$this->db->Execute($query);
-			if ( is_string( $this->db->ErrorNo() ) ) {
-				$this->debug_db('clean_path_to_root');
-				return false;
-			}
-		}
-
-		return true;
-	}
-	
+	/** REMOVED **/
 	/*======================================================================*\
 		Function:	get_path_to_root()
 		Purpose:	Generates the path to root for a given group.
 	\*======================================================================*/
-	function gen_group_path_to_root($group_id, $group_type='ARO') {
-
-		switch(strtolower($group_type)) {
-			case 'axo':
-				$table = $this->_db_table_prefix . 'axo_groups';
-				break;
-			default:
-				$table = $this->_db_table_prefix . 'aro_groups';
-				break;
-		}
-
-		$this->debug_text("gen_group_path_to_root():");
-		$parent_id = $group_id;
-
-		if (empty($parent_id)) {
-			$this->debug_text("gen_group_path_to_root(): group id ($group_id) is empty, this is required");
-			return false;
-		}
-		
-		//Without this, the last group in any branch of the tree doesn't have a path_id.
-		//This is correct, as parents should only have paths to root. To get the path to root
-		//for any group, use the parent for lookups.
-		//$path[] = (int)$group_id;
-		
-		/*
-		 * Simply repeat the SQL query until we reach the root (0). Obviously this won't scale that well, but it should do the trick
-		 * up to about 100 levels deep if it needs too. This way will use less memory too.
-		 * It's only run during group administration so speed is not much of a concern. Its all for a better cause. ;)
-		 */
-		while ($parent_id > 0) {
-			$query = "  select
-                                            parent_id
-                                    from    $table
-                                    where id = $parent_id";
-			$parent_id = $this->db->GetOne($query);
-
-			$path[] = (int)$parent_id;
-		} 
-		
-		return $path;
-	}
+	/** REMOVED **/
 
 	/*======================================================================*\
 		Function:	add_group()
@@ -1665,7 +1386,7 @@ class gacl_api extends gacl {
 	\*======================================================================*/
 	function add_group($name, $parent_id=0, $group_type='ARO') {
 		
-		switch(strtolower($group_type)) {
+		switch(strtolower(trim($group_type))) {
 			case 'axo':
 				$group_type = 'axo';
 				$table = $this->_db_table_prefix . 'axo_groups';
@@ -1685,20 +1406,82 @@ class gacl_api extends gacl {
 			return false;
 		}
 		
-		$insert_id = $this->db->GenID($this->_db_table_prefix.$group_type.'_groups_id_seq',10);
-		$query = "insert into $table (id, parent_id,name) VALUES($insert_id, $parent_id, '$name')";
-		$rs = $this->db->Execute($query);
-
-		if ( is_string( $this->db->ErrorNo() ) ) {
-			$this->debug_db('add_group');
-			return false;
-		} else {
-			$this->debug_text("add_group(): Added group as ID: $insert_id");
-
-			$this->map_group_path_to_root($insert_id, $this->put_group_path_to_root( $this->gen_group_path_to_root($insert_id, $group_type), $group_type ), $group_type );
+		$this->db->BeginTrans();
+		
+		// special case for root group
+		if ($parent_id == 0) {
+			// check a root group is not already defined
+			$query = 'SELECT id FROM ' . $table . ' WHERE parent_id=0';
+			$rs = $this->db->Execute($query);
 			
-			return $insert_id;
-		}		
+			if ($rs->RowCount() > 0) {
+				$this->db->RollBackTrans();
+				$this->debug_text('add_group (): A root group already exists.');
+				return FALSE;
+			}
+			
+			$parent_lft = 0;
+			$parent_rgt = 1;
+		} else {
+			if (empty($parent_id)) {
+				$this->debug_text("add_group (): parent id ($parent_id) is empty, this is required");
+				return FALSE;
+			}
+			
+			// grab parent details from database
+			$query = 'SELECT id, lft, rgt FROM ' . $table . ' WHERE id=' . $parent_id;
+			$row = $this->db->GetRow($query);
+			
+			if (!is_array($row) OR is_string($this->db->ErrorNo())) {
+				$this->db->RollBackTrans();
+				$this->debug_db('add_group');
+				return FALSE;
+			}
+			
+			if (empty($row)) {
+				$this->db->RollBackTrans();
+				$this->debug_text('add_group (): Parent ID: ' . $parent_id . ' not found.');
+				return FALSE;
+			}
+			
+			$parent_lft = &$row[1];
+			$parent_rgt = &$row[2];
+			
+			// make room for the new group
+			$query  = 'UPDATE ' . $table . ' SET rgt=rgt+2 WHERE rgt>=' . $parent_rgt;
+			$rs = $this->db->Execute($query);
+			
+			if (!is_object($rs)) {
+				$this->db->RollBackTrans();
+				$this->debug_db('add_group');
+				return FALSE;
+			}
+			
+			$query  = 'UPDATE ' . $table . ' SET lft=lft+2 WHERE lft>' . $parent_rgt;
+			$rs = $this->db->Execute($query);
+			
+			if (!is_object($rs)) {
+				$this->db->RollBackTrans();
+				$this->debug_db('add_group');
+				return FALSE;
+			}
+		}
+		
+		$insert_id = $this->db->GenID('groups_id_seq',10);
+		
+		$query = 'INSERT INTO ' . $table . ' (id,parent_id,name,lft,rgt) VALUES (' . $insert_id . ',' . $parent_id . ",'" . addslashes ($name) . "'," . $parent_rgt . ',' . ($parent_rgt + 1) . ')';
+		$rs = $this->db->Execute($query);
+		
+		if (!is_object($rs)) {
+			$this->db->RollBackTrans();
+			$this->debug_db('add_group');
+			return FALSE;
+		}
+		
+		$this->db->CommitTrans();
+		
+		$this->debug_text('add_group (): Added group as ID: ' . $insert_id);
+		return $insert_id;
 	}
 	
 	/*======================================================================*\
@@ -1709,14 +1492,18 @@ class gacl_api extends gacl {
 	\*======================================================================*/
 	function get_group_objects($group_id, $group_type='ARO', $option='NO_RECURSE') {
 		
-		switch(strtolower($group_type)) {
+		switch(strtolower(trim($group_type))) {
 			case 'axo':
-				$table = $this->_db_table_prefix . 'groups_axo_map';
-				$path_table = $this->_db_table_prefix . 'axo_groups_path';
+				$group_type = 'axo';
+				$object_table = $this->_db_prefix . 'axo';
+				$group_table = $this->_db_prefix . 'axo_groups';
+				$map_table = $this->_db_table_prefix . 'groups_axo_map';
 				break;
 			default:
-				$table = $this->_db_table_prefix . 'groups_aro_map';
-				$path_table = $this->_db_table_prefix . 'aro_groups_path';
+				$group_type = 'aro';
+				$object_table = $this->_db_prefix . 'aro';
+				$group_table = $this->_db_prefix . 'aro_groups';
+				$map_table = $this->_db_table_prefix . 'groups_aro_map';
 				break;
 		}
 
@@ -1727,37 +1514,40 @@ class gacl_api extends gacl {
 			return false;
 		}
 		
+		$query  = '			SELECT		o.section_value,o.value
+			FROM		' . $object_table . ' o
+			LEFT JOIN	' . $map_table . ' gm ON o.id=gm.' . $group_type . '_id';
+		
 		if ($option == 'RECURSE') {
-			$group_ids = $this->get_group_children($group_id, $group_type);
-			
-			//Include the group we're looking up of course.
-			$group_ids[] = $group_id;
+		    $query .= '
+			LEFT JOIN	' . $group_table . ' g1 ON g1.id=gm.group_id
+			LEFT JOIN	' . $group_table . ' g2 ON g2.lft<=g1.lft AND g2.rgt>=g1.rgt
+			WHERE		g2.id=' . $group_id;
 		} else {
-			$group_ids = array($group_id);
+			$query .= '
+			WHERE		gm.id=' . $group_id;
 		}
 		
-		$query = "select section_value, value from $table where group_id in ( ". implode($group_ids,",") ." )";
 		$rs = $this->db->Execute($query);
-		$rows = $rs->GetRows();
-
-		if ( is_string( $this->db->ErrorNo() ) ) {
+		
+		if (!is_object($rs)) {
 			$this->debug_db('get_group_objects');
 			return false;
-		} else {
-			$this->debug_text("get_group_objects(): Got group objects, formatting array.");
-			
-			//format return array.
-			foreach($rows as $row) {
-				$section = &$row[0];
-				$value = &$row[1];
-				
-				$retarr[$section][] = $value;
-			}
-			
-			return $retarr;
 		}
 		
-		return false;
+		$this->debug_text("get_group_objects(): Got group objects, formatting array.");
+		
+		$retarr = array();
+		
+		//format return array.
+		while ($row = $rs->FetchRow()) {
+			$section = &$row[0];
+			$value = &$row[1];
+			
+			$retarr[$section][] = $value;
+		}
+		
+		return $retarr;
 	}
 
 	/*======================================================================*\
@@ -1766,12 +1556,18 @@ class gacl_api extends gacl {
 	\*======================================================================*/
 	function add_group_object($group_id, $object_section_value, $object_value, $group_type='ARO') {
 
-		switch(strtolower($group_type)) {
+		switch(strtolower(trim($group_type))) {
 			case 'axo':
+				$group_type = 'axo';
 				$table = $this->_db_table_prefix . 'groups_axo_map';
+				$object_table = $this->_db_table_prefix . 'axo';
+				$group_table = $this->_db_table_prefix . 'axo_groups';
 				break;
 			default:
+				$group_type = 'aro';
 				$table = $this->_db_table_prefix . 'groups_aro_map';
+				$object_table = $this->_db_table_prefix . 'aro';
+				$group_table = $this->_db_table_prefix . 'aro_groups';
 				break;
 		}
 
@@ -1785,36 +1581,53 @@ class gacl_api extends gacl {
 			return false;
 		}
 
-		if(!$this->get_object_id($object_section_value, $object_value, $group_type)) {
-			$this->debug_text("add_group_object(): Group ID:  ($group_id) OR Value ($object_value) OR Section value ($object_section_value) is invalid. Does this object exist?");
-			return false;
-		}
-
-		//Test to see if the object already exists.
-		$query = "select group_id from $table where group_id=$group_id AND section_value='$object_section_value' AND value='$object_value'";
+		// test to see if object & group exist and if object is already a member
+		$query  = '		SELECT		g.id AS group_id,
+					o.id AS id,
+					(gm.group_id IS NOT NULL) AS member
+		FROM		' . $group_table . ' g,
+					' . $object_table . ' o
+		LEFT JOIN	' . $table . ' gm ON (gm.group_id=g.id AND gm. ' . $group_type . '_id=o.id)
+		WHERE		g.id=' . $group_id . '
+		AND			(o.section_value=\'' . $object_section_value . '\' AND o.value=\'' . $object_value . '\')';
 		$rs = $this->db->Execute($query);
-
-		if ($rs->RecordCount() == 1) {
+		
+		if (!is_object($rs)) {
+			$this->debug_db('add_group_object');
+			return FALSE;
+		}
+		
+		if ($rs->RecordCount() != 1) {
+			$this->debug_text("add_group_object (): Group ID ($group_id) OR Value ($object_value) OR Section value ($object_section_value) is invalid. Does this object exist?");
+			return FALSE;
+		}
+		
+		$row = $rs->FetchRow();
+		
+		if ($row[2] == 1) {
+			$this->debug_text("add_group_object (): Object: $object_value is already a member of Group ID: $group_id");
 			//Object is already assigned to group. Return true.
 			return true;
 		}
 
-		$query = "insert into $table (group_id,section_value, value) VALUES($group_id, '$object_section_value', '$object_value')";
+		$object_id = $row[1];
+		
+		$query = 'INSERT INTO ' . $table . ' (group_id,' . $group_type . '_id) VALUES (' . $group_id . ',' . $object_id . ')';
 		$rs = $this->db->Execute($query);
 
-		if ( is_string( $this->db->ErrorNo() ) ) {
+		if (!is_object($rs)) {
 			$this->debug_db('add_group_object');
 			return false;
-		} else {
-			$this->debug_text("add_group_object(): Added Value: $object_value to Group ID: $group_id");
-
-			if ($this->_caching == TRUE AND $this->_force_cache_expire == TRUE) {
-				//Expire all cache.
-				$this->Cache_Lite->clean('default');
-			}
-
-			return true;
 		}
+		
+		$this->debug_text("add_group_object(): Added Value: $object_value to Group ID: $group_id");
+
+		if ($this->_caching == TRUE AND $this->_force_cache_expire == TRUE) {
+			//Expire all cache.
+			$this->Cache_Lite->clean('default');
+		}
+
+		return true;
 	}
 
 	/*======================================================================*\
@@ -1823,11 +1636,13 @@ class gacl_api extends gacl {
 	\*======================================================================*/
 	function del_group_object($group_id, $object_section_value, $object_value, $group_type='ARO') {
 
-		switch(strtolower($group_type)) {
+		switch(strtolower(trim($group_type))) {
 			case 'axo':
+				$group_type = 'axo';
 				$table = $this->_db_table_prefix . 'groups_axo_map';
 				break;
 			default:
+				$group_type = 'aro';
 				$table = $this->_db_table_prefix . 'groups_aro_map';
 				break;
 		}
@@ -1842,22 +1657,27 @@ class gacl_api extends gacl {
 			return false;
 		}
 
-        $query = "delete from $table where group_id=$group_id AND ( section_value='$object_section_value' AND value='$object_value')";
+ 		if (!$object_id = $this->get_object_id($object_section_value, $object_value, $group_type)) {
+			$this->debug_text ("del_group_object (): Group ID ($group_id) OR Value ($object_value) OR Section value ($object_section_value) is invalid. Does this object exist?");
+			return FALSE;
+		}
+		
+		$query = 'DELETE FROM ' . $table . ' WHERE group_id=' . $group_id . ' AND ' . $group_type . '_id=' . $object_id;
 		$rs = $this->db->Execute($query);
 
-		if ( is_string( $this->db->ErrorNo() ) ) {
+		if (!is_object($rs)) {
 			$this->debug_db('del_group_object');
 			return false;
-		} else {
-			$this->debug_text("del_group_object(): Deleted Value: $object_value to Group ID: $group_id assignment");
-
-			if ($this->_caching == TRUE AND $this->_force_cache_expire == TRUE) {
-				//Expire all cache.
-				$this->Cache_Lite->clean('default');
-			}
-
-			return true;
 		}
+		
+		$this->debug_text("del_group_object(): Deleted Value: $object_value to Group ID: $group_id assignment");
+
+		if ($this->_caching == TRUE AND $this->_force_cache_expire == TRUE) {
+			//Expire all cache.
+			$this->Cache_Lite->clean('default');
+		}
+
+		return true;
 	}
 
 	/*======================================================================*\
@@ -1866,11 +1686,13 @@ class gacl_api extends gacl {
 	\*======================================================================*/
 	function edit_group($group_id, $name=NULL, $parent_id=0, $group_type='ARO') {
 
-		switch(strtolower($group_type)) {
+		switch(strtolower(trim($group_type))) {
 			case 'axo':
+				$group_type = 'axo';
 				$table = $this->_db_table_prefix . 'axo_groups';
 				break;
 			default:
+				$group_type = 'aro';
 				$table = $this->_db_table_prefix . 'aro_groups';
 				break;
 		}
@@ -1892,55 +1714,119 @@ class gacl_api extends gacl {
 		//Make sure we don't re-parent to our own children.
 		//Grab all children of this group_id.
 		//$children_ids = @array_keys( $this->format_groups($this->sort_groups($group_type), 'ARRAY', $group_id) );
-		$children_ids = $this->get_group_children($group_id, $group_type);
+		$children_ids = $this->get_group_children($group_id, $group_type, 'RECURSE');
 		if (@in_array($parent_id, $children_ids) ) {
 			$this->debug_text("edit_group(): Groups can not be re-parented to there own children, this would be incestuous!");
 			return false;
 		}
 		unset($children_ids);
 		
-		$query = "update $table set ";
+		$this->db->BeginTrans();
+		
+		$query  = 'UPDATE ' . $table . ' SET ';
 		//Don't update name if it is not specified.
 		if ($name != NULL) {
-			$query .= "									name = '$name', ";
+			$query .= 'name=' . $this->db->quote($name) . ', ';
 		}				
-		$query .= "										parent_id = $parent_id
-													where   id=$group_id";
+		$query .= 'parent_id=' . $parent_id . ' WHERE id=' . $group_id;
 		$rs = $this->db->Execute($query);
 
-		if ( is_string( $this->db->ErrorNo() ) ) {
+		if (!is_object($rs)) {
 			$this->debug_db('edit_group');
 			return false;
-		} else {
-			$this->debug_text("edit_group(): Modified group ID: $group_id");
-			
-			//Get all new child IDs.
-			//$children_ids = @array_keys( $this->format_groups($this->sort_groups($group_type), 'ARRAY', $group_id) );
-			$children_ids = $this->get_group_children($group_id, $group_type);
-			//$this->showarray($children_ids);
-			
-			if (count($children_ids) > 0) {
-				$this->debug_text("Found child_ids to re-parent.");
-				
-				foreach($children_ids as $child_id) {
-					$this->debug_text("Re-Calculating child group path to root: $child_id");
-					
-					$this->map_group_path_to_root($child_id, $this->put_group_path_to_root( $this->gen_group_path_to_root($child_id, $group_type), $group_type ), $group_type );
-				}
-			}
-			
-			$retval = &$this->map_group_path_to_root($group_id, $this->put_group_path_to_root( $this->gen_group_path_to_root($group_id, $group_type), $group_type ), $group_type );
-
-			//Clean orphaned paths
-			$this->clean_path_to_root($group_type);
-			
-			if ($this->_caching == TRUE AND $this->_force_cache_expire == TRUE) {
-				//Expire all cache.	
-				$this->Cache_Lite->clean('default');
-			}
-
-			return $retval;
 		}
+		
+		$this->debug_text("edit_group(): Modified group ID: $group_id");
+		
+		// rebuild the group tree
+		if (!$this->rebuild_tree($group_type)) {
+			$this->db->RollbackTrans();
+			return FALSE;
+		}
+		
+		$this->db->CommitTrans();
+		
+		if ($this->_caching == TRUE AND $this->_force_cache_expire == TRUE) {
+			//Expire all cache.	
+			$this->Cache_Lite->clean('default');
+		}
+
+		return TRUE;
+	}
+	
+	/*======================================================================*\
+		Function:	rebuild_tree ()
+		Purpose:	rebuilds the group tree for the given type
+	\*======================================================================*/
+	function rebuild_tree($group_type = 'ARO', $parent_id = NULL, $left = 1) {
+		switch (strtolower(trim($group_type))) {
+			case 'axo':
+				$group_type = 'axo';
+				$table = $this->_db_table_prefix . 'axo_groups';
+				break;
+			default:
+				$group_type = 'aro';
+				$table = $this->_db_table_prefix . 'aro_groups';
+				break;
+		}
+		
+		if (!isset($parent_id)) {
+			$query = 'SELECT id FROM ' . $table . ' WHERE lft=1';
+			$parent_id = $this->db->GetOne($query);
+			$left = 1;
+			$this->debug_text('rebuild_tree(): No Parent ID Specified, using root parent id: ' . $parent_id);
+		}
+		
+		$rebuilt = $this->_rebuild_tree($group_type, $table, $parent_id, $left);
+		
+		if ($rebuilt === FALSE) {
+			$this->debug_text('rebuild_tree(): Error rebuilding tree!');
+			return FALSE;
+		}
+		
+		$this->debug_text('rebuild_tree(): Tree rebuilt.');
+		return TRUE;
+	}
+	
+	function _rebuild_tree($group_type, $table, $parent_id, $left) {
+		$this->debug_text("_rebuild_tree(): Parent ID: $parent_id Group Type: $group_type");
+		
+		// get all children of this node
+		$query = 'SELECT id FROM ' . $table . ' WHERE parent_id=' . $parent_id;
+		$rs = $this->db->Execute($query);
+		
+		if (!is_object($rs)) {
+			$this->debug_db('_rebuild_tree');
+			return FALSE;
+		}
+		
+		// the right value of this node is the left value + 1
+		$right = $left + 1;
+		
+		while ($row = $rs->FetchRow()) {
+			// recursive execution of this function for each
+			// child of this node
+			// $right is the current right value, which is
+			// incremented by the rebuild_tree function
+			$right = $this->_rebuild_tree($group_type, $table, $row[0], $right);
+			
+			if ($right === FALSE) {
+				return FALSE;
+			}
+		}
+		
+		// we've got the left value, and now that we've processed
+		// the children of this node we also know the right value
+		$query  = 'UPDATE ' . $table . ' SET lft=' . $left . ',  rgt=' . $right . ' WHERE id=' . $parent_id;
+		$rs = $this->db->Execute($query);
+		
+		if (!is_object($rs)) {
+			$this->debug_db('_rebuild_tree');
+			return FALSE;
+		}
+		
+		// return the right value of this node + 1
+		return $right + 1;
 	}
 	
 	/*======================================================================*\
@@ -1949,20 +1835,18 @@ class gacl_api extends gacl {
 	\*======================================================================*/
 	function del_group($group_id, $reparent_children=TRUE, $group_type='ARO') {
 		
-		switch(strtolower($group_type)) {
+		switch(strtolower(trim($group_type))) {
 			case 'axo':
+				$group_type = 'axo';
 				$table = $this->_db_table_prefix . 'axo_groups';
 				$groups_map_table = $this->_db_table_prefix . 'axo_groups_map';
 				$groups_object_map_table = $this->_db_table_prefix . 'groups_axo_map';
-				$groups_path_table = $this->_db_table_prefix . 'axo_groups_path';
-				$groups_path_map_table = $this->_db_table_prefix . 'axo_groups_path_map';
 				break;
 			default:
+				$group_type = 'aro';
 				$table = $this->_db_table_prefix . 'aro_groups';
 				$groups_map_table = $this->_db_table_prefix . 'aro_groups_map';
 				$groups_object_map_table = $this->_db_table_prefix . 'groups_aro_map';
-				$groups_path_table = $this->_db_table_prefix . 'aro_groups_path';
-				$groups_path_map_table = $this->_db_table_prefix . 'aro_groups_path_map';
 				break;
 		}
 
@@ -1973,112 +1857,198 @@ class gacl_api extends gacl {
 			return false;
 		}
 
-		/*
-		 * Find this groups parent. Which we use to reparent children.
-		 */
-		$query = "select parent_id from $table where id=$group_id";
-		$parent_id = $this->db->GetOne($query);
+		// Get details of this group
+		$query = 'SELECT id, parent_id, name, lft, rgt FROM ' . $table . ' WHERE id=' . $group_id;
+		$group_details = $this->db->GetRow($query);
 		
-		if ( is_string( $this->db->ErrorNo() ) ) {
+		if (!is_array($group_details)) {
 			$this->debug_db('del_group');
 			return false;
 		}
+		
+		$parent_id = $group_details[1];
+		
+		$left = $group_details[3];
+		$right = $group_details[4];
 		
 		$this->db->BeginTrans();
 
-		//Grab all current children and edit_group() each of them to the proper parent
-		$query = "select id from $table where parent_id=$group_id";
-		$children_ids = $this->db->GetCol($query);
-
+		// grab list of all children
+		$children_ids = $this->get_group_children($group_id, $group_type, 'RECURSE');
+		
+		// prevent deletion of root group & reparent of children if it has more than one immediate child
+		if ($parent_id == 0) {
+			$query = 'SELECT count(*) FROM ' . $table . ' WHERE parent_id=' . $group_id;
+			$child_count = $this->db->GetOne($sql);
+			
+			if ($child_count > 1 && $reparent_children) {
+				$this->debug_text ('del_group (): You cannot delete the root group and reparent children, this would create multiple root groups.');
+				return FALSE;
+			}
+		}
+		
+		$success = FALSE;
+		
 		/*
 		 * Handle children here.
 		 */
-		if ($reparent_children==TRUE) {
-			//Reparent children if any.
-			
-			if ($children_ids != FALSE) {
-				foreach ($children_ids as $child_id) {
-					$this->edit_group($child_id, NULL, $parent_id, $group_type);
-				}
-			}
-		} else {
-			//Delete all children
-			if ($children_ids != FALSE) {
-				foreach ($children_ids as $child_id) {
-					$this->del_group($child_id, FALSE, $group_type);
-				}
-			}
-		}
-
-		//Clean up paths.
-		//Find which path this group uses.
-		$query = "select path_id from $groups_path_map_table where group_id=$group_id";
-		$path_id = $this->db->GetOne($query);
-		
-		if (!empty($path_id) ) {
-			//Do other groups use the same path?
-			$query = "select count(*) from $groups_path_map_table where path_id=$path_id";
-			$groups_using_path = $this->db->GetOne($query);
-
-			$this->debug_text("Found $groups_using_path groups using this path.");
-			
-			if ($groups_using_path == 1) {
-				//Delete path
-				$this->debug_text("Only one group using path, deleting path: $path_id");
+		switch (TRUE) {
+			// there are no child groups, just delete group
+			case !is_array($children_ids):
+			case count($children_ids) == 0:
+				// remove acl maps
+				$query = 'DELETE FROM ' . $groups_map_table . ' WHERE group_id=' . $group_id;
+				$rs = $this->db->Execute($query);
 				
-				$query = "delete from $groups_path_table where id=$path_id";
-				$this->db->Execute($query);
-
-				if ( is_string( $this->db->ErrorNo() ) ) {
-					$this->debug_db('del_group');
-					$this->db->RollBackTrans();
-					return false;
+				if (!is_object($rs)) {
+					break;
 				}
-			} else {
-				$this->debug_text("More then one ($groups_using_path) group using path (ID: $path_id), not deleting it.");
-			}
-		}
+				
+				// remove group object maps
+				$query = 'DELETE FROM ' . $groups_object_map_table . ' WHERE group_id=' . $group_id;
+				$rs = $this->db->Execute($query);
+				
+				if (!is_object($rs)) {
+					break;
+				}
+				
+				// remove group
+				$query = 'DELETE FROM ' . $table . ' WHERE id=' . $group_id;
+				$rs = $this->db->Execute($query);
 
-		$query = "delete from $table where id=$group_id";
-		$this->debug_text("delete query: $query");
-		$this->db->Execute($query);
-
-		if ( is_string( $this->db->ErrorNo() ) ) {
-			$this->debug_db('del_group');
-			$this->db->RollBackTrans();
-			return false;
+				if (!is_object($rs)) {
+					break;
+				}
+				
+				// move all groups right of deleted group left by width of deleted group
+				$query = 'UPDATE ' . $table . ' SET lft=lft-' . ($right-$left+1) . ' WHERE lft>' . $right;
+				$rs = $this->db->Execute($query);
+				
+				if (!is_object($rs)) {
+					break;
+				}
+				
+				$query = 'UPDATE ' . $table . ' SET rgt=rgt-' . ($right-$left+1) . ' WHERE rgt>' . $right;
+				$rs = $this->db->Execute($query);
+				
+				if (!is_object($rs)) {
+					break;
+				}
+				
+				$success = TRUE;
+				break;
+			case $reparent_children == TRUE:
+				// remove acl maps
+				$query = 'DELETE FROM ' . $groups_map_table . ' WHERE group_id=' . $group_id;
+				$rs = $this->db->Execute($query);
+				
+				if (!is_object($rs)) {
+					break;
+				}
+				
+				// remove group object maps
+				$query = 'DELETE FROM ' . $groups_object_map_table . ' WHERE group_id=' . $group_id;
+				$rs = $this->db->Execute($query);
+				
+				if (!is_object($rs)) {
+					break;
+				}
+				
+				// remove group
+				$query = 'DELETE FROM ' . $table . ' WHERE id=' . $group_id;
+				$rs = $this->db->Execute($query);
+				
+				if (!is_object($rs)) {
+					break;
+				}
+				
+				// set parent of immediate children to parent group
+				$query = 'UPDATE ' . $table . ' SET parent_id=' . $parent_id . ' WHERE parent_id=' . $group_id;
+				$rs = $this->db->Execute($query);
+				
+				if (!is_object($rs)) {
+					break;
+				}
+				
+				// move all children left by 1
+				$query = 'UPDATE ' . $table . ' SET lft=lft-1, rgt=rgt-1 WHERE lft>' . $left . ' AND rgt<' . $right;
+				$rs = $this->db->Execute($query);
+				
+				if (!is_object($rs)) {
+					break;
+				}
+				
+				// move all groups right of deleted group left by 2
+				$query = 'UPDATE ' . $table . ' SET lft=lft-2 WHERE lft>' . $right;
+				$rs = $this->db->Execute($query);
+				
+				if (!is_object($rs)) {
+					break;
+				}
+				
+				$query = 'UPDATE ' . $table . ' SET rgt=rgt-2 WHERE rgt>' . $right;
+				$rs = $this->db->Execute($query);
+				
+				if (!is_object($rs)) {
+					break;
+				}
+				
+				$success = TRUE;
+				break;
+			default:
+				// make list of group and all children
+				$group_ids = $children_ids;
+				$group_ids[] = $group_id;
+				
+				// remove acl maps
+				$query = 'DELETE FROM ' . $groups_map_table . ' WHERE group_id IN (' . implode (',', $group_ids) . ')';
+				$rs = $this->db->Execute($query);
+				
+				if (!is_object($rs)) {
+					break;
+				}
+				
+				// remove group object maps
+				$query = 'DELETE FROM ' . $groups_object_map_table . ' WHERE group_id IN (' . implode (',', $group_ids) . ')';
+				$rs = $this->db->Execute($query);
+				
+				if (!is_object($rs)) {
+					break;
+				}
+				
+				// remove groups
+				$query = 'DELETE FROM ' . $table . ' WHERE group_id IN (' . implode (',', $group_ids) . ')';
+				$rs = $this->db->Execute($query);
+				
+				if (!is_object($rs)) {
+					break;
+				}
+				
+				// move all groups right of deleted group left by width of deleted group
+				$query = 'UPDATE ' . $table . ' SET lft=lft-' . ($right - $left + 1) . ' WHERE lft>' . $right;
+				$rs = $this->db->Execute($query);
+				
+				if (!is_object($rs)) {
+					break;
+				}
+				
+				$query = 'UPDATE ' . $table . ' SET rgt=rgt-' . ($right - $left + 1) . ' WHERE rgt>' . $right;
+				$rs = $this->db->Execute($query);
+				
+				if (!is_object($rs)) {
+					break;
+				}
+				
+				$success = TRUE;
 		}
 		
-		$query = "delete from $groups_map_table where group_id=$group_id";
-		$this->debug_text("delete query: $query");
-		$this->db->Execute($query);
-	
-		if ( is_string( $this->db->ErrorNo() ) ) {
-			$this->debug_db('del_group');
-			$this->db->RollBackTrans();
-			return false;
-		} 
+		// if the delete failed, rollback the trans and return false
+		if (!$success) {
 
-		$query = "delete from $groups_path_map_table where group_id=$group_id";
-		$this->debug_text("delete query: $query");
-		$this->db->Execute($query);
-	
-		if ( is_string( $this->db->ErrorNo() ) ) {
 			$this->debug_db('del_group');
 			$this->db->RollBackTrans();
 			return false;
-		} 
-
-		//Delete objects mapped to this group.
-		$query = "delete from $groups_object_map_table where group_id=$group_id";
-		$this->debug_text("delete query: $query");
-		$this->db->Execute($query);
-	
-		if ( is_string( $this->db->ErrorNo() ) ) {
-			$this->debug_db('del_group');
-			$this->db->RollBackTrans();
-			return false;
-		} 
+		}
 		
 		$this->debug_text("del_group(): deleted group ID: $group_id");
 		$this->db->CommitTrans();
@@ -2118,30 +2088,99 @@ class gacl_api extends gacl {
 				$object_type = 'axo';
 				$table = $this->_db_table_prefix . 'axo';
 				break;
+			default:
+				$this->debug_text('get_object(): Invalid Object Type: ' . $object_type);
+				return FALSE;
 		}
 
 		$this->debug_text("get_object(): Section Value: $section_value Object Type: $object_type");
 		
-		$query = "select id from $table ";
-		if (!empty($section_value) ) {
-			$query .= " where section_value = '$section_value'";
+		$query = 'SELECT id FROM ' . $table;
+		
+		$where = array();
+		
+		if (!empty($section_value)) {
+			$where[] = 'section_value=\'' . $section_value . "'";
 		}
 
 		if ($return_hidden==0) {
-			$query .= "		and hidden=0";
+			$where[] = 'hidden=0';
+		}
+
+		if (!empty($where)) {
+			$query .= ' WHERE ' . implode(' AND ', $where);
 		}
 
 		$rs = $this->db->GetCol($query);
 
-		if ( is_string( $this->db->ErrorNo() ) ) {
+		if (!is_array($rs)) {
 			$this->debug_db('get_object');
 			return false;
-		} else {
-			//Return all Object id's
-			return $rs;
 		}
+		
+		// Return Object IDs
+		return $rs;
 	}
 
+	/*======================================================================*\
+		Function:	get_objects ()
+		Purpose:	Grabs all Objects in the database, or specific to a section_value
+					returns format suitable for add_acl and is_conflicting_acl
+	\*======================================================================*/
+	function get_objects ($section_value = NULL, $return_hidden = 1, $object_type = NULL) {
+		switch (strtolower(trim($object_type))) {
+			case 'aco':
+				$object_type = 'aco';
+				$table = $this->_db_table_prefix . 'aco';
+				break;
+			case 'aro':
+				$object_type = 'aro';
+				$table = $this->_db_table_prefix . 'aro';
+				break;
+			case 'axo':
+				$object_type = 'axo';
+				$table = $this->_db_table_prefix . 'axo';
+				break;
+			default:
+				$this->debug_text('get_objects(): Invalid Object Type: ' . $object_type);
+				return FALSE;
+		}
+		
+		$this->debug_text("get_objects(): Section Value: $section_value Object Type: $object_type");
+		
+		$query = 'SELECT section_value,value FROM ' . $table;
+		
+		$where = array();
+		
+		if (!empty($section_value)) {
+			$where[] = 'section_value=\'' . $section_value . "'";
+		}
+
+		if ($return_hidden==0) {
+			$where[] = 'hidden=0';
+		}
+
+		if (!empty($where)) {
+			$query .= ' WHERE ' . implode(' AND ', $where);
+		}
+
+		$rs = $this->db->Execute($query);
+		
+		if (!is_object($rs)) {
+			$this->debug_db('get_objects');
+			return FALSE;
+		}
+		
+		$retarr = array();
+		
+		while ($row = $rs->FetchRow()) {
+			$retarr[$row[0]][] = $row[1];
+		}
+		
+		// Return objects
+		return $retarr;
+	}
+	
 	/*======================================================================*\
 		Function:	get_object_data()
 		Purpose:	Gets all data pertaining to a specific Object.
@@ -2161,9 +2200,12 @@ class gacl_api extends gacl {
 				$object_type = 'axo';
 				$table = $this->_db_table_prefix . 'axo';
 				break;
+			default:
+				$this->debug_text('get_object_data(): Invalid Object Type: ' . $object_type);
+				return FALSE;
 		}
 
-		$this->debug_text("get_aco_data(): Object ID: $object_id Object Type: $object_type");
+		$this->debug_text("get_object_data(): Object ID: $object_id Object Type: $object_type");
 
 		if (empty($object_id) ) {
 			$this->debug_text("get_object_data(): Object ID ($object_id) is empty, this is required");
@@ -2175,24 +2217,21 @@ class gacl_api extends gacl {
 			return false;
 		}
 
-		$query = "select section_value, value, order_value, name, hidden from $table where id = $object_id";
-
+		$query  = 'SELECT section_value,value,order_value,name,hidden FROM ' . $table . ' WHERE id=' . $object_id;
 		$rs = $this->db->Execute($query);
 
-		if ( is_string( $this->db->ErrorNo() ) ) {
+		if (!is_object($rs)) {
 			$this->debug_db('get_object_data');
 			return false;
-		} else {
-			if ($rs->RecordCount() > 0) {
-				$rows = $rs->GetRows();
-
-				//Return all ACO id's
-				return $rows;
-			} else {
-				$this->debug_text("get_object_data(): Returned $row_count rows");
-				return false;
-			}
 		}
+		
+		if ($rs->RecordCount() < 1) {
+			$this->debug_text('get_object_data(): Returned  ' . $row_count . ' rows');
+			return FALSE;
+		}
+		
+		// Return all objects
+		return $rs->GetRows();
 	}
 
 	/*======================================================================*\
@@ -2214,6 +2253,9 @@ class gacl_api extends gacl {
 				$object_type = 'axo';
 				$table = $this->_db_table_prefix . 'axo';
 				break;
+			default:
+				$this->debug_text('get_object_id(): Invalid Object Type: ' . $object_type);
+				return FALSE;
 		}
 
 		$this->debug_text("get_object_id(): Section Value: $section_value Value: $value Object Type: $object_type");
@@ -2231,28 +2273,30 @@ class gacl_api extends gacl {
 			return false;
 		}
 
-		$query = "select id from $table where section_value='$section_value' AND value='$value'";
+		$query = 'SELECT id FROM ' . $table . ' WHERE section_value=\'' . $section_value . '\' AND value=\'' . $value . '\'';
 		$rs = $this->db->Execute($query);
 
-		if ( is_string( $this->db->ErrorNo() ) ) {
+		if (!is_object($rs)) {
 			$this->debug_db('get_object_id');
 			return false;
-		} else {
-			$row_count = $rs->RecordCount();
-
-			if ($row_count > 1) {
-				$this->debug_text("get_object_id(): Returned $row_count rows, can only return one. This should never happen, the database may be missing a unique key.");
-				return false;
-			} elseif($row_count == 0) {
-				$this->debug_text("get_object_id(): Returned $row_count rows");
-				return false;
-			} else {
-				$rows = $rs->GetRows();
-
-				//Return only the ID in the first row.
-				return $rows[0][0];
-			}
 		}
+		
+		$row_count = $rs->RecordCount();
+
+		if ($row_count > 1) {
+			$this->debug_text("get_object_id(): Returned $row_count rows, can only return one. This should never happen, the database may be missing a unique key.");
+			return false;
+		}
+		
+		if ($row_count == 0) {
+			$this->debug_text("get_object_id(): Returned $row_count rows");
+			return false;
+		}
+		
+		$row = $rs->FetchRow();
+
+		//Return the ID.
+		return $row[0];
 	}
 
 	/*======================================================================*\
@@ -2288,28 +2332,30 @@ class gacl_api extends gacl {
 			return false;
 		}
 
-		$query = "select section_value from $table where id=$object_id";
+		$query = 'SELECT section_value FROM ' . $table . ' WHERE id=' . $object_id;
 		$rs = $this->db->Execute($query);
 
-		if ( is_string( $this->db->ErrorNo() ) ) {
+		if (!is_object($rs)) {
 			$this->debug_db('get_object_section_value');
 			return false;
-		} else {
-			$row_count = $rs->RecordCount();
-
-			if ($row_count > 1) {
-				$this->debug_text("get_object_section_value(): Returned $row_count rows, can only return one.");
-				return false;
-			} elseif($row_count == 0) {
-				$this->debug_text("get_object_section_value(): Returned $row_count rows");
-				return false;
-			} else {
-				$rows = $rs->GetRows();
-
-				//Return only the ID in the first row.
-				return $rows[0][0];
-			}
 		}
+		
+		$row_count = $rs->RecordCount();
+
+		if ($row_count > 1) {
+			$this->debug_text("get_object_section_value(): Returned $row_count rows, can only return one.");
+			return false;
+		}
+		
+		if ($row_count == 0) {
+			$this->debug_text("get_object_section_value(): Returned $row_count rows");
+			return false;
+		}
+		
+		$row = $rs->FetchRow();
+
+		//Return the ID.
+		return $row[0];
 	}
 
 	/*======================================================================*\
@@ -2334,6 +2380,9 @@ class gacl_api extends gacl {
 				$table = $this->_db_table_prefix .'axo';
 				$object_sections_table = $this->_db_table_prefix .'axo_sections';
 				break;
+			default:
+				$this->debug_text('add_object(): Invalid Object Type: ' . $object_type);
+				return FALSE;
 		}
 
 		$this->debug_text("add_object(): Section Value: $section_value Value: $value Order: $order Name: $name Object Type: $object_type");
@@ -2362,31 +2411,42 @@ class gacl_api extends gacl {
 			return false;
 		}
 
-		if ($this->get_object_section_section_id(NULL, $section_value, $object_type) === FALSE) {
+		// Test to see if the section is invalid or object already exists.
+		$query  = '		SELECT		(o.id IS NOT NULL) AS object_exists
+		FROM		' . $object_sections_table . ' s
+		LEFT JOIN	' . $table . ' o ON (s.value=o.section_value AND o.value=\'' . $value . '\')
+		WHERE		s.value=\'' . $section_value . '\'';
+		$rs = $this->db->Execute($query);
+
+		if (!is_object($rs)) {
+			$this->debug_db('add_object');
+			return FALSE;
+		}
+		
+		if ($rs->RecordCount() != 1) {
+			// Section is invalid
 			$this->debug_text("add_object(): Section Value: $section_value Object Type ($object_type) does not exist, this is required");
 			return false;
 		}
-
-		//Test to see if the object already exists.
-		$query = "select id from $table where section_value='$section_value' AND value='$value'";
-		$rs = $this->db->Execute($query);
-
-		if ($rs->RecordCount() == 1) {
+		
+		$row = $rs->FetchRow();
+		
+		if ($row[0] == 1) {
 			//Object is already created.
 			return true;
 		}
 
 		$insert_id = $this->db->GenID($this->_db_table_prefix.$object_type.'_seq',10);
-		$query = "insert into $table (id,section_value, value,order_value,name,hidden) VALUES($insert_id, '$section_value', '$value', '$order', '$name', $hidden)";
+		$query = "INSERT INTO $table (id,section_value,value,order_value,name,hidden) VALUES($insert_id,'$section_value','$value','$order','$name',$hidden)";
 		$rs = $this->db->Execute($query);
 
-		if ( is_string( $this->db->ErrorNo() ) ) {
+		if (!is_object($rs)) {
 			$this->debug_db('add_object');
 			return false;
-		} else {
-			$this->debug_text("add_object(): Added object as ID: $insert_id");
-			return $insert_id;
 		}
+		
+		$this->debug_text("add_object(): Added object as ID: $insert_id");
+		return $insert_id;
 	}
 
 	/*======================================================================*\
@@ -2436,45 +2496,44 @@ class gacl_api extends gacl {
 		}
 
 		//Get old value incase it changed, before we do the update.
-		$query = "select value from $table where id=$object_id";
-		$old_value = $this->db->GetOne($query);
+		$query = 'SELECT value, section_value FROM ' . $table . ' WHERE id=' . $object_id;
+		$old = $this->db->GetRow($query);
 
-		$query = "update $table set
-																section_value='$section_value',
-																value='$value',
-																order_value='$order',
-																name='$name',
-																hidden=$hidden
-													where   id=$object_id";
-		$rs = $this->db->Execute($query);                   
+		$query  = '		UPDATE	' . $table . '
+		SET		section_value=\'' . $section_value . '\',
+				value=\'' . $value . '\',
+				order_value=\'' . $order . '\',
+				name=' . $this->db->quote($name) . ',
+				hidden=' . $hidden . '
+		WHERE	id=' . $object_id;
+		$rs = $this->db->Execute($query);
 
-		if ( is_string( $this->db->ErrorNo() ) ) {
+		if (!is_object($rs)) {
 			$this->debug_db('edit_object');
 			return false;
-		} else {
-			$this->debug_text("edit_object(): Modified aco ID: $aco_id");
+		}
+		
+		$this->debug_text('edit_object(): Modified ' . strtoupper($object_type) . ' ID: ' . $object_id);
+		
+		if ($old[0] != $value OR $old[1] != $section_value) {
+			$this->debug_text("edit_object(): Value OR Section Value Changed, update other tables.");
 			
-			if ($old_value != $value) {
-				$this->debug_text("edit_object(): Value Changed, update other tables.");
-				
-				$query = "update $object_map_table set
-																value='$value'
-													where section_value = '$section_value'
-														AND value = '$old_value'";
-				$rs = $this->db->Execute($query);                   
-
-				if ( is_string( $this->db->ErrorNo() ) ) {
-					$this->debug_db('edit_object');
-					return false;
-				} else {
-					$this->debug_text("edit_object(): Modified aco_map value: $value");
-					return true;
-				}
-				
+			$query  = '			UPDATE	' . $object_map_table . '
+			SET		value=\'' . $value . '\',
+					section_value=\'' . $section_value . '\'
+			WHERE	section_value=\'' . $old[1] . '\'
+			AND		value=\'' . $old[0] . "'";
+			$rs = $this->db->Execute($query);
+			
+			if (!is_object($rs)) {
+				$this->debug_db('edit_object');
+				return FALSE;
 			}
 			
-			return true;
+			$this->debug_text ('edit_object(): Modified Map Value: ' . $value . ' Section Value: ' . $section_value);
 		}
+		
+		return TRUE;
 	}
 
 	/*======================================================================*\
@@ -2505,6 +2564,9 @@ class gacl_api extends gacl {
 				$groups_map_table = $this->_db_table_prefix .'axo_groups_map';
 				$object_group_table = $this->_db_table_prefix .'groups_axo_map';
 				break;
+			default:
+				$this->debug_text('del_object(): Invalid Object Type: ' . $object_type);
+				return FALSE;
 		}
 
 		$this->debug_text("del_object(): ID: $object_id Object Type: $object_type, Erase all referencing objects: $erase");
@@ -2522,13 +2584,20 @@ class gacl_api extends gacl {
 		$this->db->BeginTrans();
 
 		// Get Object section_value/value (needed to look for referencing objects)
-		$query = "SELECT section_value, value FROM $table WHERE id = '$object_id'";
+		$query = 'SELECT section_value,value FROM ' . $table . ' WHERE id=\'' . $object_id . '\'';
 		$object = $this->db->GetRow($query);
+		
+		if (empty($object))
+		{
+			$this->debug_text('del_object(): The specified object (' . strtoupper($object_type) . ' ID: ' . $object_id . ') could not be found.');
+			return FALSE;
+		}
+		
 		$section_value = $object[0];
 		$value = $object[1];
 
 		// Get ids of acl referencing the Object (if any)
-		$query = "SELECT acl_id FROM $object_map_table WHERE value = '$value' AND  section_value = '$section_value'";
+		$query = "SELECT acl_id FROM $object_map_table WHERE value='$value' AND section_value='$section_value'";
 		$acl_ids = $this->db->GetCol($query);
 
 		if ($erase) {
@@ -2542,10 +2611,10 @@ class gacl_api extends gacl {
 				// ACO might me "groupable" too
 
 				// Get rid of groups_map referencing the Object
-				$query = "DELETE FROM $object_group_table WHERE section_value = '$section_value' AND value = '$value'";
-				$this->db->Execute($query);
+				$query = 'DELETE FROM ' . $object_group_table . ' WHERE  ' . $object_type . '_id=\'' . $object_id . '\'';
+				$rs = $this->db->Execute($query);
 
-				if ( is_string( $this->db->ErrorNo() ) ) {
+				if (!is_object($rs)) {
 					$this->debug_db('edit_object');
 					$this->db->RollBackTrans();
 					return false;
@@ -2568,17 +2637,17 @@ class gacl_api extends gacl {
 					// in this case all referenced acl are
 					// orhpaned acl
 
-					$orphan_acl_ids = $acl_ids;					
+					$orphan_acl_ids = $acl_ids;
 				} else {
 					// The object is not an ACO and might be referenced
 					// in still valid acls regarding also other object.
 					// In these cases the acl MUST NOT be deleted
 
 					// Get rid of $object_id map referencing erased objects
-					$query = "DELETE FROM $object_map_table WHERE section_value = '$section_value' AND value = '$value'";
+					$query = "DELETE FROM $object_map_table WHERE section_value='$section_value' AND value='$value'";
 					$this->db->Execute($query);
 
-					if ( is_string( $this->db->ErrorNo() ) ) {
+					if (!is_object($rs)) {
 						$this->debug_db('edit_object');
 						$this->db->RollBackTrans();
 						return false;
@@ -2612,10 +2681,10 @@ class gacl_api extends gacl {
 			} // End of if ($acl_ids)
 
 			// Finally delete the Object itself
-			$query = "DELETE FROM $table WHERE id = '$object_id'";
-			$this->db->Execute($query);
+			$query = "DELETE FROM $table WHERE id='$object_id'";
+			$rs = $this->db->Execute($query);
 
-			if ( is_string( $this->db->ErrorNo() ) ) {
+			if (!is_object($rs)) {
 				$this->debug_db('edit_object');
 				$this->db->RollBackTrans();
 				return false;
@@ -2626,7 +2695,7 @@ class gacl_api extends gacl {
 
 		} // End of "if ($erase)"
 
-                $groups_ids = FALSE;
+
 		if ($object_type == 'axo' OR $object_type == 'aro') {
 			// If the object is "groupable" (may become unnecessary,
 			// see above
@@ -2635,11 +2704,11 @@ class gacl_api extends gacl {
 			// you must explicitly remove the object from its groups before
 			// deleting it (don't know if this is really needed, anyway it's safer ;-)
 
-			$query = "SELECT group_id FROM $object_group_table WHERE section_value = '$section_value' AND value = '$value'";
+			$query = 'SELECT group_id FROM ' . $object_group_table . ' WHERE ' . $object_type . '_id=\'' . $object_id . '\'';
 			$groups_ids = $this->db->GetCol($query);
 		}
 
-		if ($acl_ids OR $groups_ids ) {
+		if ($acl_ids OR $groups_ids) {
 			// The Object is referenced somewhere (group or acl), can't delete it
 
 			$this->debug_text("del_object(): Can't delete the object as it is being referenced by GROUPs (".@implode($group_ids).") or ACLs (".@implode($acl_ids,",").")");
@@ -2648,7 +2717,7 @@ class gacl_api extends gacl {
 		} else {
 			// The Object is NOT referenced anywhere, delete it
 
-			$query = "DELETE FROM $table WHERE id = '$object_id'";
+			$query = "DELETE FROM $table WHERE id='$object_id'";
 			$this->db->Execute($query);
 
 			if ( is_string( $this->db->ErrorNo() ) ) {
@@ -2715,10 +2784,15 @@ class gacl_api extends gacl {
 			return false;
 		}
 
-		$query = "select id from $object_sections_table where name='$name' OR value='$value'";
+		$query  = 'SELECT id FROM ' . $object_sections_table . ' WHERE value=\'' . $value . '\'';
+		
+		// only use name if asked, this is SLOW
+		if (!empty($name)) {
+			$query .= ' OR name=' . $this->db->quote($name) . '';
+		}
 		$rs = $this->db->Execute($query);
 
-		if ( is_string( $this->db->ErrorNo() ) ) {
+		if (!is_object($rs)) {
 			$this->debug_db('get_object_section_section_id');
 			return false;
 		} else {
@@ -2788,7 +2862,7 @@ class gacl_api extends gacl {
 		$query = "insert into $object_sections_table (id,value,order_value,name,hidden) VALUES($insert_id, '$value', '$order', '$name', $hidden)";
 		$rs = $this->db->Execute($query);
 
-		if ( is_string( $this->db->ErrorNo() ) ) {
+		if (!is_object($rs)) {
 			$this->debug_db('add_object_section');
 			return false;
 		} else {
@@ -2827,6 +2901,9 @@ class gacl_api extends gacl {
 				$table = $this->_db_table_prefix . 'acl';
 				$object_sections_table = $this->_db_table_prefix . 'acl_sections';
 				break;
+			default:
+				$this->debug_text('edit_object_section(): Invalid Object Type: ' . $object_type);
+				return FALSE;
 		}
 
 		$this->debug_text("edit_object_section(): ID: $object_section_id Value: $value Order: $order Name: $name Object Type: $object_type");
@@ -2862,7 +2939,7 @@ class gacl_api extends gacl {
 													where   id=$object_section_id";
 		$rs = $this->db->Execute($query);
 
-		if ( is_string( $this->db->ErrorNo() ) ) {
+		if (!is_object($rs)) {
 			$this->debug_db('edit_object_section');
 			return false;
 		} else {
@@ -2876,7 +2953,7 @@ class gacl_api extends gacl {
 													where section_value = '$old_value'";
 				$rs = $this->db->Execute($query);
 
-				if ( is_string( $this->db->ErrorNo() ) ) {
+				if (!is_object($rs)) {
 					$this->debug_db('edit_object_section');
 					return false;
 				} else {
@@ -2974,9 +3051,9 @@ class gacl_api extends gacl {
 			// The section is empty (or emptied by this method)
 
 			$query = "DELETE FROM $object_sections_table where id='$object_section_id'";
-			$this->db->Execute($query);
+			$rs = $this->db->Execute($query);
 
-			if ( is_string( $this->db->ErrorNo() ) ) {
+			if (!is_object($rs)) {
 				$this->debug_db('del_object_section');
 				return false;
 			} else {

@@ -1,6 +1,7 @@
 <?xml version="1.0"?>
 <schema>
 
+	<!-- phpGACL Table -->
 	<table name="#PREFIX#phpgacl">
 		<field name="name" type="C" size="230">
 			<NOTNULL/>
@@ -16,7 +17,7 @@
 			delete from #PREFIX#phpgacl where name = 'version';
 		</query>
 		<query>
-			insert into #PREFIX#phpgacl (name, value) VALUES('version','3.2.3');
+			insert into #PREFIX#phpgacl (name, value) VALUES('version','3.2.2');
 		</query>
 		<query>
 			delete from #PREFIX#phpgacl where name = 'schema_version';
@@ -26,6 +27,7 @@
 		</query>
 	</sql>
 
+	<!-- ACL Table -->
 	<table name="#PREFIX#acl">
 		<field name="id" type="I">
 			<DEFAULT value="0"/>
@@ -53,8 +55,7 @@
 			<NOTNULL/>
 		</field>
 	</table>
-	<index name="id_enabled_acl" table="#PREFIX#acl">
-		<col>id</col>
+	<index name="enabled_acl" table="#PREFIX#acl">
 		<col>enabled</col>
 	</index>
 	<index name="section_value_acl" table="#PREFIX#acl">
@@ -64,6 +65,7 @@
 		<col>updated_date</col>
 	</index>
 
+	<!-- ACL Section Table -->
 	<table name="#PREFIX#acl_sections">
 		<field name="id" type="I">
 			<DEFAULT value="0"/>
@@ -108,6 +110,7 @@
 		</query>
 	</sql>
 
+	<!-- ACO Table -->
 	<table name="#PREFIX#aco">
 		<field name="id" type="I">
 			<DEFAULT value="0"/>
@@ -142,23 +145,25 @@
 		<col>hidden</col>
 	</index>
 
+	<!-- ACL to ACO Map Table -->
 	<table name="#PREFIX#aco_map">
 		<field name="acl_id" type="I">
 			<DEFAULT value="0"/>
 			<NOTNULL/>
+			<KEY/>
 		</field>
 		<field name="section_value" type="C" size="230">
 			<DEFAULT value="0"/>
 			<NOTNULL/>
+			<KEY/>
 		</field>
 		<field name="value" type="C" size="230">
 			<NOTNULL/>
+			<KEY/>
 		</field>
 	</table>
-	<index name="acl_id_aco_map" table="#PREFIX#aco_map">
-		<col>acl_id</col>
-	</index>
 
+	<!-- ACO Section Table -->
 	<table name="#PREFIX#aco_sections">
 		<field name="id" type="I">
 			<DEFAULT value="0"/>
@@ -188,6 +193,7 @@
 		<col>hidden</col>
 	</index>
 
+	<!-- ARO Table -->
 	<table name="#PREFIX#aro">
 		<field name="id" type="I">
 			<DEFAULT value="0"/>
@@ -222,23 +228,25 @@
 		<col>hidden</col>
 	</index>
 
+	<!-- ACL to ARO Map Table -->
 	<table name="#PREFIX#aro_map">
 		<field name="acl_id" type="I">
 			<DEFAULT value="0"/>
 			<NOTNULL/>
+			<KEY/>
 		</field>
 		<field name="section_value" type="C" size="230">
 			<DEFAULT value="0"/>
 			<NOTNULL/>
+			<KEY/>
 		</field>
 		<field name="value" type="C" size="230">
 			<NOTNULL/>
+			<KEY/>
 		</field>
 	</table>
-	<index name="acl_id_aro_map" table="#PREFIX#aro_map">
-		<col>acl_id</col>
-	</index>
 
+	<!-- ARO Section Table -->
 	<table name="#PREFIX#aro_sections">
 		<field name="id" type="I">
 			<DEFAULT value="0"/>
@@ -268,6 +276,7 @@
 		<col>hidden</col>
 	</index>
 
+	<!-- AXO Table -->
 	<table name="#PREFIX#axo">
 		<field name="id" type="I">
 			<DEFAULT value="0"/>
@@ -302,23 +311,25 @@
 		<col>hidden</col>
 	</index>
 
+	<!-- ACL to AXO Map Table -->
 	<table name="#PREFIX#axo_map">
 		<field name="acl_id" type="I">
 			<DEFAULT value="0"/>
 			<NOTNULL/>
+			<KEY/>
 		</field>
 		<field name="section_value" type="C" size="230">
 			<DEFAULT value="0"/>
 			<NOTNULL/>
+			<KEY/>
 		</field>
 		<field name="value" type="C" size="230">
 			<NOTNULL/>
+			<KEY/>
 		</field>
 	</table>
-	<index name="acl_id_axo_map" table="#PREFIX#axo_map">
-		<col>acl_id</col>
-	</index>
 
+	<!-- AXO Section Table -->
 	<table name="#PREFIX#axo_sections">
 		<field name="id" type="I">
 			<DEFAULT value="0"/>
@@ -348,6 +359,7 @@
 		<col>hidden</col>
 	</index>
 
+	<!-- ARO Group Table -->
 	<table name="#PREFIX#aro_groups">
 		<field name="id" type="I">
 			<DEFAULT value="0"/>
@@ -358,6 +370,14 @@
 			<DEFAULT value="0"/>
 			<NOTNULL/>
 		</field>
+		<field name="lft" type="I">
+			<DEFAULT value="0"/>
+			<NOTNULL/>
+		</field>
+		<field name="rgt" type="I">
+			<DEFAULT value="0"/>
+			<NOTNULL/>
+		</field>
 		<field name="name" type="C" size="255">
 			<NOTNULL/>
 		</field>
@@ -365,79 +385,40 @@
 	<index name="parent_id_aro_groups" table="#PREFIX#aro_groups">
 		<col>parent_id</col>
 	</index>
+	<index name="lft_rgt_aro_groups" table="#PREFIX#aro_groups">
+		<col>lft</col>
+		<col>rgt</col>
+	</index>
 
+	<!-- ARO to ARO Group Map Table -->
 	<table name="#PREFIX#groups_aro_map">
 		<field name="group_id" type="I">
 			<DEFAULT value="0"/>
 			<NOTNULL/>
+			<KEY/>
 		</field>
-		<field name="section_value" type="C" size="240">
+		<field name="aro_id" type="I">
+			<DEFAULT value="0"/>
 			<NOTNULL/>
-		</field>
-		<field name="value" type="C" size="240">
-			<NOTNULL/>
+			<KEY/>
 		</field>
 	</table>
-	<index name="group_id_aro_id_groups_aro_map" table="#PREFIX#groups_aro_map">
-		<col>group_id</col>
-		<col>section_value</col>
-		<col>value</col>
-		<UNIQUE/>
-	</index>
 
+	<!-- ACL to ARO Group Map Table -->
 	<table name="#PREFIX#aro_groups_map">
 		<field name="acl_id" type="I">
 			<DEFAULT value="0"/>
 			<NOTNULL/>
+			<KEY/>
 		</field>
 		<field name="group_id" type="I">
 			<DEFAULT value="0"/>
 			<NOTNULL/>
+			<KEY/>
 		</field>
 	</table>
-	<index name="acl_id_group_id_aro_groups_map" table="#PREFIX#aro_groups_map">
-		<col>acl_id</col>
-		<col>group_id</col>
-		<UNIQUE/>
-	</index>
 
-	<table name="#PREFIX#aro_groups_path">
-		<field name="id" type="I">
-			<DEFAULT value="0"/>
-			<NOTNULL/>
-		</field>
-		<field name="group_id" type="I">
-			<DEFAULT value="0"/>
-			<NOTNULL/>
-		</field>
-		<field name="tree_level" type="I">
-			<DEFAULT value="0"/>
-			<NOTNULL/>
-		</field>
-	</table>
-	<index name="id_group_id_tree_level_aro_groups_path" table="#PREFIX#aro_groups_path">
-		<col>id</col>
-		<col>group_id</col>
-		<col>tree_level</col>
-		<UNIQUE/>
-	</index>
-
-	<table name="#PREFIX#aro_groups_path_map">
-		<field name="path_id" type="I">
-			<DEFAULT value="0"/>
-			<NOTNULL/>
-		</field>
-		<field name="group_id" type="I">
-			<DEFAULT value="0"/>
-			<NOTNULL/>
-		</field>
-	</table>
-	<index name="path_id_group_id_aro_groups_path_map" table="#PREFIX#aro_groups_path_map">
-		<col>path_id</col>
-		<col>group_id</col>
-		<UNIQUE/>
-	</index>
-
+	<!-- AXO Group Table -->
 	<table name="#PREFIX#axo_groups">
 		<field name="id" type="I">
 			<DEFAULT value="0"/>
@@ -448,6 +429,14 @@
 			<DEFAULT value="0"/>
 			<NOTNULL/>
 		</field>
+		<field name="lft" type="I">
+			<DEFAULT value="0"/>
+			<NOTNULL/>
+		</field>
+		<field name="rgt" type="I">
+			<DEFAULT value="0"/>
+			<NOTNULL/>
+		</field>
 		<field name="name" type="C" size="255">
 			<NOTNULL/>
 		</field>
@@ -455,76 +444,36 @@
 	<index name="parent_id_axo_groups" table="#PREFIX#axo_groups">
 		<col>parent_id</col>
 	</index>
+	<index name="lft_rgt_axo_groups" table="#PREFIX#axo_groups">
+		<col>lft</col>
+		<col>rgt</col>
+	</index>
 
+	<!-- AXO to AXO Group Map Table -->
 	<table name="#PREFIX#groups_axo_map">
 		<field name="group_id" type="I">
 			<DEFAULT value="0"/>
 			<NOTNULL/>
+			<KEY/>
 		</field>
-		<field name="section_value" type="C" size="240">
+		<field name="axo_id" type="I">
+			<DEFAULT value="0"/>
 			<NOTNULL/>
-		</field>
-		<field name="value" type="C" size="240">
-			<NOTNULL/>
+			<KEY/>
 		</field>
 	</table>
-	<index name="group_id_axo_id_groups_axo_map" table="#PREFIX#groups_axo_map">
-		<col>group_id</col>
-		<col>section_value</col>
-		<col>value</col>
-		<UNIQUE/>
-	</index>
 
+	<!-- ACL to AXO Group Map Table -->
 	<table name="#PREFIX#axo_groups_map">
 		<field name="acl_id" type="I">
 			<DEFAULT value="0"/>
 			<NOTNULL/>
+			<KEY/>
 		</field>
 		<field name="group_id" type="I">
 			<DEFAULT value="0"/>
 			<NOTNULL/>
+			<KEY/>
 		</field>
 	</table>
-	<index name="acl_id_group_id_axo_groups_map" table="#PREFIX#axo_groups_map">
-		<col>acl_id</col>
-		<col>group_id</col>
-		<UNIQUE/>
-	</index>
-
-	<table name="#PREFIX#axo_groups_path">
-		<field name="id" type="I">
-			<DEFAULT value="0"/>
-			<NOTNULL/>
-		</field>
-		<field name="group_id" type="I">
-			<DEFAULT value="0"/>
-			<NOTNULL/>
-		</field>
-		<field name="tree_level" type="I">
-			<DEFAULT value="0"/>
-			<NOTNULL/>
-		</field>
-	</table>
-	<index name="id_group_id_tree_level_axo_groups_path" table="#PREFIX#axo_groups_path">
-		<col>id</col>
-		<col>group_id</col>
-		<col>tree_level</col>
-		<UNIQUE/>
-	</index>
-
-	<table name="#PREFIX#axo_groups_path_map">
-		<field name="path_id" type="I">
-			<DEFAULT value="0"/>
-			<NOTNULL/>
-		</field>
-		<field name="group_id" type="I">
-			<DEFAULT value="0"/>
-			<NOTNULL/>
-		</field>
-	</table>
-	<index name="path_id_group_id_axo_groups_path_map" table="#PREFIX#axo_groups_path_map">
-		<col>path_id</col>
-		<col>group_id</col>
-		<UNIQUE/>
-	</index>
 </schema>
