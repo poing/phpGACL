@@ -1,10 +1,7 @@
-* Add "About" page that shows the CREDITS file, and some useful information about the system to send in for bug
-reports perhaps? Ask user if they wish to submit system info for record keeping perhaps?
+* Make sure all input values in gacl.class.php are quoted. 
 
 * Create upgrade.php script, to handle as much of the upgrade process as possible. Have it display the changelog as well?
 	Have setup.php handle this?
-
-* Create "demo" script that creates sample objects/ACLs using only API commands.
 
 * Array ACL Checks for select boxes. - Half done currently.
 
@@ -16,7 +13,7 @@ reports perhaps? Ask user if they wish to submit system info for record keeping 
 
 * Create include files with queries in each for the different databases. ie: include($db->db_type."-custom_sql.php");
 
-* Create regression tests.
+* Create regression tests. - Need more of these.
 
 * FUTURE: Build framework for the plugin system.
     Create a "plugin" directory.
