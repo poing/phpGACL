@@ -34,25 +34,25 @@ switch ($_GET['action']) {
 			$query = "select	distinct
 											a.id
 									from
-											acl a
-											LEFT JOIN aco_map b ON a.id=b.acl_id
+											{$gacl_api->_db_table_prefix}acl a
+											LEFT JOIN {$gacl_api->_db_table_prefix}aco_map b ON a.id=b.acl_id
 
-											LEFT JOIN aco e ON ( b.section_value=e.section_value AND b.value = e.value )
-											LEFT JOIN aco_sections f ON e.section_value=f.value
+											LEFT JOIN {$gacl_api->_db_table_prefix}aco e ON ( b.section_value=e.section_value AND b.value = e.value )
+											LEFT JOIN {$gacl_api->_db_table_prefix}aco_sections f ON e.section_value=f.value
 
-											LEFT JOIN aro_map c ON a.id=c.acl_id
-											LEFT JOIN aro_groups_map d ON a.id=d.acl_id
+											LEFT JOIN {$gacl_api->_db_table_prefix}aro_map c ON a.id=c.acl_id
+											LEFT JOIN {$gacl_api->_db_table_prefix}aro_groups_map d ON a.id=d.acl_id
 
-											LEFT JOIN axo_map j ON a.id=j.acl_id
-											LEFT JOIN axo_groups_map k ON a.id=k.acl_id
+											LEFT JOIN {$gacl_api->_db_table_prefix}axo_map j ON a.id=j.acl_id
+											LEFT JOIN {$gacl_api->_db_table_prefix}axo_groups_map k ON a.id=k.acl_id
 
-											LEFT JOIN aro g ON ( c.section_value=g.section_value AND c.value = g.value )
-											LEFT JOIN aro_sections h ON g.section_value=h.value
-											LEFT JOIN aro_groups i ON i.id=d.group_id
+											LEFT JOIN {$gacl_api->_db_table_prefix}aro g ON ( c.section_value=g.section_value AND c.value = g.value )
+											LEFT JOIN {$gacl_api->_db_table_prefix}aro_sections h ON g.section_value=h.value
+											LEFT JOIN {$gacl_api->_db_table_prefix}aro_groups i ON i.id=d.group_id
 
-											LEFT JOIN axo l ON ( j.section_value=l.section_value AND j.value = l.value )
-											LEFT JOIN axo_sections m ON l.section_value=m.value
-											LEFT JOIN axo_groups n ON n.id=k.group_id ";
+											LEFT JOIN {$gacl_api->_db_table_prefix}axo l ON ( j.section_value=l.section_value AND j.value = l.value )
+											LEFT JOIN {$gacl_api->_db_table_prefix}axo_sections m ON l.section_value=m.value
+											LEFT JOIN {$gacl_api->_db_table_prefix}axo_groups n ON n.id=k.group_id ";
 			
 			if ( isset($_GET['filter_aco_section_name']) AND $_GET['filter_aco_section_name'] != '') {
 				$filter_query[] = "			( lower(f.value) LIKE '".strtolower($_GET['filter_aco_section_name'])."' OR lower(f.name) LIKE '".strtolower($_GET['filter_aco_section_name'])."') ";
@@ -131,26 +131,26 @@ switch ($_GET['action']) {
                                         a.note,
                                         a.updated_date
                                 from
-                                        acl a
-										LEFT JOIN acl_sections x ON a.section_id=x.id
-                                        LEFT JOIN aco_map b ON a.id=b.acl_id
+                                        {$gacl_api->_db_table_prefix}acl a
+										LEFT JOIN {$gacl_api->_db_table_prefix}acl_sections x ON a.section_id=x.id
+                                        LEFT JOIN {$gacl_api->_db_table_prefix}aco_map b ON a.id=b.acl_id
 
-                                        LEFT JOIN aco e ON ( b.section_value=e.section_value AND b.value = e.value )
-                                        LEFT JOIN aco_sections f ON e.section_value=f.value
+                                        LEFT JOIN {$gacl_api->_db_table_prefix}aco e ON ( b.section_value=e.section_value AND b.value = e.value )
+                                        LEFT JOIN {$gacl_api->_db_table_prefix}aco_sections f ON e.section_value=f.value
 
-                                        LEFT JOIN aro_map c ON a.id=c.acl_id
-                                        LEFT JOIN aro_groups_map d ON a.id=d.acl_id
+                                        LEFT JOIN {$gacl_api->_db_table_prefix}aro_map c ON a.id=c.acl_id
+                                        LEFT JOIN {$gacl_api->_db_table_prefix}aro_groups_map d ON a.id=d.acl_id
 
-                                        LEFT JOIN axo_map j ON a.id=j.acl_id
-                                        LEFT JOIN axo_groups_map k ON a.id=k.acl_id
+                                        LEFT JOIN {$gacl_api->_db_table_prefix}axo_map j ON a.id=j.acl_id
+                                        LEFT JOIN {$gacl_api->_db_table_prefix}axo_groups_map k ON a.id=k.acl_id
 
-                                        LEFT JOIN aro g ON ( c.section_value=g.section_value AND c.value = g.value )
-                                        LEFT JOIN aro_sections h ON g.section_value=h.value
-										LEFT JOIN aro_groups i ON i.id=d.group_id
+                                        LEFT JOIN {$gacl_api->_db_table_prefix}aro g ON ( c.section_value=g.section_value AND c.value = g.value )
+                                        LEFT JOIN {$gacl_api->_db_table_prefix}aro_sections h ON g.section_value=h.value
+										LEFT JOIN {$gacl_api->_db_table_prefix}aro_groups i ON i.id=d.group_id
 
-                                        LEFT JOIN axo l ON ( j.section_value=l.section_value AND j.value = l.value )
-                                        LEFT JOIN axo_sections m ON l.section_value=m.value
-										LEFT JOIN axo_groups n ON n.id=k.group_id ";
+                                        LEFT JOIN {$gacl_api->_db_table_prefix}axo l ON ( j.section_value=l.section_value AND j.value = l.value )
+                                        LEFT JOIN {$gacl_api->_db_table_prefix}axo_sections m ON l.section_value=m.value
+										LEFT JOIN {$gacl_api->_db_table_prefix}axo_groups n ON n.id=k.group_id ";
 		if (isset($acl_ids_sql) AND $acl_ids_sql != '') {
 			$query .= "	where a.id in ($acl_ids_sql)";
 		}
@@ -271,7 +271,7 @@ switch ($_GET['action']) {
         //
         //Grab all ACL sections for select box
         //
-        $query = "select id, name from acl_sections where hidden = 0 order by order_value";
+        $query = "select id, name from {$gacl_api->_db_table_prefix}acl_sections where hidden = 0 order by order_value";
         $rs = $db->Execute($query);
         $rows = $rs->GetRows();
 

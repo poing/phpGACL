@@ -11,19 +11,19 @@ if ( isset($_GET['object_type']) AND $_GET['object_type'] != '' ) {
 switch(strtolower(trim($object_type))) {
     case 'aco':
         $object_type = 'aco';
-		$object_sections_table = 'aco_sections';
+		$object_sections_table = $gacl_api->_db_table_prefix . 'aco_sections';
         break;
     case 'aro':
         $object_type = 'aro';
-		$object_sections_table = 'aro_sections';
+		$object_sections_table = $gacl_api->_db_table_prefix . 'aro_sections';
         break;
     case 'axo':
         $object_type = 'axo';
-		$object_sections_table = 'axo_sections';
+		$object_sections_table = $gacl_api->_db_table_prefix . 'axo_sections';
         break;
     case 'acl':
         $object_type = 'acl';
-		$object_sections_table = 'acl_sections';
+		$object_sections_table = $gacl_api->_db_table_prefix . 'acl_sections';
         break;
     default:
         echo "ERROR: Must select an object type<br>\n";

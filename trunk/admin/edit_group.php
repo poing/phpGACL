@@ -17,11 +17,11 @@ if ($_GET['return_page'] == '') {
 switch(strtolower(trim($group_type))) {
     case 'axo':
         $group_type = 'axo';
-		$group_table = 'axo_groups';
+		$group_table = $gacl_api->_db_table_prefix . 'axo_groups';
         break;
     default:
         $group_type = 'aro';
-        $group_table = 'aro_groups';
+        $group_table = $gacl_api->_db_table_prefix . 'aro_groups';
         break;
 }
 

@@ -20,10 +20,10 @@ $query = "select 		a.value,
 								c.name,
 								d.value,
 								d.name
-					from 	aco_sections as a
-						LEFT JOIN aco as b ON a.value=b.section_value,
-						aro_sections as c
-						LEFT JOIN aro as d ON c.value=d.section_value
+					from 	{$gacl_api->_db_table_prefix}aco_sections as a
+						LEFT JOIN {$gacl_api->_db_table_prefix}aco as b ON a.value=b.section_value,
+						{$gacl_api->_db_table_prefix}aro_sections as c
+						LEFT JOIN {$gacl_api->_db_table_prefix}aro as d ON c.value=d.section_value
 					order by a.value, b.value, c.value, d.value";
 //$rs = $db->Execute($query);
 $rs = $db->pageexecute($query, $gacl_api->_items_per_page, $_GET['page']);

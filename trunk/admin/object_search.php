@@ -34,7 +34,7 @@ switch ($_GET['action']) {
         $query = "select 	section_value,
 									value,
 									name
-							from ".$_GET['object_type']."
+							from ".$gacl_api->_db_table_prefix . $_GET['object_type']."
 							where section_value = '".$_GET['section_value']."'
 								AND 	";
 		

@@ -1,5 +1,6 @@
 <?php
-require_once("admin/gacl_admin.inc.php");
+
+include_once("./admin/gacl_admin.inc.php");
 require_once( ADODB_DIR .'/adodb-xmlschema.inc.php');
 
 $db_table_prefix = $gacl->_db_table_prefix;
@@ -9,6 +10,12 @@ $db_host = $gacl->_db_host;
 $db_user = $gacl->_db_user;
 $db_password = $gacl->_db_password;
 $db_name = $gacl->_db_name;
+
+$failed = 0;
+
+echo "<h1>phpgacl database setup</h1>
+<p><b>Configuration</b> driver=<b>$db_type</b>, host=<b>$db_host</b>,
+user=<b>$db_user</b>, database=<b>$db_name</b>, table prefix=<b>$db_table_prefix</b></p>";
 
 function echo_success($text) {
     echo "<font color=\"green\"><b>Success!</b></font> $text<br>\n";
@@ -139,10 +146,48 @@ switch ($db_type) {
 // Create the schema object and build the query array.
 $schema = new adoSchema($db, TRUE);
 
+$orig_xml_file = $final_xml_file = 'schema.xml';
+
+// special handling if we are going to do table prefixing
+if ($db_table_prefix) {
+  if (function_exists('file_get_contents')) {   // 4.3.0 and above only
+    $xml = file_get_contents($orig_xml_file);
+  } else {
+    $fp = fopen($orig_xml_file, 'r');
+    if ($fp) {
+      $xml = fgets($fp, filesize($orig_xml_file));
+      fclose($fp);
+    }
+  }
+  if (strlen($orig_xml_file) == 0) {
+    echo_failed("Can't read the database schema file '$orig_xml_file'!");
+  }
+  
+  // apply prefix
+  $xml = preg_replace('/#PREFIX#/i', $db_table_prefix, $xml);
+  
+  $tmp_xml_file = tempnam('/tmp', $xml_file);
+  $fp = fopen($tmp_xml_file, 'w');
+  if ($fp) {
+    fwrite($fp, $xml);
+    fclose($fp);
+    $final_xml_file = $tmp_xml_file;
+  }
+  else {
+    echo_failed("Can't write translated database schema file to '$tmp_xml_file'. Check permissions in directory?");
+  }
+}
+
 // Build the SQL array
-$sql = $schema->ParseSchema("schema.xml");
+$sql = $schema->ParseSchema($final_xml_file);
+
+// clean up temp file if we created one
+if ($final_xml_file != $orig_xml_file) {
+  unlink($final_xml_file);
+}
 
 /*
+// maybe display this if $gacl->debug is true?
 print "Here's the SQL to do the build:<br>\n<pre>";
 print_r( $sql );
 print "</pre><br>\n";
@@ -152,7 +197,7 @@ print "</pre><br>\n";
 $result = $schema->ExecuteSchema($sql, FALSE); //Don't continue on error.
 
 if ($result != 2) {
-	echo_failed("Failed creating tables. Please enable DEBUG mode to see the error and try again. You will most likely need to delete any tables already created.");
+  echo_failed("Failed creating tables. Please enable DEBUG mode (set it to TRUE in \$gacl_options near top of admin/gacl_admin.inc.php) to see the error and try again. You will most likely need to delete any tables already created.");
 }
 
 // Finally, clean up after the XML parser
