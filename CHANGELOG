@@ -1,5 +1,7 @@
+Fri Jun 18 2004
+        dcech - upgraded to ADOdb v4.23
 Thu Jun 17 2004
-	mikeb - Fixed issue with links and group names with spaces in them. Thanks to Gordon Luk <gordon.luk@dfafunds.com>
+        mikeb - Fixed issue with links and group names with spaces in them. Thanks to Gordon Luk <gordon.luk@dfafunds.com>
         dcech - fixed object count in group admin for groups without objects
 Tue May 24 2004
         mikeb - Fixed bug in API that stopped you from changing a group name to the same thing as the group value. Hakan Kuecuekyilmaz <hakan@lisas.de>

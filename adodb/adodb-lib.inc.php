@@ -1,10 +1,13 @@
 <?php
 
+// security - hide paths
+if (!defined('ADODB_DIR')) die();
+
 global $ADODB_INCLUDED_LIB;
 $ADODB_INCLUDED_LIB = 1;
 
 /* 
- @version V4.22 15 Apr 2004 (c) 2000-2004 John Lim (jlim\@natsoft.com.my). All rights reserved.
+ @version V4.23 16 June 2004 (c) 2000-2004 John Lim (jlim\@natsoft.com.my). All rights reserved.
   Released under both BSD license and Lesser GPL library license. 
   Whenever there is any discrepancy between the two licenses, 
   the BSD license will take precedence. See License.txt. 
@@ -142,7 +145,7 @@ function _adodb_getmenu(&$zthis, $name,$defstr='',$blank1stItem=true,$multiple=f
 		if (is_array($defstr))  {
 			
 			if (in_array($selected,$defstr)) 
-				$s .= "<option selected$value>".htmlspecialchars($zval).'</option>';
+				$s .= "<option selected='selected'$value>".htmlspecialchars($zval).'</option>';
 			else 
 				$s .= "\n<option".$value.'>'.htmlspecialchars($zval).'</option>';
 		}
@@ -210,8 +213,10 @@ function _adodb_getcount(&$zthis, $sql,$inputarr=false,$secs2cache=0)
 	//--------------------------------------------
 	// query rewrite failed - so try slower way...
 	
-	// strip off unneeded ORDER BY
-	$rewritesql = preg_replace('/(\sORDER\s+BY\s.*)/is','',$sql); 
+	// strip off unneeded ORDER BY if no UNION
+	if (preg_match('/\s*UNION\s*/is', $sql)) $rewritesql = $sql;
+	else $rewritesql = preg_replace('/(\sORDER\s+BY\s.*)/is','',$sql); 
+	
 	$rstest = &$zthis->Execute($rewritesql,$inputarr);
 	if ($rstest) {
 	  		$qryRecs = $rstest->RecordCount();
@@ -576,6 +581,12 @@ function _adodb_column_sql_oci8(&$zthis,$action, $type, $fname, $arrFields, $mag
             //so the user can build this later in
             //case they want to add more to it
             $zthis->_returningArray[$fname] = ':xx'.$fname.'xx';
+        } else if (empty($arrFields[$fname])){
+            if ($action == 'I') {
+                $sql = 'empty_blob(), ';
+            } else {
+                $sql = $fname. '=empty_blob(), ';
+            }            
         } else {
             //this is to maintain compatibility
             //with older adodb versions.

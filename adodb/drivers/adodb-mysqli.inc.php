@@ -1,6 +1,6 @@
 <?php
 /*
-V4.22 15 Apr 2004  (c) 2000-2004 John Lim (jlim@natsoft.com.my). All rights reserved.
+V4.23 16 June 2004  (c) 2000-2004 John Lim (jlim@natsoft.com.my). All rights reserved.
   Released under both BSD license and Lesser GPL library license. 
   Whenever there is any discrepancy between the two licenses, 
   the BSD license will take precedence.
@@ -12,6 +12,10 @@ V4.22 15 Apr 2004  (c) 2000-2004 John Lim (jlim@natsoft.com.my). All rights rese
 21 October 2003: MySQLi extension implementation by Arjen de Rijke (a.de.rijke@xs4all.nl)
 Based on adodb 3.40
 */ 
+
+// security - hide paths
+if (!defined('ADODB_DIR')) die();
+
 if (! defined("_ADODB_MYSQL_LAYER")) {
  define("_ADODB_MYSQL_LAYER", 1 );
  
@@ -101,20 +105,12 @@ class ADODB_mysqli extends ADOConnection {
 	//Eg. $s = $db->qstr(HTTP_GET_VARS['name'],get_magic_quotes_gpc());
 	function qstr($s, $magic_quotes = false)
 	{
-	  if (!$magic_quotes) {
-	    if (ADODB_PHPVER >= 0x5000) {
-	    //  $this->_connectionID = $this->mysqli_resolve_link($this->_connectionID);
-	      return "'" . mysqli_real_escape_string($this->_connectionID, $s) . "'";
-	    }
-	    else
-	      {
-		trigger_error("phpver < 5 not implemented", E_USER_ERROR);
-	      }
+		if (!$magic_quotes) {
+	    	if (PHP_VERSION >= 5)
+	      		return "'" . mysqli_real_escape_string($this->_connectionID, $s) . "'";   
 	    
-	    if ($this->replaceQuote[0] == '\\')
-	      {
-		$s = adodb_str_replace(array('\\',"\0"),array('\\\\',"\\\0"),$s);
-	      }
+		if ($this->replaceQuote[0] == '\\')
+			$s = adodb_str_replace(array('\\',"\0"),array('\\\\',"\\\0"),$s);
 	    return  "'".str_replace("'",$this->replaceQuote,$s)."'"; 
 	  }
 	  // undo magic quotes for "
@@ -671,7 +667,7 @@ class ADORecordSet_mysqli extends ADORecordSet{
 	{	
 	  $fieldnr = $fieldOffset;
 	  if ($fieldOffset != -1) {
-	    $fieldOffset = mysqi_field_seek($this->_queryID, $fieldnr);
+	    $fieldOffset = mysqli_field_seek($this->_queryID, $fieldnr);
 	  }
 	  $o = mysqli_fetch_field($this->_queryID);
 	  return $o;
