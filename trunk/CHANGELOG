@@ -1,3 +1,5 @@
+Tue Nov 11 2003
+	- Applied MPTT (different group tree format) patch from Dan Cech <dcech@phpwerx.net>
 Wed Nov 05 2003
 	- Fixed issue where ARO and AXO groups use the same sequence. Not really a bug, but shouldn't 
 	be the case. Thanks to Dan Cech <dcech@phpwerx.net>
