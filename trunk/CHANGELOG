@@ -1,0 +1,9 @@
+Wed Sep 25 2002
+	- Added multi-layer ACO checking to ACL_QUERY()
+	- Removed multi-layer ACO checking in favor of "dual" acl checking. ie:
+		If you want to set ACL's on a contact list. Create ACO's for each Contact in the list.
+		and create more generic ACO's for things like "View - Contacts", "Edit - Contacts".
+		Then simply create an ACL with ACO's "View - Contacts" AND "Contact ID: 15"
+		Then if ( acl_check("View - Contacts", "John Doe") AND acl_check("Contact ID: 15", "John Doe"))
+		Very simple, and should be just as fast, or faster then adding more bloat to the database.
+	- Added "hidden" flag to ACO, ACO Sections, ARO, and ARO sections. 
