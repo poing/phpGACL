@@ -17,7 +17,7 @@ function echo_failed($text) {
 	global $failed;
 	
 	echo "<font color=\"red\"><b>Failed!</b></font> $text<br>\n";
-	
+
 	$failed++;
 }
 
@@ -51,17 +51,17 @@ echo_normal("<br>");
 switch ($db_type) {
 	case mysql:
 		echo_success("Compatible database type \"<b>$db_type</b>\" detected!");
-	
+
 		echo_normal("Making sure database \"<b>$db_name</b>\" exists...");
 
 		$databases = $db->GetCol("show databases");
 
 		if (in_array($db_name, $databases) ) {
-			echo_success("Good, database \"<b>$db_name</b>\" already exists!");	
+			echo_success("Good, database \"<b>$db_name</b>\" already exists!");
 		} else {
 			echo_normal("Database \"<b>$db_name</b>\" does not exist!");
 			echo_normal("Lets try to create it...");
-			
+
 			if (!$db->Execute("create database $db_name") ) {
 				echo_failed("Database \"<b>$db_name</b>\" could not be created, please do so manually.");
 			} else {
@@ -69,18 +69,31 @@ switch ($db_type) {
 
 				//Reconnect. Hrmm, this is kinda weird.
 				$db->Connect($db_host, $db_user, $db_password, $db_name);
-			}			
+			}
 		}
-		
+
 		/*
 		 * Create tables.
 		 */
 		echo_normal("Attempting to create tables in \"<b>$db_name</b>\"");
 
-		$table_array = 	array (						acl =>
+		$table_array = 	array (
+
+													phpgacl => 	"
+																CREATE TABLE phpgacl (
+																  name varchar(255) NOT NULL default '',
+																  value varchar(255) NOT NULL default '',
+																  UNIQUE KEY name (name),
+																  ) TYPE=MyISAM;
+																insert into phpgacl (name, value) VALUES('version','3.2.0b');
+																insert into phpgacl (name, value) VALUES('schema_version','2.0');
+
+																",
+													acl =>
 																"
 																CREATE TABLE acl (
 																  id int(12) NOT NULL default '0',
+																  section_id int(12) NOT NULL default '1',
 																  allow smallint(1) NOT NULL default '0',
 																  enabled smallint(1) NOT NULL default '0',
 																  return_value text default NULL,
@@ -90,6 +103,23 @@ switch ($db_type) {
 																  INDEX (enabled)
 																  ) TYPE=MyISAM
 																",
+													acl_sections =>
+																"
+																CREATE TABLE acl_sections (
+																  id int(12) NOT NULL default '0',
+																  value varchar(255) NOT NULL default '',
+																  order_value int(10) NOT NULL default '0',
+																  name varchar(255) NOT NULL default '',
+																  hidden smallint(1) NOT NULL default '0',
+																  UNIQUE KEY id (id),
+																  UNIQUE KEY value (value),
+																  INDEX (hidden)
+																) TYPE=MyISAM;
+																insert into acl_sections (id,value,order_value,name) VALUES(1,'system',1,'System');
+																insert into acl_sections (id,value,order_value,name) VALUES(2,'user',2,'User');
+
+																",
+
 													aco =>
 																"
 																CREATE TABLE aco (
@@ -225,7 +255,7 @@ switch ($db_type) {
 																  PRIMARY KEY  (acl_id,group_id),
 																  INDEX (acl_id)
 																) TYPE=MyISAM
-																",	
+																",
 													aro_groups_path =>
 																"
 																CREATE TABLE aro_groups_path (
@@ -294,7 +324,7 @@ switch ($db_type) {
 
 		$tables = $db->GetCol("show tables");
 		if (!$tables) {
-			$tables = array();	
+			$tables = array();
 		}
 
 		foreach ($table_array as $table_name => $schema) {
@@ -305,7 +335,7 @@ switch ($db_type) {
 				echo_success("Table: \"<b>$table_name</b>\" already exists! ");	
 			} else {
 				if (!$db->Execute($schema) ) {
-					echo_failed("Creation of table: \"<b>$table_name</b>\" ");	
+					echo_failed("Creation of table: \"<b>$table_name</b>\" ");
 				} else {
 					echo_success("Table \"<b>$table_name</b>\" created successfully!");	
 				}
@@ -315,17 +345,17 @@ switch ($db_type) {
 		break;
 	case postgres7:
 		echo_success("Compatible database type \"<b>$db_type</b>\" detected!");
-	
+
 		echo_normal("Making sure database \"<b>$db_name</b>\" exists...");
 
 		$databases = $db->GetCol("select datname from pg_database");
 
 		if (in_array($db_name, $databases) ) {
-			echo_success("Good, database \"<b>$db_name</b>\" already exists!");	
+			echo_success("Good, database \"<b>$db_name</b>\" already exists!");
 		} else {
 			echo_normal("Database \"<b>$db_name</b>\" does not exist!");
 			echo_normal("Lets try to create it...");
-			
+
 			if (!$db->Execute("create database $db_name") ) {
 				echo_failed("Database \"<b>$db_name</b>\" could not be created, please do so manually.");
 			} else {
@@ -333,7 +363,7 @@ switch ($db_type) {
 
 				//Reconnect. Hrmm, this is kinda weird.
 				$db->Connect($db_host, $db_user, $db_password, $db_name);
-			}			
+			}
 		}
 
 		/*
@@ -341,20 +371,48 @@ switch ($db_type) {
 		 */
 		echo_normal("Attempting to create tables in \"<b>$db_name</b>\"");
 
-		$table_array = array ( 				acl =>
+		$table_array = array (
+
+											phpgacl => 				"
+																	CREATE TABLE phpgacl (
+																	name varchar(255) NOT NULL default '',
+																	value varchar(255) NOT NULL default '');
+																	create unique index name_phpgacl on phpgacl(name);
+																	insert into phpgacl (name, value) VALUES('version','3.2.0b');
+																	insert into phpgacl (name, value) VALUES('schema_version','2.0');
+																	",
+
+											acl =>
 																	"
 																	CREATE TABLE acl (
 																	   id integer NOT NULL default 0,
+																	   section_id integer NOT NULL default 1,
 																	   allow smallint NOT NULL default 0,
 																	   enabled smallint NOT NULL default 0,
 																	   return_value text default NULL,
-																	   note text default NULL,								   
+																	   note text default NULL,
 																	   updated_date integer NOT NULL default 0
 																	);
 																	create unique index id_acl on acl(id);
 																	create index id_enabled_acl on acl(id,enabled);
 
 																	",
+											acl_sections =>
+																	"
+																	CREATE TABLE acl_sections (
+																	   id integer NOT NULL default 0,
+																	   value varchar(255) NOT NULL default '',
+																	   order_value integer NOT NULL default 0,
+																	   name varchar(255) NOT NULL default '',
+																	   hidden smallint NOT NULL default '0'
+																	);
+																	create unique index id_acl_sections on acl_sections(id);
+																	create unique index value_acl_sections on acl_sections(value);
+																	create index hidden_acl_sections on acl_sections(hidden);
+																	insert into acl_sections (id,value,order_value,name) VALUES(1,'system',1,'System');
+																	insert into acl_sections (id,value,order_value,name) VALUES(2,'user',2,'User');
+																	",
+
 											aco =>
 																	"
 																	CREATE TABLE aco (
@@ -389,7 +447,7 @@ switch ($db_type) {
 																	);
 																	create unique index id_aco_sections on aco_sections(id);
 																	create unique index value_aco_sections on aco_sections(value);
-																	create index hidden_aco_sections on aco_sections(hidden);								
+																	create index hidden_aco_sections on aco_sections(hidden);
 																	",
 											aro =>
 																	"

@@ -62,5 +62,8 @@ switch ($_POST['action']) {
 $smarty->assign('group_type', $group_type);
 $smarty->assign('return_page', $_SERVER['REQUEST_URI']);
 
+$smarty->assign("phpgacl_version", $gacl_api->get_version() );
+$smarty->assign("phpgacl_schema_version", $gacl_api->get_schema_version() );
+
 $smarty->display('phpgacl/group_admin.tpl');
 ?>

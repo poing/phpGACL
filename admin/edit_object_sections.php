@@ -21,6 +21,10 @@ switch(strtolower(trim($object_type))) {
         $object_type = 'axo';
 		$object_sections_table = 'axo_sections';
         break;
+    case 'acl':
+        $object_type = 'acl';
+		$object_sections_table = 'acl_sections';
+        break;
     default:
         echo "ERROR: Must select an object type<br>\n";
         exit();
@@ -107,6 +111,9 @@ switch ($_POST['action']) {
 
 $smarty->assign('object_type', $object_type);
 $smarty->assign('return_page', $_SERVER['REQUEST_URI']);
+
+$smarty->assign("phpgacl_version", $gacl_api->get_version() );
+$smarty->assign("phpgacl_schema_version", $gacl_api->get_schema_version() );
 
 $smarty->display('phpgacl/edit_object_sections.tpl');
 ?>

@@ -1,5 +1,9 @@
 Fri July 04 2003
-	- 
+	- Updated table schema for the acl table. Added the acl_section table, and the phpgacl table.
+	- Added ACL sections. The purpose of these is like all other sections, to simply classify objects.
+		For example, you may want to differentiate between automatically created ACLs (System ACLs) and
+		manually created ACLs (User ACLs). As some installations may have several thousand automatically created
+		ACLs, its nice to filter these out.
 Tue July 01 2003
 	- Fixed security bug that could allow someone to see your database password.
 	

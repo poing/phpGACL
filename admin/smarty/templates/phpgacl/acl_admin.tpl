@@ -63,7 +63,7 @@
           <tr>
             <td valign="middle" bgcolor="#cccccc" align="center">[ <a href="edit_object_sections.php?object_type=aco&return_page={$return_page}">Edit</a> ]<br>
              <br>
-             &nbsp; <select name="aco_section" tabindex="0" size="10" width="200" onclick="populate(document.acl_admin.aco_section,document.acl_admin.elements['aco[]'], '{$js_aco_array_name}')">
+             <select name="aco_section" tabindex="0" size="10" width="200" onclick="populate(document.acl_admin.aco_section,document.acl_admin.elements['aco[]'], '{$js_aco_array_name}')">
                 {html_options options=$options_aco_sections selected=$aco_section_value}
             </select> <br>
              </td>
@@ -85,7 +85,7 @@
             <td valign="middle" bgcolor="#cccccc" align="center">
              <br>
              <select name="selected_aco[]" tabindex="0" size="10" width="200" multiple>
-				{html_options options=$options_selected_aco selected=$selected_aco}             
+				{html_options options=$options_selected_aco selected=$selected_aco}
             </select>
             <br>
              </td>
@@ -122,7 +122,7 @@
             <td valign="middle" bgcolor="#cccccc" align="center">[ <a href="edit_object_sections.php?object_type=aro&return_page={$return_page}">Edit</a> ]<br>
              <br>
              <select name="aro_section" tabindex="0" size="10" width="200" onclick="populate(document.acl_admin.aro_section,document.acl_admin.elements['aro[]'],'{$js_aro_array_name}')">
-                {html_options options=$options_aro_sections selected=$aro_section_value}              
+                {html_options options=$options_aro_sections selected=$aro_section_value}
             </select> <br>
              </td>
 
@@ -167,7 +167,7 @@
           </tr>
           <tr>
           <td colspan="10">
-              <table id="axo_row1" {if $show_axo!=TRUE}class="hide"{/if} cellpadding="2" cellspacing="2" border="0">   
+              <table id="axo_row1" {if $show_axo!=TRUE}class="hide"{/if} cellpadding="2" cellspacing="2" border="0">
                 <tr>
                     <td width="200" valign="top" align="center" bgcolor="#d3dce3"><b>Sections</b><br>
                      </td>
@@ -188,12 +188,12 @@
                     <td valign="middle" bgcolor="#cccccc" align="center">[ <a href="edit_object_sections.php?object_type=axo&return_page={$return_page}">Edit</a> ]<br>
                      <br>
                      <select name="axo_section" tabindex="0" size="10" width="200" onclick="populate(document.acl_admin.axo_section,document.acl_admin.elements['axo[]'],'{$js_axo_array_name}')">
-                        {html_options options=$options_axo_sections selected=$axo_section_value}              
+                        {html_options options=$options_axo_sections selected=$axo_section_value}
                     </select> <br>
                      </td>
 
                     <td valign="middle" bgcolor="#cccccc" align="center">
-                    [ <a href="javascript: location.href = 'edit_objects.php?object_type=axo&section_value=' + document.acl_admin.axo_section.options[document.acl_admin.axo_section.selectedIndex].value + '&return_page={$return_page}';">Edit</a> ] 
+                    [ <a href="javascript: location.href = 'edit_objects.php?object_type=axo&section_value=' + document.acl_admin.axo_section.options[document.acl_admin.axo_section.selectedIndex].value + '&return_page={$return_page}';">Edit</a> ]
                     [ <a href="#" onClick="window.open('object_search.php?src_form=acl_admin&object_type=axo&section_value=' + document.acl_admin.axo_section.options[document.acl_admin.axo_section.selectedIndex].value + '&return_page={$return_page}','','status=yes,width=400,height=400','','status=yes,width=400,height=400');">Search</a> ]<br>
                      <br>
                      <select name="axo[]" tabindex="0" size="10" width="200" multiple>
@@ -218,7 +218,7 @@
                     <td valign="middle" bgcolor="#cccccc" align="center">[ <a href="group_admin.php?group_type=axo&return_page={$SCRIPT_NAME}?action={$action}&acl_id={$acl_id}">Edit</a> ]<br>
                          <br>
                          <select name="axo_groups[]" tabindex="0" multiple>
-                            {html_options options=$options_axo_groups selected=$selected_axo_groups}                          
+                            {html_options options=$options_axo_groups selected=$selected_axo_groups}
                         </select>
                         <br>
                         <br>
@@ -229,21 +229,37 @@
         </td>
         </tr>
         <tr>
-            <td valign="top" align="right" bgcolor="#d3dce3" rowspan="1" colspan="1">
+			<td colspan="5" valign="middle" bgcolor="#d3dce3" align="center">
+				<b>Miscellaneous Attributes</b>
+			</td>
+		</tr>
+        <tr>
+			<td valign="top" align="center" bgcolor="#d3dce3">
+                <b>ACL Section</b>
+            </td>
+			<td valign="top" align="right" bgcolor="#d3dce3">
                 <b>Extended Return Value:</b>
             </td>
-            <td valign="top" align="left" bgcolor="#cccccc" rowspan="1" colspan="4">
+            <td valign="top" align="left" bgcolor="#cccccc" colspan="4">
                 <input type="text" name="return_value" size="50" value="{$return_value}">
             </td>
-          </tr>
-          <tr>
-            <td valign="top" align="right" bgcolor="#d3dce3" rowspan="1" colspan="1">
+		</tr>
+		<tr>
+			<td rowspan="2" valign="middle" bgcolor="#cccccc" align="center">[ <a href="edit_object_sections.php?object_type=acl&return_page={$return_page}">Edit</a> ]<br>
+			<select name="acl_section" tabindex="0" size="2" width="200">
+				{html_options options=$options_acl_sections selected=$acl_section_value}
+			</select>
+			</td>
+		</tr>
+		<tr>
+            <td valign="top" align="right" bgcolor="#d3dce3">
                 <b>Note:</b>
             </td>
-            <td valign="top" align="left" bgcolor="#cccccc" rowspan="1" colspan="4">
+            <td valign="top" align="left" bgcolor="#cccccc" colspan="4">
                 <textarea name="note" rows="2" cols="50">{$note}</textarea>
             </td>
-          </tr>
+		</tr>
+		  </tr>
           <tr>
             <td valign="top" bgcolor="#999999" rowspan="1" colspan="5">
               <div align="center">

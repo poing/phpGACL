@@ -100,5 +100,8 @@ switch ($_GET['action']) {
 
 $smarty->assign("return_page", $_SERVER['PHP_SELF'] );
 
+$smarty->assign("phpgacl_version", $gacl_api->get_version() );
+$smarty->assign("phpgacl_schema_version", $gacl_api->get_schema_version() );
+
 $smarty->display('phpgacl/acl_debug.tpl');
 ?>
