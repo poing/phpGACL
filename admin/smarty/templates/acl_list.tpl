@@ -82,14 +82,14 @@
 		<br>
      </td>
      
-    <td valign="top" bgcolor="#cccccc" align="left" nowrap>
+    <td valign="top" bgcolor="#cccccc" align="left">
 		{section name=y loop=$acls[x].axo}
 			<b>{$smarty.section.y.iteration}.</b> {$acls[x].axo[y].axo}
 			<br>
 		{/section}
 		<br>
      </td>
-    <td valign="top" bgcolor="#cccccc" align="left" nowrap>
+    <td valign="top" bgcolor="#cccccc" align="left">
 		{section name=y loop=$acls[x].axo_groups}
 			<b>{$smarty.section.y.iteration}.</b> {$acls[x].axo_groups[y].group}
 			<br>
