@@ -37,7 +37,7 @@ switch ($_POST['action']) {
 				$split_axo_value = explode("^", $axo_value);
 				$selected_axo_array[$split_axo_value[0]][] = $split_axo_value[1];
 		}
-		showarray($selected_axo_array);
+		//showarray($selected_axo_array);
 		
 		//Some sanity checks.
 		if (count($selected_aco_array) == 0) {

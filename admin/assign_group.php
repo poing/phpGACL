@@ -20,7 +20,6 @@ switch(strtolower(trim($group_type))) {
 		$group_sections_table = 'aro_sections';
         break;
 }
-echo "Group Type: $group_type<br>\n";
 
 switch ($_POST[action]) {
     case Delete:
@@ -49,7 +48,7 @@ switch ($_POST[action]) {
     case Submit:
         debug("Submit!!");
 
-		showarray($_POST['selected_objects']);
+		//showarray($_POST['selected_objects']);
 		//Parse the form values
 		//foreach ($_POST['selected_aro'] as $aro_value) {
 		while (list(,$object_value) = @each($_POST['selected_objects'])) {
