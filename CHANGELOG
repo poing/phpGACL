@@ -1,8 +1,10 @@
+Mon June 16 2003
+	- Added acl_query_array() to aid in running an acl_check() over a large amount of AROs, returning section_value, values.
+
 Thu June 12 2003
 	- Added "ACLs" link to the group page, so you easily show all ACLs a specific group is assigned too.
 	- Added "ACLs" link to the group assign page, so you easily show all ACLs a specific ARO/AXO is assigned too.
 	- modified return array format for get_group_objects() and added functionality to return objects in child groups as well.
-	- Fixed a seemingly minor bug with path_ids and groups furthest away from the tree trunk. 
 	
 Wed June 11 2003
 	- Object searching now supports a newline delimited list of names/values. 
