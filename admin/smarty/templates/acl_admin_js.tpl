@@ -3,16 +3,9 @@
 //Function to totally clear a select box.
 
 function depopulate(form_element) {
-	//document.getElementById(form_element).innerHTML =''
 	if (form_element.options.length > 0) {
 		form_element.innerHTML = '';
 	}
-/*	
-	for (i=0; i < (form_element.options.length + 5); i++) {
-		form_element.options[0] = null;
-		form_element.options[1] = null;
-	}
-*/	
 }
 
 //Populates a select box based off the value of "parent" select box. 
@@ -25,10 +18,9 @@ function populate(parent_form_element, child_form_element, src_array) {
 
     //Clear the child form element
     depopulate(child_form_element);
-    
+
     //Populate child form element
-	//FIXME: Mozilla reports the below array value is undefined... 
-	if (options[src_array][parent_id] != 'undefined') {
+    if (options[src_array][parent_id]) {		
 		for (i=0; i < options[src_array][parent_id].length; i++) {
 			child_form_element.options[i] = new Option(options[src_array][parent_id][i][1], options[src_array][parent_id][i][0]);
 		}
