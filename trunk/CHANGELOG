@@ -1,3 +1,5 @@
+Thu Aug 05 2004
+        mikeb - Fixed acl_test.php ACL Check timings. Thanks to Gordon Luk <gordon.luk@dfafunds.com>
 Tue Jul 27 2004
         dcech - Fixed missing table prefix in edit_object function.
                 Thanks to Martin Salo <salo@laborint.com>.
