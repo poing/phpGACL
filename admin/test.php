@@ -4,11 +4,12 @@ require_once("gacl_admin.inc.php");
 //require_once("../gacl.inc.php");
 
 
-/*
+
 //Cache test.
-require_once("../Cache_Lite/Cache_Lite.php");
+
+require_once("../Cache_Lite/phpgacl_cache_lite.php");
 $options = array(
-    'cacheDir' => $cache_dir.'/',
+	'cacheDir' => $cache_dir.'/',
     'lifeTime' => 10,
 	'fileLocking' => false,
 	'writeControl' => false,
@@ -16,7 +17,8 @@ $options = array(
 	
 );
 
-$Cache_Lite = new Cache_Lite($options);
+$Cache_Lite = new phpGACL_Cache_Lite($options);
+//$Cache_Lite = new Cache_Lite($options);
 
 if ($data = $Cache_Lite->get('123')) {
     echo('Cache Hit !<br>');
@@ -30,10 +32,10 @@ if ($data = $Cache_Lite->get('123')) {
     echo($data);
     $Cache_Lite->save($data);
 }
-*/
+
 
 //Stress test.
-
+/*
 //Cleanup
 $aco_section_id = $gacl_api->get_aco_section_section_id("Stress Test");
 $del_aco_ids = $gacl_api->get_aco($aco_section_id);
@@ -56,7 +58,7 @@ $rs = $db->GetCol($query);
 foreach($rs as $del_acl_id) {
 	$gacl_api->del_acl($del_acl_id);
 }
-
+*/
 
 /*
 $max_aco=10;
