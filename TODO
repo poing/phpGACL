@@ -1,5 +1,3 @@
-* Implement Postgres7 schema/support
-
 * Write tutorial, some people may find phpGACL difficult to figure out.
 
 * Clean up Administration interface and add many more sanity checks
