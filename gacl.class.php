@@ -156,7 +156,7 @@ class gacl {
 	\*======================================================================*/
 	function acl_query($aco_section_value, $aco_value, $aro_section_value, $aro_value, $axo_section_value=NULL, $axo_value=NULL, $root_aro_group_id=NULL, $root_axo_group_id=NULL, $debug=NULL) {
 
-		$cache_id = $aco_section_value.'-'.$aco_value.'-'.$aro_section_value.'-'.$aro_value.'-'.$axo_section_value.'-'.$axo_value.'-'.$root_aro_group_id.'-'.$root_axo_group_id;
+		$cache_id = $aco_section_value.'-'.$aco_value.'-'.$aro_section_value.'-'.$aro_value.'-'.$axo_section_value.'-'.$axo_value.'-'.$root_aro_group_id.'-'.$root_axo_group_id.'-'.$debug;
 
 		$retarr = $this->get_cache($cache_id);
 
@@ -331,8 +331,8 @@ class gacl {
 			//Cache data.
 			$this->put_cache($retarr, $cache_id);
 		}
-		$this->debug_text("<b>acl_query():</b> ACO Section: $aco_section_value ACO Value: $aco_value ARO Section: $aro_section_value ARO Value $aro_value ACL ID: ". $retarr['acl_id'] ." Result: ". $row[0][1] ."");
-		
+
+		$this->debug_text("<b>acl_query():</b> ACO Section: $aco_section_value ACO Value: $aco_value ARO Section: $aro_section_value ARO Value $aro_value ACL ID: ". $retarr['acl_id'] ." Result: ". $row[0][1]."");
 		return $retarr;
 	}
 
@@ -373,7 +373,7 @@ class gacl {
 			/*
 			* Lookup data needed for subtree'ing
 			*/
-			if (!empty($root_group_id)) {			
+			if (!empty($root_group_id)) {
 				/*
 				* Find the path_to_root given for the root_group_id argument. This will help give us the parent_ids of all the groups
 				* in the subtree.
@@ -417,7 +417,7 @@ class gacl {
 			}
 			$rs = &$this->db->Execute($query);
 			$rows = &$rs->GetRows();
-
+			
 			/*
 			 * Seperate the group_ids from the parent_ids so we can work with them easy later on.
 			 */
@@ -456,7 +456,8 @@ class gacl {
 		if ($groups_array) {
 
 			//Generate unique cache ID.
-			$cache_id = serialize($groups_array).$group_type;
+			//crc32() is faster then md5() but is there a better way perhaps?
+			$cache_id = 'acl_get_group_path_'.crc32(serialize($groups_array)).'-'.$group_type;
 
 			$path_ids = $this->get_cache($cache_id);
 

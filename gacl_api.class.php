@@ -163,30 +163,30 @@ class gacl_api extends gacl {
 		}
 
 		if (empty($return_value) ) {
-			$this->debug_text("consolidated_edit__acl(): Return Value ($return_value) is empty, this is required!");
+			$this->debug_text("consolidated_edit_acl(): Return Value ($return_value) is empty, this is required!");
 			return false;
 		}
 
 		//See if a current ACL exists with the current objects, excluding return value
-		$current_acl_ids = $this->search_acl($aco_section_value, $aco_value, $aro_section_value, $aro_value);
+		$current_acl_ids = $this->search_acl($aco_section_value, $aco_value, $aro_section_value, $aro_value, FALSE, FALSE, FALSE, FALSE, FALSE);
 		//showarray($current_acl_ids);
 		
 		if (is_array($current_acl_ids)) {
-			$this->debug_text("consolidated_edit_acl(): Found current ACL_IDs, counting ACOs");
+			$this->debug_text("add_consolidated_acl(): Found current ACL_IDs, counting ACOs");
 			
 			foreach ($current_acl_ids as $current_acl_id) {
 				//Check to make sure these ACLs only have a single ACO mapped to them.
 				$current_acl_array = &$this->get_acl($current_acl_id);
 
 				//showarray($current_acl_array);
-				$this->debug_text("consolidated_edit_acl(): Current Count: ".$this->count_all($current_acl_array['aco'])."");
+				$this->debug_text("add_consolidated_acl(): Current Count: ".$this->count_all($current_acl_array['aco'])."");
 				
 				if ( $this->count_all($current_acl_array['aco']) == 1) {
-					$this->debug_text("consolidated_edit_acl(): ACL ID: $current_acl_id has 1 ACO.");
+					$this->debug_text("add_consolidated_acl(): ACL ID: $current_acl_id has 1 ACO.");
 
 					//Test to see if the return values match, if they do, no need removing or appending ARO. Just return true.
 					if ($current_acl_array['return_value'] == $return_value) {
-						$this->debug_text("consolidated_edit_acl(): ACL ID: $current_acl_id has 1 ACO, and the same return value. No need to modify.");
+						$this->debug_text("add_consolidated_acl(): ACL ID: $current_acl_id has 1 ACO, and the same return value. No need to modify.");
 						return true;
 					}
 					
@@ -202,37 +202,37 @@ class gacl_api extends gacl {
 		//If acl_id's turns up more then one ACL, lets remove the ARO from all of them in hopes to
 		//eliminate any conflicts. 
 		if (is_array($acl_ids) AND $acl_ids_count > 0) {
-			$this->debug_text("consolidated_edit_acl(): Removing specified ARO from existing ACL.");
+			$this->debug_text("add_consolidated_acl(): Removing specified ARO from existing ACL.");
 
 			foreach ($acl_ids as $acl_id) {
 				//Remove ARO from current ACLs, so we don't create conflicting ACLs later on.
 				if (!$this->shift_acl($acl_id, array($aro_section_value => array($aro_value)) ) ) {
-					$this->debug_text("consolidated_edit_acl(): Error removing specified ARO from ACL ID: $acl_id");
+					$this->debug_text("add_consolidated_acl(): Error removing specified ARO from ACL ID: $acl_id");
 					return false;
 				}
 			}
 		} else {
-			$this->debug_text("consolidated_edit_acl(): Didn't find any current ACLs with a single ACO. ");
+			$this->debug_text("add_consolidated_acl(): Didn't find any current ACLs with a single ACO. ");
 		}
 		unset($acl_ids);
 		unset($acl_ids_count);
 		
 		//At this point there should be no conflicting ACLs, searching for an existing ACL with the new values.
-		$new_acl_ids = $this->search_acl($aco_section_value, $aco_value, NULL, NULL, NULL, NULL, NULL, NULL, $return_value);
+		$new_acl_ids = $this->search_acl($aco_section_value, $aco_value, FALSE, FALSE, NULL, NULL, NULL, NULL, $return_value);
 		$new_acl_count = count($new_acl_ids);
 		//showarray($new_acl_ids);
 		
 		if (is_array($new_acl_ids)) {
-			$this->debug_text("consolidated_edit_acl(): Found new ACL_IDs, counting ACOs");
+			$this->debug_text("add_consolidated_acl(): Found new ACL_IDs, counting ACOs");
 			
 			foreach ($new_acl_ids as $new_acl_id) {
 				//Check to make sure these ACLs only have a single ACO mapped to them.
 				$new_acl_array = &$this->get_acl($new_acl_id);
 				//showarray($new_acl_array);				
-				$this->debug_text("consolidated_edit_acl(): New Count: ".$this->count_all($new_acl_array['aco'])."");
+				$this->debug_text("add_consolidated_acl(): New Count: ".$this->count_all($new_acl_array['aco'])."");
 				if ( $this->count_all($new_acl_array['aco']) == 1) {
 
-					$this->debug_text("consolidated_edit_acl(): ACL ID: $new_acl_id has 1 ACO, append should be able to take place.");
+					$this->debug_text("add_consolidated_acl(): ACL ID: $new_acl_id has 1 ACO, append should be able to take place.");
 					$acl_ids[] = $new_acl_id;
 				}
 				
@@ -243,22 +243,22 @@ class gacl_api extends gacl {
 		$acl_ids_count = count($acl_ids);
 		
 		if (is_array($acl_ids) AND $acl_ids_count == 1) {
-			$this->debug_text("consolidated_edit_acl(): Appending specified ARO to existing ACL.");
+			$this->debug_text("add_consolidated_acl(): Appending specified ARO to existing ACL.");
 
 			$acl_id=$acl_ids[0];
 			
 			if (!$this->append_acl($acl_id, array($aro_section_value => array($aro_value)) ) ) {
-				$this->debug_text("consolidated_edit_acl(): Error appending specified ARO to ACL ID: $acl_id");
+				$this->debug_text("add_consolidated_acl(): Error appending specified ARO to ACL ID: $acl_id");
 				return false;
 			}
 
-			$this->debug_text("consolidated_edit_acl(): Hot damn, ACL consolidated!");
+			$this->debug_text("add_consolidated_acl(): Hot damn, ACL consolidated!");
 			return true;
 		} elseif($acl_ids_count > 1) {
-			$this->debug_text("consolidated_edit_acl(): Found more then one ACL with a single ACO. Possible conflicting ACLs.");
+			$this->debug_text("add_consolidated_acl(): Found more then one ACL with a single ACO. Possible conflicting ACLs.");
 			return false;	
 		} elseif ($acl_ids_count == 0) {
-			$this->debug_text("consolidated_edit_acl(): No existing ACLs found, create a new one.");
+			$this->debug_text("add_consolidated_acl(): No existing ACLs found, create a new one.");
 			
 			if (!$this->add_acl(	array( $aco_section_value => array($aco_value) ),
 									array( $aro_section_value => array($aro_value) ),
@@ -270,44 +270,46 @@ class gacl_api extends gacl {
 									$return_value,
 									NULL)
 								) {
-				$this->debug_text("consolidated_edit_acl(): Error adding new ACL for ACO Section: $aco_section_value ACO Value: $aco_value Return Value: $return_value");
+				$this->debug_text("add_consolidated_acl(): Error adding new ACL for ACO Section: $aco_section_value ACO Value: $aco_value Return Value: $return_value");
 				return false;
 			}
 			
-			$this->debug_text("consolidated_edit_acl(): ADD_ACL() successfull, returning True.");
+			$this->debug_text("add_consolidated_acl(): ADD_ACL() successfull, returning True.");
 			return true;
 		}
 
-		$this->debug_text("consolidated_edit_acl(): Returning false.");
+		$this->debug_text("add_consolidated_acl(): Returning false.");
 		return false;
 	}
 
 	/*======================================================================*\
 		Function:	search_acl()
 		Purpose:	Searches for ACL's with specified objects mapped to them.
+					NULL values are included in the search, if you want to ignore
+					for instance aro_groups use FALSE instead of NULL.
 	\*======================================================================*/
 	function search_acl($aco_section_value=NULL, $aco_value=NULL, $aro_section_value=NULL, $aro_value=NULL, $aro_group_name=NULL, $axo_section_value=NULL, $axo_value=NULL, $axo_group_name=NULL, $return_value=NULL) {
-		$this->debug_text("search_acl(): ");
+		$this->debug_text("search_acl(): aco_section_value: $aco_section_value aco_value: $aco_value, aro_section_value: $aro_section_value, aro_value: $aro_value, aro_group_name: $aro_group_name, axo_section_value: $axo_section_value, axo_value: $axo_value, axo_group_name: $axo_group_name, return_value: $return_value");
 		
 		$query = "select 	a.id
 							from acl a";
-		if ($aco_section_value != NULL AND $aco_value != NULL) {
+		if ($aco_section_value !== FALSE AND $aco_value !== FALSE) {
 			$query .= " LEFT JOIN aco_map b ON a.id=b.acl_id
 							LEFT JOIN aco bb ON b.section_value=bb.section_value AND b.value=bb.value";	
 		}
-		if ($aro_section_value != NULL AND $aro_value != NULL) {
+		if ($aro_section_value !== FALSE AND $aro_value !== FALSE) {
 			$query .= " LEFT JOIN aro_map c ON a.id=c.acl_id
 							LEFT JOIN aro cc ON c.section_value=cc.section_value AND c.value=cc.value";	
 		}
-		if ($aro_group_name != NULL) {
+		if ($aro_group_name !== FALSE) {
 			$query .= " LEFT JOIN aro_groups_map d ON a.id=d.acl_id
 							LEFT JOIN aro_groups dd ON d.group_id=dd.id";	
 		}
-		if ($axo_section_value != NULL AND $axo_value != NULL) {
+		if ($axo_section_value !== FALSE AND $axo_value !== FALSE) {
 			$query .= " LEFT JOIN axo_map e ON a.id=e.acl_id
 							LEFT JOIN axo ee ON e.section_value=ee.section_value AND e.value=ee.value";	
 		}
-		if ($axo_group_name != NULL) {
+		if ($axo_group_name !== FALSE) {
 			$query .= " LEFT JOIN axo_groups_map f ON a.id=f.acl_id
 							LEFT JOIN axo_groups ff ON f.group_id=ff.id";	
 		}
@@ -315,25 +317,49 @@ class gacl_api extends gacl {
 		$query .= " WHERE ";
 		
 		//Where clauses
-		if ($aco_section_value != NULL AND $aco_value != NULL) {
-			$where_query[] = " ( bb.section_value='$aco_section_value' AND bb.value='$aco_value' )";	
+		if ($aco_section_value !== FALSE AND $aco_value !== FALSE) {
+			if ($aco_section_value == NULL AND $aco_value == NULL) {
+				$where_query[] = " ( bb.section_value is NULL AND bb.value is NULL )";
+			} else {
+				$where_query[] = " ( bb.section_value='$aco_section_value' AND bb.value='$aco_value' )";
+			}
 		}
-		if ($aro_section_value != NULL AND $aro_value != NULL) {
-			$where_query[] = " ( cc.section_value='$aro_section_value' AND cc.value='$aro_value' )";				
+		if ($aro_section_value !== FALSE AND $aro_value !== FALSE) {
+			if ($aro_section_value == NULL AND $aro_value == NULL) {
+				$where_query[] = " ( cc.section_value is NULL AND cc.value is NULL )";
+			} else {
+				$where_query[] = " ( cc.section_value='$aro_section_value' AND cc.value='$aro_value' )";
+			}
 		}
-		if ($aro_group_name != NULL) {
-			$where_query[] = " ( dd.name='$aro_group_name' ) ";
+		if ($aro_group_name !== FALSE) {
+			if ($aro_group_name == NULL) {
+				$where_query[] = " ( dd.name is NULL ) ";
+			} else {
+				$where_query[] = " ( dd.name='$aro_group_name' ) ";
+			}
 		}
-		if ($axo_section_value != NULL AND $axo_value != NULL) {
-			$where_query[] = " ( ee.section_value='$axo_section_value' AND ee.value='$axo_value' )";				
+		if ($axo_section_value !== FALSE AND $axo_value !== FALSE) {
+			if ($axo_section_value == NULL AND $axo_value == NULL) {
+				$where_query[] = " ( ee.section_value is NULL AND ee.value is NULL )";
+			} else {
+				$where_query[] = " ( ee.section_value='$axo_section_value' AND ee.value='$axo_value' )";
+			}
 		}
-		if ($axo_group_name != NULL) {
-			$where_query[] = " ( ff.name='$axo_group_name' ) ";
+		if ($axo_group_name !== FALSE) {
+			if ($axo_group_name == NULL) {
+				$where_query[] = " ( ff.name is NULL ) ";
+			} else {
+				$where_query[] = " ( ff.name='$axo_group_name' ) ";
+			}
 		}
-		if ($return_value != NULL) {
-			$where_query[] = " ( a.return_value='$return_value' ) ";
+		if ($return_value != FALSE) {
+			if ($return_value == NULL) {
+				$where_query[] = " ( a.return_value is NULL ) ";
+			} else {
+				$where_query[] = " ( a.return_value='$return_value' ) ";
+			}
 		}
-
+		
 		$query .= implode($where_query, " AND ");
 		
 		return $this->db->GetCol($query);
@@ -553,20 +579,25 @@ class gacl_api extends gacl {
 				}
 			}
 		}
-		
+
 		if ($update == 1) {
 			//We know something was changed, so lets see if no ACO's or no ARO's are left assigned to this ACL, if so, delete the ACL completely.
 			$this->showarray($acl_array);
 			$this->debug_text("shift_acl(): ACOs: ". $this->count_all($acl_array['aco']) ." AROs: ".$this->count_all($acl_array['aro'])."");
 			
-			if ( $this->count_all($acl_array['aco']) == 0 OR $this->count_all($acl_array['aro']) == 0) {
-				$this->debug_text("shift_acl(): No ACOs or AROs left assigned to this ACL (ID: $acl_id), deleting ACL.");
+			if ( $this->count_all($acl_array['aco']) == 0 
+					OR ( $this->count_all($acl_array['aro']) == 0 
+						AND ( $this->count_all($acl_array['axo']) == 0 OR $acl_array['axo'] == FALSE)
+						AND (count($acl_array['aro_groups']) == 0 OR $acl_array['aro_groups'] == FALSE)
+						AND (count($acl_array['axo_groups']) == 0 OR $acl_array['axo_groups'] == FALSE)
+						) ) {
+				$this->debug_text("shift_acl(): No ACOs or ( AROs AND AXOs AND ARO Groups AND AXO Groups) left assigned to this ACL (ID: $acl_id), deleting ACL.");
 				
 				return $this->del_acl($acl_id);
 			}
 			
 			$this->debug_text("shift_acl(): Update flag set, updating ACL.");
-			//function edit_acl($acl_id, $aco_array, $aro_array, $aro_group_ids=NULL, $axo_array=NULL, $axo_group_ids=NULL, $allow=1, $enabled=1, $return_value=NULL, $note=NULL) {
+
 			return $this->edit_acl($acl_id, $acl_array['aco'], $acl_array['aro'], $acl_array['aro_groups'], $acl_array['axo'], $acl_array['axo_groups'], $acl_array['allow'], $acl_array['enabled'], $acl_array['return_value'], $acl_array['note']);
 		}
 		
