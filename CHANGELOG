@@ -1,7 +1,15 @@
+Sun Mar 09 2003
+	- Fixed small bug in API function get_object_id() where it referenced the $name variable,
+		but $name was never used. If the function was used properly, this shouldn't have affected anything.
+		Thanks to: Harald Fielker <fielker@informatik.fh-augsburg.de> for pointing this out.
+		
+Sat Mar 01 2003
+	- Fixed up the layers with AXO show/hide functionality. Usable, but still needs improvement.
+
 Thu Feb 27 2003
 	- Attempted to add javascript show/hide to the AXO section of the acl_admin. 
 
-Thu Feb 25 2003
+Tue Feb 25 2003
 	- Fixed invalid DB reference in acl_get_groups(); Thanks to Gianluca Faieta <gfaieta@iname.com> for the patch.
 	
 Thu Feb 20 2003
