@@ -1655,7 +1655,7 @@ class gacl_api extends gacl {
 
 		// test to see if object & group exist and if object is already a member
 		$query  = '
-				SELECT		g.id AS group_id,o.id AS id,(gm.group_id IS NOT NULL) AS member
+				SELECT		g.id AS group_id,o.id AS id, gm.group_id AS member
 				FROM		'. $object_table .' o
 				LEFT JOIN	'. $group_table .' g ON g.id='. $group_id .'
 				LEFT JOIN	'. $table .' gm ON (gm.group_id=g.id AND gm.'. $group_type .'_id=o.id)
@@ -1674,7 +1674,8 @@ class gacl_api extends gacl {
 		
 		$row = $rs->FetchRow();
 		
-		if ($row[2] == 1) {
+		//Group_ID == Member
+		if ($row[0] == $row[2]) {
 			$this->debug_text("add_group_object (): Object: $object_value is already a member of Group ID: $group_id");
 			//Object is already assigned to group. Return true.
 			return true;
@@ -1785,9 +1786,11 @@ class gacl_api extends gacl {
 		//Grab all children of this group_id.
 		//$children_ids = @array_keys( $this->format_groups($this->sort_groups($group_type), 'ARRAY', $group_id) );
 		$children_ids = $this->get_group_children($group_id, $group_type, 'RECURSE');
-		if (@in_array($parent_id, $children_ids) ) {
-			$this->debug_text("edit_group(): Groups can not be re-parented to there own children, this would be incestuous!");
-			return false;
+		if (is_array($children_ids)) {
+			if (@in_array($parent_id, $children_ids) ) {
+				$this->debug_text("edit_group(): Groups can not be re-parented to there own children, this would be incestuous!");
+				return false;
+			}
 		}
 		unset($children_ids);
 		
@@ -2087,7 +2090,7 @@ class gacl_api extends gacl {
 				}
 				
 				// remove groups
-				$query = 'DELETE FROM '. $table .' WHERE group_id IN ('. implode (',', $group_ids) .')';
+				$query = 'DELETE FROM '. $table .' WHERE id IN ('. implode (',', $group_ids) .')';
 				$rs = $this->db->Execute($query);
 				
 				if (!is_object($rs)) {

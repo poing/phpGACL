@@ -294,6 +294,41 @@ class phpgacl_api_test extends TestCase {
         $this->assert($result, $message);
     }
     
+    function edit_group_parent_aro() {
+		$group_id = $this->get_group_id_parent_aro();
+		
+        $first_rename = $this->gacl_api->edit_group($group_id,'ARO Group 1 - tmp', 0, 'ARO');
+		$second_rename = $this->gacl_api->edit_group($group_id,'ARO Group 1', 0, 'ARO');
+		$reparent_to_self = $this->gacl_api->edit_group($group_id,'ARO Group 1', $group_id, 'ARO');
+		
+		if ($first_rename === TRUE AND $second_rename === TRUE AND $reparent_to_self === FALSE) {
+			$result = TRUE;
+		} else {
+			$result = FALSE;
+		}
+        $message = 'edit_group_parent_aro failed';
+        $this->assert($result, $message);
+    }
+/*
+    function del_group_parent_no_reparent_aro() {
+        $result = $this->gacl_api->del_group($this->get_group_id_parent_aro(), FALSE, 'ARO');
+        $message = 'del_group_parent_no_reparent_aro failed';
+        $this->assert($result, $message);
+    }
+*/
+    function del_group_parent_no_reparent_aro() {
+		$this->add_group_parent_aro();
+		$this->add_group_child_aro();
+		$this->add_parent_group_object_aro();
+		$this->add_child_group_object_aro();
+		
+        $result = $this->gacl_api->del_group($this->get_group_id_parent_aro(), FALSE, 'ARO');
+		
+        $message = 'del_group_parent_reparent_aro failed';
+        $this->assert($result, $message);
+    }
+
+
     function del_group_parent_aro() {
         $result = $this->gacl_api->del_group($this->get_group_id_parent_aro(), TRUE, 'ARO');
         $message = 'del_group_parent_aro failed';
@@ -439,19 +474,21 @@ $suite->addTest(new phpgacl_api_test('get_object_id_aro'));
 $suite->addTest(new phpgacl_api_test('add_object2_aro'));
 $suite->addTest(new phpgacl_api_test('get_object2_id_aro'));
 
-
 $suite->addTest(new phpgacl_api_test('add_object_section_axo'));
 $suite->addTest(new phpgacl_api_test('get_object_section_section_id_axo'));
 $suite->addTest(new phpgacl_api_test('add_object_axo'));
 $suite->addTest(new phpgacl_api_test('get_object_id_axo'));
 
 $suite->addTest(new phpgacl_api_test('add_group_parent_aro'));
+$suite->addTest(new phpgacl_api_test('edit_group_parent_aro'));
 $suite->addTest(new phpgacl_api_test('get_group_id_parent_aro'));
 $suite->addTest(new phpgacl_api_test('get_group_data_aro')); 
 $suite->addTest(new phpgacl_api_test('add_group_child_aro'));
 $suite->addTest(new phpgacl_api_test('get_group_id_child_aro'));
 $suite->addTest(new phpgacl_api_test('get_group_parent_id_aro'));
 
+$suite->addTest(new phpgacl_api_test('add_parent_group_object_aro'));
+//Try adding twice. Both times should return true.
 $suite->addTest(new phpgacl_api_test('add_parent_group_object_aro'));
 $suite->addTest(new phpgacl_api_test('add_child_group_object_aro'));
 
@@ -467,8 +504,10 @@ $suite->addTest(new phpgacl_api_test('get_group_id_child_axo'));
 $suite->addTest(new phpgacl_api_test('add_group_object_axo'));
 $suite->addTest(new phpgacl_api_test('get_group_parent_id_axo'));
 
+
 // clean up...
-$suite->addTest(new phpgacl_api_test('del_group_object_aro'));
+$suite->addTest(new phpgacl_api_test('del_parent_group_object_aro'));
+$suite->addTest(new phpgacl_api_test('del_child_group_object_aro'));
 $suite->addTest(new phpgacl_api_test('del_group_child_aro'));
 $suite->addTest(new phpgacl_api_test('del_group_parent_aro'));
 
@@ -478,6 +517,9 @@ $suite->addTest(new phpgacl_api_test('del_group_parent_axo'));
 
 $suite->addTest(new phpgacl_api_test('del_object_aco'));
 $suite->addTest(new phpgacl_api_test('del_object_section_aco'));
+
+//Test group reparenting - Order of this test is important.
+$suite->addTest(new phpgacl_api_test('del_group_parent_no_reparent_aro'));
 
 $suite->addTest(new phpgacl_api_test('del_object_aro'));
 $suite->addTest(new phpgacl_api_test('del_object2_aro'));
