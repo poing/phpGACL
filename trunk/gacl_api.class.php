@@ -2317,6 +2317,15 @@ class gacl_api extends gacl {
 			return false;
 		}
 
+		//Test to see if the object already exists.
+		$query = "select id from $object_table where section_value='$section_value' AND value='$value'";
+		$rs = $this->db->Execute($query);
+
+		if ($rs->RecordCount() == 1) {
+			//Object is already created.
+			return true;
+		}
+
 		$insert_id = $this->db->GenID($object_type.'_seq',10);
 		$query = "insert into $object_type (id,section_value, value,order_value,name,hidden) VALUES($insert_id, '$section_value', '$value', '$order', '$name', $hidden)";
 		$rs = $this->db->Execute($query);
