@@ -1,3 +1,6 @@
+Thu Jan 31 2003
+	- Added conflict detection to add_acl();
+	
 Thu Jan 30 2003
 	- Created search_acl() to search for ACLs mapped to specific objects. This should also work for detecting conflicting ACLs.
 	- Created shift_acl() that basically does the opposite of append_acl(). Remove just the specific objects from the ACL mapping.

@@ -2,13 +2,14 @@
 $debug=1;
 require_once("gacl_admin.inc.php");
 
-$gacl_api->consolidated_edit_acl('system', 'add_pop','accounts',1, 99);
+$gacl_api->is_conflicting_acl(
+								array('system' => array('login')),
+								array('accounts' => array(1)),
+								array(99),
+								array('projects' => array(99)),
+								array(99));
 
-//$gacl_api->add_consolidated_acl('system', 'add_pop','accounts',2, 99);
-///$gacl_api->add_consolidated_acl('system', 'add_pop','accounts',3, 99);
-//$gacl_api->add_consolidated_acl('system', 'add_pop','accounts',4, 99);
-
-//$gacl_api->add_consolidated_acl('system', 'add_pop','accounts',6, 99);
+//$gacl_api->consolidated_edit_acl('system', 'add_pop','accounts',1, 99);
 
 //$gacl_api->search_acl('system','add_pop','accounts',1, 'Browsers','projects',5599,'Projects',99);
 

@@ -57,6 +57,7 @@ class gacl_api extends gacl {
 		Purpose:	Recursively counts elements in an array.
 	\*======================================================================*/
 	function count_all($arg) {
+		unset($count);
 		// skip if argument is empty
 		if ($arg) {
 			// not an array, return 1 (base case)
@@ -67,7 +68,7 @@ class gacl_api extends gacl {
 			foreach($arg as $key => $val) {
 				$count += $this->count_all($val);
 			}
-			
+			$this->debug_text("count_all(): Count: $count");
 			return $count;
 		}
 		
@@ -81,7 +82,9 @@ class gacl_api extends gacl {
 						As well this function is designed for handling ACLs with return values,
 						and consolidating on the return_value, in hopes of keeping the ACL count to a minimum.
 	
-						*********THIS FUNCTION MUST REMOVE THE ARO from existing ACL.
+						A return value of false must _always_ be handled outside this function.
+						As this function will remove AROs from ACLs and return false, in most cases
+						you will need to a create a completely new ACL on a false return.
 	\*======================================================================*/
 	function consolidated_edit_acl($aco_section_value, $aco_value, $aro_section_value, $aro_value, $return_value) {
 
@@ -114,7 +117,7 @@ class gacl_api extends gacl {
 
 		//See if a current ACL exists with the current objects, excluding return value
 		$current_acl_ids = $this->search_acl($aco_section_value, $aco_value, $aro_section_value, $aro_value);
-		showarray($current_acl_ids);
+		//showarray($current_acl_ids);
 		
 		if (is_array($current_acl_ids)) {
 			$this->debug_text("add_consolidated_acl(): Found current ACL_IDs, counting ACOs");
@@ -122,9 +125,11 @@ class gacl_api extends gacl {
 			foreach ($current_acl_ids as $current_acl_id) {
 				//Check to make sure these ACLs only have a single ACO mapped to them.
 				$current_acl_array = &$this->get_acl($current_acl_id);
-				showarray($current_acl_array);
+
+				//showarray($current_acl_array);
 				$this->debug_text("add_consolidated_acl(): Current Count: ".$this->count_all($current_acl_array['aco'])."");
-				if ( $this->count_all($current_acl_array['aco']) == 2) { //Count_all is recursive, thus set this to 2.
+				
+				if ( $this->count_all($current_acl_array['aco']) == 1) {
 					$this->debug_text("add_consolidated_acl(): ACL ID: $current_acl_id has 1 ACO.");
 
 					//Test to see if the return values match, if they do, no need removing or appending ARO. Just return true.
@@ -139,22 +144,23 @@ class gacl_api extends gacl {
 			}
 		}
 
-		showarray($acl_ids);
+		//showarray($acl_ids);
 		$acl_ids_count = count($acl_ids);
 		
-		if (is_array($acl_ids) AND $acl_ids_count == 1) {
+		//If acl_id's turns up more then one ACL, lets remove the ARO from all of them in hopes to
+		//eliminate any conflicts. 
+		if (is_array($acl_ids) AND $acl_ids_count > 0) {
 			$this->debug_text("add_consolidated_acl(): Removing specified ARO from existing ACL.");
 
-			$acl_id=$acl_ids[0];
-			
-			//Remove ARO from current ACLs, so we don't create conflicting ACLs later on.
-			if (!$this->shift_acl($acl_id, array($aro_section_value => array($aro_value)) ) ) {
-				$this->debug_text("add_consolidated_acl(): Error removing specified ARO from ACL ID: $acl_id");
-				return false;
+			foreach ($acl_ids as $acl_id) {
+				//Remove ARO from current ACLs, so we don't create conflicting ACLs later on.
+				if (!$this->shift_acl($acl_id, array($aro_section_value => array($aro_value)) ) ) {
+					$this->debug_text("add_consolidated_acl(): Error removing specified ARO from ACL ID: $acl_id");
+					return false;
+				}
 			}
-		} elseif($acl_ids_count > 1) {
-			$this->debug_text("add_consolidated_acl(): Found more then one ACL with a single ACO. Possible conflicting ACLs.");
-			return false;	
+		} else {
+			$this->debug_text("add_consolidated_acl(): Didn't find any current ACLs with a single ACO. ");
 		}
 		unset($acl_ids);
 		unset($acl_ids_count);
@@ -162,6 +168,7 @@ class gacl_api extends gacl {
 		//At this point there should be no conflicting ACLs, searching for an existing ACL with the new values.
 		$new_acl_ids = $this->search_acl($aco_section_value, $aco_value, NULL, NULL, NULL, NULL, NULL, NULL, $return_value);
 		$new_acl_count = count($new_acl_ids);
+		//showarray($new_acl_ids);
 		
 		if (is_array($new_acl_ids)) {
 			$this->debug_text("add_consolidated_acl(): Found new ACL_IDs, counting ACOs");
@@ -169,10 +176,10 @@ class gacl_api extends gacl {
 			foreach ($new_acl_ids as $new_acl_id) {
 				//Check to make sure these ACLs only have a single ACO mapped to them.
 				$new_acl_array = &$this->get_acl($new_acl_id);
-
+				//showarray($new_acl_array);				
 				$this->debug_text("add_consolidated_acl(): New Count: ".$this->count_all($new_acl_array['aco'])."");
-				if ( $this->count_all($new_acl_array['aco']) == 2) { //Count_all is recursive, thus set this to 2.
-					showarray($new_acl_array);
+				if ( $this->count_all($new_acl_array['aco']) == 1) {
+
 					$this->debug_text("add_consolidated_acl(): ACL ID: $new_acl_id has 1 ACO, append should be able to take place.");
 					$acl_ids[] = $new_acl_id;
 				}
@@ -180,7 +187,7 @@ class gacl_api extends gacl {
 			}
 		}
 
-		showarray($acl_ids);
+		//showarray($acl_ids);
 		$acl_ids_count = count($acl_ids);
 		
 		if (is_array($acl_ids) AND $acl_ids_count == 1) {
@@ -200,7 +207,7 @@ class gacl_api extends gacl {
 			return false;	
 		}
 
-		$this->debug_text("add_consolidated_acl(): Returning false");
+		$this->debug_text("add_consolidated_acl(): Returning false.");
 		return false;
 	}
 
@@ -382,7 +389,7 @@ class gacl_api extends gacl {
 		//Grab ACL data.
 		$acl_array = &$this->get_acl($acl_id);
 	
-		showarray($acl_array);
+		//showarray($acl_array);
 		//Remove each object type seperately.
 		if (is_array($aro_array) AND count($aro_array) > 0) {
 			$this->debug_text("shift_acl(): Removing ARO's");
@@ -564,6 +571,61 @@ class gacl_api extends gacl {
 	}
 	
 	/*======================================================================*\
+		Function:	is_conflicting_acl()
+		Purpose:	Checks for conflicts when adding a specific ACL.
+	\*======================================================================*/
+	function is_conflicting_acl($aco_array, $aro_array, $aro_group_ids=NULL, $axo_array=NULL, $axo_group_ids=NULL) {
+		//Check for potential conflicts. Ignore groups, as groups will almost always have "conflicting" ACLs.
+		//Thats part of inheritance.
+
+		//ACO
+		while (list($aco_section_value,$aco_value_array) = @each($aco_array)) {
+			$this->debug_text("is_conflicting_acl(): ACO Section Value: $aco_section_value ACO VALUE: $aco_value_array");   
+			//showarray($aco_array);
+
+			foreach ($aco_value_array as $aco_value) {
+				$aco_object_id = &$this->get_object_id($aco_section_value, $aco_value, 'ACO');
+
+				if (!empty($aco_object_id)) {
+					//ARO
+					while (list($aro_section_value,$aro_value_array) = @each($aro_array)) {
+						$this->debug_text("is_conflicting_acl():  ARO Section Value: $aro_section_value ARO VALUE: $aro_value_array");   
+
+						foreach ($aro_value_array as $aro_value) {
+							$aro_object_id = &$this->get_object_id($aro_section_value, $aro_value, 'ARO');
+
+							if (!empty($aro_object_id)) {
+								$this->debug_text("is_conflicting_acl():  ARO Object ID: $aro_object_id");
+								$this->debug_text("is_conflicting_acl(): Search: ACO Section: $aco_section_value ACO Value: $aco_value ARO Section: $aro_section_value ARO Value: $aro_value");
+
+								$conflict_result = &$this->search_acl($aco_section_value, $aco_value, $aro_section_value, $aro_value);
+								if ($conflict_result != FALSE) {
+									showarray($conflict_result);
+									$conflicting_acls = implode($conflict_result,",");
+									$this->debug_text("is_conflicting_acl(): Conflict FOUND!!! ACL_IDS: ($conflicting_acls)");
+									return true;
+									
+								}
+								
+							} else {
+								$this->debug_text("is_conflicting_acl():  ARO Object Section Value: $aro_section_value Value: $aro_value DOES NOT exist in the database. Skipping...");
+								return true;
+							}
+						}
+					}
+
+				} else {
+					$this->debug_text("is_conflicting_acl(): ACO Object Section Value: $aco_section_value Value: $aco_value DOES NOT exist in the database. Skipping...");
+					return true;
+				}
+			}
+		}
+
+		$this->debug_text("is_conflicting_acl(): No conflicting ACL found.");
+		return false;
+		
+	}
+	/*======================================================================*\
 		Function:	add_acl()
 		Purpose:	Add's an ACL. ACO_IDS, ARO_IDS, GROUP_IDS must all be arrays.
 	\*======================================================================*/
@@ -604,6 +666,12 @@ class gacl_api extends gacl {
 		}
 		if (is_array($axo_group_ids)) {
 			$axo_group_ids = array_unique($axo_group_ids);
+		}
+		
+		//Check for conflicting ACLs
+		if ($this->is_conflicting_acl($aco_array,$aro_array) ) {
+			$this->debug_text("add_acl(): Detected possible ACL conflict, not adding ACL!");
+			return false;
 		}
 		
 		$this->db->BeginTrans();
