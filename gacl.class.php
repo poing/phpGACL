@@ -136,25 +136,28 @@ class gacl {
 		}
 		$this->db->debug = $this->_debug;
 
-		if (!class_exists('Hashed_Cache_Lite')) {
-			require_once(dirname(__FILE__) .'/Cache_Lite/Hashed_Cache_Lite.php');
-		}
+		if ( $this->_caching == TRUE ) {
+			if (!class_exists('Hashed_Cache_Lite')) {
+				require_once(dirname(__FILE__) .'/Cache_Lite/Hashed_Cache_Lite.php');
+			}
 
-		/*
-		 * Cache options. We default to the highest performance. If you run in to cache corruption problems,
-		 * Change all the 'false' to 'true', this will slow things down slightly however.
-		 */
-		$cache_options = array(
-			'caching' => $this->_caching,
-			'cacheDir' => $this->_cache_dir.'/',
-			'lifeTime' => $this->_cache_expire_time,
-			'fileLocking' => true,
-			'writeControl' => false,
-			'readControl' => false,
-			'memoryCaching' => TRUE,
-			'automaticSerialization' => FALSE
-		);
-		$this->Cache_Lite = new Hashed_Cache_Lite($cache_options);
+			/*
+			 * Cache options. We default to the highest performance. If you run in to cache corruption problems,
+			 * Change all the 'false' to 'true', this will slow things down slightly however.
+			 */
+
+			$cache_options = array(
+				'caching' => $this->_caching,
+				'cacheDir' => $this->_cache_dir.'/',
+				'lifeTime' => $this->_cache_expire_time,
+				'fileLocking' => TRUE,
+				'writeControl' => FALSE,
+				'readControl' => FALSE,
+				'memoryCaching' => TRUE,
+				'automaticSerialization' => FALSE				
+			);
+			$this->Cache_Lite = new Hashed_Cache_Lite($cache_options);
+		}
 
 		return true;
 	}
@@ -578,10 +581,12 @@ class gacl {
 	*/
 	function get_cache($cache_id) {
 
-		$this->debug_text("get_cache(): on ID: $cache_id");
+		if ( $this->_caching == TRUE ) {
+			$this->debug_text("get_cache(): on ID: $cache_id");
 
-		if ( is_string($this->Cache_Lite->get($cache_id) ) ) {
-			return unserialize($this->Cache_Lite->get($cache_id) );
+			if ( is_string($this->Cache_Lite->get($cache_id) ) ) {
+				return unserialize($this->Cache_Lite->get($cache_id) );
+			}
 		}
 
 		return false;
@@ -595,9 +600,13 @@ class gacl {
 	*/
 	function put_cache($data, $cache_id) {
 
-		$this->debug_text("put_cache(): Cache MISS on ID: $cache_id");
+		if ( $this->_caching == TRUE ) {
+			$this->debug_text("put_cache(): Cache MISS on ID: $cache_id");
 
-		return $this->Cache_Lite->save(serialize($data), $cache_id);
+			return $this->Cache_Lite->save(serialize($data), $cache_id);
+		}
+
+		return false;
 	}
 }
 ?>
