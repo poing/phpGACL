@@ -229,8 +229,8 @@ class dbTable {
 			foreach( $dict->MetaTables() as $table ) {
 				$this->legacyTables[ strtoupper( $table ) ] = $table;
 			}
-			if( in_array( strtoupper( $tableName ), $legacyTables ) ) {
-				$existingTableName = $legacyTables[strtoupper( $tableName )];
+			if( in_array( strtolower( $this->tableName ), $legacyTables ) ) {
+				$existingTableName = $this->tableName;
 			}
 		} 
 		// Build table array
