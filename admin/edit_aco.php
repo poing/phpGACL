@@ -1,7 +1,6 @@
 <?php
 require_once("gacl_admin.inc.php");
 
-
 switch ($_POST[action]) {
     case Delete:
    

@@ -29,7 +29,8 @@ switch ($_POST[action]) {
         debug("Submit!!");
 
 		//Parse the form values
-		foreach ($_POST['selected_aro'] as $aro_value) {
+		//foreach ($_POST['selected_aro'] as $aro_value) {
+		while (list(,$aro_value) = @each($_POST['selected_aro'])) {
 				$split_aro_value = explode("^", $aro_value);
 				$selected_aro_array[$split_aro_value[0]][] = $split_aro_value[1];
 		}

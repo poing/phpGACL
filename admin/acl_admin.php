@@ -1,6 +1,6 @@
 <?php
 require_once("gacl_admin.inc.php");
-$debug=1;
+
 if (!isset($_POST['action']) ) {
 	$_POST['action'] = FALSE;
 }
@@ -14,8 +14,8 @@ switch ($_POST['action']) {
         break;
     case 'Submit':
         debug("Submit!!");
-		showarray($_POST['selected_aco']);
-		showarray($_POST['selected_aro']);
+		//showarray($_POST['selected_aco']);
+		//showarray($_POST['selected_aro']);
 		
 		//Parse the form values
 		//foreach ($_POST['selected_aco'] as $aco_value) {
@@ -23,7 +23,7 @@ switch ($_POST['action']) {
 				$split_aco_value = explode("^", $aco_value);
 				$selected_aco_array[$split_aco_value[0]][] = $split_aco_value[1];
 		}
-		showarray($selected_aco_array);
+		//showarray($selected_aco_array);
 		
 		//Parse the form values
 		//foreach ($_POST['selected_aro'] as $aro_value) {
@@ -31,7 +31,7 @@ switch ($_POST['action']) {
 				$split_aro_value = explode("^", $aro_value);
 				$selected_aro_array[$split_aro_value[0]][] = $split_aro_value[1];
 		}
-		showarray($selected_aro_array);
+		//showarray($selected_aro_array);
 
 		//Some sanity checks.
 		if (count($selected_aco_array) == 0) {
@@ -215,7 +215,6 @@ switch ($_POST['action']) {
             $i++;
         }
 
-showarray($js_aco_array);
         $smarty->assign("options_aro_sections", $options_aro_sections);
         $smarty->assign("aro_section_value", $aro_section_value);
 

@@ -587,11 +587,14 @@ class gacl_api {
 		
 		debug("add_group_aro(): Group ID: $group_id ARO Section Value: $aro_section_value ARO Value: $aro_value");
 		
+		$aro_section_value = trim($aro_section_value);
+		$aro_value = trim($aro_value);
+		
 		if (empty($group_id) OR empty($aro_value) OR empty($aro_section_value)) {
 			debug("add_group(): Group ID:  ($group_id) OR ARO value ($aro_value) OR ARO section value ($aro_section_value) is empty, this is required");
 			return false;	
 		}
-				
+			
         $query = "insert into groups_aro_map (group_id,aro_section_value, aro_value) VALUES($group_id, '$aro_section_value', '$aro_value')";
 		$rs = $db->Execute($query);                   
 
@@ -613,6 +616,9 @@ class gacl_api {
 		
 		debug("del_group_aro(): Group ID: $group_id ARO Section value: $aro_section_value ARO Value: $aro_value");
 		
+		$aro_section_value = trim($aro_section_value);
+		$aro_value = trim($aro_value);
+
 		if (empty($group_id) OR empty($aro_value) OR empty($aro_section_value)) {
 			debug("del_group(): Group ID:  ($group_id) OR ARO Section value: $aro_section_value OR ARO Value ($aro_value) is empty, this is required");
 			return false;	
@@ -757,15 +763,15 @@ class gacl_api {
 		Function:	get_aro()
 		Purpose:	Grabs all ARO's in the database, or specific to a section_id
 	\*======================================================================*/
-	function get_aro($section_id = null, $return_hidden=1) {
+	function get_aro($section_value = null, $return_hidden=1) {
 		global $db;
 		
-		debug("get_aro(): Section ID: $section_id");
+		debug("get_aro(): Section Value: $section_value");
 		
 			
 		$query = "select id from aro ";
-		if (!empty($section_id) ) {
-			$query .= " where section_id = $section_id";
+		if (!empty($section_value) ) {
+			$query .= " where section_value = '$section_value'";
 		}
 		
 		if ($return_hidden==0) {
@@ -797,7 +803,7 @@ class gacl_api {
 			return false;	
 		}
 		
-		$query = "select section_id, value, order_value, name, hidden from aro where id = $aro_id";
+		$query = "select section_value, value, order_value, name, hidden from aro where id = $aro_id";
 
 		$rs = $db->Execute($query);
 
@@ -863,30 +869,30 @@ class gacl_api {
 		Function:	get_aro_section_id()
 		Purpose:	Gets the aro_section_id given ARO id
 	\*======================================================================*/
-	function get_aro_section_id($aro_id) {
+	function get_aro_section_value($aro_id) {
 		global $db;
 		
-		debug("get_aro_section_id(): ARO ID: $aro_id");
+		debug("get_aro_section_value(): ARO ID: $aro_id");
 		
 		if (empty($aro_id) ) {
-			debug("get_aro_section_id(): ID ($aro_id) is empty, this is required");
+			debug("get_aro_section_value(): ID ($aro_id) is empty, this is required");
 			return false;	
 		}
 			
-		$query = "select section_id from aro where id=$aro_id";
+		$query = "select section_value from aro where id=$aro_id";
 		$rs = $db->Execute($query);
 
 		if ($db->ErrorNo() != 0) {
-			debug("get_aro_section_id(): database error: ". $db->ErrorMsg() ." (". $db->ErrorNo() .")");
+			debug("get_aro_section_value(): database error: ". $db->ErrorMsg() ." (". $db->ErrorNo() .")");
 			return false;	
 		} else {
 			$row_count = $rs->RecordCount();
 			
 			if ($row_count > 1) {
-				debug("get_aro_section_id(): Returned $row_count rows, can only return one. Please search by value not name, or make your names unique.");
+				debug("get_aro_section_value(): Returned $row_count rows, can only return one. Please search by value not name, or make your names unique.");
 				return false;	
 			} elseif($row_count == 0) {
-				debug("get_aro_section_id(): Returned $row_count rows");				
+				debug("get_aro_section_value(): Returned $row_count rows");				
 				return false;
 			} else {
 				$rows = $rs->GetRows();
@@ -906,6 +912,7 @@ class gacl_api {
 		
 		debug("add_aro(): Section Value: $section_value Value: $value Order: $order Name: $name");
 		
+		$section_value = trim($section_value);
 		$name = trim($name);
 		$value = trim($value);
 		$order = trim($order);
@@ -937,6 +944,7 @@ class gacl_api {
 		
 		debug("edit_aro(): ID: $aro_id Section Value: $section_value Value: $value Order: $order Name: $name Hidden: $hidden");
 		
+		$section_value = trim($section_value);
 		$name = trim($name);
 		$value = trim($value);
 		$order = trim($order);
@@ -951,6 +959,10 @@ class gacl_api {
 			return false;	
 		}
 		
+		//Get old value incase it changed, before we do the update.
+		$query = "select value from aro where id=$aro_id";
+		$old_value = $db->GetOne($query);
+
 		$query = "update aro set
 																section_value='$section_value',
 																value='$value',
@@ -965,6 +977,38 @@ class gacl_api {
 			return false;	
 		} else {
 			debug("edit_aro(): Modified aro ID: $aro_id");
+
+			if ($old_value != $value) {
+				debug("edit_aro(): Value Changed, update other tables.");
+				
+				$query = "update aro_map set
+																aro_value='$value'
+													where aro_section_value = '$section_value'
+														AND aro_value = '$old_value'";
+				$rs = $db->Execute($query);                   
+
+				if ($db->ErrorNo() != 0) {
+					debug("edit_aro(): database error: ". $db->ErrorMsg() ." (". $db->ErrorNo() .")");
+					return false;	
+				} else {
+					debug("edit_aro(): Modified aro_map value: $value");
+
+					$query = "update groups_aro_map set
+																	aro_value='$value'
+														where aro_section_value = '$section_value'
+															AND aro_value = '$old_value'";
+					$rs = $db->Execute($query);                   
+
+					if ($db->ErrorNo() != 0) {
+						debug("edit_aro(): database error: ". $db->ErrorMsg() ." (". $db->ErrorNo() .")");
+						return false;	
+					} else {
+						debug("edit_aro(): Modified groups_aro_map value: $value");
+						return true;
+					}
+				}
+			}
+			
 			return true;
 		}
 	}
@@ -1097,6 +1141,10 @@ class gacl_api {
 			return false;	
 		}
 				
+		//Get old value incase it changed, before we do the update.
+		$query = "select value from aro_sections where id=$aro_section_id";
+		$old_value = $db->GetOne($query);
+
 		$query = "update aro_sections set
 																value='$value',
 																order_value='$order',
@@ -1110,10 +1158,51 @@ class gacl_api {
 			return false;	
 		} else {
 			debug("edit_aro_section(): Modified aro_section ID: $aro_section_id");
+
+			if ($old_value != $value) {
+				debug("edit_aro_section(): Value Changed, update other tables.");
+				
+				$query = "update aro set
+																section_value='$value'
+													where section_value = '$old_value'";
+				$rs = $db->Execute($query);                   
+
+				if ($db->ErrorNo() != 0) {
+					debug("edit_aro_section(): database error: ". $db->ErrorMsg() ." (". $db->ErrorNo() .")");
+					return false;	
+				} else {
+					$query = "update aro_map set
+																	aro_section_value='$value'
+														where aro_section_value = '$old_value'";
+					$rs = $db->Execute($query);                   
+
+					if ($db->ErrorNo() != 0) {
+						debug("edit_aro_section(): database error: ". $db->ErrorMsg() ." (". $db->ErrorNo() .")");
+						return false;	
+					} else {
+						debug("edit_aro_section(): Modified aro_map value: $value");						
+
+						$query = "update groups_aro_map set
+																		aro_section_value='$value'
+															where aro_section_value = '$old_value'";
+						$rs = $db->Execute($query);                   
+
+						if ($db->ErrorNo() != 0) {
+							debug("edit_aro_section(): database error: ". $db->ErrorMsg() ." (". $db->ErrorNo() .")");
+							return false;	
+						} else {
+							debug("edit_aro_section(): Modified group_aro_map value: $value");						
+							return true;
+						}
+					}
+				}	
+			}
+
 			return true;
 		}
 	}
-	
+
+
 	/*======================================================================*\
 		Function:	del_aro_section()
 		Purpose:	Deletes a given ARO section
@@ -1155,15 +1244,15 @@ class gacl_api {
 		Function:	get_aco()
 		Purpose:	Grabs all ACO's in the database, or specific to a section_id
 	\*======================================================================*/
-	function get_aco($section_id = null, $return_hidden=1) {
+	function get_aco($section_value = null, $return_hidden=1) {
 		global $db;
 		
-		debug("get_aco(): Section ID: $section_id");
+		debug("get_aco(): Section Value: $section_value");
 		
 			
 		$query = "select id from aco ";
-		if (!empty($section_id) ) {
-			$query .= " where section_id = $section_id";
+		if (!empty($section_value) ) {
+			$query .= " where section_value = '$section_value'";
 		}
 
 		if ($return_hidden==0) {
@@ -1195,7 +1284,7 @@ class gacl_api {
 			return false;	
 		}
 		
-		$query = "select section_id, value, order_value, name, hidden from aco where id = $aco_id";
+		$query = "select section_value, value, order_value, name, hidden from aco where id = $aco_id";
 
 		$rs = $db->Execute($query);
 
@@ -1261,30 +1350,30 @@ class gacl_api {
 		Function:	get_aco_section_id()
 		Purpose:	Gets the aco_section_id given ARO id
 	\*======================================================================*/
-	function get_aco_section_id($aco_id) {
+	function get_aco_section_value($aco_id) {
 		global $db;
 		
-		debug("get_aco_section_id(): ACO ID: $aco_id");
+		debug("get_aco_section_value(): ACO ID: $aco_id");
 		
 		if (empty($aco_id) ) {
-			debug("get_aco_section_id(): ACO ID ($aco_id) is empty, this is required");
+			debug("get_aco_section_value(): ACO ID ($aco_id) is empty, this is required");
 			return false;	
 		}
 			
-		$query = "select section_id from aco where id=$aco_id";
+		$query = "select section_value from aco where id=$aco_id";
 		$rs = $db->Execute($query);
 
 		if ($db->ErrorNo() != 0) {
-			debug("get_aco_section_id(): database error: ". $db->ErrorMsg() ." (". $db->ErrorNo() .")");
+			debug("get_aco_section_value(): database error: ". $db->ErrorMsg() ." (". $db->ErrorNo() .")");
 			return false;	
 		} else {
 			$row_count = $rs->RecordCount();
 			
 			if ($row_count > 1) {
-				debug("get_aco_section_id(): Returned $row_count rows, can only return one. Please search by value not name, or make your names unique.");
+				debug("get_aco_section_value(): Returned $row_count rows, can only return one. Please search by value not name, or make your names unique.");
 				return false;	
 			} elseif($row_count == 0) {
-				debug("get_aco_section_id(): Returned $row_count rows");				
+				debug("get_aco_section_value(): Returned $row_count rows");				
 				return false;
 			} else {
 				$rows = $rs->GetRows();
@@ -1304,6 +1393,7 @@ class gacl_api {
 		
 		debug("add_aco(): Section Value: $section_value Value: $value Order: $order Name: $name");
 		
+		$section_value = trim($section_value);
 		$name = trim($name);
 		$value = trim($value);
 		$order = trim($order);
@@ -1328,13 +1418,14 @@ class gacl_api {
 	
 	/*======================================================================*\
 		Function:	edit_aco()
-		Purpose:	Edits a given ARO
+		Purpose:	Edits a given ACO
 	\*======================================================================*/
 	function edit_aco($aco_id, $section_value, $name, $value=0, $order=0, $hidden=0) {
 		global $db;
 		
 		debug("edit_aco(): ID: $aco_id Section Value: $section_value Value: $value Order: $order Name: $name");
 		
+		$section_value = trim($section_value);
 		$name = trim($name);
 		$value = trim($value);
 		$order = trim($order);
@@ -1348,7 +1439,11 @@ class gacl_api {
 			debug("edit_aco(): name ($name) is empty, this is required");
 			return false;	
 		}
-		
+				
+		//Get old value incase it changed, before we do the update.
+		$query = "select value from aco where id=$aco_id";
+		$old_value = $db->GetOne($query);
+
 		$query = "update aco set
 																section_value='$section_value',
 																value='$value',
@@ -1363,6 +1458,26 @@ class gacl_api {
 			return false;	
 		} else {
 			debug("edit_aco(): Modified aco ID: $aco_id");
+			
+			if ($old_value != $value) {
+				debug("edit_aco(): Value Changed, update other tables.");
+				
+				$query = "update aco_map set
+																aco_value='$value'
+													where aco_section_value = '$section_value'
+														AND aco_value = '$old_value'";
+				$rs = $db->Execute($query);                   
+
+				if ($db->ErrorNo() != 0) {
+					debug("edit_aco(): database error: ". $db->ErrorMsg() ." (". $db->ErrorNo() .")");
+					return false;	
+				} else {
+					debug("edit_aco(): Modified aco_map value: $value");
+					return true;
+				}
+				
+			}
+			
 			return true;
 		}
 	}
@@ -1497,6 +1612,10 @@ class gacl_api {
 			return false;	
 		}
 			
+		//Get old value incase it changed, before we do the update.
+		$query = "select value from aco_sections where id=$aco_section_id";
+		$old_value = $db->GetOne($query);
+
 		$query = "update aco_sections set
 																value='$value',
 																order_value='$order',
@@ -1510,6 +1629,34 @@ class gacl_api {
 			return false;	
 		} else {
 			debug("edit_aco_section(): Modified aco_section ID: $aco_section_id");
+
+			if ($old_value != $value) {
+				debug("edit_aco_section(): Value Changed, update other tables.");
+				
+				$query = "update aco set
+																section_value='$value'
+													where section_value = '$old_value'";
+				$rs = $db->Execute($query);                   
+
+				if ($db->ErrorNo() != 0) {
+					debug("edit_aco_section(): database error: ". $db->ErrorMsg() ." (". $db->ErrorNo() .")");
+					return false;	
+				} else {
+					$query = "update aco_map set
+																	aco_section_value='$value'
+														where aco_section_value = '$old_value'";
+					$rs = $db->Execute($query);                   
+
+					if ($db->ErrorNo() != 0) {
+						debug("edit_aco_section(): database error: ". $db->ErrorMsg() ." (". $db->ErrorNo() .")");
+						return false;	
+					} else {
+						debug("edit_aco_section(): Modified aco_map value: $value");
+						return true;
+					}
+				}	
+			}
+			
 			return true;
 		}
 	}
