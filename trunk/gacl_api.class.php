@@ -30,17 +30,8 @@
 
 /*
  *
- *
- *  == If you find a feature may be missing from this API, please email me: ipso@snappymail.ca and I will be happy to add it. ==
- *
- *
- * Example:
- *	$gacl_api = new gacl_api;
- *
- *	$section_id = $gacl_api->get_aco_section_id('System');
- *	$aro_id= $gacl_api->add_aro($section_id, 'John Doe', 10);
- *
- * For more examples, see the Administration interface, as it makes use of nearly every API Call.
+ * For examples, see example.php or the Administration interface, 
+ * as it makes use of nearly every API Call.
  *
  */
 
