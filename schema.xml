@@ -376,7 +376,6 @@
 		</field>
 	</table>
 	<index name="group_id_aro_id_groups_aro_map" table="#PREFIX#groups_aro_map">
-		<col>group_id</col>
 		<col>section_value</col>
 		<col>value</col>
 		<UNIQUE/>
@@ -466,7 +465,6 @@
 		</field>
 	</table>
 	<index name="group_id_axo_id_groups_axo_map" table="#PREFIX#groups_axo_map">
-		<col>group_id</col>
 		<col>section_value</col>
 		<col>value</col>
 		<UNIQUE/>
