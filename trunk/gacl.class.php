@@ -1,7 +1,7 @@
 <?php
 // $Id$
 
-/*
+/**
  * phpGACL - Generic Access Control List
  * Copyright (C) 2002,2003 Mike Benoit
  *
@@ -28,6 +28,7 @@
  * The latest version of phpGACL can be obtained from:
  * http://phpgacl.sourceforge.net/
  *
+ * @package phpGACL
  */
 
 /*
@@ -39,6 +40,12 @@ if ( !defined('ADODB_DIR') ) {
 
 /**
 * phpGACL main class
+*
+* Class gacl should be used in applications where only querying the phpGACL
+* database is required.
+*
+* @package phpGACL
+* @author Mike Benoit <ipso@snappymail.ca>
 */
 class gacl {
 	/*
