@@ -1,3 +1,5 @@
+Fri Feb 13 2004
+	dcech - Changed all JOIN queries to INNER JOIN for MySQL 3.23.x compatibility
 Thu Feb 12 2004
 	dcech - removed final trailing semicolon from schema.xml
 Tue Feb 10 2004

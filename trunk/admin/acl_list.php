@@ -137,7 +137,7 @@ switch ($_GET['action']) {
 			$query = '
 				SELECT	a.id,x.name,a.allow,a.enabled,a.return_value,a.note,a.updated_date
 				FROM	'. $gacl_api->_db_table_prefix .'acl a
-				JOIN 	'. $gacl_api->_db_table_prefix .'acl_sections x ON x.value=a.section_value
+				INNER JOIN 	'. $gacl_api->_db_table_prefix .'acl_sections x ON x.value=a.section_value
 				WHERE	a.id IN ('. $acl_ids_sql . ')';
 			$rs = $db->Execute($query);
 			
@@ -167,8 +167,8 @@ switch ($_GET['action']) {
 				$query = '
 					SELECT	a.acl_id,o.name,s.name
 					FROM	'. $gacl_api->_db_table_prefix . $type .'_map a
-					JOIN	'. $gacl_api->_db_table_prefix . $type .' o ON o.section_value=a.section_value AND o.value=a.value
-					JOIN	'. $gacl_api->_db_table_prefix . $type . '_sections s ON s.value=a.section_value
+					INNER JOIN	'. $gacl_api->_db_table_prefix . $type .' o ON (o.section_value=a.section_value AND o.value=a.value)
+					INNER JOIN	'. $gacl_api->_db_table_prefix . $type . '_sections s ON s.value=a.section_value
 					WHERE	a.acl_id IN ('. $acl_ids_sql . ')';
 				$rs = $db->Execute($query);
 				
@@ -189,7 +189,7 @@ switch ($_GET['action']) {
 				$query = '
 					SELECT	a.acl_id,g.name
 					FROM	'. $gacl_api->_db_table_prefix . $type .'_groups_map a
-					JOIN	'. $gacl_api->_db_table_prefix . $type .'_groups g ON g.id=a.group_id
+					INNER JOIN	'. $gacl_api->_db_table_prefix . $type .'_groups g ON g.id=a.group_id
 					WHERE	a.acl_id IN ('. $acl_ids_sql . ')';
 				$rs = $db->Execute($query);
 				

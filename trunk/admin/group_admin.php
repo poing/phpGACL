@@ -33,7 +33,7 @@ switch ($_POST['action']) {
         $query = '
         	SELECT		a.id, count(*)
         	FROM		'. $group_table .' a
-        	JOIN		'. $group_map_table .' b ON b.group_id=a.id
+        	INNER JOIN	'. $group_map_table .' b ON b.group_id=a.id
         	GROUP BY	a.id';
         $rs = $db->Execute($query);
 
@@ -47,17 +47,17 @@ switch ($_POST['action']) {
         
         //showarray($);
         while (list($id,$name) = @each($formatted_groups)) {
-                
+            
             $group_data = $gacl_api->get_group_data($id, $group_type);
             
             $groups[] = array(
-                                            'id' => $id,
-                                            'parent_id' => $parent_id,
-                                            'family_id' => $family_id,
-                                            'name' => $name,
-                                            'raw_name' => $group_data[2],
-                                            'object_count' => $object_count[$id] + 0
-                                        );
+                'id' => $id,
+                'parent_id' => $parent_id,
+                'family_id' => $family_id,
+                'name' => $name,
+                'raw_name' => $group_data[2],
+                'object_count' => $object_count[$id] + 0
+            );
         }
 
         $smarty->assign('groups', $groups);

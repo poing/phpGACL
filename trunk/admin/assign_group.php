@@ -132,8 +132,8 @@ switch ($_POST['action']) {
 	$query = '
 		SELECT	b.section_value,b.value,b.name AS b_name,c.name AS c_name
 		FROM	'. $group_map_table .' a
-		JOIN	'. $table .' b ON b.id=a.'. $group_type .'_id
-		JOIN	'. $group_sections_table .' c ON c.value=b.section_value
+		INNER JOIN	'. $table .' b ON b.id=a.'. $group_type .'_id
+		INNER JOIN	'. $group_sections_table .' c ON c.value=b.section_value
 		WHERE   a.group_id='. $db->qstr($_GET['group_id']) .'
 		ORDER BY c.name, b.name';
 	//$rs = $db->Execute($query);
