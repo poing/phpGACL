@@ -67,7 +67,7 @@ class gacl_api {
 			return false;
 		}
 		
-		if (count($aro_array) == 0 AND count($group_ids) == 0) {
+		if (count($aro_array) == 0 AND count($aro_group_ids) == 0) {
 			debug("Must select at least one Access Request Object or Group");
 			return false;
 		}
