@@ -1163,10 +1163,6 @@ class gacl_api extends gacl {
 		Purpose:	Takes the array returned by sort_groups() and formats for human consumption.
 	\*======================================================================*/
 	function format_groups($sorted_groups, $type='TEXT', $root_id=0, $level=0, $formatted_groups=NULL) {
-		/*
-		 * Recursing with a global array, not the most effecient or safe way to do it, but it will work for now.
-		 */
-		
 		if ( !is_array ($sorted_groups) ) {
 			return FALSE;
 		}
@@ -1601,7 +1597,7 @@ class gacl_api extends gacl {
 				WHERE		g2.id='. $group_id;
 		} else {
 			$query .= '
-				WHERE		gm.id='. $group_id;
+				WHERE		gm.group_id='. $group_id;
 		}
 		
 		$rs = $this->db->Execute($query);
