@@ -1,3 +1,6 @@
+Wed Apr 21 2004
+	mikeb - Fixed index name for value column in AXO group table. Falk <support@fajo.de>
+	mikeb - Updated schema diagrams. Falk <support@fajo.de>
 Tue Apr 06 2004
 	mikeb - applied code documentation patch thanks to Andrew Eddie <eddieajau@iprimus.com.au>
 Mon Apr 05 2004
