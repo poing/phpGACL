@@ -668,8 +668,8 @@ class gacl_api extends gacl {
 			$axo_group_ids = array_unique($axo_group_ids);
 		}
 		
-		//Check for conflicting ACLs
-		if ($this->is_conflicting_acl($aco_array,$aro_array) ) {
+		//Check for conflicting ACLs, only on adding however. 
+		if ($acl_id == FALSE AND $this->is_conflicting_acl($aco_array,$aro_array) ) {
 			$this->debug_text("add_acl(): Detected possible ACL conflict, not adding ACL!");
 			return false;
 		}
