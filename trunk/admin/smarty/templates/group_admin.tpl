@@ -34,6 +34,7 @@
              </td>
 
             <td valign="top" bgcolor="#cccccc" align="center">
+                Don't forget, to click here --> 
                 [ <a href="assign_aro_group.php?group_id={$groups[x].id}&return_page={$return_page}">Assign ARO</a> ]
                 [ <a href="edit_group.php?parent_id={$groups[x].id}&return_page={$return_page}">Add Child</a> ]
                 [ <a href="edit_group.php?group_id={$groups[x].id}&return_page={$return_page}">Edit</a> ]
