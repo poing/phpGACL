@@ -155,8 +155,8 @@ class gacl {
 		Purpose:	Function that wraps the actual acl_query() function.
 						It is simply here to return TRUE/FALSE accordingly.
 	\*======================================================================*/
-	function acl_check($aco_section_value, $aco_value, $aro_section_value, $aro_value, $axo_section_value=NULL, $axo_value=NULL, $root_aro_group_id=NULL, $root_axo_group_id=NULL) {
-		$acl_result = $this->acl_query($aco_section_value, $aco_value, $aro_section_value, $aro_value, $axo_section_value, $axo_value, $root_aro_group_id, $root_axo_group_id);
+	function acl_check($aco_section_value, $aco_value, $aro_section_value, $aro_value, $axo_section_value=NULL, $axo_value=NULL, $root_aro_group=NULL, $root_axo_group=NULL) {
+		$acl_result = $this->acl_query($aco_section_value, $aco_value, $aro_section_value, $aro_value, $axo_section_value, $axo_value, $root_aro_group, $root_axo_group);
 
 		return $acl_result['allow'];
 	}
@@ -166,8 +166,8 @@ class gacl {
 		Purpose:	Function that wraps the actual acl_query() function.
 						Quick access to the return value of an ACL.
 	\*======================================================================*/
-	function acl_return_value($aco_section_value, $aco_value, $aro_section_value, $aro_value, $axo_section_value=NULL, $axo_value=NULL, $root_aro_group_id=NULL, $root_axo_group_id=NULL) {
-		$acl_result = $this->acl_query($aco_section_value, $aco_value, $aro_section_value, $aro_value, $axo_section_value, $axo_value, $root_aro_group_id, $root_axo_group_id);
+	function acl_return_value($aco_section_value, $aco_value, $aro_section_value, $aro_value, $axo_section_value=NULL, $axo_value=NULL, $root_aro_group=NULL, $root_axo_group=NULL) {
+		$acl_result = $this->acl_query($aco_section_value, $aco_value, $aro_section_value, $aro_value, $axo_section_value, $axo_value, $root_aro_group, $root_axo_group);
 
 		return $acl_result['return_value'];
 	}
@@ -213,9 +213,9 @@ class gacl {
 						Returns as much information as possible about the ACL so other functions
 						can trim it down and omit unwanted data.
 	\*======================================================================*/
-	function acl_query($aco_section_value, $aco_value, $aro_section_value, $aro_value, $axo_section_value=NULL, $axo_value=NULL, $root_aro_group_id=NULL, $root_axo_group_id=NULL, $debug=NULL) {
+	function acl_query($aco_section_value, $aco_value, $aro_section_value, $aro_value, $axo_section_value=NULL, $axo_value=NULL, $root_aro_group=NULL, $root_axo_group=NULL, $debug=NULL) {
 
-		$cache_id = 'acl_query_'.$aco_section_value.'-'.$aco_value.'-'.$aro_section_value.'-'.$aro_value.'-'.$axo_section_value.'-'.$axo_value.'-'.$root_aro_group_id.'-'.$root_axo_group_id.'-'.$debug;
+		$cache_id = 'acl_query_'.$aco_section_value.'-'.$aco_value.'-'.$aro_section_value.'-'.$aro_value.'-'.$axo_section_value.'-'.$axo_value.'-'.$root_aro_group.'-'.$root_axo_group.'-'.$debug;
 
 		$retarr = $this->get_cache($cache_id);
 
@@ -223,14 +223,14 @@ class gacl {
 			/*
 			 * Grab all groups mapped to this ARO/AXO
 			 */
-			$aro_group_ids = $this->acl_get_groups($aro_section_value, $aro_value, $root_aro_group_id, 'ARO');
+			$aro_group_ids = $this->acl_get_groups($aro_section_value, $aro_value, $root_aro_group, 'ARO');
 
 			if (is_array($aro_group_ids) AND !empty($aro_group_ids)) {
 				$sql_aro_group_ids = implode(',', $aro_group_ids);
 			}
 
 			if ($axo_section_value != '' AND $axo_value != '') {
-				$axo_group_ids = $this->acl_get_groups($axo_section_value, $axo_value, $root_axo_group_id, 'AXO');
+				$axo_group_ids = $this->acl_get_groups($axo_section_value, $axo_value, $root_axo_group, 'AXO');
 
 				if (is_array($axo_group_ids) AND !empty($axo_group_ids)) {
 					$sql_axo_group_ids = implode(',', $axo_group_ids);
@@ -412,9 +412,9 @@ class gacl {
 
 	/*======================================================================*\
 		Function:   acl_get_groups()
-		Purpose:	Grabs all groups mapped to an ARO. You can also specify a root_group_id for subtree'ing.
+		Purpose:	Grabs all groups mapped to an ARO. You can also specify a root_group for subtree'ing.
 	\*======================================================================*/
-	function acl_get_groups($section_value, $value, $root_group_id=NULL, $group_type='ARO') {
+	function acl_get_groups($section_value, $value, $root_group=NULL, $group_type='ARO') {
 
 		switch(strtolower($group_type)) {
 			case 'axo':
@@ -434,7 +434,7 @@ class gacl {
 		//$profiler->startTimer( "acl_get_groups()");
 
 		//Generate unique cache id.
-		$cache_id = 'acl_get_groups_'.$section_value.'-'.$value.'-'.$root_group_id.'-'.$group_type;
+		$cache_id = 'acl_get_groups_'.$section_value.'-'.$value.'-'.$root_group.'-'.$group_type;
 
 		$retarr = $this->get_cache($cache_id);
 
@@ -449,7 +449,7 @@ class gacl {
 					FROM		' . $group_table . ' g1,' . $group_table . ' g2';
 
 				$where = '
-					WHERE		g1.id=' . $value;
+					WHERE		g1.value=' . $value;
 			} else {
 				$query .= '
 					FROM		'. $object_table .' o,'. $group_map_table .' gm,'. $group_table .' g1,'. $group_table .' g2';
@@ -466,13 +466,13 @@ class gacl {
 			 * This essentially creates a virtual "subtree" and ignores all outside groups.
 			 * Useful for sites like sourceforge where you may seperate groups by "project".
 			 */
-			if (isset($root_group_id)) {
+			if (isset($root_group)) {
 				//It is important to note the below line modifies the tables being selected.
 				//This is the reason for the WHERE variable.
 				$query .= ','. $group_table .' g3';
 
 				$where .= '
-						AND		g3.id='. $root_group_id .'
+						AND		g3.value='. $root_group .'
 						AND		((g2.lft BETWEEN g3.lft AND g1.lft) AND (g2.rgt BETWEEN g1.rgt AND g3.rgt))';
 			} else {
 				$where .= '

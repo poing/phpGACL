@@ -8,7 +8,8 @@
         <tbody>
           <tr>
             <th width="2%">ID</th>
-            <th width="60%">Name</th>
+            <th width="40%">Name</th>
+            <th width="20%">Value</th>
             <th width="6%">Objects</th>
             <th width="30%">Functions</th>
             <th width="2%"><input type="checkbox" class="checkbox" name="select_all" onClick="checkAll(this)"/></th>
@@ -17,6 +18,7 @@
           <tr valign="middle" align="center">
             <td>{$group.id}</td>
             <td align="left">{$group.name}</td>
+            <td align="left">{$group.value}</td>
             <td>{$group.object_count}</td>
             <td>
               [&nbsp;<a href="assign_group.php?group_type={$group_type}&group_id={$group.id}&return_page={$return_page}">Assign&nbsp;{$group_type|upper}</a>&nbsp;]
@@ -28,7 +30,7 @@
           </tr>
 {/foreach}
           <tr class="controls" align="center">
-            <td colspan="3">&nbsp;</td>
+            <td colspan="4">&nbsp;</td>
             <td colspan="2" nowrap><input type="submit" class="button" name="action" value="Add" /> <input type="submit" class="button" name="action" value="Delete" /></td>
           </tr>
         </tbody>
