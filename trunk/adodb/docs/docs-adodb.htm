@@ -11,10 +11,14 @@
 <body bgcolor="#FFFFFF">
 
 <h2>ADOdb Library for PHP</h2>
-<p>V4.20 22 Feb 2004 (c) 2000-2004 John Lim (jlim#natsoft.com)</p>
+<p>V4.23 16 June 2004 (c) 2000-2004 John Lim (jlim#natsoft.com)</p>
 <p><font size="1">This software is dual licensed using BSD-Style and LGPL. This 
   means you can use it in compiled proprietary and commercial products.</font></p>
-	<p>Useful ADOdb links:  <a href=http://php.weblogs.com/adodb>Download</a> &nbsp; <a href=http://php.weblogs.com/adodb_manual>Other Docs</a>
+  
+  
+  <table border=1><tr><td><font color=red>Kindly note that the ADOdb home page has moved to <a href=http://adodb.sourceforge.net/>http://adodb.sourceforge.net/</a> because of the persistent 
+  unreliability of http://php.weblogs.com. <b>Please change your links</b>!</font></td></tr></table>
+	<p>Useful ADOdb links:  <a href=http://adodb.sourceforge.net/#download>Download</a> &nbsp; <a href=http://adodb.sourceforge.net/#docs>Other Docs</a>
 
 <p><a href="#intro"><b>Introduction</b></a><b><br>
 	<a href="#features">Unique Features</a><br>
@@ -181,7 +185,7 @@ visit <a href="http://php.weblogs.com/adodb-cool-applications">http://php.weblog
 <p>Feature requests and bug reports can be emailed to <a href="mailto:jlim#natsoft.com.my">jlim#natsoft.com.my</a> 
   or posted to the ADOdb Help forums at <a href="http://phplens.com/lens/lensforum/topics.php?id=4">http://phplens.com/lens/lensforum/topics.php?id=4</a>.</p>
 <h2>Installation Guide<a name="install"></a></h2>
-<p>Make sure you are running PHP 4.0.4 or later. 
+<p>Make sure you are running PHP 4.0.5 or later. 
   Unpack all the files into a directory accessible by your webserver.</p>
 <p>To test, try modifying some of the tutorial examples. Make sure you customize 
   the connection settings correctly. You can debug using <i>$db->debug = true</i> as shown below:</p>
@@ -202,24 +206,30 @@ visit <a href="http://php.weblogs.com/adodb-cool-applications">http://php.weblog
 <li>adodb.inc.php
 <li>adodb-lib.inc.php
 <li>adodb-time.inc.php
-<li>adodb-csvlib.inc.php (if you use cached recordsets - CacheExecute(), etc)
-<li>adodb-error.inc.php and lang/adodb-$lang.inc.php (if you use MetaError())
 <li>drivers/adodb-$database.inc.php
 <li>license.txt (for legal reasons)
+<li>adodb-php4.inc.php
+<li>adodb-iterator.inc.php
+</ul>
+Optional:
+<ul>
+<li>adodb-error.inc.php and lang/adodb-$lang.inc.php (if you use MetaError())
+<li>adodb-csvlib.inc.php (if you use cached recordsets - CacheExecute(), etc)
+<li>adodb-exceptions.inc.php and adodb-errorhandler.inc.php (if you use adodb error handler or php5 exceptions).
 </ul>
 
 <h3>Code Initialization Examples<a name="coding"></a></h3>
 <p>When running ADOdb, at least two files are loaded. First is adodb/adodb.inc.php, 
  which contains all functions used by all database classes. The code specific 
  to a particular database is in the adodb/driver/adodb-????.inc.php file.</p>
- <a name="adonewconnection">
+ <a name="adonewconnection"></a>
 <p>For example, to connect to a mysql database:</p>
 <pre>
 include('/path/to/set/here/adodb.inc.php');
 $conn = &amp;ADONewConnection('mysql');
 </pre>
 <p>Whenever you need to connect to a database, you create a Connection object 
-  using the <b>ADONewConnection</b></a>($driver) function. 
+  using the <b>ADONewConnection</b>($driver) function. 
   <b>NewADOConnection</b>($driver) is an alternative name for the same function.</p>
 
 <p>At this point, you are not connected to the database. You will first need to decide
@@ -238,6 +248,7 @@ PHP will share the same connection. This can cause problems if the connections a
 different databases. The solution is to always use different userid's for different databases,
  or use NConnect().
 
+<a name=connect_ex>
 <h3>Examples of Connecting to Databases</h3>
 <h4>MySQL and Most Other Database Drivers</h4>
 <p>MySQL connections are very straightforward, and the parameters are identical 
@@ -256,7 +267,46 @@ different databases. The solution is to always use different userid's for differ
 <p> b. the classical 4 parameters:</p>
  <pre>
 	$conn-&gt;PConnect('localhost','userid','password','database');
- </pre>
+ </pre><a name=ldap></a>
+ <h4>LDAP</h4>
+  <p>Here is an example of querying a LDAP server. Thanks to Josh Eldridge for the driver and this example:
+<pre>
+ &lt;?php
+require('/path/to/adodb.inc.php');
+
+$host = 'ldap.baylor.edu';
+$ldapbase = 'ou=People,o=Baylor University,c=US';
+
+$ldap = NewADOConnection( 'ldap' );
+$ldap->Connect( $host, $user_name='', $password='', $ldapbase );
+
+echo "&lt;pre>";
+
+print_r( $ldap->ServerInfo() );
+$ldap->SetFetchMode(ADODB_FETCH_ASSOC);
+$userName = 'eldridge';
+$filter="(|(CN=$userName*)(sn=$userName*)(givenname=$userName*)(uid=$userName*))";
+
+$rs = $ldap->Execute( $filter );
+if ($rs)
+	while ($arr = $rs->FetchRow()) {
+	     print_r($arr);	
+	}
+
+$rs = $ldap->Execute( $filter );
+if ($rs) 
+	while (!$rs->EOF) {
+ 		print_r($rs->fields);	
+		$rs->MoveNext();
+	} 
+	
+print_r( $ldap->GetArray( $filter ) );
+
+print_r( $ldap->GetRow( $filter ) );
+
+$ldap->Close();
+echo "&lt;/pre>";
+?></pre>
 <h4>Interbase/Firebird</h4>
 You define the database in the $host parameter:
 <pre>
@@ -264,30 +314,35 @@ You define the database in the $host parameter:
 	$conn->PConnect('localhost:c:\ibase\employee.gdb','sysdba','masterkey');
 </pre>
 <h4>SQLite</h4>
-Sqlite will create database if it does not exist.
+Sqlite will create the database file if it does not exist.
 <pre>
 	$conn = &ADONewConnection('sqlite'); 
 	$conn->PConnect('c:\path\to\sqlite.db'); # sqlite will create if does not exist
 </pre>
-<h4>Oracle</h4>
-<p>With Oracle, you can connect in multiple ways.</p>
+<h4>Oracle (oci8)</h4>
+<p>With oci8, you can connect in multiple ways. Note that oci8 works fine with 
+newer versions of the Oracle, eg. 9i and 10g.</p>
 <p>a. PHP and Oracle reside on the same machine, use default SID.</p>
 <pre>	$conn-&gt;Connect(false, 'scott', 'tiger');</pre>
-<p>b. TNS Name defined, eg. 'myTNS'</p>
-<pre>	$conn-&gt;PConnect(false, 'scott', 'tiger', 'myTNS');
-</pre>
+<p>b. TNS Name defined in tnsnames.ora (or ONAMES or HOSTNAMES), eg. 'myTNS'</p>
+<pre>	$conn-&gt;PConnect(false, 'scott', 'tiger', 'myTNS');</pre>
 <p>or</p>
 <pre> 	$conn-&gt;PConnect('myTNS', 'scott', 'tiger');</pre>
 <p>c. Host Address and SID</p>
 <pre>	$conn-&gt;Connect('192.168.0.1', 'scott', 'tiger', 'SID');</pre>
 <p>d. Host Address and Service Name</p>
 <pre>	$conn-&gt;Connect('192.168.0.1', 'scott', 'tiger', 'servicename');</pre>
+<p>e. Oracle connection string:
+<pre>	$cstr = "(DESCRIPTION=(ADDRESS=(PROTOCOL=TCP)(HOST=$host)(PORT=$port))
+			(CONNECT_DATA=(SID=$sid)))";
+	$conn-&gt;Connect($cstr, 'scott', 'tiger');
+</pre>
 <a name=dsnless></a>
 <h4>DSN-less ODBC (access and mssql examples)</h4>
 <p>ODBC DSN's can be created in the ODBC control panel, or you can use a DSN-less 
   connection.To use DSN-less connections with ODBC you need PHP 4.3 or later. 
 </p>
-<p>For Microsoft Access:</a></p>
+<p>For Microsoft Access:</p>
 <pre>
 	$db =& ADONewConnection('access');
 	$dsn = <strong>"Driver=&#123;Microsoft Access Driver (*.mdb)&#125;;Dbq=d:\\northwind.mdb;Uid=Admin;Pwd=;";</strong>
@@ -298,6 +353,11 @@ For Microsoft SQL Server:
 	$db =& ADONewConnection('odbc_mssql');
 	$dsn = <strong>"Driver=&#123;SQL Server&#125;;Server=localhost;Database=northwind;"</strong>;
 	$db->Connect($dsn,'userid','password');
+</pre>
+or if you prefer to use the mssql extension (which is limited to mssql 6.5 functionality):
+<pre>
+	$db =& ADONewConnection('mssql');
+	$db->Execute("localhost', 'userid', 'password', 'northwind');
 </pre>
 <b>DSN-less Connections with ADO</b><br>
 If you are using versions of PHP earlier than PHP 4.3.0, DSN-less connections 
@@ -330,7 +390,7 @@ using the ADOdb library and Microsoft's ADO:
   <tr> 
     <td><p align="center">Connect, PConnect, NConnect<br>
         Execute, CacheExecute<br>
-        SelectLimit, SelectLimit<br>
+        SelectLimit, CacheSelectLimit<br>
         MoveNext, Close <br>
 		qstr, Affected_Rows, Insert_ID</p></td>
   </tr>
@@ -338,7 +398,7 @@ using the ADOdb library and Microsoft's ADO:
 <p>The fastest way to access the fields is by accessing the array $recordset->fields 
   directly. Also set the global variables <a href="#adodb_fetch_mode">$ADODB_FETCH_MODE</a> 
   = ADODB_FETCH_NUM, and (for oci8, ibase/firebird and odbc) <a href="#adodb_countrecs">$ADODB_COUNTRECS</a> = false 
-  before you connect to your database. At the time of writing (Dec 2003).</p>
+  before you connect to your database.</p>
 <p>Consider using bind parameters if your database supports it, as it improves 
   query plan reuse. Use ADOdb's performance tuning system to identify bottlenecks 
   quickly. At the time of writing (Dec 2003), this means oci8 and odbc drivers.</p>
@@ -392,12 +452,12 @@ include_once('adodb.inc.php');
 
 </pre>
 <p>Don't forget to call the constructor of the parent class.
-<a name="php5">
+<a name="php5"></a>
 <h2>PHP5 Features</h2>
  ADOdb 4.02 or later will transparently determine which version of PHP you are using.
 If PHP5 is detected, the following features become available:
 <ul>
-<a name="php5iterators">
+<a name="php5iterators"></a>
 <li><b>Foreach iterators</b>: This is a very natural way of going through a recordset:
 <pre>
 	$ADODB_FETCH_MODE = ADODB_FETCH_NUM;
@@ -407,7 +467,7 @@ If PHP5 is detected, the following features become available:
 	}
 </pre>
 <p>
-<a name="php5exceptions">
+<a name="php5exceptions"></a>
 <li><b>Exceptions</b>: Just include <i>adodb-exceptions.inc.php</i> and you can now 
 catch exceptions on errors as they occur.
 <pre>
@@ -420,8 +480,11 @@ catch exceptions on errors as they occur.
 		var_dump($e); 
 	} 
 </pre>
+<p>Note that reaching EOF is <b>not</b> considered an error nor an exception.
 </ul> 
 <h3><a name="drivers"></a>Databases Supported</h3>
+The <i>name</i> below is the value you pass to NewADOConnection($name) to create a  connection object for that database.
+<p>
 <table width="100%" border="1">
   <tr valign="top"> 
     <td><b>Name</b></td>
@@ -524,6 +587,15 @@ catch exceptions on errors as they occur.
     <td><font size="2">Interbase client</font></td>
     <td><font size="2">Unix and Windows</font></td>
   </tr>
+
+  <tr valign="top"> 
+    <td><b><font size="2">informix</font></b></td>
+    <td><font size="2">C</font></td>
+    <td><font size="2">Generic informix driver. Use this if you are using Informix 7.3 or later.</font></td>
+    <td><font size="2">Y/N</font></td>
+    <td><font size="2">Informix client</font></td>
+    <td><font size="2">Unix and Windows</font></td>
+  </tr>
   <tr valign="top"> 
     <td><b><font size="2">informix72</font></b></td>
     <td><font size="2">C</font></td>
@@ -534,12 +606,12 @@ catch exceptions on errors as they occur.
     <td><font size="2">Unix and Windows</font></td>
   </tr>
   <tr valign="top"> 
-    <td><b><font size="2">informix</font></b></td>
+    <td><b><font size="2">ldap</font></b></td>
     <td><font size="2">C</font></td>
-    <td><font size="2">Generic informix driver.</font></td>
-    <td><font size="2">Y/N</font></td>
-    <td><font size="2">Informix client</font></td>
-    <td><font size="2">Unix and Windows</font></td>
+    <td><font size="2">LDAP driver. See this example for usage information.</font></td>
+    <td>&nbsp;</td>
+    <td><font size="2">LDAP extension</font></td>
+    <td><font size="2">?</font></td>
   </tr>
   <tr valign="top"> 
     <td height="73"><b><font size="2">mssql</font></b></td>
@@ -572,7 +644,7 @@ catch exceptions on errors as they occur.
     <td><font size="2">A</font></td>
     <td><font size="2">MySQL without transaction support. You can also set $db-&gt;clientFlags 
       before connecting.</font></td>
-    <td><font size="2">Y/N</font></td>
+    <td><font size="2">Y</font></td>
     <td><font size="2">MySQL client</font></td>
     <td><font size="2">Unix and Windows</font></td>
   </tr>
@@ -653,6 +725,24 @@ catch exceptions on errors as they occur.
     <td><font size="2">ODBC</font></td>
     <td><font size="2">Unix and Windows. </font></td>
   </tr>
+    
+  <tr valign="top"> 
+    <td><b><font size="2">odbtp</font></b></td>
+    <td><font size="2">C</font></td>
+    <td><font size="2">Generic odbtp driver. <a href=http://odbtp.sourceforge.net/>Odbtp</a> is a software for
+	accessing Windows ODBC data sources from other operating systems.</font></td>
+    <td><font size="2">Y/N</font></td>
+    <td><font size="2">odbtp</font></td>
+    <td><font size="2">Unix and Windows</font></td>
+  </tr>
+  <tr valign="top"> 
+    <td><b><font size="2">odbtp_unicode</font></b></td>
+    <td><font size="2">C</font></td>
+    <td><font size="2">Odtbp with unicode support</font></td>
+    <td><font size="2">Y/N</font></td>
+    <td><font size="2">odbtp</font></td>
+    <td><font size="2">Unix and Windows</font></td>
+  </tr>
   <tr valign="top"> 
     <td height="34"><b><font size="2">oracle</font></b></td>
     <td height="34"><font size="2">C</font></td>
@@ -661,6 +751,14 @@ catch exceptions on errors as they occur.
     <td height="34"><font size="2">Y/N</font></td>
     <td height="34"><font size="2">Oracle client</font></td>
     <td height="34"><font size="2">Unix and Windows</font></td>
+  </tr>
+  <tr valign="top"> 
+    <td height="34"><b><font size="2">netezza</font></b></td>
+    <td height="34"><font size="2">C</font></td>
+    <td height="34"><font size="2">Netezza driver. Netezza is based on postgres code-base.</font></td>
+    <td height="34"><font size="2">Y</font></td>
+    <td height="34"><font size="2">?</font></td>
+    <td height="34"><font size="2">?</font></td>
   </tr>
   <tr valign="top"> 
     <td><b><font size="2">postgres</font></b></td>
@@ -944,6 +1042,8 @@ update or insert into the table automatically.
   fields: (ID, FirstName, LastName, Created). 
 <p> Before these functions can be called, you need to initialize the recordset 
   by performing a select on the table. Idea and code by Jonathan Younger jyounger#unilab.com. 
+ Since ADOdb 2.42, you can pass a  table name instead of a recordset into 
+GetInsertSQL (in $rs), and it will generate an insert statement for that table.
 <p> 
 <pre>&lt;?
 #==============================================
@@ -1003,6 +1103,10 @@ $conn->Execute($updateSQL); # Update the record in the database
 $conn->Close();
 ?>
 </pre>
+GetInsertSQL/GetUpdateSQL ignore all empty fields (they are not added to the SQL generated). 
+To explicitly force a field to be set to "null", set the constant define('ADODB_FORCE_NULLS',1) before
+you call the functions.
+<p>
 <h3>Example 8: Implementing Scrolling with Next and Previous<a name="ex8"></a></h3>
 <p> The following code creates a very simple recordset pager, where you can scroll 
   from page to page of a recordset.</p>
@@ -1280,12 +1384,38 @@ PEAR::setErrorHandling('PEAR_ERROR_DIE');
    $databasename = 'xphplens';
    $driver = 'mysql';
    $dsn = &quot;$driver://$username:$password@$hostname/$databasename&quot;;</pre>
-<pre>   $db = DB::Connect($dsn);<br>   $rs = $db-&gt;Execute('select firstname,lastname from adoxyz');
+<pre>   $db = DB::Connect($dsn);<br>   $rs = $db-&gt;query('select firstname,lastname from adoxyz');
    $cnt = 0;
-   while ($arr = $rs-&gt;FetchRow()) {
+   while ($arr = $rs-&gt;fetchRow()) {
 		print_r($arr); print &quot;&lt;br&gt;&quot;;
    }</pre>
 <p>This requires PEAR to be installed and in the default include path in php.ini.</p>
+ <h2><a name="pear"></a>PEAR Compatibility</h2>
+  We support DSN's (see above), and the following functions:
+ <pre>
+<b> DB_Common</b>
+ 	query - returns PEAR_Error on error
+	limitQuery - return PEAR_Error on error
+	prepare - does not return PEAR_Error on error
+	execute - does not return PEAR_Error on error
+	setFetchMode - supports ASSOC and ORDERED
+	errorNative
+	quote
+	nextID
+	disconnect
+	
+	getOne
+	getAssoc
+	getRow
+	getCol
+	
+<b> DB_Result</b>
+ 	numRows - returns -1 if not supported
+	numCols
+	fetchInto - does not support passing of fetchmode
+	fetchRows - does not support passing of fetchmode
+	free
+</pre>
 <h2><a name="caching"></a>Caching of Recordsets</h2>
 <p>ADOdb now supports caching of recordsets using the CacheExecute( ), CachePageExecute( 
   ) and CacheSelectLimit( ) functions. There are similar to the non-cache functions, 
@@ -1314,7 +1444,8 @@ $<font color="#663300">rs</font> = $<font color="#663300">conn</font>->CacheExec
 	$rs = $conn->CacheExecute('select * from table');
 </pre>
 <p>Please note that magic_quotes_runtime should be turned off. <a href=http://phplens.com/lens/lensforum/msgs.php?LeNs#LensBM_forummsg>More 
-  info</a>. <font color="#000000"> 
+  info</a>, and do not change $ADODB_FETCH_MODE (or SetFetchMode) 
+  as the cached recordset will use the $ADODB_FETCH_MODE set when the query was executed. <font color="#000000"> 
 <h2><a name="pivot"></a>Pivot Tables</h2>
 </font> <p><font color="#000000">Since ADOdb 2.30, we support the generation of 
 SQL to create pivot tables, also known as cross-tabulations. For further explanation 
@@ -1607,7 +1738,7 @@ in adodb/lang/adodb-$lang.inc.php, where $lang is the supported langauge.
 <p>Non-persistent connect to data source or server $<b>host</b>, using userid 
 	$<b>user </b>and password $<b>password</b>. If the server supports multiple 
 	databases, connect to database $<b>database</b>. </p>
-<p>Returns true/false depending on connection.</p>
+<p>Returns true/false depending on connection success. Since 4.23, null is returned if the extension is not loaded.</p>
 <p>ADO Note: If you are using a Microsoft ADO and not OLEDB, you can set the $database 
 	parameter to the OLEDB data provider you are using.</p>
 <p>PostgreSQL: An alternative way of connecting to the database is to pass the 
@@ -1622,8 +1753,10 @@ in adodb/lang/adodb-$lang.inc.php, where $lang is the supported langauge.
 <pre> # $oraname in tnsnames.ora/ONAMES/HOSTNAMES
  $conn->Connect(false, 'scott', 'tiger', $oraname); 
  $conn->Connect('server:1521', 'scott', 'tiger', 'ServiceName'); # bypass tnsnames.ora</pre>
-<p>There are many examples of connecting to a database at <a href="http://php.weblogs.com/adodb">php.weblogs.com/ADOdb</a>, 
+<p>There are many examples of connecting to a database.
+See  <a href=#connect_ex>Connection Examples</a>, <a href="http://php.weblogs.com/adodb">php.weblogs.com/ADOdb</a>, 
 	and in the testdatabases.inc.php file included in the release.</p>
+
 <p><b>PConnect<a name="pconnect"></a>($host,[$user],[$password],[$database])</b></p>
 <p>Persistent connect to data source or server $<b>host</b>, using userid $<b>user</b> 
 	and password $<b>password</b>. If the server supports multiple databases, 
@@ -1631,7 +1764,8 @@ in adodb/lang/adodb-$lang.inc.php, where $lang is the supported langauge.
 <p>We now perform a rollback on persistent connection for selected databases since 
 	2.21, as advised in the PHP manual. See change log or source code for which 
 	databases are affected. 
-<p>Returns true/false depending on connection. See Connect( ) above for more info.</p>
+<p>Returns true/false depending on connection. Since 4.23, null is returned if the extension is not loaded.
+See Connect( ) above for more info.</p>
 <p>Since ADOdb 2.21, we also support autoRollback. If you set:</p>
 </font> 
 <pre> $conn = &amp;NewADOConnection('mysql');
@@ -1645,6 +1779,8 @@ in adodb/lang/adodb-$lang.inc.php, where $lang is the supported langauge.
 <p>Since ADOdb 3.11, you can force non-persistent 
 connections even if PConnect is called by defining the constant 
 ADODB_NEVER_PERSIST  before you call PConnect.
+<p>
+Since 4.23, null is returned if the extension is not loaded.
 <p><b>NConnect<a name="nconnect"></a>($host,[$user],[$password],[$database])</b></p>
 <p>Always force a new connection. In contrast, PHP sometimes reuses connections 
 	when you use Connect() or PConnect(). Currently works only on mysql (PHP 4.3.0 
@@ -1965,6 +2101,8 @@ $ret = $db->Replace('atable2',
 	
 <p>Since 3.61, define('ADODB_FORCE_NULLS',1) and all PHP nulls will be auto-converted 
   to SQL nulls. 
+  Since ADOdb 2.42, you can pass a  table name instead of a recordset into 
+GetInsertSQL (in $rs), and it will generate an insert statement for that table.
 <p><b>PageExecute<a name="pageexecute"></a>($sql, $nrows, $page, $inputarr=false)</b> 
 <p>Used for pagination of recordset. $page is 1-based. See <a href="#ex8">Example 
   8</a>.</p>
@@ -2176,7 +2314,7 @@ as the function to retrieve a sub-string. To use this property:
 offset (1-based) to the beginning of the sub-string, and the 3rd is the length of the sub-string.
 
 
-<p><b>Param<a name="param"></a>($name )</b></p>
+<p><b>Param<a name="param"></a>($name)</b></p>
 <p>Generates a bind placeholder portably. For most databases, the bind placeholder 
   is "?". However some databases use named bind parameters such as Oracle, eg 
   ":somevar". This allows us to portably define an SQL statement with bind parameters: 
@@ -2188,12 +2326,14 @@ $stmt = $DB-&gt;Execute($stmt,array('one','two'));
 </font></pre>
 <font color="#000000"> 
 <p></p>
-<p><b>PrepareSP</b><b><a name="preparesp"></a></b><b>($sql)</b></p>
+<p><b>PrepareSP</b><b><a name="preparesp"></a></b><b>($sql, $cursor=false )</b></p>
 <p>When calling stored procedures in mssql and oci8 (oracle), and you might want 
   to directly bind to parameters that return values, or for special LOB handling. 
   PrepareSP() allows you to do so. 
 <p>Returns the same array or $sql string as Prepare( ) above. If you do not need 
   to bind to return values, you should use Prepare( ) instead.</p>
+<p>The 2nd parameter, $cursor is not used except with oci8. Setting it to true will
+force OCINewCursor to be called; this is to support output REF CURSORs.
 <p>For examples of usage of PrepareSP( ), see InParameter( ) below. 
 <p>Note: in the mssql driver, preparing stored procedures requires a special function 
   call, mssql_init( ), which is called by this function. PrepareSP( ) is available 
@@ -2511,8 +2651,12 @@ printf(&quot;&lt;p&gt;Total queries=%d; total cached=%d&lt;/p&gt;&quot;,$EXECS+$
  (required for some databases).
  <p>For schema support, pass in the $table parameter, "$schema.$tablename". This is only
  supported for selected databases.
-<p><b>MetaColumnNames<a name="metacolumnames"></a>($table)</b></p>
-<p>Returns an array of column names for $table. 
+<p><b>MetaColumnNames<a name="metacolumnames"></a>($table,$numericIndex=false)</b></p>
+<p>Returns an array of column names for $table. Since ADOdb 4.22, this is an associative array, with the
+keys in uppercase. Set $numericIndex=true if you want the old behaviour of numeric indexes (since 4.23).
+<p>
+e.g. array('FIELD1' => 'Field1', 'FIELD2'=>'Field2')
+<p>
 <p><font color="#000000"><b>MetaPrimaryKeys<a name="metaprimarykeys"></a>($table, 
   $owner=false)</b></font></font> 
 <p><font color="#000000">Returns an array containing column names that are the 
@@ -2679,6 +2823,7 @@ supports:
 <pre>
  Y: 4-digit Year
  Q: Quarter (1-4)
+ M: Month (Jan-Dec)
  m: Month (01-12)
  d: Day (01-31)
  H: Hour (00-23)
@@ -2980,6 +3125,98 @@ $<font color="#663300">rs</font>   = $<font color="#663300">conn</font>->Execute
   PHP</a>. </p>
 </font>
 <h2>Change Log<a name="Changes"></a><a name="changes"></a><a name="changelog"></a></h2>
+<p><a name=4.23></a><b>4.23  ? June   2004</b>
+<p>
+New interbase/firebird fixes thx to Lester Caine.
+Driver fixes a problem with getting field names in the result array, and 
+corrects a couple of data conversions. Also we default to dialect3 for firebird.
+Also ibase sysDate property was wrong. Changed to cast as timestamp.
+<p>
+The datadict driver is set up to give quoted tables and fields as this 
+was the only way round reserver words being used as field names in 
+TikiWiki. TikiPro is tidying that up, and I hope to be able to produce a 
+build of THAT which uses what I consider proper UPPERCASE field and 
+table names. The conversion of TikiWiki to ADOdb helped in that, but 
+until the database is completely tidied up in TikiPro ...
+<p>Modified _gencachename() to include fetchmode in name hash.
+This means you should clear your cache directory after installing this release as the 
+cache name algorithm has changed.
+<p>Now Cache* functions work in safe mode, because we do not create sub-directories in the $ADODB_CACHE_DIR in safe mode. In non-safe mode we still create sub-directories. Done by modifying _gencachename().
+<p>Added $gmt parameter (true/false) to UserDate and UserTimeStamp in connection class, to force conversion of input (in local time) to be converted to UTC/GMT.
+<p>Mssql datadict did not support INT types properly (no size param allowed). 
+Added _GetSize() to datadict-mssql.inc.php.
+<p>For borland_ibase, BeginTrans(), changed:<br>
+<pre>   $this->_transactionID = $this->_connectionID;</pre>
+to<br>
+<pre>   $this->_transactionID = ibase_trans($this->ibasetrans, $this->_connectionID);</pre>
+		
+<p>Fixed typo in mysqi_field_seek(). Thx to Sh4dow (sh4dow#php.pl).
+<p>LogSQL did not work with Firebird/Interbase. Fixed.
+<p>Postgres: made errorno() handling more consistent. Thx to Michael Jahn, Michael.Jahn#mailbox.tu-dresden.de.
+<p>Added informix patch to better support metatables, metacolumns by "Cecilio Albero" c-albero#eos-i.com
+<p>Cyril Malevanov contributed patch to oci8 to support passing of LOB parameters:
+<pre>
+	$text = 'test test test';
+	$sql = "declare rs clob; begin :rs := lobinout(:sa0); end;";
+	$stmt = $conn -> PrepareSP($sql);
+	$conn -> InParameter($stmt,$text,'sa0', -1, OCI_B_CLOB);
+	$rs = '';
+	$conn -> OutParameter($stmt,$rs,'rs', -1, OCI_B_CLOB);
+	$conn -> Execute($stmt);
+	echo "return = ".$rs."&lt;br>";
+</pre>
+As he says, the LOBs limitations are:
+<pre>
+ - use OCINewDescriptor before binding
+ - if Param is IN, uses save() before each execute. This is done automatically for you.
+ - if Param is OUT, uses load() after each execute. This is done automatically for you.
+ - when we bind $var as LOB, we create new descriptor and return it as a
+   Bind Result, so if we want to use OUT parameters, we have to store
+   somewhere &$var to load() data from LOB to it.
+ - IN OUT params are not working now (should not be a big problem to fix it)
+ - now mass binding not working too (I've wrote about it before)
+</pre>
+<p>Simplified Connect() and PConnect() error handling.
+<p>When extension not loaded, Connect() and PConnect() will return null. On connect error, the fns will return false.
+<p>CacheGetArray() added to code.
+<p>Added Init() to adorecordset_empty().
+<p>Changed postgres64 driver, MetaColumns() to not strip off quotes in default value if :: detected (type-casting of default).
+<p>Added test: if (!defined('ADODB_DIR')) die(). Useful to prevent hackers from detecting file paths.
+<p>Changed metaTablesSQL to ignore Postgres 7.4 information schemas (sql_*).
+<p>New polish language file by  Grzegorz Pacan
+<p>Added support for UNION in _adodb_getcount().
+<p>Added security check for ADODB_DIR to limit path disclosure issues. Requested by postnuke team.
+<p>Added better error message support to oracle driver. Thx to Gaetano Giunta.
+<p>Added showSchema support to mysql.
+<p>Bind in oci8 did not handle $name=false properly. Fixed.
+<p>If extension not loaded, Connect(), PConnect(), NConnect() will return null.
+<p><b>4.22  15 Apr   2004</b>
+<p>Moved docs to own adodb/docs folder.
+<p>Fixed session bug when quoting compressed/encrypted data in Replace().
+<p>Netezza Driver and LDAP drivers contributed by Josh Eldridge.
+<p>GetMenu now uses rtrim() on values instead of trim().
+<p>Changed MetaColumnNames to return an associative array, keys being the field names in uppercase.
+<p>Suggested fix to adodb-ado.inc.php affected_rows to support PHP5 variants. Thx to Alexios Fakos.
+<p>Contributed bulgarian language file by Valentin Sheiretsky valio#valio.eu.org.
+<p>Contributed romanian language file by stefan bogdan.
+<p>GetInsertSQL now checks for table name (string) in $rs, and will create a recordset for that
+table automatically. Contributed by Walt Boring. Also added OCI_B_BLOB in bind on Walt's request - hope
+it doesn't break anything :-)
+<p>Some minor postgres speedups in _initrs().
+<p> ChangeTableSQL checks now if MetaColumns returns empty. Thx Jason Judge.
+<p>Added ADOConnection::Time(), returns current database time in unix timestamp format, or false.
+<p><b>4.21 20 Mar 2004</b>
+<p>We no longer in SelectLimit for VFP driver add SELECT TOP X unless an ORDER BY exists.
+<p>Pim Koeman contributed dutch language file adodb-nl.inc.php.
+<p>Rick Hickerson added CLOB support to db2 datadict.
+<p>Added odbtp driver. Thx to "stefan bogdan" sbogdan#rsb.ro.
+<p>Changed PrepareSP() 2nd parameter, $cursor, to default to true (formerly false). Fixes oci8 backward
+compat problems with OUT params.
+<p>Fixed month calculation error in adodb-time.inc.php. 2102-June-01 appeared as 2102-May-32.
+<p>Updated PHP5 RC1 iterator support. API changed, hasMore() renamed to valid().
+<p>Changed internal format of serialized cache recordsets. As we store a version number, this should be
+backward compatible.
+<p>Error handling when driver file not found was flawed in ADOLoadCode(). Fixed.
 <p><b>4.20 27 Feb 2004</b>
 <p>Updated to AXMLS 1.01.
 <p>MetaForeignKeys for postgres7 modified by Edward Jaramilla, works on pg 7.4.
