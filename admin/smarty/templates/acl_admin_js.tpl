@@ -59,7 +59,8 @@ function select_item(parent_form_element, src_form_element, dst_form_element) {
 			}
 			
 		}
-
+		
+		found_dup=false;
 	}
 }
 

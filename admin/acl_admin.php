@@ -316,6 +316,7 @@ switch ($_POST['action']) {
         $smarty->assign("options_aro_groups", $gacl_api->format_groups($gacl_api->sort_groups('ARO')) );
 		$smarty->assign("selected_aro_groups", $selected_aro_groups);
         
+		unset($formatted_groups);
         //Grab formatted AXO Groups for select box
         $smarty->assign("options_axo_groups", $gacl_api->format_groups($gacl_api->sort_groups('AXO')) );
 		$smarty->assign("selected_axo_groups", $selected_axo_groups);
