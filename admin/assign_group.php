@@ -99,7 +99,7 @@ switch ($_POST[action]) {
         //
         //Grab all ARO's for select box
         //
-        $query = "select section_value, value, name from $group_type order by section_value, order_value";
+        $query = "select section_value, value, name from $group_type order by section_value, order_value limit $gacl_api->_max_select_box_items";
         $rs = $db->Execute($query);
         $rows = $rs->GetRows();
 
