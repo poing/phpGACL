@@ -1,3 +1,5 @@
+* Upgrade Smarty to 2.6.0-final and ADODB to 4.11
+
 * Create regression tests. - Need more of these.
 
 * Write function to find which groups an object is in.
