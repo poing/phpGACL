@@ -1,6 +1,9 @@
 Mike Benoit <ipso@snappymail.ca>:
     Wrote initial "proof of concept" implementation, and maintains documentation & code base.
 
+Ben Margolin <ben@prince.org>
+    Caught and fixed several bugs.
+
 R. Kunoth <R.Kunoth@web.de>
     Caught and fixed several bugs. 
     
