@@ -1,5 +1,8 @@
 Wed Feb 12 2003
-
+	- Fixed bug caused by overzealous array_unique in add_acl()
+	- Switched acl_query() to return TRUE/FALSE for the 'allow' return value instead of 1/0
+	- API group functions didn't manipulate the path_to_root mapping when reparenting or deleting occured.
+	
 Tue Feb 04 2003
 	- Fixed bug in edit_group(), added more error checking.
 	- Added object searching to the assign group pages.

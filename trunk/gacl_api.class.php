@@ -708,18 +708,9 @@ class gacl_api extends gacl {
 			$enabled=0;	
 		}
 		
-		//Unique all the arrays.
-		if (is_array($aco_array)) {
-			$aco_array = array_unique($aco_array);
-		}
-		if (is_array($aro_array)) {
-			$aro_array = array_unique($aro_array);
-		}
+		//Unique the group arrays. Later one we unique ACO/ARO/AXO arrays.
 		if (is_array($aro_group_ids)) {
 			$aro_group_ids = array_unique($aro_group_ids);
-		}
-		if (is_array($axo_array)) {
-			$axo_array = array_unique($axo_array);
 		}
 		if (is_array($axo_group_ids)) {
 			$axo_group_ids = array_unique($axo_group_ids);
@@ -807,7 +798,8 @@ class gacl_api extends gacl {
 			//Insert ACO mappings
 			while (list($aco_section_value,$aco_value_array) = @each($aco_array)) {
 				$this->debug_text("Insert: ACO Section Value: $aco_section_value ACO VALUE: $aco_value_array");   
-				//showarray($aco_array);
+				//$this->showarray($aco_value_array);
+				$aco_value_array = array_unique($aco_value_array);
 
 				foreach ($aco_value_array as $aco_value) {
 					$aco_object_id = &$this->get_object_id($aco_section_value, $aco_value, 'ACO');
@@ -834,6 +826,7 @@ class gacl_api extends gacl {
 			while (list($aro_section_value,$aro_value_array) = @each($aro_array)) {
 				$this->debug_text("Insert: ARO Section Value: $aro_section_value ARO VALUE: $aro_value_array");   
 
+				$aro_value_array = array_unique($aro_value_array);
 				foreach ($aro_value_array as $aro_value) {
 					$aro_object_id = &$this->get_object_id($aro_section_value, $aro_value, 'ARO');
 
@@ -860,6 +853,7 @@ class gacl_api extends gacl {
 			while (list($axo_section_value,$axo_value_array) = @each($axo_array)) {
 				$this->debug_text("Insert: AXO Section Value: $axo_section_value AXO VALUE: $axo_value_array");   
 
+				$axo_value_array = array_unique($axo_value_array);
 				foreach ($axo_value_array as $axo_value) {
 					$axo_object_id = &$this->get_object_id($axo_section_value, $axo_value, 'AXO');
 
@@ -1362,6 +1356,7 @@ class gacl_api extends gacl {
 			/*
 			 * See if the path has already been created.
 			 */
+			
 			$query = "select
 										id
 							from    $table
@@ -1369,15 +1364,32 @@ class gacl_api extends gacl {
 									AND tree_level = 0";
 			$path_id = $this->db->GetOne($query);
 			$this->debug_text("put_group_path_to_root(): Path ID: $path_id");
-			
+						
+			if (!empty($path_id) ) {
+				$this->debug_text("put_group_path_to_root(): Checking all steps in path ID: $path_id");
+				
+				//Possible path found, make sure all steps are correct.
+				$query= "select group_id from $table where id = $path_id";
+				$path_group_ids = $this->db->GetCol($query);
+				
+				//$this->showarray($path_group_ids);
+				//$this->showarray($path_to_root);
+				
+				$path_diff = array_diff($path_to_root, $path_group_ids);
+				if (count($path_diff) > 0) {
+					$this->debug_text("put_group_path_to_root(): Paths differ by ".count($path_diff) .", bogus path. Insert new one.");
+					unset($path_id);
+				} else {
+					$this->debug_text("put_group_path_to_root(): Path matches perfect, unique path FOUND, returning ID: $path_id");
+					$retval = $path_id;
+				}
+			}
 
 			if (empty($path_id)) {
-			
 				$this->debug_text("put_group_path_to_root(): Unique path not found, inserting...");
 				$insert_id = $this->db->GenID($table.'_id_seq',10);
-				
-				$this->db->BeginTrans();
-				
+
+				$this->db->BeginTrans();				
 				$i=0;
 				foreach ($path_to_root as $group_id) {
 
@@ -1391,15 +1403,11 @@ class gacl_api extends gacl {
 					
 					$i++;
 				}
+				$this->db->CommitTrans();
 				
 				$retval = $insert_id;
-				
-				$this->db->CommitTrans();				
-			} else {
-				$this->debug_text("put_group_path_to_root(): Unique path FOUND, returning ID: $path_id");
-				$retval = $path_id;
 			}
-
+		
 			/*
 			 * Return path to root ID.
 			 */
@@ -1409,6 +1417,54 @@ class gacl_api extends gacl {
 		return false;
 	}
 
+	/*======================================================================*\
+		Function:	clean_path_to_root()
+		Purpose:	Cleans up any paths that are not being used.
+	\*======================================================================*/
+	function clean_path_to_root($group_type = 'ARO') {
+
+		switch(strtolower($group_type)) {
+			case 'axo':
+				$table = 'axo_groups_path';
+				$group_path_map_table = 'axo_groups_path_map';
+				break;
+			default:
+				$table = 'aro_groups_path';
+				$group_path_map_table = 'aro_groups_path_map';
+				break;
+		}
+
+		$this->debug_text("clean_path_to_root(): Cleaning any orphaned path_to_root's.");
+		
+		$query = "select distinct path_id from $group_path_map_table";
+		$valid_path_ids = $this->db->GetCol($query);
+		
+		//$this->showarray($valid_path_ids);
+		if ($valid_path_ids == FALSE) {
+			//Delete all paths, as none should be in use.
+			$query = "delete from $table";
+			$this->db->Execute($query);
+			if ($this->db->ErrorNo() != 0) {
+				$this->debug_text("clean_path_to_root(): database error: ". $this->db->ErrorMsg() ." (". $this->db->ErrorNo() .")");
+				return false;	
+			}
+			
+		} else {
+			//Format path_id's for a SQL query.
+			$sql_valid_path_ids = implode($valid_path_ids, ",");
+			unset($valid_path_ids);
+			
+			$query = "delete from $table where id not in ($sql_valid_path_ids)";
+			$this->db->Execute($query);
+			if ($this->db->ErrorNo() != 0) {
+				$this->debug_text("clean_path_to_root(): database error: ". $this->db->ErrorMsg() ." (". $this->db->ErrorNo() .")");
+				return false;	
+			}
+		}
+
+		return true;	
+	}
+	
 	/*======================================================================*\
 		Function:	get_path_to_root()
 		Purpose:	Generates the path to root for a given group.
@@ -1607,7 +1663,7 @@ class gacl_api extends gacl {
 		Function:	edit_group()
 		Purpose:	Edits a group
 	\*======================================================================*/
-	function edit_group($group_id, $name, $parent_id=0, $group_type='ARO') {
+	function edit_group($group_id, $name=NULL, $parent_id=0, $group_type='ARO') {
 		
 		switch(strtolower($group_type)) {
 			case 'axo':
@@ -1622,8 +1678,8 @@ class gacl_api extends gacl {
 
 		$name = trim($name);
 		
-		if (empty($group_id) OR empty($name) ) {
-			$this->debug_text("edit_group(): Group ID ($group_id) OR Name ($name) is empty, this is required");
+		if (empty($group_id) ) {
+			$this->debug_text("edit_group(): Group ID ($group_id) is empty, this is required");
 			return false;	
 		}
 
@@ -1639,10 +1695,14 @@ class gacl_api extends gacl {
 			$this->debug_text("edit_group(): Groups can not be re-parented to there own children, this would be incestuous!");
 			return false;
 		}
+		unset($children_ids);
 		
-		$query = "update $table set
-																name = '$name',
-																parent_id = $parent_id
+		$query = "update $table set ";
+		//Don't update name if it is not specified.
+		if ($name != NULL) {
+			$query .= "									name = '$name', ";
+		}				
+		$query .= "										parent_id = $parent_id
 													where   id=$group_id";
 		$rs = $this->db->Execute($query);                   
 
@@ -1652,7 +1712,26 @@ class gacl_api extends gacl {
 		} else {
 			$this->debug_text("edit_group(): Modified group ID: $group_id");
 			
-			return $this->map_group_path_to_root($group_id, $this->put_group_path_to_root( $this->gen_group_path_to_root($group_id, $group_type), $group_type ), $group_type );
+			//Get all new child IDs.
+			$children_ids = @array_keys( $this->format_groups($this->sort_groups($group_type), 'ARRAY', $group_id) );
+			//$this->showarray($children_ids);
+			
+			if (count($children_ids) > 0) {
+				$this->debug_text("Found child_ids to re-parent.");
+				
+				foreach($children_ids as $child_id) {
+					$this->debug_text("Re-Calculating child group path to root: $child_id");
+					
+					$this->map_group_path_to_root($child_id, $this->put_group_path_to_root( $this->gen_group_path_to_root($child_id, $group_type), $group_type ), $group_type );
+				}
+			}
+			
+			$retval = &$this->map_group_path_to_root($group_id, $this->put_group_path_to_root( $this->gen_group_path_to_root($group_id, $group_type), $group_type ), $group_type );
+
+			//Clean orphaned paths
+			$this->clean_path_to_root($group_type);
+			
+			return $retval;
 		}
 	}
 	
@@ -1666,10 +1745,14 @@ class gacl_api extends gacl {
 			case 'axo':
 				$table = 'axo_groups';
 				$groups_map_table = 'axo_groups_map';
+				$groups_path_table = 'axo_groups_path';
+				$groups_path_map_table = 'axo_groups_path_map';
 				break;
 			default:
 				$table = 'aro_groups';
 				$groups_map_table = 'aro_groups_map';
+				$groups_path_table = 'aro_groups_path';
+				$groups_path_map_table = 'aro_groups_path_map';
 				break;
 		}
 
@@ -1693,29 +1776,57 @@ class gacl_api extends gacl {
 		
 		$this->db->BeginTrans();
 		
+		//Grab all current children and edit_group() each of them to the proper parent
+		$query = "select id from $table where parent_id=$group_id";
+		$children_ids = $this->db->GetCol($query);
+
 		/*
 		 * Handle children here.
 		 */
-		if ($reparent_children) {
+		if ($reparent_children==TRUE) {
 			//Reparent children if any.
-			$query = "update $table set parent_id=$parent_id where parent_id=$group_id";
-			$this->db->Execute($query);
-
-			if ($this->db->ErrorNo() != 0) {
-				$this->debug_text("del_group(): database error: ". $this->db->ErrorMsg() ." (". $this->db->ErrorNo() .")");
-				$this->db->RollBackTrans();
-				return false;	
+			
+			if ($children_ids != FALSE) {
+				foreach ($children_ids as $child_id) {
+					$this->edit_group($child_id, NULL, $parent_id, $group_type);
+				}
 			}
 		} else {
 			//Delete all children
-			$query = "delete from $table where parent_id=$parent_id";
-			$this->db->Execute($query);
+			if ($children_ids != FALSE) {
+				foreach ($children_ids as $child_id) {
+					$this->del_group($child_id, FALSE, $group_type);
+				}
+			}
+		}
 
-			if ($this->db->ErrorNo() != 0) {
-				$this->debug_text("del_group(): database error: ". $this->db->ErrorMsg() ." (". $this->db->ErrorNo() .")");
-				$this->db->RollBackTrans();
-				return false;	
-			}			
+		//Clean up paths.
+		//Find which path this group uses.
+		$query = "select path_id from $groups_path_map_table where group_id=$group_id";
+		$path_id = $this->db->GetOne($query);
+		
+		if (!empty($path_id) ) {
+			//Do other groups use the same path?
+			$query = "select count(*) from $groups_path_map_table where path_id=$path_id";
+			$groups_using_path = $this->db->GetOne($query);
+
+			$this->debug_text("Found $groups_using_path groups using this path.");
+			
+			if ($groups_using_path == 1) {
+				//Delete path
+				$this->debug_text("Only one group using path, deleting path: $path_id");
+				
+				$query = "delete from $groups_path_table where id=$path_id";
+				$this->db->Execute($query);
+
+				if ($this->db->ErrorNo() != 0) {
+					$this->debug_text("del_group(): database error: ". $this->db->ErrorMsg() ." (". $this->db->ErrorNo() .")");
+					$this->db->RollBackTrans();
+					return false;	
+				}			
+			} else {
+				$this->debug_text("More then one ($groups_using_path) group using path (ID: $path_id), not deleting it.");
+			}
 		}
 
 		$query = "delete from $table where id=$group_id";
@@ -1736,11 +1847,22 @@ class gacl_api extends gacl {
 			$this->debug_text("del_group(): database error: ". $this->db->ErrorMsg() ." (". $this->db->ErrorNo() .")");
 			$this->db->RollBackTrans();
 			return false;	
-		} else {
-			$this->debug_text("del_group(): deleted group ID: $group_id");
-			$this->db->CommitTrans();
-			return true;
-		}
+		} 
+
+		$query = "delete from $groups_path_map_table where group_id=$group_id";
+		$this->debug_text("delete query: $query");
+		$this->db->Execute($query);
+	
+		if ($this->db->ErrorNo() != 0) {
+			$this->debug_text("del_group(): database error: ". $this->db->ErrorMsg() ." (". $this->db->ErrorNo() .")");
+			$this->db->RollBackTrans();
+			return false;	
+		} 
+
+		$this->debug_text("del_group(): deleted group ID: $group_id");
+		$this->db->CommitTrans();
+		return true;
+
 	}
 
 
