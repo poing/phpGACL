@@ -103,6 +103,13 @@
 				<div class="method-definition">
 					<img src="../media/images/Method.png" alt=" "/>
 											<span class="method-result">bool</span>
+										<a href="#clear_database" title="details" class="method-name">clear_database</a>
+										()
+									</div>
+								
+				<div class="method-definition">
+					<img src="../media/images/Method.png" alt=" "/>
+											<span class="method-result">bool</span>
 										<a href="#consolidated_edit_acl" title="details" class="method-name">consolidated_edit_acl</a>
 											(<span class="var-type">string</span>&nbsp;<span class="var-name">$aco_section_value</span>, <span class="var-type">string</span>&nbsp;<span class="var-name">$aco_value</span>, <span class="var-type">string</span>&nbsp;<span class="var-name">$aro_section_value</span>, <span class="var-type">string</span>&nbsp;<span class="var-name">$aro_value</span>, <span class="var-type">string</span>&nbsp;<span class="var-name">$return_value</span>)
 									</div>
@@ -319,7 +326,7 @@
 								
 				<div class="method-definition">
 					<img src="../media/images/Method.png" alt=" "/>
-											<span class="method-result">void</span>
+											<span class="method-result">array</span>
 										<a href="#search_acl" title="details" class="method-name">search_acl</a>
 											([<span class="var-type">string</span>&nbsp;<span class="var-name">$aco_section_value</span> = <span class="var-default">NULL</span>], [<span class="var-type">string</span>&nbsp;<span class="var-name">$aco_value</span> = <span class="var-default">NULL</span>], [<span class="var-type">string</span>&nbsp;<span class="var-name">$aro_section_value</span> = <span class="var-default">NULL</span>], [<span class="var-type">string</span>&nbsp;<span class="var-name">$aro_value</span> = <span class="var-default">NULL</span>], [<span class="var-type">string</span>&nbsp;<span class="var-name">$aro_group_name</span> = <span class="var-default">NULL</span>], [<span class="var-type">string</span>&nbsp;<span class="var-name">$axo_section_value</span> = <span class="var-default">NULL</span>], [<span class="var-type">string</span>&nbsp;<span class="var-name">$axo_value</span> = <span class="var-default">NULL</span>], [<span class="var-type">string</span>&nbsp;<span class="var-name">$axo_group_name</span> = <span class="var-default">NULL</span>], [<span class="var-type">string</span>&nbsp;<span class="var-name">$return_value</span> = <span class="var-default">NULL</span>])
 									</div>
@@ -446,7 +453,7 @@
 	
 	<div class="method-header">
 		<img src="../media/images/Method.png" />
-		<span class="method-title">add_acl</span> (line <span class="line-number">893</span>)
+		<span class="method-title">add_acl</span> (line <span class="line-number">895</span>)
 	</div> 
 	
 	<!-- ========== Info from phpDoc block ========= -->
@@ -507,7 +514,7 @@
 	
 	<div class="method-header">
 		<img src="../media/images/Method.png" />
-		<span class="method-title">add_group</span> (line <span class="line-number">1628</span>)
+		<span class="method-title">add_group</span> (line <span class="line-number">1630</span>)
 	</div> 
 	
 	<!-- ========== Info from phpDoc block ========= -->
@@ -547,7 +554,7 @@
 	
 	<div class="method-header">
 		<img src="../media/images/Method.png" />
-		<span class="method-title">add_group_object</span> (line <span class="line-number">1822</span>)
+		<span class="method-title">add_group_object</span> (line <span class="line-number">1824</span>)
 	</div> 
 	
 	<!-- ========== Info from phpDoc block ========= -->
@@ -587,7 +594,7 @@
 	
 	<div class="method-header">
 		<img src="../media/images/Method.png" />
-		<span class="method-title">add_object</span> (line <span class="line-number">2895</span>)
+		<span class="method-title">add_object</span> (line <span class="line-number">2897</span>)
 	</div> 
 	
 	<!-- ========== Info from phpDoc block ========= -->
@@ -633,7 +640,7 @@
 	
 	<div class="method-header">
 		<img src="../media/images/Method.png" />
-		<span class="method-title">add_object_section</span> (line <span class="line-number">3373</span>)
+		<span class="method-title">add_object_section</span> (line <span class="line-number">3375</span>)
 	</div> 
 	
 	<!-- ========== Info from phpDoc block ========= -->
@@ -676,7 +683,7 @@
 	
 	<div class="method-header">
 		<img src="../media/images/Method.png" />
-		<span class="method-title">append_acl</span> (line <span class="line-number">408</span>)
+		<span class="method-title">append_acl</span> (line <span class="line-number">410</span>)
 	</div> 
 	
 	<!-- ========== Info from phpDoc block ========= -->
@@ -717,8 +724,34 @@
 		
 		
 	</div>
-<a name="methodconsolidated_edit_acl" id="consolidated_edit_acl"><!-- --></a>
+<a name="methodclear_database" id="clear_database"><!-- --></a>
 <div class="evenrow">
+	
+	<div class="method-header">
+		<img src="../media/images/Method.png" />
+		<span class="method-title">clear_database</span> (line <span class="line-number">3671</span>)
+	</div> 
+	
+	<!-- ========== Info from phpDoc block ========= -->
+<p class="short-description">clear_database()</p>
+<p class="description"><p>Deletes all data from the phpGACL tables. USE WITH CAUTION.</p></p>
+	<ul class="tags">
+				<li><span class="field">return:</span> Returns TRUE if successful, FALSE otherwise</li>
+			</ul>
+	
+	<div class="method-signature">
+		<span class="method-result">bool</span>
+		<span class="method-name">
+			clear_database
+		</span>
+				()
+			</div>
+	
+		
+		
+	</div>
+<a name="methodconsolidated_edit_acl" id="consolidated_edit_acl"><!-- --></a>
+<div class="oddrow">
 	
 	<div class="method-header">
 		<img src="../media/images/Method.png" />
@@ -761,7 +794,7 @@
 		
 	</div>
 <a name="methodcount_all" id="count_all"><!-- --></a>
-<div class="oddrow">
+<div class="evenrow">
 	
 	<div class="method-header">
 		<img src="../media/images/Method.png" />
@@ -792,11 +825,11 @@
 		
 	</div>
 <a name="methoddel_acl" id="del_acl"><!-- --></a>
-<div class="evenrow">
+<div class="oddrow">
 	
 	<div class="method-header">
 		<img src="../media/images/Method.png" />
-		<span class="method-title">del_acl</span> (line <span class="line-number">1137</span>)
+		<span class="method-title">del_acl</span> (line <span class="line-number">1139</span>)
 	</div> 
 	
 	<!-- ========== Info from phpDoc block ========= -->
@@ -823,11 +856,11 @@
 		
 	</div>
 <a name="methoddel_group" id="del_group"><!-- --></a>
-<div class="oddrow">
+<div class="evenrow">
 	
 	<div class="method-header">
 		<img src="../media/images/Method.png" />
-		<span class="method-title">del_group</span> (line <span class="line-number">2192</span>)
+		<span class="method-title">del_group</span> (line <span class="line-number">2194</span>)
 	</div> 
 	
 	<!-- ========== Info from phpDoc block ========= -->
@@ -860,11 +893,11 @@
 		
 	</div>
 <a name="methoddel_group_object" id="del_group_object"><!-- --></a>
-<div class="evenrow">
+<div class="oddrow">
 	
 	<div class="method-header">
 		<img src="../media/images/Method.png" />
-		<span class="method-title">del_group_object</span> (line <span class="line-number">1909</span>)
+		<span class="method-title">del_group_object</span> (line <span class="line-number">1911</span>)
 	</div> 
 	
 	<!-- ========== Info from phpDoc block ========= -->
@@ -900,11 +933,11 @@
 		
 	</div>
 <a name="methoddel_object" id="del_object"><!-- --></a>
-<div class="oddrow">
+<div class="evenrow">
 	
 	<div class="method-header">
 		<img src="../media/images/Method.png" />
-		<span class="method-title">del_object</span> (line <span class="line-number">3088</span>)
+		<span class="method-title">del_object</span> (line <span class="line-number">3090</span>)
 	</div> 
 	
 	<!-- ========== Info from phpDoc block ========= -->
@@ -937,11 +970,11 @@
 		
 	</div>
 <a name="methoddel_object_section" id="del_object_section"><!-- --></a>
-<div class="evenrow">
+<div class="oddrow">
 	
 	<div class="method-header">
 		<img src="../media/images/Method.png" />
-		<span class="method-title">del_object_section</span> (line <span class="line-number">3579</span>)
+		<span class="method-title">del_object_section</span> (line <span class="line-number">3581</span>)
 	</div> 
 	
 	<!-- ========== Info from phpDoc block ========= -->
@@ -974,11 +1007,11 @@
 		
 	</div>
 <a name="methodedit_acl" id="edit_acl"><!-- --></a>
-<div class="oddrow">
+<div class="evenrow">
 	
 	<div class="method-header">
 		<img src="../media/images/Method.png" />
-		<span class="method-title">edit_acl</span> (line <span class="line-number">1093</span>)
+		<span class="method-title">edit_acl</span> (line <span class="line-number">1095</span>)
 	</div> 
 	
 	<!-- ========== Info from phpDoc block ========= -->
@@ -1035,11 +1068,11 @@
 		
 	</div>
 <a name="methodedit_group" id="edit_group"><!-- --></a>
-<div class="evenrow">
+<div class="oddrow">
 	
 	<div class="method-header">
 		<img src="../media/images/Method.png" />
-		<span class="method-title">edit_group</span> (line <span class="line-number">1968</span>)
+		<span class="method-title">edit_group</span> (line <span class="line-number">1970</span>)
 	</div> 
 	
 	<!-- ========== Info from phpDoc block ========= -->
@@ -1078,11 +1111,11 @@
 		
 	</div>
 <a name="methodedit_object" id="edit_object"><!-- --></a>
-<div class="oddrow">
+<div class="evenrow">
 	
 	<div class="method-header">
 		<img src="../media/images/Method.png" />
-		<span class="method-title">edit_object</span> (line <span class="line-number">2995</span>)
+		<span class="method-title">edit_object</span> (line <span class="line-number">2997</span>)
 	</div> 
 	
 	<!-- ========== Info from phpDoc block ========= -->
@@ -1127,11 +1160,11 @@
 		
 	</div>
 <a name="methodedit_object_section" id="edit_object_section"><!-- --></a>
-<div class="evenrow">
+<div class="oddrow">
 	
 	<div class="method-header">
 		<img src="../media/images/Method.png" />
-		<span class="method-title">edit_object_section</span> (line <span class="line-number">3442</span>)
+		<span class="method-title">edit_object_section</span> (line <span class="line-number">3444</span>)
 	</div> 
 	
 	<!-- ========== Info from phpDoc block ========= -->
@@ -1173,11 +1206,11 @@
 		
 	</div>
 <a name="methodformat_groups" id="format_groups"><!-- --></a>
-<div class="oddrow">
+<div class="evenrow">
 	
 	<div class="method-header">
 		<img src="../media/images/Method.png" />
-		<span class="method-title">format_groups</span> (line <span class="line-number">1248</span>)
+		<span class="method-title">format_groups</span> (line <span class="line-number">1250</span>)
 	</div> 
 	
 	<!-- ========== Info from phpDoc block ========= -->
@@ -1216,11 +1249,11 @@
 		
 	</div>
 <a name="methodget_acl" id="get_acl"><!-- --></a>
-<div class="evenrow">
+<div class="oddrow">
 	
 	<div class="method-header">
 		<img src="../media/images/Method.png" />
-		<span class="method-title">get_acl</span> (line <span class="line-number">674</span>)
+		<span class="method-title">get_acl</span> (line <span class="line-number">676</span>)
 	</div> 
 	
 	<!-- ========== Info from phpDoc block ========= -->
@@ -1247,11 +1280,11 @@
 		
 	</div>
 <a name="methodget_group_children" id="get_group_children"><!-- --></a>
-<div class="oddrow">
+<div class="evenrow">
 	
 	<div class="method-header">
 		<img src="../media/images/Method.png" />
-		<span class="method-title">get_group_children</span> (line <span class="line-number">1401</span>)
+		<span class="method-title">get_group_children</span> (line <span class="line-number">1403</span>)
 	</div> 
 	
 	<!-- ========== Info from phpDoc block ========= -->
@@ -1284,11 +1317,11 @@
 		
 	</div>
 <a name="methodget_group_data" id="get_group_data"><!-- --></a>
-<div class="evenrow">
+<div class="oddrow">
 	
 	<div class="method-header">
 		<img src="../media/images/Method.png" />
-		<span class="method-title">get_group_data</span> (line <span class="line-number">1451</span>)
+		<span class="method-title">get_group_data</span> (line <span class="line-number">1453</span>)
 	</div> 
 	
 	<!-- ========== Info from phpDoc block ========= -->
@@ -1318,11 +1351,11 @@
 		
 	</div>
 <a name="methodget_group_id" id="get_group_id"><!-- --></a>
-<div class="oddrow">
+<div class="evenrow">
 	
 	<div class="method-header">
 		<img src="../media/images/Method.png" />
-		<span class="method-title">get_group_id</span> (line <span class="line-number">1338</span>)
+		<span class="method-title">get_group_id</span> (line <span class="line-number">1340</span>)
 	</div> 
 	
 	<!-- ========== Info from phpDoc block ========= -->
@@ -1355,11 +1388,11 @@
 		
 	</div>
 <a name="methodget_group_objects" id="get_group_objects"><!-- --></a>
-<div class="evenrow">
+<div class="oddrow">
 	
 	<div class="method-header">
 		<img src="../media/images/Method.png" />
-		<span class="method-title">get_group_objects</span> (line <span class="line-number">1756</span>)
+		<span class="method-title">get_group_objects</span> (line <span class="line-number">1758</span>)
 	</div> 
 	
 	<!-- ========== Info from phpDoc block ========= -->
@@ -1392,11 +1425,11 @@
 		
 	</div>
 <a name="methodget_group_parent_id" id="get_group_parent_id"><!-- --></a>
-<div class="oddrow">
+<div class="evenrow">
 	
 	<div class="method-header">
 		<img src="../media/images/Method.png" />
-		<span class="method-title">get_group_parent_id</span> (line <span class="line-number">1493</span>)
+		<span class="method-title">get_group_parent_id</span> (line <span class="line-number">1495</span>)
 	</div> 
 	
 	<!-- ========== Info from phpDoc block ========= -->
@@ -1426,11 +1459,11 @@
 		
 	</div>
 <a name="methodget_object" id="get_object"><!-- --></a>
-<div class="evenrow">
+<div class="oddrow">
 	
 	<div class="method-header">
 		<img src="../media/images/Method.png" />
-		<span class="method-title">get_object</span> (line <span class="line-number">2440</span>)
+		<span class="method-title">get_object</span> (line <span class="line-number">2442</span>)
 	</div> 
 	
 	<!-- ========== Info from phpDoc block ========= -->
@@ -1463,11 +1496,11 @@
 		
 	</div>
 <a name="methodget_objects" id="get_objects"><!-- --></a>
-<div class="oddrow">
+<div class="evenrow">
 	
 	<div class="method-header">
 		<img src="../media/images/Method.png" />
-		<span class="method-title">get_objects</span> (line <span class="line-number">2567</span>)
+		<span class="method-title">get_objects</span> (line <span class="line-number">2569</span>)
 	</div> 
 	
 	<!-- ========== Info from phpDoc block ========= -->
@@ -1494,17 +1527,17 @@
 				<span class="var-name">$return_hidden</span><span class="var-description">: Returns hidden objects if 1, does not if 0</span>			</li>
 					<li>
 				<span class="var-type">string</span>
-				<span class="var-name">$object_type</span><span class="var-description">: Object Type, either 'ACO', 'ARO', 'AXO', or 'ACL'</span>			</li>
+				<span class="var-name">$object_type</span><span class="var-description">: Object Type, either 'ACO', 'ARO', 'AXO'</span>			</li>
 				</ul>
 		
 		
 	</div>
 <a name="methodget_object_data" id="get_object_data"><!-- --></a>
-<div class="evenrow">
+<div class="oddrow">
 	
 	<div class="method-header">
 		<img src="../media/images/Method.png" />
-		<span class="method-title">get_object_data</span> (line <span class="line-number">2631</span>)
+		<span class="method-title">get_object_data</span> (line <span class="line-number">2633</span>)
 	</div> 
 	
 	<!-- ========== Info from phpDoc block ========= -->
@@ -1528,17 +1561,17 @@
 				<span class="var-name">$object_id</span><span class="var-description">: Object ID #</span>			</li>
 					<li>
 				<span class="var-type">string</span>
-				<span class="var-name">$object_type</span><span class="var-description">: Object Type, either 'ACO', 'ARO', 'AXO', or 'ACL'</span>			</li>
+				<span class="var-name">$object_type</span><span class="var-description">: Object Type, either 'ACO', 'ARO', 'AXO'</span>			</li>
 				</ul>
 		
 		
 	</div>
 <a name="methodget_object_groups" id="get_object_groups"><!-- --></a>
-<div class="oddrow">
+<div class="evenrow">
 	
 	<div class="method-header">
 		<img src="../media/images/Method.png" />
-		<span class="method-title">get_object_groups</span> (line <span class="line-number">2834</span>)
+		<span class="method-title">get_object_groups</span> (line <span class="line-number">2836</span>)
 	</div> 
 	
 	<!-- ========== Info from phpDoc block ========= -->
@@ -1571,11 +1604,11 @@
 		
 	</div>
 <a name="methodget_object_id" id="get_object_id"><!-- --></a>
-<div class="evenrow">
+<div class="oddrow">
 	
 	<div class="method-header">
 		<img src="../media/images/Method.png" />
-		<span class="method-title">get_object_id</span> (line <span class="line-number">2691</span>)
+		<span class="method-title">get_object_id</span> (line <span class="line-number">2693</span>)
 	</div> 
 	
 	<!-- ========== Info from phpDoc block ========= -->
@@ -1602,17 +1635,17 @@
 				<span class="var-name">$value</span><span class="var-description">: Object Value</span>			</li>
 					<li>
 				<span class="var-type">string</span>
-				<span class="var-name">$object_type</span><span class="var-description">: Object Type, either 'ACO', 'ARO', 'AXO', 'ACL'</span>			</li>
+				<span class="var-name">$object_type</span><span class="var-description">: Object Type, either 'ACO', 'ARO', 'AXO'</span>			</li>
 				</ul>
 		
 		
 	</div>
 <a name="methodget_object_section_section_id" id="get_object_section_section_id"><!-- --></a>
-<div class="oddrow">
+<div class="evenrow">
 	
 	<div class="method-header">
 		<img src="../media/images/Method.png" />
-		<span class="method-title">get_object_section_section_id</span> (line <span class="line-number">3293</span>)
+		<span class="method-title">get_object_section_section_id</span> (line <span class="line-number">3295</span>)
 	</div> 
 	
 	<!-- ========== Info from phpDoc block ========= -->
@@ -1645,11 +1678,11 @@
 		
 	</div>
 <a name="methodget_object_section_value" id="get_object_section_value"><!-- --></a>
-<div class="evenrow">
+<div class="oddrow">
 	
 	<div class="method-header">
 		<img src="../media/images/Method.png" />
-		<span class="method-title">get_object_section_value</span> (line <span class="line-number">2762</span>)
+		<span class="method-title">get_object_section_value</span> (line <span class="line-number">2764</span>)
 	</div> 
 	
 	<!-- ========== Info from phpDoc block ========= -->
@@ -1679,11 +1712,11 @@
 		
 	</div>
 <a name="methodget_root_group_id" id="get_root_group_id"><!-- --></a>
-<div class="oddrow">
+<div class="evenrow">
 	
 	<div class="method-header">
 		<img src="../media/images/Method.png" />
-		<span class="method-title">get_root_group_id</span> (line <span class="line-number">1547</span>)
+		<span class="method-title">get_root_group_id</span> (line <span class="line-number">1549</span>)
 	</div> 
 	
 	<!-- ========== Info from phpDoc block ========= -->
@@ -1710,7 +1743,7 @@
 		
 	</div>
 <a name="methodget_schema_version" id="get_schema_version"><!-- --></a>
-<div class="evenrow">
+<div class="oddrow">
 	
 	<div class="method-header">
 		<img src="../media/images/Method.png" />
@@ -1736,11 +1769,11 @@
 		
 	</div>
 <a name="methodget_ungrouped_objects" id="get_ungrouped_objects"><!-- --></a>
-<div class="oddrow">
+<div class="evenrow">
 	
 	<div class="method-header">
 		<img src="../media/images/Method.png" />
-		<span class="method-title">get_ungrouped_objects</span> (line <span class="line-number">2507</span>)
+		<span class="method-title">get_ungrouped_objects</span> (line <span class="line-number">2509</span>)
 	</div> 
 	
 	<!-- ========== Info from phpDoc block ========= -->
@@ -1770,7 +1803,7 @@
 		
 	</div>
 <a name="methodget_version" id="get_version"><!-- --></a>
-<div class="evenrow">
+<div class="oddrow">
 	
 	<div class="method-header">
 		<img src="../media/images/Method.png" />
@@ -1796,11 +1829,11 @@
 		
 	</div>
 <a name="methodis_conflicting_acl" id="is_conflicting_acl"><!-- --></a>
-<div class="oddrow">
+<div class="evenrow">
 	
 	<div class="method-header">
 		<img src="../media/images/Method.png" />
-		<span class="method-title">is_conflicting_acl</span> (line <span class="line-number">761</span>)
+		<span class="method-title">is_conflicting_acl</span> (line <span class="line-number">763</span>)
 	</div> 
 	
 	<!-- ========== Info from phpDoc block ========= -->
@@ -1842,11 +1875,11 @@
 		
 	</div>
 <a name="methodrebuild_tree" id="rebuild_tree"><!-- --></a>
-<div class="evenrow">
+<div class="oddrow">
 	
 	<div class="method-header">
 		<img src="../media/images/Method.png" />
-		<span class="method-title">rebuild_tree</span> (line <span class="line-number">2092</span>)
+		<span class="method-title">rebuild_tree</span> (line <span class="line-number">2094</span>)
 	</div> 
 	
 	<!-- ========== Info from phpDoc block ========= -->
@@ -1879,19 +1912,22 @@
 		
 	</div>
 <a name="methodsearch_acl" id="search_acl"><!-- --></a>
-<div class="oddrow">
+<div class="evenrow">
 	
 	<div class="method-header">
 		<img src="../media/images/Method.png" />
-		<span class="method-title">search_acl</span> (line <span class="line-number">318</span>)
+		<span class="method-title">search_acl</span> (line <span class="line-number">320</span>)
 	</div> 
 	
 	<!-- ========== Info from phpDoc block ========= -->
 <p class="short-description">search_acl()</p>
 <p class="description"><p>Searches for ACL's with specified objects mapped to them.</p><p>NULL values are included in the search, if you want to ignore  for instance aro_groups use FALSE instead of NULL.</p></p>
+	<ul class="tags">
+				<li><span class="field">return:</span> containing ACL IDs if search is successful</li>
+			</ul>
 	
 	<div class="method-signature">
-		<span class="method-result">void</span>
+		<span class="method-result">array</span>
 		<span class="method-name">
 			search_acl
 		</span>
@@ -1931,11 +1967,11 @@
 		
 	</div>
 <a name="methodshift_acl" id="shift_acl"><!-- --></a>
-<div class="evenrow">
+<div class="oddrow">
 	
 	<div class="method-header">
 		<img src="../media/images/Method.png" />
-		<span class="method-title">shift_acl</span> (line <span class="line-number">523</span>)
+		<span class="method-title">shift_acl</span> (line <span class="line-number">525</span>)
 	</div> 
 	
 	<!-- ========== Info from phpDoc block ========= -->
@@ -1977,7 +2013,7 @@
 		
 	</div>
 <a name="methodshowarray" id="showarray"><!-- --></a>
-<div class="oddrow">
+<div class="evenrow">
 	
 	<div class="method-header">
 		<img src="../media/images/Method.png" />
@@ -2005,11 +2041,11 @@
 		
 	</div>
 <a name="methodsort_groups" id="sort_groups"><!-- --></a>
-<div class="evenrow">
+<div class="oddrow">
 	
 	<div class="method-header">
 		<img src="../media/images/Method.png" />
-		<span class="method-title">sort_groups</span> (line <span class="line-number">1198</span>)
+		<span class="method-title">sort_groups</span> (line <span class="line-number">1200</span>)
 	</div> 
 	
 	<!-- ========== Info from phpDoc block ========= -->
@@ -2036,11 +2072,11 @@
 		
 	</div>
 <a name="method_rebuild_tree" id="_rebuild_tree"><!-- --></a>
-<div class="oddrow">
+<div class="evenrow">
 	
 	<div class="method-header">
 		<img src="../media/images/Method.png" />
-		<span class="method-title">_rebuild_tree</span> (line <span class="line-number">2140</span>)
+		<span class="method-title">_rebuild_tree</span> (line <span class="line-number">2142</span>)
 	</div> 
 	
 	<!-- ========== Info from phpDoc block ========= -->
@@ -2104,7 +2140,7 @@
 
 	
 	<p class="notes" id="credit">
-		Documentation generated on Sat, 27 Nov 2004 13:42:34 -0800 by <a href="http://www.phpdoc.org" target="_blank">phpDocumentor 1.3.0RC3</a>
+		Documentation generated on Wed,  8 Dec 2004 21:10:51 -0800 by <a href="http://www.phpdoc.org" target="_blank">phpDocumentor 1.3.0RC3</a>
 	</p>
 	</div></body>
 </html>
