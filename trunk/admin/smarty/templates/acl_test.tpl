@@ -38,6 +38,9 @@
         <b>ACL_CHECK() Code</b>
      </td>
     <td valign="top" bgcolor="#cccccc" align="center">
+        <b>Debug</b>
+     </td>
+    <td valign="top" bgcolor="#cccccc" align="center">
         <b>Time (ms)</b>
     </td>
     <td valign="top" bgcolor="#cccccc" align="center">
@@ -61,6 +64,8 @@
      </td>
     <td valign="top" bgcolor="#cccccc" align="left">
 		acl_check('{$acls[x].aco_section_value}', '{$acls[x].aco_value}', '{$acls[x].aro_section_value}', '{$acls[x].aro_value}')
+    </td>  
+    <td valign="top" bgcolor="#cccccc" align="center" nowrap>
 		 [ <a href="acl_debug.php?aco_section_value={$acls[x].aco_section_value}&aco_value={$acls[x].aco_value}&aro_section_value={$acls[x].aro_section_value}&aro_value={$acls[x].aro_value}&action=Submit">debug</a> ]
     </td>  
     <td valign="top" bgcolor="#cccccc" align="center">
