@@ -116,7 +116,7 @@ switch ($_POST['action']) {
         break;
 }
 
-$smarty->assign('section_value', $_GET['section_value']);
+$smarty->assign('section_value', stripslashes($_GET['section_value']));
 $smarty->assign('section_name', $section_name);
 $smarty->assign('object_type', $object_type);
 $smarty->assign('return_page', $_SERVER['REQUEST_URI']);
