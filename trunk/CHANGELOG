@@ -1,6 +1,7 @@
+Wed Oct 29 2003
+	- Fixed bug in schema.xml where group_id was missing from a unique index.
 Tue Oct 21 2003
-	- Group select boxes are represent the tree structure much better. Purely cosmetic change.  Thanks to Dan Cech <dcech@phpwerx.net>
-	
+	- Group select boxes are represent the tree structure much better. Purely cosmetic change.  Thanks to Dan Cech <dcech@phpwerx.net>	
 Wed Oct 08 2003
 	- Released 3.2.2
 	- Fixed bug in acl_list.php where the filter wasn't being passed between pages. Thanks to Dan Cech <dcech@phpwerx.net>
