@@ -28,12 +28,12 @@ switch ($_POST[action]) {
                                         a.enabled,
                                         a.updated_date
                                 from
-                                        acl as a
-                                        LEFT JOIN aco_map as b ON a.id=b.acl_id
-                                        LEFT JOIN aro_map as c ON a.id=c.acl_id
-                                        LEFT JOIN groups_map as d ON a.id=d.acl_id
-                                        LEFT JOIN aco as e ON b.aco_id=e.id
-                                        LEFT JOIN aco_sections as f ON e.section_id=f.id
+                                        acl a
+                                        LEFT JOIN aco_map b ON a.id=b.acl_id
+                                        LEFT JOIN aro_map c ON a.id=c.acl_id
+                                        LEFT JOIN groups_map d ON a.id=d.acl_id
+                                        LEFT JOIN aco e ON b.aco_id=e.id
+                                        LEFT JOIN aco_sections f ON e.section_id=f.id
                                 order by a.id, f.name, e.name";
         $rs = $db->Execute($query);
 

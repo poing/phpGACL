@@ -1,6 +1,6 @@
 <?
 /*
- * phpGACL - Generic Access Control List
+ * phpGACL - Generic Access Control List - Hashed Directory Caching. 
  * Copyright (C) 2002 Mike Benoit
  *
  * This library is free software; you can redistribute it and/or
@@ -33,6 +33,47 @@ define('DIR_SEP', DIRECTORY_SEPARATOR);
 
 class Hashed_Cache_Lite extends Cache_Lite
 {
+    /**
+    * Memory caching variable
+    * 
+    * @var array $_memoryCache
+    */
+    var $_memoryCache = NULL;
+
+    /**
+    * Test if a cache is available and (if yes) return it - Original version by Fabien MARTY <fab@php.net>	
+    *
+    * @param string $id cache id
+    * @param string $group name of the cache group
+    * @param boolean $doNotTestCacheValidity if set to true, the cache validity won't be tested
+    * @return string data of the cache (or false if no cache available)
+    * @access public
+    */
+    function get($id, $group = 'default', $doNotTestCacheValidity = false)
+    {
+        $this->_id = $id;
+        $this->_group = $group;
+
+        if ($this->_caching) {
+			if ($this->_memoryCache[$group.'-'.$id]) {
+				return ($this->_memoryCache[$group.'-'.$id]);
+			} else {
+				$this->_setFileName($id, $group);
+				if ($doNotTestCacheValidity) {
+					if (file_exists($this->_file)) {
+						$this->_memoryCache[$group.'-'.$id] = $this->_read();
+						return ( ($this->_memoryCache[$group.'-'.$id]) );
+					}
+				} else {
+					if (@filemtime($this->_file) > $this->_refreshTime) {
+						$this->_memoryCache[$group.'-'.$id] = $this->_read();
+						return ( ($this->_memoryCache[$group.'-'.$id]) );
+					}
+				}
+			}
+        }
+        return false;
+    }
 
     /**
     * Make a file name (with path)
@@ -57,6 +98,8 @@ class Hashed_Cache_Lite extends Cache_Lite
 
     /**
     * Create full directory structure, Ripped straight from the Smarty Template engine.
+	* Version:     2.3.0
+	* Copyright:   2001,2002 ispi of Lincoln, Inc.
     *
     * @param string $dir Full directory.
     * @access private
@@ -76,7 +119,6 @@ class Hashed_Cache_Lite extends Cache_Lite
             }
         }
     }
-
 }
 
 ?>

@@ -94,9 +94,9 @@ switch ($_POST[action]) {
                                         b.id,
                                         b.name,
                                         c.name
-                            from    groups_aro_map as a,
-                                        aro as b,
-                                        aro_sections as c
+                            from    groups_aro_map a,
+                                        aro b,
+                                        aro_sections c
                             where   a.group_id = $_GET[group_id]
                                         AND a.aro_id=b.id
                                         AND b.section_id=c.id

@@ -11,7 +11,7 @@
 	<td valign="top" colspan="6" bgcolor="#cccccc"><b>phpGACL ACL List
 		[ <a href="group_admin.php">Group Admin</a> ]
 		[ <a href="acl_admin.php?return_page=acl_list.php">ACL Admin</a> ]
-		[ <a href="acl_test.php">ACL Test</a> ]
+		[ <a href="../acl_test.php">ACL Test</a> ]
 		</b>
 		<br>
 	 </td>
