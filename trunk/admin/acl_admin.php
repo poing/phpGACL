@@ -208,7 +208,7 @@ switch ($_POST['action']) {
         $smarty->assign("js_aco_array_name", $js_aco_array_name);
 
         //Grab formatted Groups for select box
-        $smarty->assign("options_groups", format_groups(sort_groups()) );
+        $smarty->assign("options_groups", $gacl_api->format_groups($gacl_api->sort_groups()) );
 	$smarty->assign("selected_groups", $selected_groups);
         
 		$smarty->assign("allow", $allow);
