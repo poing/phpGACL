@@ -1,7 +1,9 @@
+Mon Feb 09 2004
+	mikeb - Added some missing transaction rollbacks to gacl_api. Thanks to Falk John <support@fajo.de>
 Sun Feb 08 2004
 	dcech - Added titles to admin interface
 	mikeb - Removed the last of "is_string()" DB errro checks, replaced with "is_object($rs)"
-	mikeb - Oracle SQL syntax fixes for gacl.class.php and gacl_api.class.php. Thanks to FaJo Support <support@fajo.de>
+	mikeb - Oracle SQL syntax fixes for gacl.class.php and gacl_api.class.php. Thanks to Falk John <support@fajo.de>
 	dcech - SQL syntax fixes for admin system
 Sat Feb 07 2004
 	dcech - New style for admin interface

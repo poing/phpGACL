@@ -14,16 +14,16 @@
 	<sql>
 		<descr>SQL to be executed only to insert default rows</descr>
 		<query>
-			delete from #PREFIX#phpgacl where name = 'version';
+			delete from #PREFIX#phpgacl where name = 'version'
 		</query>
 		<query>
-			insert into #PREFIX#phpgacl (name, value) VALUES('version','3.3.0b1');
+			insert into #PREFIX#phpgacl (name, value) VALUES('version','3.3.0b2')
 		</query>
 		<query>
 			delete from #PREFIX#phpgacl where name = 'schema_version';
 		</query>
 		<query>
-			insert into #PREFIX#phpgacl (name, value) VALUES('schema_version','2.1');
+			insert into #PREFIX#phpgacl (name, value) VALUES('schema_version','2.1')
 		</query>
 	</sql>
 
