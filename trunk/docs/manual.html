@@ -1,0 +1,2304 @@
+<html>
+<head>
+<meta name="generator" content=
+"HTML Tidy for Linux/x86 (vers 1st January 2002), see www.w3.org">
+<meta http-equiv="CONTENT-TYPE" content=
+"text/html; charset=iso-8859-1">
+<title>phpGACL</title>
+<meta name="GENERATOR" content="OpenOffice.org 1.0.2 (Linux)">
+<meta name="AUTHOR" content="jrussell">
+<meta name="CREATED" content="20030206;8320000">
+<meta name="CHANGED" content="20030526;19543400">
+<style type="text/css">
+    <!--
+        @page { margin-left: 3.18cm; margin-right: 3.18cm; margin-top: 2.54cm; margin-bottom: 2.54cm }
+        P { margin-top: 0.21cm; margin-bottom: 0.21cm; color: #000000; line-height: 0.42cm; widows: 2; orphans: 2 }
+        P.western { font-family: "Helv", "Arial", sans-serif; font-size: 10pt; so-language: en-US }
+        P.cjk { font-family: "Times New Roman", serif; font-size: 10pt; so-language: ja-JP }
+        H1 { margin-bottom: 0.11cm; color: #000000; widows: 2; orphans: 2; page-break-before: always }
+        H1.western { font-family: "Arial", sans-serif; font-size: 16pt; so-language: en-GB }
+        H1.cjk { font-family: "MS Mincho", "MS ??", monospace; font-size: 16pt; so-language: ja-JP }
+        H1.ctl { font-family: "Arial Unicode MS"; font-size: 12pt; font-weight: medium }
+        H2 { margin-bottom: 0.11cm; color: #000000; widows: 2; orphans: 2 }
+        H2.western { font-family: "Arial", sans-serif; font-size: 14pt; so-language: en-GB; font-style: italic }
+        H2.cjk { font-family: "MS Mincho", "MS ??", monospace; font-size: 14pt; so-language: ja-JP; font-style: italic }
+        H2.ctl { font-family: "Arial Unicode MS"; font-size: 12pt; font-weight: medium }
+        H3 { margin-top: 0.21cm; margin-bottom: 0.21cm; color: #000000; line-height: 0.42cm; widows: 2; orphans: 2 }
+        H3.western { font-family: "Helv", "Arial", sans-serif; font-size: 10pt; so-language: en-GB }
+        H3.cjk { font-family: "Times New Roman", serif; font-size: 10pt; so-language: ja-JP }
+        H3.ctl { font-family: "Arial Unicode MS"; font-size: 12pt; font-weight: medium }
+        H4 { margin-top: 0.21cm; margin-bottom: 0.21cm; color: #000000; line-height: 0.42cm; widows: 2; orphans: 2 }
+        H4.western { font-family: "Helv", "Arial", sans-serif; font-size: 10pt; so-language: en-GB; font-style: italic; font-weight: medium }
+        H4.cjk { font-family: "Times New Roman", serif; font-size: 10pt; so-language: ja-JP; font-style: italic; font-weight: medium }
+        H4.ctl { font-family: "Arial Unicode MS"; font-size: 12pt; font-weight: medium }
+        A:link { color: #0000ff }
+    -->
+    
+</style>
+
+<style type="text/css">
+ body {
+  color: black;
+ }
+ :link { color: blue }
+ p.c34 {font-family: Helv, Arial, sans-serif; line-height: 100%; margin-left: 6.35cm; text-indent: -5.08cm}
+ span.c33 {color: #6B4794}
+ p.c32 {font-family: Courier New}
+ span.c31 {color: #FF6633}
+ span.c30 {color: green}
+ span.c29 {color: #00CCCC}
+ span.c28 {color: red}
+ p.c27 {margin-left: 1.27cm}
+ p.c26 {margin-top: 0cm; margin-bottom: 0cm; line-height: 0.42cm}
+ p.c25 {font-family: Courier, Courier New, monospace; font-size: 80%; line-height: 0.42cm; margin-bottom: 0cm; margin-top: 0cm}
+ p.c24 {font-family: Arial, sans-serif; line-height: 100%; margin-left: 6.35cm; text-indent: -5.08cm}
+ span.c23 {font-family: Courier New, monospace}
+ p.c22 {font-family: Arial, sans-serif; font-size: 80%; line-height: 100%}
+ p.c21 {font-family: Helv, Arial, sans-serif; font-size: 80%; font-weight: medium; line-height: 0.42cm}
+ p.c20 {color: black; font-family: Times New Roman, serif; font-size: 80%; line-height: 0.42cm; margin-bottom: 0cm; margin-left: 0.95cm; margin-top: 0cm}
+ span.c19 {font-family: Courier, Courier New, monospace}
+ span.c18 {font-family: Helv, Arial, sans-serif}
+ p.c17 {font-family: Courier New, monospace}
+ p.c16 {font-family: Courier New, monospace; font-size: 80%; line-height: 0.42cm}
+ div.c15 {margin-left: 2em}
+ p.c14 {font-family: Times New Roman, serif; line-height: 0.42cm}
+ span.c13 {color: black; font-family: Helv, Arial, sans-serif; font-size: 80%}
+ p.c12 {font-family: Helv, Arial, sans-serif; font-size: 80%; text-align: right}
+ p.c11 {font-family: Helv, Arial, sans-serif; font-size: 80%; text-align: center}
+ h3.c10 {text-align: right}
+ p.c9 {color: black; font-family: Times New Roman, serif; font-size: 80%; line-height: 0.42cm}
+ p.c8 {font-family: Helv, Arial, sans-serif; font-size: 80%; line-height: 0.42cm}
+ p.c7 {line-height: 100%}
+ div.c6 {background: transparent}
+ p.c5 {font-family: Times New Roman, serif; line-height: 100%; margin-left: 0.85cm; text-indent: 0cm}
+ p.c4 {font-family: Times New Roman, serif; line-height: 100%; margin-left: 0.42cm; text-indent: 0cm}
+ p.c3 {font-family: Times New Roman, serif; line-height: 100%}
+ span.c2 {color: blue}
+ h2.c1 {font-size: 20pt}
+</style>
+</head>
+<body lang="en-US">
+<h2 class="western c1">phpGACL</h2>
+
+<p class="western">Generic Access Control List</p>
+
+<p class="western"><br>
+<br>
+</p>
+
+<p class="western">Mike Benoit &lt;<span class="c2"><u><a href=
+"mailto:ipso@snappymail.ca">ipso@snappymail.ca</a></u></span>&gt;<br>
+
+ James Russell &lt;<a href=
+"mailto:james-phpgacl@ps2-pro.com">james-phpgacl@ps2-pro.com</a>&gt;<br>
+
+ Karsten Dambekalns &lt;<a href=
+"mailto:k.dambekalns@fishfarm.de">k.dambekalns@fishfarm.de</a>&gt;</p>
+
+<p class="western">Copyright &copy; 2002,2003, Mike Benoit<br>
+Copyright &copy; 2003, James Russell<br>
+Copyright &copy; 2003, Karsten Dambekalns</p>
+
+<p class="western">Document Version: 42</p>
+
+<p class="western">Last Updated: <strong>5/20/03 -
+18:55:08</strong></p>
+
+<h1 lang="en-GB" class="western">Table of Contents</h1>
+
+<div id="Table_of_Contents1" class="c6">
+<p lang="en-GB" class="c3">Table of Contents 2</p>
+
+<p lang="en-GB" class="c3">About 5</p>
+
+<p lang="en-GB" class="c4">What is it? 5</p>
+
+<p lang="en-GB" class="c4">Where can I get it? 5</p>
+
+<p lang="en-GB" class="c4">What do I need to run it? 5</p>
+
+<p lang="en-GB" class="c4">Who is responsible for it? 5</p>
+
+<p lang="en-GB" class="c3">Introduction 6</p>
+
+<p lang="en-GB" class="c4">Understanding Access Control 6</p>
+
+<p lang="en-GB" class="c5">Who/Where 6</p>
+
+<p lang="en-GB" class="c5">Who/Where 7</p>
+
+<p lang="en-GB" class="c4">Defining access control with phpGACL
+7</p>
+
+<p lang="en-GB" class="c4">Fine-grain access control 8</p>
+
+<p lang="en-GB" class="c4">Multi-level Groups 9</p>
+
+<p lang="en-GB" class="c4">How does phpGACL determine permissions?
+9</p>
+
+<p lang="en-GB" class="c4">Adding groups 11</p>
+
+<p lang="en-GB" class="c4">Adding people 11</p>
+
+<p lang="en-GB" class="c4">Resolving conflicts 12</p>
+
+<p lang="en-GB" class="c4">Naming Access Objects 13</p>
+
+<p lang="en-GB" class="c4">Adding Sections 14</p>
+
+<p lang="en-GB" class="c4">Multiple Purposes 15</p>
+
+<p lang="en-GB" class="c4">Access eXtension Objects 15</p>
+
+<p lang="en-GB" class="c3">Installation 18</p>
+
+<p lang="en-GB" class="c4">Basic setup 18</p>
+
+<p lang="en-GB" class="c4">Advanced setup 20</p>
+
+<p lang="en-GB" class="c3">Using phpGACL in your application 21</p>
+
+<p lang="en-GB" class="c4">Basic usage 21</p>
+
+<p lang="en-GB" class="c4">Advanced usage 21</p>
+
+<p lang="en-GB" class="c3">Using the ACL admin utility 22</p>
+
+<p lang="en-GB" class="c3">API Reference 23</p>
+
+<p lang="en-GB" class="c4">ACL 23</p>
+
+<p lang="en-GB" class="c5">add_acl() 23</p>
+
+<p lang="en-GB" class="c5">edit_acl() 23</p>
+
+<p lang="en-GB" class="c5">del_acl() 24</p>
+
+<p lang="en-GB" class="c4">Groups 24</p>
+
+<p lang="en-GB" class="c5">get_group_id() 24</p>
+
+<p lang="en-GB" class="c5">get_group_parent_id() 24</p>
+
+<p lang="en-GB" class="c5">add_group() 24</p>
+
+<p lang="en-GB" class="c5">get_group_objects() 25</p>
+
+<p lang="en-GB" class="c5">add_group_object() 25</p>
+
+<p lang="en-GB" class="c5">del_group_object() 25</p>
+
+<p lang="en-GB" class="c5">edit_group() 26</p>
+
+<p lang="en-GB" class="c5">del_group() 26</p>
+
+<p lang="en-GB" class="c4">Access Objects (ARO/ACO/AXO) 26</p>
+
+<p lang="en-GB" class="c5">get_object() 26</p>
+
+<p lang="en-GB" class="c5">get_object_data() 27</p>
+
+<p lang="en-GB" class="c5">get_object_id() 27</p>
+
+<p lang="en-GB" class="c5">get_object_section_value() 27</p>
+
+<p lang="en-GB" class="c5">add_object() 27</p>
+
+<p lang="en-GB" class="c5">edit_object() 28</p>
+
+<p lang="en-GB" class="c5">del_object() 28</p>
+
+<p lang="en-GB" class="c4">Access Object Sections 29</p>
+
+<p lang="en-GB" class="c5">get_object_section_section_id() 29</p>
+
+<p lang="en-GB" class="c5">add_object_section 29</p>
+
+<p lang="en-GB" class="c5">edit_object_section() 30</p>
+
+<p lang="en-GB" class="c5">del_object_section() 30</p>
+
+<p lang="en-GB" class="c3">FAQ 31</p>
+</div>
+
+<p lang="en-GB" class="c7"><br>
+<br>
+</p>
+
+<h1 lang="en-GB" class="western">About</h1>
+
+<h2 lang="en-GB" class="western">What is it?</h2>
+
+<p class="western">phpGACL is an set of functions that allows you
+to apply access control to arbitrary objects (web pages, databases,
+etc) by other arbitrary objects (users, remote hosts, etc).</p>
+
+<p class="western">It offers fine-grained access control with
+simple management, and is very fast.</p>
+
+<p class="western">It is written in PHP (hence
+<strong>php</strong>GACL), a popular scripting language that is
+commonly used to dynamically create web pages. The GACL part of
+phpGACL stands for Generic Access Control List.</p>
+
+<h2 lang="en-GB" class="western">Where can I get it?</h2>
+
+<p class="western">phpGACL is hosted by sourceforge.net at <a href=
+"http://phpGACL.sourceforge.net/">http://phpGACL.sourceforge.net/</a></p>
+
+<h2 lang="en-GB" class="western">What do I need to run it?</h2>
+
+<p class="western">phpGACL requires a relational database to store
+the access control information. It accesses this database via an
+abstract wrapper called <a href=
+"http://php.weblogs.com/adodb">ADOdb</a>. This is compatible with
+databases such as PostgreSQL, MySQL and Oracle.</p>
+
+<p class="western">phpGACL is written in the <a href=
+"http://www.php.net/">PHP</a> scripting language. It requires PHP
+4.2 and above.</p>
+
+<p class="western">Access Control List administration is performed
+by a web interface, and therefore it is necessary to have a web
+server with PHP support, such as <a href=
+"http://httpd.apache.org/">Apache</a>.</p>
+
+<h2 lang="en-GB" class="western">Who is responsible for it?</h2>
+
+<p class="western">Mike Benoit &lt;<a href=
+"mailto:ipso@snappymail.ca">ipso@snappymail.ca</a>&gt; is the
+author and project manager.</p>
+
+<p class="western">James Russell &lt;j<a href=
+"mailto:ames-phpgacl@ps2-pro.com">ames-phpgacl@ps2-pro.com</a>&gt;
+and Karsten Dambekalns &lt;<a href=
+"mailto:k.dambekalns@fishfarm.de">k.dambekalns@fishfarm.de</a>&gt;
+did the documentation.</p>
+
+<h1 lang="en-GB" class="western">Introduction</h1>
+
+<h2 lang="en-GB" class="western">Understanding Access Control</h2>
+
+<p class="western c8">Han is captain of the Millennium Falcon and
+Chewie is his second officer. They've taken on board some
+passengers: Luke, Obi-wan, R2D2 and C3PO. Han needs to define
+access restrictions for various rooms of the ship: The Cockpit,
+Lounge, Engines and the external Guns.</p>
+
+<p class="western c8">Han says: "Me and Chewie should have access
+to everywhere, but after a particularly messy hyperdrive repair, I
+forbid Chewie from going near the Engine Room ever again.
+Passengers are confined to the Passenger's Lounge."</p>
+
+<p class="western c8">Let's assume from now on that access is
+Boolean. That is, the result of looking up a person's access to a
+room is either ALLOW or DENY. There is no middle ground.</p>
+
+<p lang="en-GB" class="western c9"><span lang="en-US">If we mapped
+this statement into an</span> <strong>access matrix</strong><span
+lang="en-US">showing who has access to where, it would look
+something like this (O means ALLOW, X means DENY):</span></p>
+
+<dl>
+<dd>
+<table width="347" border="1" bordercolor="black" cellpadding="7"
+cellspacing="0">
+<col width="84">
+<col width="53">
+<col width="46">
+<col width="36">
+<col width="55">
+<tr valign="top">
+<td width="84">
+<h3 lang="en-GB" class="western c10">Who/Where</h3>
+</td>
+<td width="53">
+<p class="western c11">Cockpit</p>
+</td>
+<td width="46">
+<p class="western c11">Lounge</p>
+</td>
+<td width="36">
+<p class="western c11">Guns</p>
+</td>
+<td width="55">
+<p class="western c11">Engines</p>
+</td>
+</tr>
+
+<tr valign="top">
+<td width="84">
+<p class="western c12">Han</p>
+</td>
+<td width="53" bgcolor="lime">
+<p class="western c11">O</p>
+</td>
+<td width="46" bgcolor="lime">
+<p class="western c11">O</p>
+</td>
+<td width="36" bgcolor="lime">
+<p class="western c11">O</p>
+</td>
+<td width="55" bgcolor="lime">
+<p class="western c11">O</p>
+</td>
+</tr>
+
+<tr valign="top">
+<td width="84">
+<p class="western c12">Chewie</p>
+</td>
+<td width="53" bgcolor="lime">
+<p class="western c11">O</p>
+</td>
+<td width="46" bgcolor="lime">
+<p class="western c11">O</p>
+</td>
+<td width="36" bgcolor="lime">
+<p class="western c11">O</p>
+</td>
+<td width="55" bgcolor="red">
+<p class="western c11">X</p>
+</td>
+</tr>
+
+<tr valign="top">
+<td width="84">
+<p class="western c12">Obi-wan</p>
+</td>
+<td width="53" bgcolor="red">
+<p class="western c11">X</p>
+</td>
+<td width="46" bgcolor="lime">
+<p class="western c11">O</p>
+</td>
+<td width="36" bgcolor="red">
+<p class="western c11">X</p>
+</td>
+<td width="55" bgcolor="red">
+<p class="western c11">X</p>
+</td>
+</tr>
+
+<tr valign="top">
+<td width="84">
+<p class="western c12">Luke</p>
+</td>
+<td width="53" bgcolor="red">
+<p class="western c11">X</p>
+</td>
+<td width="46" bgcolor="lime">
+<p class="western c11">O</p>
+</td>
+<td width="36" bgcolor="red">
+<p class="western c11">X</p>
+</td>
+<td width="55" bgcolor="red">
+<p class="western c11">X</p>
+</td>
+</tr>
+
+<tr valign="top">
+<td width="84">
+<p class="western c12">R2-D2</p>
+</td>
+<td width="53" bgcolor="red">
+<p class="western c11">X</p>
+</td>
+<td width="46" bgcolor="lime">
+<p class="western c11">O</p>
+</td>
+<td width="36" bgcolor="red">
+<p class="western c11">X</p>
+</td>
+<td width="55" bgcolor="red">
+<p class="western c11">X</p>
+</td>
+</tr>
+
+<tr valign="top">
+<td width="84">
+<p class="western c12">C3PO</p>
+</td>
+<td width="53" bgcolor="red">
+<p class="western c11">X</p>
+</td>
+<td width="46" bgcolor="lime">
+<p class="western c11">O</p>
+</td>
+<td width="36" bgcolor="red">
+<p class="western c11">X</p>
+</td>
+<td width="55" bgcolor="red">
+<p class="western c11">X</p>
+</td>
+</tr>
+</table>
+</dd>
+</dl>
+
+<p lang="en-GB" class="western c9"><span lang="en-US">The columns
+list the rooms that Han wants to restrict access to, and the rows
+list the people that might request access to those rooms. More
+generally, the "rooms" are "things to control access on". We call
+these</span> <strong>Access Control Objects</strong><span lang=
+"en-US">(ACOs). The "people" are "things</span>
+<em>requesting</em><span lang="en-US">access". We call these</span>
+<strong>Access Request Objects</strong><span lang="en-US">(AROs).
+The</span> <em>people</em> <span lang="en-US">request access to
+the</span> <em>rooms</em><span lang="en-US">, or in our
+terminology,</span> <em>AROs</em> <span lang="en-US">request access
+to the</span> <em>ACOs</em><span lang="en-US">.</span></p>
+
+<p lang="en-GB" class="western c9"><span lang="en-US">There is a
+third type of Object, the</span> <strong>Access eXtention
+Object</strong><span lang="en-US">(AXO) that we'll discuss later.
+These objects share many attributes and are collectively referred
+to as Access Objects.</span></p>
+
+<p class="western c8">Managing access using an access matrix like
+the one above has advantages and disadvantages.</p>
+
+<p lang="en-GB" class="western c8"><em>Pros:</em></p>
+
+<ul>
+<li>
+<p class="western c8">It's very fine-grained. It's possible to
+control access for an individual person if necessary.</p>
+</li>
+
+<li>
+<p lang="en-GB" class="western c14"><span lang="en-US" class=
+"c13">It's easy to see <u>who</u> has access to <u>what</u>. The
+answer is stored in the intersection of the person and the
+room.</span></p>
+</li>
+</ul>
+
+<p lang="en-GB" class="western c8"><em>Cons:</em></p>
+
+<ul>
+<li>
+<p class="western c8">It's difficult to manage on a large scale. 6
+passengers and 4 places is fairly simple, but what if there were
+thousands of passengers and hundreds of places, and you need to
+restrict access to large groups of them at once, but still retain
+enough fine-grained control to manage access for an individual?
+That would mean a lot of fiddly and lengthy adjustment to the
+matrix, and it's a difficult task to verify that the final matrix
+is correct.</p>
+</li>
+
+<li>
+<p class="western c8">It's hard to summarize or visualize. The
+above example is fairly simple to summarize in a few sentences (as
+Han did above), but what if the matrix looked like this?</p>
+</li>
+</ul>
+
+<dl>
+<dd>
+<table width="347" border="1" bordercolor="black" cellpadding="7"
+cellspacing="0">
+<col width="84">
+<col width="53">
+<col width="46">
+<col width="36">
+<col width="55">
+<tr valign="top">
+<td width="84">
+<h3 lang="en-GB" class="western c10">Who/Where</h3>
+</td>
+<td width="53">
+<p class="western c11">Cockpit</p>
+</td>
+<td width="46">
+<p class="western c11">Lounge</p>
+</td>
+<td width="36">
+<p class="western c11">Guns</p>
+</td>
+<td width="55">
+<p class="western c11">Engines</p>
+</td>
+</tr>
+
+<tr valign="top">
+<td width="84">
+<p class="western c12">Han</p>
+</td>
+<td width="53" bgcolor="lime">
+<p class="western c11">O</p>
+</td>
+<td width="46" bgcolor="lime">
+<p class="western c11">O</p>
+</td>
+<td width="36" bgcolor="lime">
+<p class="western c11">O</p>
+</td>
+<td width="55" bgcolor="lime">
+<p class="western c11">O</p>
+</td>
+</tr>
+
+<tr valign="top">
+<td width="84">
+<p class="western c12">Chewie</p>
+</td>
+<td width="53" bgcolor="lime">
+<p class="western c11">O</p>
+</td>
+<td width="46" bgcolor="red">
+<p class="western c11">X</p>
+</td>
+<td width="36" bgcolor="lime">
+<p class="western c11">O</p>
+</td>
+<td width="55" bgcolor="red">
+<p class="western c11">X</p>
+</td>
+</tr>
+
+<tr valign="top">
+<td width="84">
+<p class="western c12">Obi-wan</p>
+</td>
+<td width="53" bgcolor="red">
+<p class="western c11">X</p>
+</td>
+<td width="46" bgcolor="lime">
+<p class="western c11">O</p>
+</td>
+<td width="36" bgcolor="red">
+<p class="western c11">X</p>
+</td>
+<td width="55" bgcolor="red">
+<p class="western c11">X</p>
+</td>
+</tr>
+
+<tr valign="top">
+<td width="84">
+<p class="western c12">Luke</p>
+</td>
+<td width="53" bgcolor="lime">
+<p class="western c11">O</p>
+</td>
+<td width="46" bgcolor="lime">
+<p class="western c11">O</p>
+</td>
+<td width="36" bgcolor="lime">
+<p class="western c11">O</p>
+</td>
+<td width="55" bgcolor="red">
+<p class="western c11">X</p>
+</td>
+</tr>
+
+<tr valign="top">
+<td width="84">
+<p class="western c12">R2-D2</p>
+</td>
+<td width="53" bgcolor="red">
+<p class="western c11">X</p>
+</td>
+<td width="46" bgcolor="lime">
+<p class="western c11">O</p>
+</td>
+<td width="36" bgcolor="red">
+<p class="western c11">X</p>
+</td>
+<td width="55" bgcolor="lime">
+<p class="western c11">O</p>
+</td>
+</tr>
+
+<tr valign="top">
+<td width="84">
+<p class="western c12">C3PO</p>
+</td>
+<td width="53" bgcolor="lime">
+<p class="western c11">O</p>
+</td>
+<td width="46" bgcolor="lime">
+<p class="western c11">O</p>
+</td>
+<td width="36" bgcolor="red">
+<p class="western c11">X</p>
+</td>
+<td width="55" bgcolor="lime">
+<p class="western c11">O</p>
+</td>
+</tr>
+</table>
+</dd>
+</dl>
+
+<div class="c15">
+<p class="western c8">This matrix is not so obvious to summarize,
+and it's not clear to the reader why those access decisions might
+have been made in the first place.</p>
+</div>
+
+<h2 lang="en-GB" class="western">Defining access control with
+phpGACL</h2>
+
+<p class="western">It seems that for large or complex situations,
+this 'access matrix' approach is clearly unsuitable. We need a
+better system that maintains the advantages (fine-grain control and
+a clear idea of <u>who</u> has access to <u>what</u>) but removes
+the disadvantages (difficult to summarize, and difficult to manage
+large groups of people at once). One solution is phpGACL.</p>
+
+<p lang="en-GB" class="western c14"><span lang="en-US" class=
+"c13">phpGACL doesn't describe access from the 'bottom-up' like the
+Access Matrix above. Instead, it describes it 'top-down', like the
+textual description of Han's access policy. This is a very flexible
+system that allows you to manage access in large groups, it neatly
+summarizes the access policy, and it's easy to see <u>who</u> has
+access to <u>what</u>.</span></p>
+
+<p lang="en-GB" class="western c9"><span lang="en-US">An</span>
+<strong>ARO tree</strong> <span lang="en-US">defines a hierarchy
+of</span> <strong>Groups</strong> <span lang="en-US">and AROs
+(things that request access). This is very similar to a tree view
+of folders and files. The 'folders' are the Groups and the 'files'
+are AROs.</span></p>
+
+<p class="western c8">Let's make an ACL tree for the people on
+Han's ship. First we define some categories for the people. It's
+clear that Han and Chewie run the ship, and the rest of them are
+just passengers:</p>
+
+<p class="western c16">Millennium Falcon Passengers Group<br>
+&#9500;&#9472;Crew Group<br>
+&#9474; &#9500;&#9472;Han ARO<br>
+&#9474; &#9492;&#9472;Chewie ARO<br>
+&#9492;&#9472;Passengers Group<br>
+ &#9500;&#9472;Obi-wan ARO<br>
+ &#9500;&#9472;Luke ARO<br>
+ &#9500;&#9472;R2D2 ARO<br>
+ &#9492;&#9472;C3PO ARO</p>
+
+<p class="western c8">This tree by itself doesn't specify any
+access policy; it just shows how we're grouping the people who
+might request access (AROs).</p>
+
+<p class="western">We apply access restrictions by assigning
+instructions about a particular room (ACO) to Groups or AROs in the
+tree. Han says: "By default, no-one should be allowed access to any
+room on the Millennium Falcon. But the Crew should have access to
+every room. The Passengers should only have access to the
+Lounge."</p>
+
+<p lang="en-GB" class="western c9"><span lang="en-US">Millennium
+Falcon Passengers<br>
+&#9500;&#9472;Crew</span> <strong>[ALLOW: ALL]</strong><span lang=
+"en-US"><br>
+&#9474; &#9500;&#9472;Han<br>
+&#9474; &#9492;&#9472;Chewie<br>
+&#9492;&#9472;Passengers</span> <strong>[ALLOW:
+Lounge]</strong><span lang="en-US"><br>
+ &#9500;&#9472;Obi-wan<br>
+ &#9500;&#9472;Luke<br>
+ &#9500;&#9472;R2D2<br>
+ &#9492;&#9472;C3PO</span></p>
+
+<p class="western c8">To interpret this ARO tree, we start from the
+top and work our way down.</p>
+
+<p class="western c8">Firstly, the default policy is always to deny
+access. Permissions have been overridden for the "Crew", so they
+have access to everywhere ("ALL" is a synonym for all rooms:
+"Cockpit, Lounge, Guns, Engines"). The "Passengers" have access
+only to the Lounge.</p>
+
+<p lang="en-GB" class="western c14"><span lang="en-US" class=
+"c13">This way of describing the access policy is much clearer than
+the access matrix. You can easily see who has access to what, and
+it's easier to determine <u>why</u> they've got access (it seems
+obvious that Han and Chewie would have access to everything, since
+they're grouped under "Crew").</span></p>
+
+<p class="western c8">To summarize:</p>
+
+<ul>
+<li>
+<p lang="en-GB" class="western c9"><strong>Access Control
+Objects</strong> <span lang="en-US">(ACOs) are the things we want
+to control access to (e.g. web pages, databases, rooms,
+etc).</span></p>
+</li>
+
+<li>
+<p lang="en-GB" class="western c9"><strong>Access Request
+Objects</strong> <span lang="en-US">(AROs) are the things that
+request access (e.g. people, remote computers, etc)</span></p>
+</li>
+
+<li>
+<p lang="en-GB" class="western c9"><strong>ARO trees</strong> <span
+lang="en-US">define a hierarchy of</span> <strong>Groups</strong>
+<span lang="en-US">and AROs. Groups can contain other Groups and
+AROs.</span></p>
+</li>
+
+<li>
+<p class="western c8">The default 'catch-all' policy for the ARO
+tree is always "DENY ALL".</p>
+</li>
+
+<li>
+<p class="western c8">To assign access policy, work your way down
+the tree, explicitly assigning permissions to Groups and AROs for
+each ACO as the need arises.</p>
+</li>
+</ul>
+
+<h2 lang="en-GB" class="western">Fine-grain access control</h2>
+
+<p class="western c8">Oops! What about Chewie? By grouping him in
+"Crew", Han has indirectly given him access to the Engines! He
+doesn't want that after what Chewie recently did to the hyperdrive,
+so he adds a rule to disallow this:</p>
+
+<p lang="en-GB" class="western c9"><span lang="en-US">Millennium
+Falcon Passengers<br>
+&#9500;&#9472;Crew [ALLOW: ALL]<br>
+&#9474; &#9500;&#9472;Han<br>
+&#9474; &#9492;&#9472;Chewie</span> <strong>[DENY:
+Engines]</strong><span lang="en-US"><br>
+&#9492;&#9472;Passengers [ALLOW: Lounge]<br>
+ &#9500;&#9472;Obi-wan<br>
+ &#9500;&#9472;Luke<br>
+ &#9500;&#9472;R2D2<br>
+ &#9492;&#9472;C3PO</span></p>
+
+<p class="western c8">This is an example of the way you can control
+access policy in a fine-grained manner. It is not necessary to move
+Chewie to another Group; we simply over-ride the access policy at a
+lower level.</p>
+
+<p class="western c8">Another example of fine-grain control happens
+when the Empire attacks; Han needs to let Luke man the guns, and
+let R2D2 repair the hyperdrive in the Engine room. He can do this
+by over-riding the general permissions granted by their status as a
+"Passenger":</p>
+
+<p lang="en-GB" class="western c9"><span lang="en-US">Millennium
+Falcon Passengers<br>
+&#9500;&#9472;Crew [ALLOW: ALL]<br>
+&#9474; &#9500;&#9472;Han<br>
+&#9474; &#9492;&#9472;Chewie [DENY: Engines]<br>
+&#9492;&#9472;Passengers [ALLOW: Lounge]<br>
+ &#9500;&#9472;Obi-wan<br>
+ &#9500;&#9472;Luke</span> <strong>[ALLOW: Guns]</strong><span
+lang="en-US"><br>
+ &#9500;&#9472;R2D2</span> <strong>[ALLOW: Engines]</strong><span
+lang="en-US"><br>
+ &#9492;&#9472;C3PO</span></p>
+
+<h2 class="western">Multi-level Groups</h2>
+
+<p class="western c8">Groups can be extended to any level in the
+ARO tree. For example, you could add a Group "Jedi" to
+"Passengers". Most passengers would be categorized under
+"Passengers", but Luke and Obi-wan would be under "Jedi" and
+therefore might be extended extra privileges (like access to the
+Cockpit):</p>
+
+<p lang="en-GB" class="western c9"><span lang="en-US">Millennium
+Falcon Passengers<br>
+&#9500;&#9472;Crew [ALLOW: ALL]<br>
+&#9474; &#9500;&#9472;Han<br>
+&#9474; &#9492;&#9472;Chewie [DENY: Engines]<br>
+&#9492;&#9472;Passengers [ALLOW: Lounge]<br>
+ &#9500;&#9472;</span><strong>Jedi [ALLOW: Cockpit]</strong><span
+lang="en-US"><br>
+ &#9474; &#9500;&#9472;</span><strong>Obi-wan</strong><span lang=
+"en-US"><br>
+ &#9474; &#9492;&#9472;</span><strong>Luke</strong> <span lang=
+"en-US">[ALLOW: Guns]<br>
+ &#9500;&#9472;R2D2 [ALLOW: Engines]<br>
+ &#9492;&#9472;C3PO</span></p>
+
+<h2 class="western">How does phpGACL determine permissions?</h2>
+
+<p class="western c8">When the ship's computer (running phpGACL of
+course) checks access, the only question it can ask itself is "Does
+person X have access to room Y?" In phpGACL terms, this is
+rephrased as "Does ARO 'X' have access to ACO 'Y'?"</p>
+
+<p class="western c8">phpGACL determines whether a specific person
+has access to a specific room by working from the top of the ARO
+tree towards the specified person, noting explicit access controls
+for that place along the way. When it reaches that person, it uses
+the last explicit access control it encountered as the result to
+return. In this way, you can define access controls for groups of
+people, but over-ride them further down the tree if you need
+to.</p>
+
+<p lang="en-GB" class="western c9"><strong>Example 1</strong><span
+lang="en-US">: We ask: "Does Luke have access to the
+Lounge?".</span></p>
+
+<ul>
+<li>
+<p class="western c8">Set the default result, "DENY".</p>
+</li>
+
+<li>
+<p class="western c8">Work out a path to Luke:</p>
+</li>
+</ul>
+
+<h4 lang="en-GB" class="western">Millennium Falcon Passengers
+&rarr; Passengers &rarr; Jedi &rarr; Luke</h4>
+
+<ul>
+<li>
+<p class="western c8">Start at the top of the tree and move towards
+Luke: The "Millennium Falcon Passengers" node doesn't say anything
+about any room, so do nothing here.</p>
+</li>
+
+<li>
+<p class="western c8">Move on to "Passengers", which explicitly
+says that "Passengers" have Lounge access, so change the internal
+result to "ALLOW".</p>
+</li>
+
+<li>
+<p class="western c8">Move to the "Jedi" node, which doesn't
+mention the Lounge at all.</p>
+</li>
+
+<li>
+<p class="western c8">Finally move to Luke's node, and again
+there's nothing there about the Lounge.</p>
+</li>
+
+<li>
+<p class="western c8">There's nowhere left to go, so the result
+returned is the current value of the internal result: "ALLOW"</p>
+</li>
+</ul>
+
+<p lang="en-GB" class="western c9"><strong>Example 2</strong><span
+lang="en-US">: We ask: "Does Chewie have access to the
+Engines?"</span></p>
+
+<ul>
+<li>
+<p class="western c8">Set the default result, "DENY".</p>
+</li>
+
+<li>
+<p class="western c8">Work out a path to Chewie:</p>
+</li>
+</ul>
+
+<h4 lang="en-GB" class="western">Millennium Falcon Passengers
+&rarr; Crew &rarr; Chewie</h4>
+
+<ul>
+<li>
+<p class="western c8">Start at the top of the tree and move towards
+Chewie. The "Millennium Falcon Passengers" node doesn't say
+anything about anywhere, so do nothing here.</p>
+</li>
+
+<li>
+<p class="western c8">Move on to "Crew", which explicitly says that
+"Crew" have Engine access, so change the internal result to
+"ALLOW".</p>
+</li>
+
+<li>
+<p class="western c8">Move to Chewie's node, and there's an
+explicit rule saying that he doesn't have access to the Engines, so
+change the internal result to "DENY".</p>
+</li>
+
+<li>
+<p class="western c8">There's nowhere left to go, so the result
+returned is the current value of the internal result: "DENY"</p>
+</li>
+</ul>
+
+<p class="western c8">As you can see from the examples, if a Group
+doesn't explicitly specify a permission for a room, then that Group
+inherits the access restrictions of its parent for that room. If
+the root node ("Millennium Falcon Passengers") doesn't specify a
+permission, it inherits it from the default setting ("DENY ALL" in
+the above examples).</p>
+
+<p class="western c8">This implies a couple of interesting points
+about the ARO tree:</p>
+
+<ul>
+<li>
+<p class="western c8">The ARO tree always shows the full list of
+the AROs. It would not make sense to ask "Does Jabba have access to
+the Cockpit?" because Jabba has not been defined in this system.
+However, phpGACL does not check to see if AROs or ACOs exist before
+performing the check, so if this question was actually asked then
+the result would be the default "DENY".</p>
+</li>
+
+<li>
+<p class="western c8">The ARO tree may not display some defined
+ACOs, and relies on the default setting to define access policy.
+For example, say Han defined a "Bathroom" ACO. Any question like
+"Does Luke have access to the Bathroom?" would have the answer
+"DENY", because the default is "DENY" and nowhere in the ARO tree
+does it ever explicitly mention the Bathroom. Keep in mind when
+examining the ARO tree that some ACOs may not be visible.</p>
+</li>
+</ul>
+
+<p lang="en-GB" class="western c9"><strong>Note:</strong><span
+lang="en-US">When asking phpGACL questions about access to an ACO,
+it is not possible to use Groups as AROs (even though it might
+'seem' right). For example, it is impossible to answer the question
+"Do Passengers have access to Guns?" The complete answer is not a
+Boolean "ALLOW" or "DENY", but the more complex "Luke and Obi-wan
+can but R2D2 and C3PO cannot." phpGACL is not designed to return
+that kind of answer.</span></p>
+
+<h2 class="western">Adding groups</h2>
+
+<p class="western c8">Han feels this ACL is starting to look a
+little complicated. There are so many exceptions! Perhaps he should
+make another group, "Engineers", containing the people who are
+allowed access to the Engines and Guns. That group should contain
+Han and R2D2 since they're both capable of repairing the engines
+and guns. This means Han can remove some of those messy
+exceptions-to-the-rules, and that has the benefit of making the
+description clearer:</p>
+
+<p class="western c17">Default: DENY ALL<br>
+Millennium Falcon Passengers<br>
+&#9500;&#9472;Crew [ALLOW: ALL]<br>
+&#9474; &#9500;&#9472;Han<br>
+&#9474; &#9492;&#9472;Chewie [DENY: Engines]<br>
+&#9500;&#9472;Passengers [ALLOW: Lounge]<br>
+&#9474; &#9500;&#9472;Jedi [ALLOW: Cockpit]<br>
+&#9474; &#9474; &#9500;&#9472;Obi-wan<br>
+&#9474; &#9474; &#9492;&#9472;Luke [ALLOW: Guns]<br>
+ &#9474; &#9500;&#9472;R2D2<br>
+&#9474; &#9492;&#9472;C3PO<br>
+&#9492;&#9472;<strong>Engineers [ALLOW: Engines, Guns]</strong><br>
+ &#9500;&#9472;<strong>Han</strong><br>
+ &#9492;&#9472;<strong>R2D2</strong></p>
+
+<p class="western c8">We can read this as "By default, no-one has
+access to anywhere. Crew have access to everywhere (except Chewie,
+who has no access to the Engines). Passengers only have access to
+the Lounge, except Jedi who also have access to the Cockpit. Luke
+has access to the Guns too. Engineers are allowed access to the
+Engines and Guns."</p>
+
+<p lang="en-GB" class="western c9"><span lang="en-US">Most
+importantly, we can see that Han and R2D2 are now in</span>
+<em>two</em><span lang="en-US">places in the ACL. It is not
+necessary for them to be uniquely categorized at all. This defines
+the policy more clearly to the reader: "Ahh, Han and R2D2 have
+access to the Engines and Guns because they're</span>
+<em>engineers</em><span lang="en-US">."</span></p>
+
+<h2 class="western">Adding people</h2>
+
+<p class="western c8">Han goes to Cloud City to pick up Lando and
+get some repairs. Lando's the Millennium Falcon's previous owner,
+so Han reckons he qualifies as Crew. Lando also offers the services
+of his top engineer, Hontook, for help with repairing the ship
+while they're in dock.</p>
+
+<p class="western c17">Default: DENY ALL<br>
+Millennium Falcon Passengers<br>
+&#9500;&#9472;Crew [ALLOW: ALL]<br>
+&#9474; &#9500;&#9472;Han<br>
+&#9474; &#9500;&#9472;Chewie [DENY: Engines]<br>
+&#9474; &#9492;&#9472;<strong>Lando</strong><br>
+&#9500;&#9472;Passengers [ALLOW: Lounge]<br>
+&#9474; &#9500;&#9472;Jedi [ALLOW: Cockpit]<br>
+&#9474; &#9474; &#9500;&#9472;Obi-wan<br>
+&#9474; &#9474; &#9492;&#9472;Luke [ALLOW: Guns]<br>
+ &#9474; &#9500;&#9472;R2D2<br>
+&#9474; &#9492;&#9472;C3PO<br>
+&#9492;&#9472;Engineers [ALLOW: Engines, Guns]<br>
+ &#9500;&#9472;Han<br>
+ &#9500;&#9472;R2D2<br>
+ &#9492;&#9472;<strong>Hontook</strong></p>
+
+<p class="western c8">This shows how easy it is to grant new people
+access. If we used the original matrix scheme, we'd have to set
+permissions for each room for both Lando and Hontook. Instead, we
+simply add them to their appropriate groups and their access is
+implicitly and easily defined.</p>
+
+<h2 class="western">Resolving conflicts</h2>
+
+<p class="western">What happens if we add Chewie to the list of
+Engineers?</p>
+
+<p class="western c17">Default: DENY ALL<br>
+Millennium Falcon Passengers<br>
+&#9500;&#9472;Crew [ALLOW: ALL]<br>
+&#9474; &#9500;&#9472;Han<br>
+&#9474; &#9500;&#9472;Chewie [DENY: Engines]<br>
+&#9474; &#9492;&#9472;Lando<br>
+&#9500;&#9472;Passengers [ALLOW: Lounge]<br>
+&#9474; &#9500;&#9472;Jedi [ALLOW: Cockpit]<br>
+&#9474; &#9474; &#9500;&#9472;Obi-wan<br>
+&#9474; &#9474; &#9492;&#9472;Luke [ALLOW: Guns]<br>
+ &#9474; &#9500;&#9472;R2D2<br>
+&#9474; &#9492;&#9472;C3PO<br>
+&#9492;&#9472;Engineers [ALLOW: Engines, Guns]<br>
+ &#9500;&#9472;Han<br>
+ &#9500;&#9472;R2D2<br>
+ &#9500;&#9472;Hontook<br>
+ &#9492;&#9472;<strong>Chewie</strong></p>
+
+<p class="western">This makes Chewie's access to the Engines
+ambiguous, because now there are two paths from the root of the
+tree to Chewie. If the ship's computer follows one path (along the
+"Crew" branch), the result is "DENY access to Engines." If it
+follows the other path (along the "Engineers" branch) then the
+result is "ALLOW access to Engines". So, is he allowed or
+denied?</p>
+
+<p class="western">phpGACL will warn you if you add or edit an
+multiply-grouped ARO in such a way that the ARO's access to an
+arbitrary ACO would be ambiguous. But it is <u>up to you</u> to
+resolve the conflict.</p>
+
+<p class="western">If we now asked phpGACL the question "Does
+Chewie have access to Engines?" the result returned is the result
+given by the <u>last ACL entry to be modified</u> (this is
+phpGACL's policy). In this case the result is ALLOW, because the
+"ALLOW: Engines, Guns" directive assigned to the Engineers Group is
+more recent than the "DENY: Engines" directive assigned to Chewie's
+Group.</p>
+
+<p class="western">When ambiguous access entries exist in the ACL,
+the ACL is said to be <strong>inconsistent</strong>. Inconsistent
+ACLs can be very dangerous, and you may unwittingly provide access
+to inappropriate people if you allow your ACL to remain in this
+state. When phpGACL warns you that the ACL is inconsistent, it is
+best to resolve the conflicts as soon as possible to regain
+consistency.</p>
+
+<p class="western">To resolve the conflict in this case, we could
+either:</p>
+
+<ul>
+<li>
+<p class="western">Remove the "DENY: Engines" directive from
+Chewie's entry under the Crew Group.</p>
+</li>
+
+<li>
+<p class="western">Add a "DENY: Engines" directive to Chewie's
+entry under the Engineers Group.</p>
+</li>
+
+<li>
+<p class="western">Remove Chewie from the Engineers Group, since
+Han doesn't think him a worthy Engineer anyway.</p>
+</li>
+</ul>
+
+<p class="western">Han chooses option 3, and removes Chewie from
+the Engineers list.</p>
+
+<h2 class="western">Naming Access Objects</h2>
+
+<p class="western c8">phpGACL uniquely identifies each Access
+Object (AROs, AXOs and ACOs) with a two-keyword combination and
+it's Access Object type.</p>
+
+<p class="western c8">The tuple "(Access Object type, Section,
+Value)" uniquely identifies any Access Object.</p>
+
+<p class="western c8">The first element of the tuple is the type of
+Access Object (ARO, AXO or ACO).</p>
+
+<p lang="en-GB" class="western c9"><span lang="en-US">The second
+element of the tuple, called the</span>
+<strong>Section</strong><span lang="en-US">, is a user-defined
+string which names the general category of the Access Object.
+Multiple Access Objects can share the same Section name. The
+Section name should be short but descriptive. It's used in the user
+interface in selection boxes, so try not to make it too
+long.</span></p>
+
+<p class="western c8">Sections are stored in a flat namespace; they
+are not nestable like Groups. Sections have nothing to do with
+Groups or the ARO/AXO trees - they are purely a mechanism for
+helping to maintain large numbers of Access Objects.</p>
+
+<p lang="en-GB" class="western c9"><span lang="en-US">The third
+element of the tuple is a user-defined name for the Access Object,
+and is called the</span> <strong>Value</strong><span lang="en-US">.
+<u>A Value cannot contain spaces</u> (however, a Section
+can).</span></p>
+
+<p class="western c8"><u>Both Section and Values are case
+sensitive.</u></p>
+
+<p lang="en-GB" class="western c20"><span class=
+"c18"><strong>Aside:</strong><span lang="en-US">It is commonly
+asked why strings are used to identify Access Objects, rather than
+integers which ostensibly seem faster. The answer is for
+legibility. It is much easier to understand:<br>
+</span></span> <span lang="en-US"><span class=
+"c19">acl_check('system', 'login', 'users', 'john_doe');<br>
+</span><span class="c18">than:</span><span class="c19"><br>
+ acl_check(10, 21004, 15, 20304);</span></span></p>
+
+<p lang="en-GB" class="western c9"><span lang="en-US">Since it is
+often obvious from the context which type of Access Object we are
+referring to, the interface for phpGACL (and this documentation)
+drops the Access Object type and uses the format
+"</span><strong>Section &gt; Value</strong><span lang="en-US">"
+when displaying the name of an Access Object. However, the API
+requires an Access Object's "Section" and "Value" to be specified
+in separate function arguments (the Access Object type is usually
+implicit in the argument description).</span></p>
+
+<p lang="en-GB" class="western c8"><strong>Example ACO "Section
+&gt; Values":</strong></p>
+
+<ul>
+<li>
+<p class="western c8">"Floors &gt; 1st"</p>
+</li>
+
+<li>
+<p class="western c8">"Floors &gt; 2nd"</p>
+</li>
+
+<li>
+<p class="western c8">"Rooms &gt; Engines"</p>
+</li>
+</ul>
+
+<p class="western"><strong>Example ARO "Section &gt;
+Values":</strong></p>
+
+<ul>
+<li>
+<p class="western c8">"People &gt; John_Smith"</p>
+</li>
+
+<li>
+<p class="western c8">"People &gt; Cathy_Jones"</p>
+</li>
+
+<li>
+<p class="western c8">"Hosts &gt; sandbox.something.com"</p>
+</li>
+</ul>
+
+<p class="western"><strong>Example API usage:</strong></p>
+
+<ul>
+<li>
+<p class="western c21">acl_check ( aro_section, aro_value,
+aco_section, aco_value);</p>
+</li>
+
+<li>
+<p class="western c21">acl_check ( 'People', 'John_Smith',
+'Floors', '2nd');</p>
+</li>
+</ul>
+
+<p class="western c8"><strong>Valid Naming Restrictions
+Examples:</strong></p>
+
+<ul>
+<li>
+<p class="western c8">"ACO -Frob &gt; Flerg", "ARO - Frob &gt;
+Flerg" (The Section and Value are the same in both, but this is
+fine as namespaces are separate across Access Object types)</p>
+</li>
+
+<li>
+<p class="western c8">"ACO -Frob &gt; Flerg", "ACO - Frob &gt;
+Queegle" (The Access Object type and Section are the same, but this
+is fine as the Values are different)</p>
+</li>
+
+<li>
+<p class="western c8">"AXO - Frob Hrung &gt; Flerg" (Sections can
+contain spaces)</p>
+</li>
+</ul>
+
+<p lang="en-GB" class="western c8"><strong>Invalid Naming
+Restrictions Examples:</strong></p>
+
+<ul>
+<li>
+<p class="western c8">"ACO - Frob &gt; Flerg", "ACO - Frob &gt;
+Flerg" ("Access Object type - Section &gt; Value" must be
+unique)</p>
+</li>
+
+<li>
+<p class="western c8">"ACO - Frob &gt; Flerg Habit" (Values cannot
+contain spaces)</p>
+</li>
+</ul>
+
+<h2 lang="en-GB" class="western">Adding Sections</h2>
+
+<p lang="en-GB" class="c7">Before you can add a new Access Object,
+its Section must be defined. To add a new section, use the
+add_object_section() function.</p>
+
+<p lang="en-GB" class="western c22">add_object_section (</p>
+
+<p lang="en-GB" class="c24"><span class="c23">string NAME,</span> A
+short description of what this Section is for. (e.g. "Levels in
+building").</p>
+
+<p lang="en-GB" class="c24"><span class="c23">string VALUE,</span>
+The name of the Section (e.g. "Floor").</p>
+
+<p lang="en-GB" class="c24"><span class="c23">int ORDER,</span> An
+arbitrary value which affects the order this Section appears in the
+UI.</p>
+
+<p lang="en-GB" class="c24"><span class="c23">bool HIDDEN,</span>
+Whether this should appear in the UI or not (TRUE means that is
+will be hidden).</p>
+
+<p lang="en-GB" class="c24"><span class="c23">string
+GROUP_TYPE)</span> The Access Object type ("aco", "aro" or
+"axo")</p>
+
+<p class="western c8">Han creates 3 Sections for the AROs.
+"Humans", "Aliens" and "Androids". Let's list the AROs with their
+full names</p>
+
+<p class="western c17">Millennium Falcon Passengers<br>
+&#9500;&#9472;Crew [ALLOW: ALL]<br>
+&#9474; &#9500;&#9472;<strong>"Humans &gt; Han"</strong><br>
+&#9474; &#9500;&#9472;<strong>"Aliens &gt; Chewie"</strong> [DENY:
+Engines]<br>
+&#9474; &#9492;&#9472;<strong>"Humans &gt; Lando"</strong><br>
+&#9500;&#9472;Passengers [ALLOW: Lounge]<br>
+&#9474; &#9500;&#9472;Jedi [ALLOW: Cockpit]<br>
+&#9474; &#9474; &#9500;&#9472;<strong>"Humans &gt;
+Obi-wan"</strong><br>
+&#9474; &#9474; &#9492;&#9472;<strong>"Humans &gt; Luke"</strong>
+[ALLOW: Guns]<br>
+ &#9474; &#9500;&#9472;<strong>"Androids &gt; R2D2"</strong><br>
+&#9474; &#9492;&#9472;<strong>"Androids &gt; C3PO"</strong><br>
+&#9492;&#9472;Engineers [ALLOW: Engines, Guns]<br>
+ &#9500;&#9472;<strong>"Humans &gt; Han"</strong><br>
+ &#9500;&#9472;<strong>"Androids &gt; R2D2"</strong><br>
+ &#9492;&#9472;<strong>"Aliens &gt; Hontook"</strong></p>
+
+<p class="western c8">Sections are just a way of categorizing
+Access Objects, to make the user interface more usable, and the
+code for acl_check() more readable. They do not affect the way
+phpGACL determines access to an object. They cannot be nested (so
+it would not be able to create a "Males" sub-Section under "Humans"
+for example; you'd have to create a Section called "Humans-Male" or
+similar)</p>
+
+<h2 class="western">Multiple Purposes</h2>
+
+<p class="western c8">You may need to use phpGACL for multiple
+independent purposes. For example, you may need to restrict user
+access to web pages, and also remote host access to your server.
+The two tasks are not related.</p>
+
+<p class="western c8">phpGACL can handle this in three different
+ways.</p>
+
+<ul>
+<li>
+<p class="western c8">It can use an alternative database to store
+the access tables.</p>
+</li>
+
+<li>
+<p class="western c8">It can use the same database but with
+differently named access tables. (this feature is not implemented
+yet).</p>
+</li>
+
+<li>
+<p class="western c8">You can store the Access Objects for both
+purposes in the same tables, and carefully manage your list so that
+they don't conflict.</p>
+</li>
+</ul>
+
+<p class="western c8">To implement Option 1 (and Option 2 when it
+becomes available), use the $gacl_options array when creating a new
+phpGACL class. This allows you to specify the database and table
+name prefixes to use:</p>
+
+<p class="western c25">$gacl_options = array(<br>
+ 'db_table_prefix' =&gt; 'gacl_',<br>
+ 'db_type' =&gt; 'mysql',<br>
+ 'db_host' =&gt; 'host1',<br>
+ 'db_user' =&gt; 'user',<br>
+ 'db_password' =&gt; 'passwd',<br>
+ 'db_name' =&gt; 'gacl');</p>
+
+<p class="western c26"><br>
+</p>
+
+<p class="western c25">$gacl_host1 = new gacl($gacl_options);</p>
+
+<p class="western c8">To implement Option 3, you must be careful,
+since phpGACL doesn't know the relationship between your different
+tasks, and it will be possible to make meaningless Access Policy
+Directives.</p>
+
+<p class="western c8">For example, say Han wanted to restrict
+access to other ships contacting his ship's computer, in addition
+to restricting access to the different rooms. To do this, he might
+add "Luke's X-Wing Fighter" as a remote ship ARO (in addition to
+other ships and an ACO for the ship's computer). Because all AROs
+are in the same ARO tree, it would be possible to create an APD
+like "Ships &gt; Luke's X-Wing Fighter" [ALLOW: "Rooms &gt;
+Lounge"], which would be totally meaningless! To help reduce
+mistakes like this, good Section naming can make it clearer what
+Access Objects are for which tasks. It should be obvious to any
+administrator that it's meaningless to assign a Ship permission to
+use a Room.</p>
+
+<h2 lang="en-GB" class="western">Access eXtension Objects</h2>
+
+<p class="western"><strong>Access eXtension Objects</strong> (AXOs)
+can add a 3rd dimension to the permissions that can be configured
+in phpGACL. We've seen how phpGACL allows you to combine an ARO and
+an ACO (2 dimensions) to create an Access Policy Directive. This is
+great for simple permission requests like:</p>
+
+<p class="western">Luke (ARO) requests access to "Guns" (ACO)</p>
+
+<p class="western">If that's all you need, that's fine - AXOs are
+totally optional.</p>
+
+<p class="western">But because all ACOs are considered equal, it
+makes it difficult to manage if there are many ACOs. If this is the
+case, we can change the way we look at Access Objects to manage it
+more easily.</p>
+
+<p class="western">AXOs are identical to AROs in many respects.
+There is an AXO tree (separate from the ARO tree), with it's own
+Groups and AXOs. When dealing with AXOs, consider an AXO to take
+the old role of the ACO (i.e. "things to control access on"), and
+change the view of ACOs from "things to control access on" to
+"actions that are requested".</p>
+
+<p class="western"><strong>ARO and ACO-only View:</strong></p>
+
+<ul>
+<li>
+<p class="western">AROs: Things requesting access</p>
+</li>
+
+<li>
+<p class="western">ACOs: Things to control access on</p>
+</li>
+</ul>
+
+<p class="western"><strong>ARO, ACO and AXO View:</strong></p>
+
+<ul>
+<li>
+<p class="western">AROs: Things requesting access</p>
+</li>
+
+<li>
+<p class="western">ACOs: Actions that are requested</p>
+</li>
+
+<li>
+<p class="western">AXOs: Things to control access on</p>
+</li>
+</ul>
+
+<p class="western"><strong>Example:</strong></p>
+
+<p class="western">A website manager is trying to manage access to
+projects on the website. The ARO tree consists of all the
+users:</p>
+
+<p class="western c17">Website<br>
+&#9500;&#9472;Administrators<br>
+&#9474; &#9500;&#9472;Alice<br>
+&#9474; &#9492;&#9472;Carol<br>
+&#9492;&#9472;Users<br>
+ &#9500;&#9472;Bob<br>
+ &#9492;&#9472;Alan</p>
+
+<p class="western">The projects are organized by Operating System
+into categories in the AXO tree:</p>
+
+<p class="western c17">Projects<br>
+&#9500;&#9472;Linux<br>
+&#9474; &#9500;&#9472;SpamFilter2<br>
+&#9474; &#9492;&#9472;AutoLinusWorshipper<br>
+&#9492;&#9472;Windows<br>
+ &#9500;&#9472;PaperclipKiller<br>
+ &#9492;&#9472;PopupStopper</p>
+
+<p class="western">The actions that can be taken with each project
+are "View" and "Edit". These are the ACOs.</p>
+
+<p class="western">Now we want Bob to have "View" access to all the
+Linux projects, so it's possible to add an ADP that links Bob's ARO
+to the View ACO and the Linux AXO, and thus we can ask the
+question:</p>
+
+<p class="western">Bob (ARO) requests access to "View" (ACO) the
+project(s) called "Linux" (AXO)</p>
+
+<p class="western">Keep in mind AXO's are optional, if you don't
+specify an AXO when calling acl_check() and a matching ADP exists
+with no AXO, it will be allowed. However if <u>only</u> APDs exist
+with AXO's, and you call acl_check() without an AXO, it will
+fail.</p>
+
+<p class="western">So basically as soon as you specify an AXO when
+calling acl_check(), acl_check() will only search ACLs containing
+AXO's. If no AXO is specified, only ACLs without AXOs are searched.
+This in theory (I haven't benchmarked) gives us a slight
+performance increase as well.</p>
+
+<h1 lang="en-GB" class="western">Installation</h1>
+
+<h2 lang="en-GB" class="western">Basic setup</h2>
+
+<ol>
+<li>
+<p class="western">Untar the distribution .tar.gz file into the
+root or a subdirectory of your web site. You might want to rename
+it to something more suitable.<br>
+<br>
+<br>
+</p>
+
+<p class="western"><img src="MANUAL_html_m48c2db5c.png" name=
+"Graphic1" align="left" width="506" height="156" border="0"><br
+clear="left">
+</p>
+</li>
+
+<li>
+<p class="western">Edit phpgacl/gacl.class.php using your favourite
+editor and set the db_type, db_host, db_user, db_password, and
+db_name you will be using.<br>
+<br>
+<br>
+</p>
+</li>
+</ol>
+
+<img src="MANUAL_html_m6a630ca2.png" name="Graphic2" align="left"
+width="554" height="342" border="0"><br clear="left">
+<p class="western c27"><br>
+Now edit phpgacl/admin/gacl_admin.inc.php to hold the same
+information. This file is used by the setup script as well as the
+ACL admin backend.</p>
+
+<p class="western c27">The reason for two files holding that (same)
+information, is that the core ACL library gacl.class.php is much
+smaller than the full-fledged API class, and there is no need to
+include all the code when you just want to call acl_check().</p>
+
+<ol start="3">
+<li>
+<p class="western">Create the database you specified in db_name on
+the server.<br>
+<br>
+<br>
+</p>
+
+<p class="western"><img src="MANUAL_html_m770a5a15.png" name=
+"Graphic3" align="left" width="423" height="132" border="0"><br
+clear="left">
+</p>
+</li>
+
+<li>
+<p class="western">Surf to http://yoursite.net/phpgacl/setup.php.
+The required tables will be installed based on your choice of
+database. Don't be afraid of the truckload of output, if all goes
+well you will see only success messages.<br>
+<br>
+<br>
+</p>
+</li>
+</ol>
+
+<p class="western"><img src="MANUAL_html_7dced6ce.png" name=
+"Graphic4" align="left" width="554" height="538" border="0"><br
+clear="left">
+<br>
+<br>
+</p>
+
+<ol start="5">
+<li>
+<p class="western">Now follow the last advice shown on that screen
+and create the phpgacl/admin/smarty/templates_c directory. It must
+be writable by the user the webserver runs as. If you don't do
+this, you will not be able to use the CAL admin!</p>
+</li>
+
+<li>
+<p class="western">Click the link at the bottom of the successful
+setup page or surf to:<br>
+http://yoursite.net/phpgacl/admin/acl_admin.php</p>
+</li>
+</ol>
+
+<h2 lang="en-GB" class="western">Advanced setup</h2>
+
+<h3 lang="en-GB" class="western">Reusing an already existing ADOdb
+installation</h3>
+
+<p class="western">If you already have ADOdb installed you can get
+phpGACL to use this copy of ADOdb.</p>
+
+<ol>
+<li>
+<p class="western">Edit phpgacl/gacl.class.php so that ADODB_DIR
+reflects the location of the ADOdb library in your path.</p>
+</li>
+
+<li>
+<p class="western">Rename the phpgacl/adodb folder to something
+else like adodb_x and reload the phpgacl/admin/acl_admin.php page
+to ensure it still works.</p>
+</li>
+
+<li>
+<p class="western">Erase the adodb directory installed with
+phpGACL.</p>
+</li>
+</ol>
+
+<h3 lang="en-GB" class="western">Reusing an already existing Smarty
+installation</h3>
+
+<p class="western">If you already have ADOdb installed you can get
+phpGACL to use this copy of ADOdb.</p>
+
+<ol>
+<li>
+<p class="western">Edit phpgacl/admin/gacl_admin.inc.php so that
+the variables $smarty_dir and $smarty_compile_dir reflect the
+location of the Smarty library in your path and the template_c
+directory you already use.</p>
+
+<p class="western">Move the templates directory that came with
+phpGACL to another directory (e.g. one level up). Adjust the
+$smarty_template_dir so it points to the new location. If you like
+you can move those templates to your existing templates folder, of
+course.</p>
+</li>
+
+<li>
+<p class="western">Rename the phpgacl/smarty folder to something
+else like smarty_x and reload the phpgacl/admin/acl_admin.php page
+to ensure it still works.</p>
+</li>
+
+<li>
+<p class="western">Erase the smarty directory installed with
+phpGACL.</p>
+</li>
+</ol>
+
+<h3 lang="en-GB" class="western">How do I move the phpGACL files
+out of my website tree while leaving a link in the tree for
+administration?</h3>
+
+<ol>
+<li>
+<p class="western">Go to your website root.</p>
+</li>
+
+<li>
+<p class="western">Move the phpGACL directory to your includes
+directory and create a symlink to the admin directory where you
+want the admin tool to go. For example:</p>
+
+<p class="western">mv phpgacl/ /www/includes_directory<br>
+ln -s /www/includes_directory/phpgacl/admin/ gacl</p>
+</li>
+
+<li>
+<p class="western">Now surfing to
+http://yoursite.net/gacl/acl_admin.php will take you to the admin
+page. If it doesn't work, make sure your Webserver allows symbolic
+links in the website tree.</p>
+</li>
+</ol>
+
+<h1 lang="en-GB" class="western">Using phpGACL in your
+application</h1>
+
+<h2 lang="en-GB" class="western">Basic usage</h2>
+
+<p class="western">This example shows a basic example of using
+phpGACL in your code. It uses the ADOdb abstraction layer as well,
+and shows a simple way to validate a login attempt against a
+database.</p>
+
+<p class="western c32"><span class="c28">// include basic ACL
+api</span><br>
+<span class="c29">include</span>('<span class=
+"c30">phpgacl/gacl.class.php</span>');<br>
+$<span class="c31">gacl</span> = <span class="c29">new</span>
+gacl();</p>
+
+<p class="western c32">$<span class="c31">username</span> = $<span
+class="c31">db</span>-&gt;<span class="c29">quote</span>($<span
+class="c31">_POST</span>['<span class="c30">username</span>']);<br>
+$<span class="c31">password</span> = $<span class=
+"c31">db</span>-&gt;<span class="c29">quote</span>(md5($<span
+class="c31">_POST</span>['<span class=
+"c30">password</span>']));<br>
+$<span class="c31">sql</span> = '<span class="c30">SELECT name FROM
+users WHERE name=</span>';<br>
+$<span class="c31">sql</span> .= $<span class=
+"c31">username</span>.' <span class="c30">AND
+password=</span>'.$<span class="c31">password</span>;<br>
+$<span class="c31">row</span> = $<span class=
+"c31">db</span>-&gt;<span class="c29">GetRow</span>($<span class=
+"c31">sql</span>);</p>
+
+<p class="western c32"><span class="c29">if</span>($<span class=
+"c31">gacl</span>-&gt;<span class="c29">acl_check</span>('<span
+class="c30">system</span>','<span class="c30">login</span>','<span
+class="c30">user</span>',$<span class="c31">row</span>['<span
+class="c30">name</span>'])){<br>
+ $<span class="c31">_SESSION</span>['<span class=
+"c30">username</span>'] = $<span class="c31">row</span>['<span
+class="c30">name</span>'];<br>
+ <span class="c29">return</span> <span class="c33">true</span>;<br>
+}<br>
+<span class="c29">else</span><br>
+ <span class="c29">return</span> <span class=
+"c33">false</span>;</p>
+
+<p class="western">As you can see there is only one call to
+acl_check() in this code. What does it do? Well, it</p>
+
+<ul>
+<li>
+<p class="western">checks the ARO object $row['name'] from the ARO
+section 'user'</p>
+</li>
+
+<li>
+<p class="western">against the ACO object 'login' from the ACO
+section 'system'.</p>
+</li>
+</ul>
+
+<h2 lang="en-GB" class="western">Advanced usage</h2>
+
+<p class="western"><br>
+<br>
+</p>
+
+<h1 lang="en-GB" class="western">Using the ACL admin utility</h1>
+
+<p class="western">If you want to get a grip on the included ACL
+admin utitlity, it will help you a lot to import the demonstration
+data into the database. You find a MySQL dump in the file
+phpgacl/admin/mysql_db_demo_data.sql. It contains some ACO, ARO and
+AXO objects, as well as some ACL defined using those objects. After
+importing the dump, calling the ACL admin and going to the ACL list
+should show this:<br>
+<br>
+<br>
+</p>
+
+<p class="western"><img src="MANUAL_html_m481ab4b3.png" name=
+"Graphic5" align="left" width="533" height="495" border="0"><br
+clear="left">
+<br>
+<br>
+</p>
+
+<p class="western">Play around with it, and if you get stuck, come
+back and read on...</p>
+
+<p class="western">(yet to be written)</p>
+
+<h1 lang="en-GB" class="western">API Reference</h1>
+
+<h2 lang="en-GB" class="western">ACL</h2>
+
+<h3 lang="en-GB" class="western">add_acl()</h3>
+
+<p class="western">Adds permissions to the access control list.</p>
+
+<p class="western">add_acl (</p>
+
+<p lang="en-GB" class="c24">array ACO IDs,</p>
+
+<p lang="en-GB" class="c24">array ARO_IDs,</p>
+
+<p lang="en-GB" class="c24">array ARO_GROUP_IDs,</p>
+
+<p lang="en-GB" class="c24">array AXO_IDs,</p>
+
+<p lang="en-GB" class="c24">array AXO_GROUP_IDs,</p>
+
+<p lang="en-GB" class="c24">bool ALLOW,</p>
+
+<p lang="en-GB" class="c24">bool ENABLED</p>
+
+<p lang="en-GB" class="c24">[, int ACL_ID] )</p>
+
+<p class="western">Returns:</p>
+
+<p lang="en-GB" class="c24">int ACL_ID on success, FALSE on
+failure.</p>
+
+<p class="western"><br>
+<br>
+</p>
+
+<h3 lang="en-GB" class="western">edit_acl()</h3>
+
+<p lang="en-GB" class="western c3">Edits permissions already set in
+the access control list.</p>
+
+<p class="western">edit_acl (</p>
+
+<p lang="en-GB" class="c24">array ACO IDs,</p>
+
+<p lang="en-GB" class="c24">array ARO_IDs,</p>
+
+<p lang="en-GB" class="c24">array ARO_GROUP_IDs,</p>
+
+<p lang="en-GB" class="c24">array AXO_IDs,</p>
+
+<p lang="en-GB" class="c24">array AXO_GROUP_IDs,</p>
+
+<p lang="en-GB" class="c24">bool ALLOW,</p>
+
+<p lang="en-GB" class="c24">bool ENABLED</p>
+
+<p lang="en-GB" class="c24">[, int ACL_ID] )</p>
+
+<p class="western">Returns:</p>
+
+<p lang="en-GB" class="c24">int ACL_ID on success, FALSE on
+failure.</p>
+
+<p class="western"><br>
+<br>
+</p>
+
+<h3 lang="en-GB" class="western">del_acl()</h3>
+
+<p lang="en-GB" class="western c3">Deletes permissions already set
+in the access control list.</p>
+
+<p class="western">del_acl (</p>
+
+<p lang="en-GB" class="c24">int ACL ID)</p>
+
+<p class="western">Returns:</p>
+
+<p lang="en-GB" class="c24">TRUE on success, FALSE on failure.</p>
+
+<p class="western"><br>
+<br>
+</p>
+
+<h2 lang="en-GB" class="western">Groups</h2>
+
+<h3 lang="en-GB" class="western">get_group_id()</h3>
+
+<p lang="en-GB" class="western c3">Gets a group ID.</p>
+
+<p class="western">get_group_id (</p>
+
+<p lang="en-GB" class="c24">string GROUP NAME) <span class=
+"c18">The Access Object</span> type ("aco", "aro" or "axo").</p>
+
+<p class="western">Returns:</p>
+
+<p lang="en-GB" class="c24">int GROUP_ID on success, FALSE on
+failure.</p>
+
+<p class="western"><br>
+<br>
+</p>
+
+<h3 lang="en-GB" class="western">get_group_parent_id()</h3>
+
+<p lang="en-GB" class="western c3">Gets a groups immediate parent
+ID.</p>
+
+<p class="western">get_group_parent_id (</p>
+
+<p lang="en-GB" class="c24">int GROUP_ID)</p>
+
+<p class="western">Returns:</p>
+
+<p lang="en-GB" class="c24">int GROUP_PARENT_ID on success, FALSE
+on failure.</p>
+
+<p class="western"><br>
+<br>
+</p>
+
+<h3 lang="en-GB" class="western">add_group()</h3>
+
+<p lang="en-GB" class="western c3">Adds a group to the group
+tree.</p>
+
+<p class="western">add_group (</p>
+
+<p lang="en-GB" class="c24">string NAME</p>
+
+<p lang="en-GB" class="c24">[, int GROUP_PARENT_ID] )</p>
+
+<p class="western">Returns:</p>
+
+<p lang="en-GB" class="c24">int GROUP_ID on success, FALSE on
+failure.</p>
+
+<p class="western"><br>
+<br>
+</p>
+
+<h3 lang="en-GB" class="western">get_group_objects()</h3>
+
+<p lang="en-GB" class="western c3">Gets all objects assigned to a
+group.</p>
+
+<p class="western">get_group_aro (</p>
+
+<p lang="en-GB" class="c24">int GROUP_ID,</p>
+
+<p lang="en-GB" class="c24">string GROUP_TYPE)</p>
+
+<p class="western">Returns:</p>
+
+<p lang="en-GB" class="c24">array SECTION_VALUE, VALUE on success,
+FALSE on failure.</p>
+
+<p class="western"><br>
+<br>
+</p>
+
+<h3 lang="en-GB" class="western">add_group_object()</h3>
+
+<p lang="en-GB" class="western c3">Assigns an ARO to a group.</p>
+
+<p class="western">add_group_aro (</p>
+
+<p lang="en-GB" class="c24">int GROUP_ID,</p>
+
+<p lang="en-GB" class="c24">string OBJECT_SECTION_VALUE,</p>
+
+<p lang="en-GB" class="c24">string OBJECT_VALUE,</p>
+
+<p lang="en-GB" class="c24">string GROUP_TYPE) <span class=
+"c18">The Access Object</span> type ("aco", "aro" or "axo").</p>
+
+<p class="western">Returns:</p>
+
+<p lang="en-GB" class="c24">int TRUE on success, FALSE on
+failure.</p>
+
+<p class="western"><br>
+<br>
+</p>
+
+<h3 lang="en-GB" class="western">del_group_object()</h3>
+
+<p lang="en-GB" class="western c3">Removes an ARO from a group.</p>
+
+<p class="western">del_group_aro (</p>
+
+<p lang="en-GB" class="c24">int GROUP_ID,</p>
+
+<p lang="en-GB" class="c24">string OBJECT_SECTION_VALUE,</p>
+
+<p lang="en-GB" class="c24">string OBJECT_VALUE,</p>
+
+<p lang="en-GB" class="c24">string GROUP_TYPE) <span class=
+"c18">The Access Object</span> type ("aco", "aro" or "axo").</p>
+
+<p class="western">Returns:</p>
+
+<p lang="en-GB" class="c24">int TRUE on success, FALSE on
+failure.</p>
+
+<p class="western"><br>
+<br>
+</p>
+
+<h3 lang="en-GB" class="western">edit_group()</h3>
+
+<p lang="en-GB" class="western c3">Edits a group.</p>
+
+<p class="western">edit_group (</p>
+
+<p lang="en-GB" class="c24">int GROUP_ID,</p>
+
+<p lang="en-GB" class="c24">string NAME,</p>
+
+<p lang="en-GB" class="c24">int GROUP_PARENT_ID,</p>
+
+<p lang="en-GB" class="c24">string GROUP_TYPE) <span class=
+"c18">The Access Object</span> type ("aco", "aro" or "axo").</p>
+
+<p class="western">Returns:</p>
+
+<p lang="en-GB" class="c24">int TRUE on success, FALSE on
+failure.</p>
+
+<p class="western"><br>
+<br>
+</p>
+
+<h3 lang="en-GB" class="western">del_group()</h3>
+
+<p lang="en-GB" class="western c3">Deletes a group, re-parenting or
+deleting children if specified.</p>
+
+<p class="western">del_group (</p>
+
+<p lang="en-GB" class="c24">int GROUP_ID,</p>
+
+<p lang="en-GB" class="c24">bool REPARENT_CHILDREN,</p>
+
+<p lang="en-GB" class="c24">string GROUP_TYPE) <span class=
+"c18">The Access Object</span> type ("aco", "aro" or "axo").</p>
+
+<p class="western">Returns:</p>
+
+<p lang="en-GB" class="c24">int TRUE on success, FALSE on
+failure.</p>
+
+<p class="western"><br>
+<br>
+</p>
+
+<h2 lang="en-GB" class="western">Access Objects (ARO/ACO/AXO)</h2>
+
+<p class="western">This section of the API manages Access Objects
+like AROs, ACOs and AXOs.</p>
+
+<h3 lang="en-GB" class="western">get_object()</h3>
+
+<p class="western">Returns an array containing information about
+all Access Objects of a specified type.</p>
+
+<p class="western">get_object (</p>
+
+<p lang="en-GB" class="c24">[ string SECTION_VALUE], Optional. A
+Section name to filter on.</p>
+
+<p lang="en-GB" class="c24">bool RETURN_HIDDEN, Whether to return
+Objects which have their Hidden attribute set.</p>
+
+<p lang="en-GB" class="c24">string GROUP_TYPE) <span class=
+"c18">The Access Object</span> type ("aco", "aro" or "axo").</p>
+
+<p class="western">Returns:</p>
+
+<p lang="en-GB" class="c24">array OBJECT_ID on success, FALSE on
+failure.</p>
+
+<p class="western"><br>
+<br>
+</p>
+
+<h3 lang="en-GB" class="western">get_object_data()</h3>
+
+<p class="western">Returns an array containing information about a
+specific Access Objects, given it's Object ID.</p>
+
+<p class="western">get_object_data (</p>
+
+<p lang="en-GB" class="c24">int OBJECT_ID,</p>
+
+<p lang="en-GB" class="c24">string GROUP_TYPE) <span class=
+"c18">The Access Object</span> type ("aco", "aro" or "axo").</p>
+
+<p class="western">Returns:</p>
+
+<p lang="en-GB" class="c24">array (section_value, value,
+order_value, name) on success, FALSE on failure.</p>
+
+<p class="western"><br>
+<br>
+</p>
+
+<h3 lang="en-GB" class="western">get_object_id()</h3>
+
+<p lang="en-GB" class="western c3">Gets an object ID.</p>
+
+<p class="western">get_object_id (</p>
+
+<p lang="en-GB" class="c24">string OBJECT_SECTION_VALUE,</p>
+
+<p lang="en-GB" class="c24">string OBJECT_VALUE,</p>
+
+<p lang="en-GB" class="c24">string GROUP_TYPE ) <span class=
+"c18">The Access Object</span> type ("aco", "aro" or "axo").</p>
+
+<p class="western">Returns:</p>
+
+<p lang="en-GB" class="c24">int OBJECT_ID on success, FALSE on
+failure.</p>
+
+<p class="western"><br>
+<br>
+</p>
+
+<h3 lang="en-GB" class="western">get_object_section_value()</h3>
+
+<p lang="en-GB" class="western c3">Gets an object section ID.</p>
+
+<p class="western">get_object_section_value (</p>
+
+<p lang="en-GB" class="c24">int OBJECT_ID,</p>
+
+<p lang="en-GB" class="c24">string GROUP_TYPE) <span class=
+"c18">The Access Object</span> type ("aco", "aro" or "axo").</p>
+
+<p class="western">Returns:</p>
+
+<p lang="en-GB" class="c24">int SECTION_VALUE on success, FALSE on
+failure.</p>
+
+<p class="western"><br>
+<br>
+</p>
+
+<h3 lang="en-GB" class="western">add_object()</h3>
+
+<p lang="en-GB" class="western c3">Adds an object.</p>
+
+<p class="western">add_object (</p>
+
+<p lang="en-GB" class="c24">string SECTION_VALUE,</p>
+
+<p lang="en-GB" class="c24">string NAME,</p>
+
+<p lang="en-GB" class="c24">string VALUE,</p>
+
+<p lang="en-GB" class="c24">int ORDER,</p>
+
+<p lang="en-GB" class="c24">bool HIDDEN,</p>
+
+<p lang="en-GB" class="c24">string GROUP_TYPE) <span class=
+"c18">The Access Object</span> type ("aco", "aro" or "axo").</p>
+
+<p class="western">Returns:</p>
+
+<p lang="en-GB" class="c24">array OBJECT_ID on success, FALSE on
+failure.</p>
+
+<p class="western"><br>
+<br>
+</p>
+
+<h3 lang="en-GB" class="western">edit_object()</h3>
+
+<p lang="en-GB" class="western c3">Edits an object.</p>
+
+<p class="western">edit_object (</p>
+
+<p lang="en-GB" class="c24">string SECTION_VALUE,</p>
+
+<p lang="en-GB" class="c24">string NAME,</p>
+
+<p lang="en-GB" class="c24">string VALUE,</p>
+
+<p lang="en-GB" class="c24">int ORDER,</p>
+
+<p lang="en-GB" class="c24">bool HIDDEN,</p>
+
+<p lang="en-GB" class="c24">string GROUP_TYPE) <span class=
+"c18">The Access Object</span> type ("aco", "aro" or "axo").</p>
+
+<p class="western">Returns:</p>
+
+<p lang="en-GB" class="c24">array OBJECT_ID on success, FALSE on
+failure.</p>
+
+<p class="western"><br>
+<br>
+</p>
+
+<h3 lang="en-GB" class="western">del_object()</h3>
+
+<p lang="en-GB" class="western c3">Deletes an object.</p>
+
+<p class="western">del_object (</p>
+
+<p lang="en-GB" class="c24">int OBJECT_ID,</p>
+
+<p lang="en-GB" class="c24">string GROUP_TYPE, <span class=
+"c18">The Access Object</span> type ("aco", "aro" or "axo").</p>
+
+<p lang="en-GB" class="c24">bool ERASE)</p>
+
+<p class="western">Returns:</p>
+
+<p lang="en-GB" class="c24">int TRUE on success, FALSE on
+failure.</p>
+
+<p class="western"><br>
+<br>
+</p>
+
+<h2 lang="en-GB" class="western">Access Object Sections</h2>
+
+<p class="western">This part of the API manages the Sections that
+comprise part of the unique name of an Access Object. See
+"Sections" for more information.</p>
+
+<h3 lang="en-GB" class="western">
+get_object_section_section_id()</h3>
+
+<p class="western">Returns the ID of an existing Section. You must
+specify either the Section's name, value, or both.</p>
+
+<p class="western">If only the name is specified, there may be
+multiple results (since the NAME does not have to be unique). In
+this case, an error is returned.</p>
+
+<p class="western">get_object_section_section_id (</p>
+
+<p lang="en-GB" class="c24">string NAME, <span class="c18">A short
+description of what this Section is for. (e.g. "Levels in
+building").</span></p>
+
+<p lang="en-GB" class="c24">string VALUE, <span class="c18">The
+name of the Section (e.g. "Floor").</span></p>
+
+<p lang="en-GB" class="c24">string GROUP_TYPE) <span class=
+"c18">The Access Object</span> type ("aco", "aro" or "axo").</p>
+
+<p class="western">Returns:</p>
+
+<p lang="en-GB" class="c24">int SECTION_ID on success, FALSE on
+failure.</p>
+
+<p class="western"><br>
+<br>
+</p>
+
+<h3 lang="en-GB" class="western">add_object_section</h3>
+
+<p class="western">Adds a new object Section.</p>
+
+<p lang="en-GB" class="c34">string NAME, A short description of
+what this Section is for. (e.g. "Levels in building").</p>
+
+<p lang="en-GB" class="c34">string VALUE, The name of the Section
+(e.g. "Floor").</p>
+
+<p lang="en-GB" class="c34">int ORDER, An arbitrary value which
+affects the order this Section appears in the UI. Items will be
+displayed from lowest to highest.</p>
+
+<p lang="en-GB" class="c34">bool HIDDEN, Whether this should appear
+in the UI or not (TRUE means that is will be hidden).</p>
+
+<p lang="en-GB" class="c24"><span class="c18">string GROUP_TYPE)
+The Access Object</span> type ("aco", "aro" or "axo").</p>
+
+<p class="western">Returns:</p>
+
+<p lang="en-GB" class="c24">int SECTION_ID on success, FALSE on
+failure.</p>
+
+<p class="western"><br>
+<br>
+</p>
+
+<h3 lang="en-GB" class="western">edit_object_section()</h3>
+
+<p class="western">Changes the attributes of a Section. It is not
+possible to change the Access Object type of a Section. For more
+information on each field, see add_object_section.</p>
+
+<p class="western">edit_object_section (</p>
+
+<p lang="en-GB" class="c24">int OBJECT_SECTION_ID, The Section ID
+(you can obtain this using the get_object_section_section_id
+function)</p>
+
+<p lang="en-GB" class="c24">string NAME, The new Section name.</p>
+
+<p lang="en-GB" class="c24">string VALUE, The new Section
+value.</p>
+
+<p lang="en-GB" class="c24">int ORDER, The new Section order.</p>
+
+<p lang="en-GB" class="c24">bool HIDDEN, The state of the hidden
+attribute.</p>
+
+<p lang="en-GB" class="c24">string GROUP_TYPE) <span class=
+"c18">The Access Object</span> type ("aco", "aro" or "axo").</p>
+
+<p class="western">Returns:</p>
+
+<p lang="en-GB" class="c24">TRUE on success, FALSE on failure.</p>
+
+<p class="western"><br>
+<br>
+</p>
+
+<h3 lang="en-GB" class="western">del_object_section()</h3>
+
+<p class="western">Deletes a Section. All Access Objects associated
+with this Section will also be erased!</p>
+
+<p class="western">del_object_section (</p>
+
+<p lang="en-GB" class="c24">int SECTION_ID, The Section ID of the
+Section.</p>
+
+<p lang="en-GB" class="c24">string GROUP_TYPE, <span class=
+"c18">The Access Object</span> type ("aco", "aro" or "axo").</p>
+
+<p lang="en-GB" class="c24">bool ERASE) If this is TRUE, then all
+Access Objects associated with this Section will be erased along
+with the Section itself. If it is FALSE, then a error will be
+returned if the Section still has Access Objects associated with
+it, otherwise the Section will be erased.</p>
+
+<p class="western">Returns:</p>
+
+<p lang="en-GB" class="c24">TRUE on success, FALSE on failure.</p>
+
+<p class="western"><br>
+<br>
+</p>
+
+<h1 lang="en-GB" class="western">FAQ</h1>
+</body>
+</html>
+

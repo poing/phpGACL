@@ -86,6 +86,8 @@ switch ($_POST['action']) {
                                             );
         }
 
+        $new_sections = array();
+        
         for($i=0; $i < 5; $i++) {
                 $new_sections[] = array(
                                                 'id' => $i,
