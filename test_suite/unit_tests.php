@@ -65,6 +65,7 @@ class phpgacl_api_test extends TestCase {
         $this->assert($result, $message);        
     }
     function del_object_aco() {
+        echo "DEL OBJECT ACO: ". $this->get_object_id_aco()."<br>\n";
         $result = $this->gacl_api->del_object($this->get_object_id_aco(), 'ACO');
         $message = "del_object failed";
         $this->assert($result, $message);        
@@ -188,7 +189,7 @@ class phpgacl_api_test extends TestCase {
         $this->assert($result, $message);        
     }
     function del_group_object_aro() {
-        $result = $this->gacl_api->add_group_object($this->get_group_id_parent_aro(), 'unit_test', 'john_doe', 'ARO');
+        $result = $this->gacl_api->del_group_object($this->get_group_id_parent_aro(), 'unit_test', 'john_doe', 'ARO');
         $message = "del_group_object failed";
         $this->assert($result, $message);        
     }
@@ -231,7 +232,7 @@ class phpgacl_api_test extends TestCase {
         $this->assert($result, $message);        
     }
     function del_group_object_axo() {
-        $result = $this->gacl_api->add_group_object($this->get_group_id_parent_axo(), 'unit_test', 'object_1', 'AXO');
+        $result = $this->gacl_api->del_group_object($this->get_group_id_parent_axo(), 'unit_test', 'object_1', 'AXO');
         $message = "del_group_object failed";
         $this->assert($result, $message);        
     }
@@ -263,6 +264,7 @@ $suite->addTest(new phpgacl_api_test("add_group_object_axo"));
 
 
 //Clean up...
+
 $suite->addTest(new phpgacl_api_test("del_group_object_aro"));
 //$suite->addTest(new phpgacl_api_test("del_group_child_aro"));
 $suite->addTest(new phpgacl_api_test("del_group_parent_aro"));
@@ -280,6 +282,5 @@ $suite->addTest(new phpgacl_api_test("del_object_section_aro"));
 
 $suite->addTest(new phpgacl_api_test("del_object_axo"));
 $suite->addTest(new phpgacl_api_test("del_object_section_axo"));
-
 
 ?>
