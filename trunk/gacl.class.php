@@ -331,7 +331,8 @@ class gacl {
 			//Cache data.
 			$this->put_cache($retarr, $cache_id);
 		}
-
+		$this->debug_text("<b>acl_query():</b> ACO Section: $aco_section_value ACO Value: $aco_value ARO Section: $aro_section_value ARO Value $aro_value ACL ID: ". $retarr['acl_id'] ." Result: ". $row[0][1] ."");
+		
 		return $retarr;
 	}
 

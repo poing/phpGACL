@@ -48,7 +48,7 @@ switch ($_POST[action]) {
     case Submit:
         $gacl_api->debug_text("Submit!!");
 
-		showarray($_POST['selected_'.$_POST['group_type']]);
+		//showarray($_POST['selected_'.$_POST['group_type']]);
 		//Parse the form values
 		//foreach ($_POST['selected_aro'] as $aro_value) {
 		while (list(,$object_value) = @each($_POST['selected_'.$_POST['group_type']])) {
