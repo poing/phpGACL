@@ -28,16 +28,12 @@
 {/literal}
 
 <script LANGUAGE="JavaScript">
-{$js_aco_array}
-
-{$js_aro_array}
-
-{$js_axo_array}
+{$js_array}
 </script>
 {include file="phpgacl/acl_admin_js.tpl"}
 <body onload="populate(document.acl_admin.aco_section,document.acl_admin.elements['aco[]'], '{$js_aco_array_name}');populate(document.acl_admin.aro_section,document.acl_admin.elements['aro[]'], '{$js_aro_array_name}')">
 {include file="phpgacl/navigation.tpl"}
-  <form method="post" name="acl_admin" action="acl_admin.php">
+  <form method="post" name="acl_admin" action="acl_admin.php" onsubmit="select_all(document.acl_admin.elements['selected_aco[]']);select_all(document.acl_admin.elements['selected_aro[]']);select_all(document.acl_admin.elements['selected_aro[]']);return true;">
     <div align="center">
       <table cellpadding="2" cellspacing="2" border="2">
         <tbody>

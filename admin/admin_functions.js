@@ -107,15 +107,17 @@ function deselect_item(form_element) {
 
 //Used to unselect all items in a combo box
 function unselect_all(form_element) {
-   //alert('Src: ' + src_form_element);
-   //alert('Dst: ' + dst_form_element);
-   
-   //Copy it over to the dst element
 	for (i=0; i < form_element.options.length; i++) {
 		if (form_element.options[i].selected) {
 			form_element.options[i].selected = false;
 			i=i - 1;
 		}
+	}
+}
+
+function select_all(select_box) {
+	for (i=0; i < select_box.options.length; i++) {
+		select_box.options[i].selected = true;
 	}
 }
 
