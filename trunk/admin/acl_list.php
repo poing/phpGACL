@@ -13,11 +13,11 @@ switch ($_GET['action']) {
 
         //Return page.
         $gacl_api->return_page($_GET['return_page']);
-	
+
         break;
     case 'Submit':
         $gacl_api->debug_text("Submit!!");
-        break;    
+        break;
     default:
 
 		/*
@@ -25,35 +25,37 @@ switch ($_GET['action']) {
 		 * Use these IDs to get the entire ACL information in the second query.
 		 *
 		 * If we just put the LIKE statements in the second query, it will match the correct ACLs
-		 * but will only return the matching rows, so it won't show the entire ACL information. 
+		 * but will only return the matching rows, so it won't show the entire ACL information.
 		 *
 		 */
 		if (isset($_GET['action']) AND $_GET['action'] == 'Filter') {
 			$gacl_api->debug_text("Filtering...");
-				
+
 			$query = "select	distinct
 											a.id
 									from
-											{$gacl_api->_db_table_prefix}acl a
-											LEFT JOIN {$gacl_api->_db_table_prefix}aco_map b ON a.id=b.acl_id
+											".$gacl_api->_db_table_prefix."acl a
+											LEFT JOIN ".$gacl_api->_db_table_prefix."acl_sections x ON a.section_value=x.value
 
-											LEFT JOIN {$gacl_api->_db_table_prefix}aco e ON ( b.section_value=e.section_value AND b.value = e.value )
-											LEFT JOIN {$gacl_api->_db_table_prefix}aco_sections f ON e.section_value=f.value
+											LEFT JOIN ".$gacl_api->_db_table_prefix."aco_map b ON a.id=b.acl_id
 
-											LEFT JOIN {$gacl_api->_db_table_prefix}aro_map c ON a.id=c.acl_id
-											LEFT JOIN {$gacl_api->_db_table_prefix}aro_groups_map d ON a.id=d.acl_id
+											LEFT JOIN ".$gacl_api->_db_table_prefix."aco e ON ( b.section_value=e.section_value AND b.value = e.value )
+											LEFT JOIN ".$gacl_api->_db_table_prefix."aco_sections f ON e.section_value=f.value
 
-											LEFT JOIN {$gacl_api->_db_table_prefix}axo_map j ON a.id=j.acl_id
-											LEFT JOIN {$gacl_api->_db_table_prefix}axo_groups_map k ON a.id=k.acl_id
+											LEFT JOIN ".$gacl_api->_db_table_prefix."aro_map c ON a.id=c.acl_id
+											LEFT JOIN ".$gacl_api->_db_table_prefix."aro_groups_map d ON a.id=d.acl_id
 
-											LEFT JOIN {$gacl_api->_db_table_prefix}aro g ON ( c.section_value=g.section_value AND c.value = g.value )
-											LEFT JOIN {$gacl_api->_db_table_prefix}aro_sections h ON g.section_value=h.value
-											LEFT JOIN {$gacl_api->_db_table_prefix}aro_groups i ON i.id=d.group_id
+											LEFT JOIN ".$gacl_api->_db_table_prefix."axo_map j ON a.id=j.acl_id
+											LEFT JOIN ".$gacl_api->_db_table_prefix."axo_groups_map k ON a.id=k.acl_id
 
-											LEFT JOIN {$gacl_api->_db_table_prefix}axo l ON ( j.section_value=l.section_value AND j.value = l.value )
-											LEFT JOIN {$gacl_api->_db_table_prefix}axo_sections m ON l.section_value=m.value
-											LEFT JOIN {$gacl_api->_db_table_prefix}axo_groups n ON n.id=k.group_id ";
-			
+											LEFT JOIN ".$gacl_api->_db_table_prefix."aro g ON ( c.section_value=g.section_value AND c.value = g.value )
+											LEFT JOIN ".$gacl_api->_db_table_prefix."aro_sections h ON g.section_value=h.value
+											LEFT JOIN ".$gacl_api->_db_table_prefix."aro_groups i ON i.id=d.group_id
+
+											LEFT JOIN ".$gacl_api->_db_table_prefix."axo l ON ( j.section_value=l.section_value AND j.value = l.value )
+											LEFT JOIN ".$gacl_api->_db_table_prefix."axo_sections m ON l.section_value=m.value
+											LEFT JOIN ".$gacl_api->_db_table_prefix."axo_groups n ON n.id=k.group_id ";
+
 			if ( isset($_GET['filter_aco_section_name']) AND $_GET['filter_aco_section_name'] != '') {
 				$filter_query[] = "			( lower(f.value) LIKE '".strtolower($_GET['filter_aco_section_name'])."' OR lower(f.name) LIKE '".strtolower($_GET['filter_aco_section_name'])."') ";
 			}
@@ -70,7 +72,7 @@ switch ($_GET['action']) {
 			if ( isset($_GET['filter_aro_group_name']) AND $_GET['filter_aro_group_name'] != '') {
 				$filter_query[] = "			( lower(i.name) LIKE '".strtolower($_GET['filter_aro_group_name'])."') ";
 			}
-			
+
 			if ( isset($_GET['filter_axo_section_name']) AND $_GET['filter_axo_section_name'] != '') {
 				$filter_query[] = "			( lower(m.value) LIKE '".strtolower($_GET['filter_axo_section_name'])."' OR lower(m.name) LIKE '".strtolower($_GET['filter_axo_section_name'])."') ";
 			}
@@ -81,8 +83,8 @@ switch ($_GET['action']) {
 				$filter_query[] = "			( lower(n.name) LIKE '".strtolower($_GET['filter_axo_group_name'])."') ";
 			}
 
-			if ( isset($_GET['filter_acl_section_id']) AND $_GET['filter_acl_section_id'] != '-1') {
-				$filter_query[] = "			( a.section_id LIKE '".$_GET['filter_acl_section_id']."') ";
+			if ( isset($_GET['filter_acl_section_name']) AND $_GET['filter_acl_section_name'] != '-1') {
+				$filter_query[] = "			( lower(x.name) LIKE '".$_GET['filter_acl_section_name']."') ";
 			}
 			if ( isset($_GET['filter_return_value']) AND $_GET['filter_return_value'] != '') {
 				$filter_query[] = "			( lower(a.return_value) LIKE '".strtolower($_GET['filter_return_value'])."') ";
@@ -99,7 +101,7 @@ switch ($_GET['action']) {
 				$query .= implode($filter_query, " AND ");
 
 				$acl_ids = $db->GetCol($query);
-				
+
 				if (isset($acl_ids) AND $acl_ids != FALSE AND count($acl_ids) > 0 ) {
 					$acl_ids_sql = implode($acl_ids, ",");
 				} elseif (count($acl_ids) == 1) {
@@ -108,7 +110,7 @@ switch ($_GET['action']) {
 				}
 			}
 		}
-		
+
         //Grab all ACLs
         $query = "select	distinct
                                         a.id,
@@ -123,7 +125,6 @@ switch ($_GET['action']) {
                                         m.name,
                                         n.name,
 
-										a.section_id,
 										x.name,
                                         a.allow,
                                         a.enabled,
@@ -131,32 +132,32 @@ switch ($_GET['action']) {
                                         a.note,
                                         a.updated_date
                                 from
-                                        {$gacl_api->_db_table_prefix}acl a
-										LEFT JOIN {$gacl_api->_db_table_prefix}acl_sections x ON a.section_id=x.id
-                                        LEFT JOIN {$gacl_api->_db_table_prefix}aco_map b ON a.id=b.acl_id
+                                        ".$gacl_api->_db_table_prefix."acl a
+										LEFT JOIN ".$gacl_api->_db_table_prefix."acl_sections x ON a.section_value=x.value
+                                        LEFT JOIN ".$gacl_api->_db_table_prefix."aco_map b ON a.id=b.acl_id
 
-                                        LEFT JOIN {$gacl_api->_db_table_prefix}aco e ON ( b.section_value=e.section_value AND b.value = e.value )
-                                        LEFT JOIN {$gacl_api->_db_table_prefix}aco_sections f ON e.section_value=f.value
+                                        LEFT JOIN ".$gacl_api->_db_table_prefix."aco e ON ( b.section_value=e.section_value AND b.value = e.value )
+                                        LEFT JOIN ".$gacl_api->_db_table_prefix."aco_sections f ON e.section_value=f.value
 
-                                        LEFT JOIN {$gacl_api->_db_table_prefix}aro_map c ON a.id=c.acl_id
-                                        LEFT JOIN {$gacl_api->_db_table_prefix}aro_groups_map d ON a.id=d.acl_id
+                                        LEFT JOIN ".$gacl_api->_db_table_prefix."aro_map c ON a.id=c.acl_id
+                                        LEFT JOIN ".$gacl_api->_db_table_prefix."aro_groups_map d ON a.id=d.acl_id
 
-                                        LEFT JOIN {$gacl_api->_db_table_prefix}axo_map j ON a.id=j.acl_id
-                                        LEFT JOIN {$gacl_api->_db_table_prefix}axo_groups_map k ON a.id=k.acl_id
+                                        LEFT JOIN ".$gacl_api->_db_table_prefix."axo_map j ON a.id=j.acl_id
+                                        LEFT JOIN ".$gacl_api->_db_table_prefix."axo_groups_map k ON a.id=k.acl_id
 
-                                        LEFT JOIN {$gacl_api->_db_table_prefix}aro g ON ( c.section_value=g.section_value AND c.value = g.value )
-                                        LEFT JOIN {$gacl_api->_db_table_prefix}aro_sections h ON g.section_value=h.value
-										LEFT JOIN {$gacl_api->_db_table_prefix}aro_groups i ON i.id=d.group_id
+                                        LEFT JOIN ".$gacl_api->_db_table_prefix."aro g ON ( c.section_value=g.section_value AND c.value = g.value )
+                                        LEFT JOIN ".$gacl_api->_db_table_prefix."aro_sections h ON g.section_value=h.value
+										LEFT JOIN ".$gacl_api->_db_table_prefix."aro_groups i ON i.id=d.group_id
 
-                                        LEFT JOIN {$gacl_api->_db_table_prefix}axo l ON ( j.section_value=l.section_value AND j.value = l.value )
-                                        LEFT JOIN {$gacl_api->_db_table_prefix}axo_sections m ON l.section_value=m.value
-										LEFT JOIN {$gacl_api->_db_table_prefix}axo_groups n ON n.id=k.group_id ";
+                                        LEFT JOIN ".$gacl_api->_db_table_prefix."axo l ON ( j.section_value=l.section_value AND j.value = l.value )
+                                        LEFT JOIN ".$gacl_api->_db_table_prefix."axo_sections m ON l.section_value=m.value
+										LEFT JOIN ".$gacl_api->_db_table_prefix."axo_groups n ON n.id=k.group_id ";
 		if (isset($acl_ids_sql) AND $acl_ids_sql != '') {
 			$query .= "	where a.id in ($acl_ids_sql)";
 		}
 
         $query .= "		order by a.id, f.name, e.name, h.name, g.name, i.name";
-        
+
         $rs = $db->pageexecute($query, $gacl_api->_items_per_page, $_GET['page']);
         $rows = $rs->GetRows();
 
@@ -164,11 +165,11 @@ switch ($_GET['action']) {
 			//Parse the SQL data and get rid of any duplicate data.
 			//while (list(,$row) = @each($rows)) {
 			foreach ($rows as $row) {
-				list($acl_id, $aco_section, $aco, $aro_section, $aro, $aro_group, $axo, $axo_section, $axo_group, $section_id, $section_name, $allow, $enabled, $return_value, $note, $updated_date) = $row;
+				list($acl_id, $aco_section, $aco, $aro_section, $aro, $aro_group, $axo, $axo_section, $axo_group, $section_name, $allow, $enabled, $return_value, $note, $updated_date) = $row;
 				$gacl_api->debug_text("<b>ID:</b> $acl_id <b>ACO Section:</b> $aco_section <b>ACO:</b> $aco  <b>ARO Section:</b> $aro_section <b>ARO:</b> $aro <b>AXO Section:</b> $axo_section <b>AXO:</b> $axo");
 
 				$prepared_rows[$acl_id]['acl']['id'] = $acl_id;
-				$prepared_rows[$acl_id]['acl']['section_id'] = $section_id;
+				//$prepared_rows[$acl_id]['acl']['section_id'] = $section_id;
 				$prepared_rows[$acl_id]['acl']['section_name'] = $section_name;
 				$prepared_rows[$acl_id]['acl']['allow'] = $allow;
 				$prepared_rows[$acl_id]['acl']['enabled'] = $enabled;
@@ -228,7 +229,7 @@ switch ($_GET['action']) {
 
 				$acls[] = array(
 									'id' => $acl_array['acl']['id'],
-									'section_id' => $acl_array['acl']['section_id'],
+									//'section_id' => $acl_array['acl']['section_id'],
 									'section_name' => $acl_array['acl']['section_name'],
 									'allow' => (bool)$acl_array['acl']['allow'],
 									'enabled' => (bool)$acl_array['acl']['enabled'],
@@ -260,30 +261,27 @@ switch ($_GET['action']) {
         $smarty->assign("filter_aro_section_name", $_GET['filter_aro_section_name']);
         $smarty->assign("filter_aro_name", $_GET['filter_aro_name']);
         $smarty->assign("filter_aro_group_name", $_GET['filter_aro_group_name']);
-        
+
         $smarty->assign("filter_axo_section_name", $_GET['filter_axo_section_name']);
         $smarty->assign("filter_axo_name", $_GET['filter_axo_name']);
 		$smarty->assign("filter_axo_group_name", $_GET['filter_axo_group_name']);
 
 		$smarty->assign("filter_return_value", $_GET['filter_return_value']);
-		$smarty->assign("filter_acl_section_id", $_GET['filter_acl_section_id']);
+		$smarty->assign("filter_acl_section_name", $_GET['filter_acl_section_name']);
 
         //
         //Grab all ACL sections for select box
         //
-        $query = "select id, name from {$gacl_api->_db_table_prefix}acl_sections where hidden = 0 order by order_value";
+        $query = "select value, name from ".$gacl_api->_db_table_prefix."acl_sections where hidden = 0 order by order_value";
         $rs = $db->Execute($query);
         $rows = $rs->GetRows();
 
         $i=0;
 		$options_acl_sections[-1] = 'Any';
         while (list(,$row) = @each($rows)) {
-            list($id, $value) = $row;
+            list($value, $name) = $row;
 
-            if ($i==0) {
-                $acl_section_id=$id;
-            }
-            $options_acl_sections[$id] = $value;
+            $options_acl_sections[$value] = $name;
 
             $i++;
         }
@@ -301,7 +299,7 @@ switch ($_GET['action']) {
 
 		$smarty->assign("filter_allow", $_GET['filter_allow']);
 		$smarty->assign("filter_enabled", $_GET['filter_enabled']);
-       
+
         break;
 }
 

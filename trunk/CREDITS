@@ -1,4 +1,4 @@
-Mike Benoit <ipso@snappymail.ca>:
+Mike Benoit <ipso@snappymail.ca>
     Wrote initial "proof of concept" implementation, and maintains documentation & code base.
 
 Ben Margolin <ben@prince.org>
@@ -19,15 +19,15 @@ Paul Munn <pmunn@munn.com>
 Fred Cohen <quadra@demosoft.org>
     Sent in Oracle 8i table schema. 
     
-Eric Batchelor <>:
+Eric Batchelor
     Always there to bounce ideas off of, he has consistently helped me out in many areas, including testing.
 
-Monte Ohrt <monte@ispi.net>:
-Andrei Zmievski <andrei@php.net>:
+Monte Ohrt <monte@ispi.net>
+Andrei Zmievski <andrei@php.net>
     Together they made the best template engine available for PHP. Awesome job. 
 
 John Lim <jlim@natsoft.com.my>
     Author of ADODB, also the best database abstraction layer for PHP. 
 
-Rasmus Lerdorf <rasmus@php.net>: For starting what eventually became the
-    coolest programming language ever.
+Rasmus Lerdorf <rasmus@php.net>
+    For starting what eventually became the coolest programming language ever.

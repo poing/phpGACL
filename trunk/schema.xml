@@ -26,8 +26,8 @@
 			<NOTNULL/>
 			<KEY/>
 		</field>
-		<field name="section_id" type="I">
-			<DEFAULT value="1"/>
+		<field name="section_value" type="C" size="230">
+			<DEFAULT value="system"/>
 			<NOTNULL/>
 		</field>
 		<field name="allow" type="I">
@@ -50,6 +50,9 @@
 	<index name="id_enabled_acl" table="#PREFIX#acl">
 		<col>id</col>
 		<col>enabled</col>
+	</index>
+	<index name="section_alue_acl" table="#PREFIX#acl">
+		<col>section_value</col>
 	</index>
 
 	<table name="#PREFIX#acl_sections">

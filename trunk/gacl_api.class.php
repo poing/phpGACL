@@ -798,11 +798,13 @@ class gacl_api extends gacl {
 			$section_value='system';
 		}
 
+		//Use section_values instead of IDs to be consistent.
 		$section_id = &$this->get_object_section_section_id(NULL, $section_value, 'ACL');
 		if (empty($section_id)) {
-			$this->debug_text("add_acl(): Invalid Section Value: $section_value... No Section ID found.");
+			$this->debug_text("add_acl(): Section Value: $section_value DOES NOT exist in the database.");
 			return false;
 		}
+		unset($section_id);
 
 		//Unique the group arrays. Later one we unique ACO/ARO/AXO arrays.
 		if (is_array($aro_group_ids)) {
@@ -824,13 +826,13 @@ class gacl_api extends gacl {
 			$acl_id = $this->db->GenID('acl_seq',10);
 
 			$this->db->BeginTrans();
-			$query = "insert into {$this->_db_table_prefix}acl (id,section_id,allow,enabled,return_value, note, updated_date) VALUES($acl_id, $section_id, $allow, $enabled, ".$this->db->quote($return_value).", ".$this->db->quote($note).", ".time().")";
+			$query = "insert into {$this->_db_table_prefix}acl (id,section_value,allow,enabled,return_value, note, updated_date) VALUES($acl_id, ".$this->db->quote($section_value).", $allow, $enabled, ".$this->db->quote($return_value).", ".$this->db->quote($note).", ".time().")";
 			$result = $this->db->Execute($query);
 		} else {
 			$this->db->BeginTrans();
 
 			//Update ACL row, and remove all mappings so they can be re-inserted.
-			$query = "update {$this->_db_table_prefix}acl set section_id=$section_id,allow=$allow,enabled=$enabled,return_value=".$this->db->quote($return_value).", note=".$this->db->quote($note).",updated_date=".time()." where id=$acl_id";
+			$query = "update {$this->_db_table_prefix}acl set section_value=".$this->db->quote($section_value).",allow=$allow,enabled=$enabled,return_value=".$this->db->quote($return_value).", note=".$this->db->quote($note).",updated_date=".time()." where id=$acl_id";
 			$result = $this->db->Execute($query);
 
 			if ($result) {
