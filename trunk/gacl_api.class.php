@@ -301,20 +301,17 @@ class gacl_api extends gacl {
 		$query = "select 	a.id
 							from acl a";
 		if ($aco_section_value !== FALSE AND $aco_value !== FALSE) {
-			$query .= " LEFT JOIN aco_map b ON a.id=b.acl_id
-							LEFT JOIN aco bb ON b.section_value=bb.section_value AND b.value=bb.value";	
+			$query .= " LEFT JOIN aco_map b ON a.id=b.acl_id";	
 		}
 		if ($aro_section_value !== FALSE AND $aro_value !== FALSE) {
-			$query .= " LEFT JOIN aro_map c ON a.id=c.acl_id
-							LEFT JOIN aro cc ON c.section_value=cc.section_value AND c.value=cc.value";	
+			$query .= " LEFT JOIN aro_map c ON a.id=c.acl_id";	
 		}
 		if ($aro_group_name !== FALSE) {
 			$query .= " LEFT JOIN aro_groups_map d ON a.id=d.acl_id
 							LEFT JOIN aro_groups dd ON d.group_id=dd.id";	
 		}
 		if ($axo_section_value !== FALSE AND $axo_value !== FALSE) {
-			$query .= " LEFT JOIN axo_map e ON a.id=e.acl_id
-							LEFT JOIN axo ee ON e.section_value=ee.section_value AND e.value=ee.value";	
+			$query .= " LEFT JOIN axo_map e ON a.id=e.acl_id";	
 		}
 		if ($axo_group_name !== FALSE) {
 			$query .= " LEFT JOIN axo_groups_map f ON a.id=f.acl_id
@@ -326,16 +323,16 @@ class gacl_api extends gacl {
 		//Where clauses
 		if ($aco_section_value !== FALSE AND $aco_value !== FALSE) {
 			if ($aco_section_value == NULL AND $aco_value == NULL) {
-				$where_query[] = " ( bb.section_value is NULL AND bb.value is NULL )";
+				$where_query[] = " ( b.section_value is NULL AND b.value is NULL )";
 			} else {
-				$where_query[] = " ( bb.section_value='$aco_section_value' AND bb.value='$aco_value' )";
+				$where_query[] = " ( b.section_value='$aco_section_value' AND b.value='$aco_value' )";
 			}
 		}
 		if ($aro_section_value !== FALSE AND $aro_value !== FALSE) {
 			if ($aro_section_value == NULL AND $aro_value == NULL) {
-				$where_query[] = " ( cc.section_value is NULL AND cc.value is NULL )";
+				$where_query[] = " ( c.section_value is NULL AND c.value is NULL )";
 			} else {
-				$where_query[] = " ( cc.section_value='$aro_section_value' AND cc.value='$aro_value' )";
+				$where_query[] = " ( c.section_value='$aro_section_value' AND c.value='$aro_value' )";
 			}
 		}
 		if ($aro_group_name !== FALSE) {
@@ -347,9 +344,9 @@ class gacl_api extends gacl {
 		}
 		if ($axo_section_value !== FALSE AND $axo_value !== FALSE) {
 			if ($axo_section_value == NULL AND $axo_value == NULL) {
-				$where_query[] = " ( ee.section_value is NULL AND ee.value is NULL )";
+				$where_query[] = " ( e.section_value is NULL AND e.value is NULL )";
 			} else {
-				$where_query[] = " ( ee.section_value='$axo_section_value' AND ee.value='$axo_value' )";
+				$where_query[] = " ( e.section_value='$axo_section_value' AND e.value='$axo_value' )";
 			}
 		}
 		if ($axo_group_name !== FALSE) {
