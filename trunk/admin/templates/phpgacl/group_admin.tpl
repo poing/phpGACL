@@ -8,8 +8,8 @@
         <tbody>
           <tr>
             <th width="2%">ID</th>
-            <th>Name</th>
-            <th>Objects</th>
+            <th width="60%">Name</th>
+            <th width="6%">Objects</th>
             <th width="30%">Functions</th>
             <th width="2%"><input type="checkbox" class="checkbox" name="select_all" onClick="checkAll(this)"/></th>
           </tr>
@@ -28,9 +28,8 @@
           </tr>
 {/foreach}
           <tr class="controls" align="center">
-            <td colspan="5">
-              <input type="submit" class="button" name="action" value="Add"> <input type="submit" class="button" name="action" value="Delete">
-            </td>
+            <td colspan="3"><input type="submit" class="button" name="action" value="Add" /></td>
+            <td colspan="2"><input type="submit" class="button" name="action" value="Delete" /></td>
           </tr>
         </tbody>
       </table>

@@ -39,7 +39,7 @@
 <body>
 {include file="phpgacl/navigation.tpl"}
 <form method="get" name="acl_list" action="acl_list.php">
-<table cellpadding="2" cellspacing="2" border="0" width="100%">
+<table cellpadding="2" cellspacing="2" border="2" width="100%">
   <tr align="center">
     <td colspan="6"><b>Filter</b></td>
   </tr>
@@ -104,12 +104,9 @@
   <tr class="controls" align="center">
     <td colspan="6"><input type="submit" class="button" name="action" value="Filter"></td>
   </tr>
-  <tr class="spacer">
-  	<td colspan="6"></td>
-  </tr>
 </table>
-
-<table cellpadding="2" cellspacing="2" border="0" width="100%">
+<br />
+<table cellpadding="2" cellspacing="2" border="2" width="100%">
   <tr class="pager">
 	<td colspan="8">
 		{include file="phpgacl/pager.tpl" pager_data=$paging_data link="?action=$action&filter_aco_section=$filter_aco_section&filter_aco=$filter_aco&filter_aro_section=$filter_aro_section&filter_aro=$filter_aro&filter_axo_section=$filter_axo_section&filter_axo=$filter_axo&filter_aro_group=$filter_aro_group&filter_axo_group=$filter_axo_group&filter_return_value=$filter_return_value&filter_allow=$filter_allow&filter_enabled=$filter_enabled&"}
