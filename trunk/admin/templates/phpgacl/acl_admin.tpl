@@ -33,7 +33,7 @@
 </script>
 
 {include file="phpgacl/acl_admin_js.tpl"}
-
+<div align="center">
 <body onload="populate(document.acl_admin.aco_section,document.acl_admin.elements['aco[]'], '{$js_aco_array_name}');populate(document.acl_admin.aro_section,document.acl_admin.elements['aro[]'], '{$js_aro_array_name}')">
     <form method="post" name="acl_admin" action="acl_admin.php">
       <table cellpadding="2" cellspacing="2" border="0" width="850">
@@ -272,5 +272,6 @@
 	<input type="hidden" name="acl_id" value="{$acl_id}">
 	<input type="hidden" name="return_page" value="{$return_page}">
     </form>
+</div>
 {include file="phpgacl/footer.tpl"} 
 

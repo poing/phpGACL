@@ -99,72 +99,85 @@ switch ($_GET['action']) {
 			if (isset($filter_query) AND is_array($filter_query)) {
 				$query .= "	where ";
 				$query .= implode($filter_query, " AND ");
-
-				$acl_ids = $db->GetCol($query);
-
-				if (isset($acl_ids) AND $acl_ids != FALSE AND count($acl_ids) > 0 ) {
-					$acl_ids_sql = implode($acl_ids, ",");
-				} elseif (count($acl_ids) == 1) {
-					//This shouldn't match any ACLs, returning 0 rows.
-					$acl_ids_sql = -1;
-				}
 			}
+		} else {
+			$query  = 'SELECT a.id FROM ' . $gacl_api->_db_table_prefix . 'acl AS a ORDER BY a.id ASC';
+		}
+		
+		$rs = $db->PageExecute ($query, $gacl_api->_items_per_page, $_GET['page']);
+
+		if ( is_object ($rs) ) {
+	        $smarty->assign ('paging_data', $gacl_api->get_paging_data ($rs));
+	        
+	        $acl_ids = array ();
+	        while ( $row = $rs->FetchRow () ) {
+	        	$acl_ids[] = $row[0];
+	        }
+		}
+		
+		if (isset($acl_ids) AND $acl_ids != FALSE AND count($acl_ids) > 0 ) {
+			$acl_ids_sql = implode($acl_ids, ",");
+		} else {
+			//This shouldn't match any ACLs, returning 0 rows.
+			$acl_ids_sql = -1;
 		}
 
-        //Grab all ACLs
-        $query = "select	distinct
-                                        a.id,
-                                        f.name,
-                                        e.name,
+		//If the user is searching, and there are no results, don't run the query at all
+		if ( !($_GET['action'] == 'Filter' AND $acl_ids_sql == -1) ) {
+			//Grab all ACLs
+			$query = "select	distinct
+											a.id,
+											f.name,
+											e.name,
 
-                                        h.name,
-                                        g.name,
-                                        i.name,
+											h.name,
+											g.name,
+											i.name,
 
-                                        l.name,
-                                        m.name,
-                                        n.name,
+											l.name,
+											m.name,
+											n.name,
 
-										x.name,
-                                        a.allow,
-                                        a.enabled,
-                                        a.return_value,
-                                        a.note,
-                                        a.updated_date
-                                from
-                                        ".$gacl_api->_db_table_prefix."acl a
-										LEFT JOIN ".$gacl_api->_db_table_prefix."acl_sections x ON a.section_value=x.value
-                                        LEFT JOIN ".$gacl_api->_db_table_prefix."aco_map b ON a.id=b.acl_id
+											x.name,
+											a.allow,
+											a.enabled,
+											a.return_value,
+											a.note,
+											a.updated_date
+									from
+											".$gacl_api->_db_table_prefix."acl a
+											LEFT JOIN ".$gacl_api->_db_table_prefix."acl_sections x ON a.section_value=x.value
+											LEFT JOIN ".$gacl_api->_db_table_prefix."aco_map b ON a.id=b.acl_id
 
-                                        LEFT JOIN ".$gacl_api->_db_table_prefix."aco e ON ( b.section_value=e.section_value AND b.value = e.value )
-                                        LEFT JOIN ".$gacl_api->_db_table_prefix."aco_sections f ON e.section_value=f.value
+											LEFT JOIN ".$gacl_api->_db_table_prefix."aco e ON ( b.section_value=e.section_value AND b.value = e.value )
+											LEFT JOIN ".$gacl_api->_db_table_prefix."aco_sections f ON e.section_value=f.value
 
-                                        LEFT JOIN ".$gacl_api->_db_table_prefix."aro_map c ON a.id=c.acl_id
-                                        LEFT JOIN ".$gacl_api->_db_table_prefix."aro_groups_map d ON a.id=d.acl_id
+											LEFT JOIN ".$gacl_api->_db_table_prefix."aro_map c ON a.id=c.acl_id
+											LEFT JOIN ".$gacl_api->_db_table_prefix."aro_groups_map d ON a.id=d.acl_id
 
-                                        LEFT JOIN ".$gacl_api->_db_table_prefix."axo_map j ON a.id=j.acl_id
-                                        LEFT JOIN ".$gacl_api->_db_table_prefix."axo_groups_map k ON a.id=k.acl_id
+											LEFT JOIN ".$gacl_api->_db_table_prefix."axo_map j ON a.id=j.acl_id
+											LEFT JOIN ".$gacl_api->_db_table_prefix."axo_groups_map k ON a.id=k.acl_id
 
-                                        LEFT JOIN ".$gacl_api->_db_table_prefix."aro g ON ( c.section_value=g.section_value AND c.value = g.value )
-                                        LEFT JOIN ".$gacl_api->_db_table_prefix."aro_sections h ON g.section_value=h.value
-										LEFT JOIN ".$gacl_api->_db_table_prefix."aro_groups i ON i.id=d.group_id
+											LEFT JOIN ".$gacl_api->_db_table_prefix."aro g ON ( c.section_value=g.section_value AND c.value = g.value )
+											LEFT JOIN ".$gacl_api->_db_table_prefix."aro_sections h ON g.section_value=h.value
+											LEFT JOIN ".$gacl_api->_db_table_prefix."aro_groups i ON i.id=d.group_id
 
-                                        LEFT JOIN ".$gacl_api->_db_table_prefix."axo l ON ( j.section_value=l.section_value AND j.value = l.value )
-                                        LEFT JOIN ".$gacl_api->_db_table_prefix."axo_sections m ON l.section_value=m.value
-										LEFT JOIN ".$gacl_api->_db_table_prefix."axo_groups n ON n.id=k.group_id ";
-		if (isset($acl_ids_sql) AND $acl_ids_sql != '') {
-			$query .= "	where a.id in ($acl_ids_sql)";
+											LEFT JOIN ".$gacl_api->_db_table_prefix."axo l ON ( j.section_value=l.section_value AND j.value = l.value )
+											LEFT JOIN ".$gacl_api->_db_table_prefix."axo_sections m ON l.section_value=m.value
+											LEFT JOIN ".$gacl_api->_db_table_prefix."axo_groups n ON n.id=k.group_id ";
+			if (isset($acl_ids_sql) AND $acl_ids_sql != '') {
+				$query .= "	where a.id in ($acl_ids_sql)";
+			}
+
+			$query .= "		order by a.id, f.name, e.name, h.name, g.name, i.name";
+
+			$rs = $db->Execute ($query);
 		}
 
-        $query .= "		order by a.id, f.name, e.name, h.name, g.name, i.name";
-
-        $rs = $db->pageexecute($query, $gacl_api->_items_per_page, $_GET['page']);
-        $rows = $rs->GetRows();
-
-		if ($rows) {
+		if ( is_object ($rs) ) {
 			//Parse the SQL data and get rid of any duplicate data.
 			//while (list(,$row) = @each($rows)) {
-			foreach ($rows as $row) {
+			while ( $row = $rs->FetchRow () ) {
 				list($acl_id, $aco_section, $aco, $aro_section, $aro, $aro_group, $axo, $axo_section, $axo_group, $section_name, $allow, $enabled, $return_value, $note, $updated_date) = $row;
 				$gacl_api->debug_text("<b>ID:</b> $acl_id <b>ACO Section:</b> $aco_section <b>ACO:</b> $aco  <b>ARO Section:</b> $aro_section <b>ARO:</b> $aro <b>AXO Section:</b> $axo_section <b>AXO:</b> $axo");
 
@@ -192,68 +205,69 @@ switch ($_GET['action']) {
 				if ($axo_group) {
 					$prepared_rows[$acl_id]['axo_groups'][$axo_group] = "$axo_group";
 				}
-
 			}
 
 			//Prepare the data for Smarty.
 			$i=-1;
-			foreach ($prepared_rows as $acl_id => $acl_array) {
+			if (is_array($prepared_rows)) {
+				foreach ($prepared_rows as $acl_id => $acl_array) {
 
-				if ($acl_array['aco']) {
-					foreach ($acl_array['aco'] as $key => $value) {
-						$aco_array[] = array('aco' => $value);
+					if ($acl_array['aco']) {
+						foreach ($acl_array['aco'] as $key => $value) {
+							$aco_array[] = array('aco' => $value);
+						}
 					}
-				}
 
-				if ($acl_array['aro']) {
-					foreach ($acl_array['aro'] as $key => $value) {
-						$aro_array[] = array('aro' => $value);
+					if ($acl_array['aro']) {
+						foreach ($acl_array['aro'] as $key => $value) {
+							$aro_array[] = array('aro' => $value);
+						}
 					}
-				}
-				if ($acl_array['aro_groups']) {
-					foreach ($acl_array['aro_groups'] as $key => $value) {
-						$aro_groups_array[] = array('group' => $value);
+					if ($acl_array['aro_groups']) {
+						foreach ($acl_array['aro_groups'] as $key => $value) {
+							$aro_groups_array[] = array('group' => $value);
+						}
 					}
-				}
 
-				if ($acl_array['axo']) {
-					foreach ($acl_array['axo'] as $key => $value) {
-						$axo_array[] = array('axo' => $value);
+					if ($acl_array['axo']) {
+						foreach ($acl_array['axo'] as $key => $value) {
+							$axo_array[] = array('axo' => $value);
+						}
 					}
-				}
-				if ($acl_array['axo_groups']) {
-					foreach ($acl_array['axo_groups'] as $key => $value) {
-						$axo_groups_array[] = array('group' => $value);
+					if ($acl_array['axo_groups']) {
+						foreach ($acl_array['axo_groups'] as $key => $value) {
+							$axo_groups_array[] = array('group' => $value);
+						}
 					}
+
+					$acls[] = array(
+										'id' => $acl_array['acl']['id'],
+										//'section_id' => $acl_array['acl']['section_id'],
+										'section_name' => $acl_array['acl']['section_name'],
+										'allow' => (bool)$acl_array['acl']['allow'],
+										'enabled' => (bool)$acl_array['acl']['enabled'],
+										'return_value' => $acl_array['acl']['return_value'],
+										'note' => $acl_array['acl']['note'],
+										'updated_date' => date("d-M-y H:m:i",$acl_array['acl']['updated_date']),
+										'aco' => $aco_array,
+										'aro' => $aro_array,
+										'aro_groups' => $aro_groups_array,
+										'axo' => $axo_array,
+										'axo_groups' => $axo_groups_array
+									);
+
+					unset($aco_array);
+					unset($aro_array);
+					unset($axo_array);
+					unset($aro_groups_array);
+					unset($axo_groups_array);
 				}
-
-				$acls[] = array(
-									'id' => $acl_array['acl']['id'],
-									//'section_id' => $acl_array['acl']['section_id'],
-									'section_name' => $acl_array['acl']['section_name'],
-									'allow' => (bool)$acl_array['acl']['allow'],
-									'enabled' => (bool)$acl_array['acl']['enabled'],
-									'return_value' => $acl_array['acl']['return_value'],
-									'note' => $acl_array['acl']['note'],
-									'updated_date' => date("d-M-y H:m:i",$acl_array['acl']['updated_date']),
-									'aco' => $aco_array,
-									'aro' => $aro_array,
-									'aro_groups' => $aro_groups_array,
-									'axo' => $axo_array,
-									'axo_groups' => $axo_groups_array
-								);
-
-				unset($aco_array);
-				unset($aro_array);
-				unset($axo_array);
-				unset($aro_groups_array);
-				unset($axo_groups_array);
 			}
 		}
 
         $smarty->assign("acls", $acls);
 
-        $smarty->assign("paging_data", $gacl_api->get_paging_data($rs));
+        // $smarty->assign("paging_data", $gacl_api->get_paging_data($rs));
 
         $smarty->assign("filter_aco_section_name", $_GET['filter_aco_section_name']);
         $smarty->assign("filter_aco_name", $_GET['filter_aco_name']);
@@ -303,6 +317,7 @@ switch ($_GET['action']) {
         break;
 }
 
+$smarty->assign('action', $_GET['action']);
 $smarty->assign("return_page", $_SERVER['PHP_SELF'] );
 
 $smarty->assign("phpgacl_version", $gacl_api->get_version() );
