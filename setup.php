@@ -168,7 +168,7 @@ Installation Successful!!!
 <font color="red"><b>*IMPORTANT*</b></font><br/>
 <p>Please make sure you create the <b>&lt;phpGACL root&gt;/admin/templates_c</b> directory,
 and give it <b>write permissions</b> for the user your web server runs as.</p>
-<p>Please read the manual, and example.php to familiarize yourself with phpGACL.</p>
+<p>Please read the manual, and docs/examples/* to familiarize yourself with phpGACL.</p>
 <a href="admin/about.php?first_run=1"><b>Let\'s get started!</b></a>
 </div>
 ');

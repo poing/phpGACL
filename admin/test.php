@@ -2,8 +2,6 @@
 $debug=1;
 require_once("gacl_admin.inc.php");
 
-$gacl_api->clear_database();
-
 /*
 $test = $gacl->add_group_object(10, 'user','10');
 $gacl->showarray($test);
