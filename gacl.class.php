@@ -38,7 +38,7 @@ if ( !defined('ADODB_DIR') ) {
 class gacl {
 	
 	// --- Private properties ---
-	
+
 	/*
 	 * Enable Debug output.
 	 */	
@@ -83,15 +83,15 @@ class gacl {
 					}
 			}
 		}
-		
+
 		require_once( ADODB_DIR .'/adodb.inc.php');
 		require_once( ADODB_DIR .'/adodb-pager.inc.php');
-		
+
 		//Use NUM for slight performance/memory reasons.
 		//Leave this in for backwards compatibility with older ADODB installations.
 		//If your using ADODB v3.5+ feel free to comment out the following line if its giving you problems.
 		$ADODB_FETCH_MODE = ADODB_FETCH_NUM;
-		
+
 		if ($this->_db) {
 			$this->db = &$this->_db;
 		} else {
@@ -127,9 +127,9 @@ class gacl {
 		Purpose:    Prints debug text if debug is enabled.
 	\*======================================================================*/
 	function debug_text($text) {
-		
+
 		if ($this->_debug) {
-			echo "$text<br>\n";   
+			echo "$text<br>\n";
 		}
 
 		return true;
@@ -138,12 +138,12 @@ class gacl {
 	/*======================================================================*\
 		Function:   acl_check()
 		Purpose:	Function that wraps the actual acl_query() function.
-						It is simply here to return TRUE/FALSE accordingly.	
+						It is simply here to return TRUE/FALSE accordingly.
 	\*======================================================================*/
 	function acl_check($aco_section_value, $aco_value, $aro_section_value, $aro_value, $axo_section_value=NULL, $axo_value=NULL, $root_aro_group_id=NULL, $root_axo_group_id=NULL) {
 		$acl_result = $this->acl_query($aco_section_value, $aco_value, $aro_section_value, $aro_value, $axo_section_value, $axo_value, $root_aro_group_id, $root_axo_group_id);
 
-		return $acl_result['allow'];    
+		return $acl_result['allow'];
 	}
 
 	/*======================================================================*\
@@ -161,24 +161,24 @@ class gacl {
 		Function:   array_acl_query()
 		Purpose:	Handles ACL lookups over arrays of AROs
 					Returns the same data format as inputted.
-	\*======================================================================*/	
+	\*======================================================================*/
 	function acl_check_array($aco_section_value, $aco_value, $aro_array) {
 		/*
 			Input Array:
 				Section => array(Value, Value, Value),
 				Section => array(Value, Value, Value)
-				
+
 		 */
-		
+
 		if (!is_array($aro_array)) {
 			$this->debug_text("acl_query_array(): ARO Array must be passed");
 			return false;
-		} 
-		
+		}
+
 		foreach($aro_array as $aro_section_value => $aro_value_array) {
 			foreach ($aro_value_array as $aro_value) {
 				$this->debug_text("acl_query_array(): ARO Section Value: $aro_section_value ARO VALUE: $aro_value");
-				
+
 				if( $this->acl_check($aco_section_value, $aco_value, $aro_section_value, $aro_value) ) {
 					$this->debug_text("acl_query_array(): ACL_CHECK True");
 					$retarr[$aro_section_value][] = $aro_value;
@@ -252,26 +252,26 @@ class gacl {
 
 			$query ='
 						select a.id,a.allow,a.return_value
-							from    '. $this->$_db_table_prefix .'acl a
-								LEFT JOIN '. $this->$_db_table_prefix .'aco_map b ON a.id=b.acl_id
-								LEFT JOIN '. $this->$_db_table_prefix .'aro_map c ON a.id=c.acl_id
-								LEFT JOIN '. $this->$_db_table_prefix .'axo_map h ON a.id=h.acl_id";
+							from    '. $this->_db_table_prefix .'acl a
+								LEFT JOIN '. $this->_db_table_prefix .'aco_map b ON a.id=b.acl_id
+								LEFT JOIN '. $this->_db_table_prefix .'aro_map c ON a.id=c.acl_id
+								LEFT JOIN '. $this->_db_table_prefix .'axo_map h ON a.id=h.acl_id';
 
 			//If there are no groups, don't bother doing the join.
 			if (isset($sql_aro_group_ids)) {
-				$query .= '		LEFT JOIN '. $this->$_db_table_prefix.'aro_groups_map d ON a.id=d.acl_id';
+				$query .= '		LEFT JOIN '. $this->_db_table_prefix.'aro_groups_map d ON a.id=d.acl_id';
 			}
 
 			if (isset($sql_aro_path_ids)) {
-				$query .= '		LEFT JOIN '. $this->$_db_table_prefix.'aro_groups_path e ON d.group_id=e.group_id';
+				$query .= '		LEFT JOIN '. $this->_db_table_prefix.'aro_groups_path e ON d.group_id=e.group_id';
 			}
 
 			if (isset($sql_axo_group_ids)) {
-				$query .= '		LEFT JOIN '. $this->$_db_table_prefix.'axo_groups_map f ON a.id=f.acl_id';
+				$query .= '		LEFT JOIN '. $this->_db_table_prefix.'axo_groups_map f ON a.id=f.acl_id';
 			}
 
 			if (isset($sql_axo_path_ids)) {
-				$query .= '		LEFT JOIN '. $this->$_db_table_prefix.'axo_groups_path g ON f.group_id=g.group_id';
+				$query .= '		LEFT JOIN '. $this->_db_table_prefix.'axo_groups_path g ON f.group_id=g.group_id';
 			}
 
 			$query .= '       where   a.enabled = 1

@@ -1,3 +1,6 @@
+Mon Aug 18 2003
+	- Merged table prefix patch from Ben Margolin (ben@prince.org), did some minor clean-ups/fixes.
+	- Upgraded to ADODB 3.72
 Wed Aug 13 2003
 	- Decreased column lengths to varchar(240) so MySQL can index multiple columns. Thanks to Ben Margolin (ben@prince.org)
 	- Fixed bug in add_object(), it was selecting from a non-existent table. Thanks to Ben Margolin  (ben@prince.org)
