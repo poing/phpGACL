@@ -2916,7 +2916,7 @@ class gacl_api extends gacl {
 				} // End of else section of "if ($object_type == "aco")"
 
 				if ($orphan_acl_ids) {
-				// If there are orphaned acls get rid of them
+					// If there are orphaned acls get rid of them
 
 					foreach ($orphan_acl_ids as $acl) {
 						$this->del_acl($acl);
