@@ -1,3 +1,69 @@
+2.5.0
+-----
+
+Very minor adjustments since RC2, see the NEWS file for details.
+
+2.5.0-RC2
+---------
+
+Many fixes since the RC1 release. This one is as close to production quality as
+they come, so this will be the last release before 2.5.0. The SGML documentation
+files have also been removed from the tarball. If you want them, get them from
+the CVS repository.
+
+2.5.0-RC1
+---------
+
+Release Candidate 1. All $smarty vars can now be dynamic, such as
+$smarty.get.$foo. A new class function get_function_object() gets you a
+reference to an assigned object, useful within your own custom functions.
+append() can now merge as well as append with a third optional attribute. A new
+class function get_config_vars() was added, and get_template_vars() can now be
+used to get individual vars. Full variable syntax is now supported within
+double quotes via a backtick (`) syntax. Files created by smarty are now
+written to a tmp file then renamed to avoid file lock retention. html_radios,
+html_checkboxes, html_table, html_image, nl2br functions added, see the NEWS
+file for full details.
+
+2.4.2
+-----
+Another point release. Added support for dynamic object reference syntax
+($foo->$bar), support for full variable syntax within quotes ("$foo[0].bar"),
+and other minor fixes. See the NEWS file for full details.
+
+2.4.1
+-----
+
+This is basically a point release, cleaning up a few things caught
+in the 2.4.0 release. See the NEWS file for full details.
+
+2.4.0
+-----
+
+Smarty now supports the ability to access objects within the templates. Two
+methods are available, one which closely follows Smartys conventions, and
+another that follows more traditional object syntax for those familiar with
+PHP.
+
+The internal compiling engine has also undergone some major work. The regex
+parsing was rewritten to be much more strict, more secure and more
+maintainable. Config files are now compiled, which can speed up pages quite a
+bit that use config files extensively. Assigned variables are no longer
+extracted to PHP namespace, saving an extract call for every template. There is
+now support for applying modifiers to static values and functions. You can now
+access constants with $smarty.const.VAR.  See the NEWS file for complete
+changes.
+ 
+2.3.1
+-----
+
+The mtime on compiled files will now match the source files, in the case where
+the source file may not get the current timestamp, recompiling will still work
+as expected. Proper support for open_basedir has been added, so Smarty should
+work correctly in safe mode. Added a few new features such as textformat block
+function, strip variable modifier and optgroup support for html_options. Also
+other minor bug fixes, see the Change Log.
+
 2.3.0
 -----
 
@@ -15,7 +81,7 @@ Plugins now stop execution upon error, instead of outputting a warning and
 continuing.
 
 Two new API functions, assign_by_ref() and append_by_ref() were added. They
-allow assigning template variables by reference. This can make a significance
+allow assigning template variables by reference. This can make a significant
 performance gain, especially if you are assigning large arrays of data. PHP 5.0
 will do this implicitly, so these functions are basically workarounds.
 
