@@ -4,13 +4,24 @@
 * Fast, light and safe Cache Class
 *
 * Cache_Lite is a fast, light and safe cache system. It's optimized
-* for file containers. It is fast and safe (because it uses file 
+* for file containers. It is fast and safe (because it uses file
 * locking and/or anti-corruption tests).
 *
 * There are some examples in the 'docs/examples' file
 * Technical choices are described in the 'docs/technical' file
 *
+* A tutorial is available in english at this url :
+* http://www.pearfr.org/index.php/en/article/cache_lite
+* (big thanks to Pierre-Alain Joye for the translation)
+*
+* The same tutorial is also available in french at this url :
+* http://www.pearfr.org/index.php/fr/article/cache_lite
+*
+* Memory Caching is from an original idea of
+* Mike BENOIT <ipso@snappymail.ca>
+*
 * @package Cache_Lite
+* @category Caching
 * @version $Id$
 * @author Fabien MARTY <fab@php.net>
 */
@@ -22,7 +33,7 @@ class Cache_Lite
 {
 
     // --- Private properties ---
-    
+
     /**
     * Directory where to put the cache files
     * (make sure to add a trailing slash)
@@ -30,7 +41,7 @@ class Cache_Lite
     * @var string $_cacheDir
     */
     var $_cacheDir = '/tmp/';
-    
+
     /**
     * Enable / disable caching
     *
@@ -39,30 +50,30 @@ class Cache_Lite
     * @var boolean $_caching
     */
     var $_caching = true;
-    
+
     /**
     * Cache lifetime (in seconds)
     *
     * @var int $_lifeTime
     */
     var $_lifeTime = 3600;
-    
+
     /**
     * Enable / disable fileLocking
     *
-    * (can avoid cache corruption under bad circumstances)  
+    * (can avoid cache corruption under bad circumstances)
     *
     * @var boolean $_fileLocking
     */
     var $_fileLocking = true;
-    
+
     /**
     * Timestamp of the last valid cache
     *
     * @var int $_refreshTime
     */
     var $_refreshTime;
-    
+
     /**
     * File name (with path)
     *
@@ -74,22 +85,22 @@ class Cache_Lite
     * Enable / disable write control (the cache is read just after writing to detect corrupt entries)
     *
     * Enable write control will lightly slow the cache writing but not the cache reading
-    * Write control can detect some corrupt cache files but maybe it's not a perfect control 
+    * Write control can detect some corrupt cache files but maybe it's not a perfect control
     *
     * @var boolean $_writeControl
     */
     var $_writeControl = true;
 
     /**
-    * Enable / disable read control 
-    * 
+    * Enable / disable read control
+    *
     * If enabled, a control key is embeded in cache file and this key is compared with the one
     * calculated after the reading.
     *
     * @var boolean $_writeControl
     */
     var $_readControl = true;
-    
+
     /**
     * Type of read control (only if read control is enabled)
     *
@@ -101,10 +112,10 @@ class Cache_Lite
     * @var boolean $_readControlType
     */
     var $_readControlType = 'crc32';
-    
+
     /**
-    * Pear error mode (when raiseError is called) 
-    * 
+    * Pear error mode (when raiseError is called)
+    *
     * (see PEAR doc)
     *
     * @see setToDebug()
@@ -118,16 +129,76 @@ class Cache_Lite
     * @var string $_id
     */
     var $_id;
-    
+
     /**
     * Current cache group
     *
     * @var string $_group
     */
     var $_group;
+
+    /**
+    * Enable / Disable "Memory Caching"
+    *
+    * NB : There is no lifetime for memory caching ! 
+    *
+    * @var boolean $_memoryCaching
+    */
+    var $_memoryCaching = false;
+
+    /**
+    * Enable / Disable "Only Memory Caching"
+    * (be carefull, memory caching is "beta quality")
+    *
+    * @var boolean $_onlyMemoryCaching
+    */
+    var $_onlyMemoryCaching = false;
+
+    /**
+    * Memory caching array
+    *
+    * @var array $_memoryCachingArray
+    */
+    var $_memoryCachingArray = array();
+
+    /**
+    * Memory caching counter
+    *
+    * @var int $memoryCachingCounter
+    */
+    var $_memoryCachingCounter = 0;
+
+    /**
+    * Memory caching limit
+    *
+    * @var int $memoryCachingLimit
+    */
+    var $_memoryCachingLimit = 1000;
+    
+    /**
+    * File Name protection
+    *
+    * if set to true, you can use any cache id or group name
+    * if set to false, it can be faster but cache ids and group names
+    * will be used directly in cache file names so be carefull with
+    * special characters...
+    *
+    * @var boolean $fileNameProtection
+    */
+    var $_fileNameProtection = true;
+    
+    /**
+    * Enable / disable automatic serialization
+    *
+    * it can be used to save directly datas which aren't strings
+    * (but it's slower)    
+    *
+    * @var boolean $_serialize
+    */
+    var $_automaticSerialization = false;
     
     // --- Public methods ---
-    
+
     /**
     * Constructor
     *
@@ -139,18 +210,23 @@ class Cache_Lite
     *     'fileLocking' => enable / disable fileLocking (boolean),
     *     'writeControl' => enable / disable write control (boolean),
     *     'readControl' => enable / disable read control (boolean),
-    *     'readControlType' => type of read control 'crc32', 'md5', 'strlen' (string)
-    *     'pearErrorMode' => pear error mode (when raiseError is called) (cf PEAR doc) (int)
+    *     'readControlType' => type of read control 'crc32', 'md5', 'strlen' (string),
+    *     'pearErrorMode' => pear error mode (when raiseError is called) (cf PEAR doc) (int),
+    *     'memoryCaching' => enable / disable memory caching (boolean),
+    *     'onlyMemoryCaching' => enable / disable only memory caching (boolean),
+    *     'memoryCachingLimit' => max nbr of records to store into memory caching (int),
+    *     'fileNameProtection' => enable / disable automatic file name protection (boolean),
+    *     'automaticSerialization' => enable / disable automatic serialization (boolean)
     * );
     *
     * @param array $options options
     * @access public
     */
-    function Cache_Lite($options = NULL)
+    function Cache_Lite($options = array(NULL))
     {
-        $availableOptions = '{cacheDir}{caching}{lifeTime}{fileLocking}{writeControl}{readControl}{readControlType}{pearErrorMode}';
-        while (list($key, $value) = each($options)) {
-            if (strpos('>'.$availableOptions, '{'.$key.'}')) {
+        $availableOptions = array('automaticSerialization', 'fileNameProtection', 'memoryCaching', 'onlyMemoryCaching', 'memoryCachingLimit', 'cacheDir', 'caching', 'lifeTime', 'fileLocking', 'writeControl', 'readControl', 'readControlType', 'pearErrorMode');
+        foreach($options as $key => $value) {
+            if(in_array($key, $availableOptions)) {
                 $property = '_'.$key;
                 $this->$property = $value;
             }
@@ -171,17 +247,38 @@ class Cache_Lite
     {
         $this->_id = $id;
         $this->_group = $group;
+        $data = false;
         if ($this->_caching) {
             $this->_setFileName($id, $group);
-            if ($doNotTestCacheValidity) {
-                if (file_exists($this->_file)) {
-                    return (($data = $this->_read()));
-                }
-            } else {
-                if (@filemtime($this->_file) > $this->_refreshTime) {
-                    return (($data = $this->_read()));
+            if ($this->_memoryCaching) {
+                if (isset($this->_memoryCachingArray[$this->_file])) {
+                    if ($this->_automaticSerialization) {
+                        return unserialize($this->_memoryCachingArray[$this->_file]);
+                    } else {
+                        return $this->_memoryCachingArray[$this->_file];
+                    }
+                } else {
+                    if ($this->_onlyMemoryCaching) {
+                        return false;
+                    }
                 }
             }
+            if ($doNotTestCacheValidity) {
+                if (file_exists($this->_file)) {
+                    $data = $this->_read();
+                }
+            } else {
+                if ((file_exists($this->_file)) && (@filemtime($this->_file) > $this->_refreshTime)) {
+                    $data = $this->_read();
+                }
+            }
+            if (($data) and ($this->_memoryCaching)) {
+                $this->_memoryCacheAdd($this->_file, $data);
+            }
+            if (($this->_automaticSerialization) and (is_string($data))) {
+                $data = unserialize($data);
+            }
+            return $data;
         }
         return false;
     }
@@ -189,17 +286,26 @@ class Cache_Lite
     /**
     * Save some data in a cache file
     *
-    * @param string $data data to put in cache
+    * @param string $data data to put in cache (can be another type than strings if automaticSerialization is on)
     * @param string $id cache id
     * @param string $group name of the cache group
     * @return boolean true if no problem
     * @access public
     */
-    function save($data, $id = NULL, $group = 'default') 
+    function save($data, $id = NULL, $group = 'default')
     {
         if ($this->_caching) {
+            if ($this->_automaticSerialization) {
+                $data = serialize($data);
+            }
             if (isset($id)) {
                 $this->_setFileName($id, $group);
+            }
+            if ($this->_memoryCaching) {
+                $this->_memoryCacheAdd($this->_file, $data);
+                if ($this->_onlyMemoryCaching) {
+                    return true;
+                }
             }
             if ($this->_writeControl) {
                 if (!$this->_writeAndControl($data)) {
@@ -214,7 +320,7 @@ class Cache_Lite
         }
         return false;
     }
-    
+
     /**
     * Remove a cache file
     *
@@ -223,16 +329,25 @@ class Cache_Lite
     * @return boolean true if no problem
     * @access public
     */
-    function remove($id, $group)
+    function remove($id, $group = 'default')
     {
         $this->_setFileName($id, $group);
+        if ($this->_memoryCaching) {
+            if (isset($this->_memoryCachingArray[$this->_file])) {
+                unset($this->_memoryCachingArray[$this->_file]);
+                $this->_memoryCachingCounter = $this->_memoryCachingCounter - 1;
+            }
+            if ($this->_onlyMemoryCaching) {
+                return true;
+            }
+        }
         if (!@unlink($this->_file)) {
-            Cache_Lite::raiseError('Cache_Lite : Unable to remove cache !', -3);   
+            $this->raiseError('Cache_Lite : Unable to remove cache !', -3);   
             return false;
         }
         return true;
     }
-    
+
     /**
     * Clean the cache
     *
@@ -245,9 +360,24 @@ class Cache_Lite
     */
     function clean($group = false)     
     {
-        $motif = ($group) ? "cache_$group_" : 'cache_';
+        if ($this->_fileNameProtection) {
+            $motif = ($group) ? 'cache_'.md5($group).'_' : 'cache_';
+        } else {
+            $motif = ($group) ? 'cache_'.$group.'_' : 'cache_';
+        }
+        if ($this->_memoryCaching) {
+            while (list($key, $value) = each($this->_memoryCachingArray)) {
+                if (strpos($key, $motif, 0)) {
+                    unset($this->_memoryCachingArray[$key]);
+                    $this->_memoryCachingCounter = $this->_memoryCachingCounter - 1;
+                }
+            }
+            if ($this->_onlyMemoryCaching) {
+                return true;
+            }
+        }
         if (!($dh = opendir($this->_cacheDir))) {
-            Cache_Lite::raiseError('Cache_Lite : Unable to open cache directory !', -4);   
+            $this->raiseError('Cache_Lite : Unable to open cache directory !', -4);
             return false;
         }
         while ($file = readdir($dh)) {
@@ -256,7 +386,7 @@ class Cache_Lite
                 if (is_file($file)) {
                     if (strpos($file, $motif, 0)) {
                         if (!@unlink($file)) {
-                            Cache_Lite::raiseError('Cache_Lite : Unable to remove cache !', -3);   
+                            $this->raiseError('Cache_Lite : Unable to remove cache !', -3);
                             return false;
                         }
                     }
@@ -280,11 +410,65 @@ class Cache_Lite
     }
 
     /**
+    * Set a new life time
+    *
+    * @param int $newLifeTime new life time (in seconds)
+    * @access public
+    */
+    function setLifeTime($newLifeTime)
+    {
+        $this->_lifeTime = $newLifeTime;
+        $this->_refreshTime = time() - $newLifeTime;
+    }
+
+    /**
+    *
+    * @access public
+    */
+    function saveMemoryCachingState($id, $group = 'default')
+    {
+        if ($this->_caching) {
+            $array = array(
+                'counter' => $this->_memoryCachingCounter,
+                'array' => $this->_memoryCachingState
+            );
+            $data = serialize($array);
+            $this->save($data, $id, $group);
+        }
+    }
+
+    /**
+    *
+    * @access public
+    */
+    function getMemoryCachingState($id, $group = 'default', $doNotTestCacheValidity = false)
+    {
+        if ($this->_caching) {
+            if ($data = $this->get($id, $group, $doNotTestCacheValidity)) {
+                $array = unserialize($data);
+                $this->_memoryCachingCounter = $array['counter'];
+                $this->_memoryCachingArray = $array['array'];
+            }
+        }
+    }
+    
+    /**
+    * Return the cache last modification time
+    *
+    * BE CAREFUL : THIS METHOD IS FOR HACKING ONLY !
+    *
+    * @return int last modification time
+    */
+    function lastModified() {
+        return filemtime($this->_file);
+    }
+    
+    /**
     * Trigger a PEAR error
     *
     * To improve performances, the PEAR.php file is included dynamically.
     * The file is so included only when an error is triggered. So, in most
-    * cases, the file isn't included and perfs are much better. 
+    * cases, the file isn't included and perfs are much better.
     *
     * @param string $msg error message
     * @param int $code error code
@@ -297,7 +481,22 @@ class Cache_Lite
     }
 
     // --- Private methods ---
-    
+
+    /**
+    *
+    * @access private
+    */
+    function _memoryCacheAdd($id, $data)
+    {
+        $this->_memoryCachingArray[$this->_file] = $data;
+        if ($this->_memoryCachingCounter >= $this->_memoryCachingLimit) {
+            list($key, $value) = each($this->_memoryCachingArray);
+            unset($this->_memoryCachingArray[$key]);
+        } else {
+            $this->_memoryCachingCounter = $this->_memoryCachingCounter + 1;
+        }
+    }
+
     /**
     * Make a file name (with path)
     *
@@ -307,7 +506,11 @@ class Cache_Lite
     */
     function _setFileName($id, $group)
     {
-        $this->_file = ($this->_cacheDir.'cache_'.$group.'_'.md5($id));
+        if ($this->_fileNameProtection) {
+            $this->_file = ($this->_cacheDir.'cache_'.md5($group).'_'.md5($id));
+        } else {
+            $this->_file = $this->_cacheDir.'cache_'.$group.'_'.$id;
+        }
     }
     
     /**
@@ -318,15 +521,19 @@ class Cache_Lite
     */
     function _read()
     {
-        $fp = @fopen($this->_file, "r");
+        $fp = @fopen($this->_file, "rb");
         if ($this->_fileLocking) @flock($fp, LOCK_SH);
         if ($fp) {
+            clearstatcache(); // because the filesize can be cached by PHP itself...
             $length = @filesize($this->_file);
+            $mqr = get_magic_quotes_runtime();
+            set_magic_quotes_runtime(0);
             if ($this->_readControl) {
                 $hashControl = @fread($fp, 32);
                 $length = $length - 32;
             } 
             $data = @fread($fp, $length);
+            set_magic_quotes_runtime($mqr);
             if ($this->_fileLocking) @flock($fp, LOCK_UN);
             @fclose($fp);
             if ($this->_readControl) {
@@ -338,7 +545,7 @@ class Cache_Lite
             }
             return $data;
         }
-        Cache_Lite::raiseError('Cache_Lite : Unable to read cache !', -2);   
+        $this->raiseError('Cache_Lite : Unable to read cache !', -2);   
         return false;
     }
     
@@ -351,7 +558,7 @@ class Cache_Lite
     */
     function _write($data)
     {
-        $fp = @fopen($this->_file, "w");
+        $fp = @fopen($this->_file, "wb");
         if ($fp) {
             if ($this->_fileLocking) @flock($fp, LOCK_EX);
             if ($this->_readControl) {
@@ -363,7 +570,7 @@ class Cache_Lite
             @fclose($fp);
             return true;
         }
-        Cache_Lite::raiseError('Cache_Lite : Unable to write cache !', -1);
+        $this->raiseError('Cache_Lite : Unable to write cache !', -1);
         return false;
     }
     
