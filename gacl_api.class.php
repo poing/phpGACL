@@ -1207,18 +1207,44 @@ class gacl_api extends gacl {
 		/*
 		 * Recursing with a global array, not the most effecient or safe way to do it, but it will work for now.
 		 */
+		
+		if ( !is_array ($sorted_groups) ) {
+			return FALSE;
+		}
+		
+		if ( !is_array ($formatted_groups) ) {
+			$formatted_groups = array ();
+		}
+		
 		//$this->showarray($formatted_groups);
 		
 		//while (list($id,$name) = @each($sorted_groups[$root_id])) {
 		if (isset($sorted_groups[$root_id])) {
+			$last_id = end( array_keys($sorted_groups[$root_id]));
+			
 			foreach ($sorted_groups[$root_id] as $id => $name) {
 				switch ($type) {
 					case 'TEXT':
 						/*
 						 * Formatting optimized for TEXT (combo box) output.
 						 */
-						//$spacing = str_repeat("|&nbsp;&nbsp;", $level * 1);
-						$spacing = str_repeat("|  &nbsp;", $level * 1);
+						
+						if ( is_numeric($level) ) {
+							$level = str_repeat ('&nbsp;&nbsp; ', $level);
+						}
+						
+						if ( strlen($level) >= 8 ) {
+							if ( $id == $last_id ) {
+								$spacing = substr($level, 0, -8) . '\'- ';
+								$level = substr($level, 0, -8) . '&nbsp;&nbsp; ';
+							} else {
+								$spacing = substr($level, 0, -8) . '|- ';
+							}
+						} else {
+							$spacing = $prefix;
+						}
+						
+						$next = $level . '|&nbsp; ';
 						$text = $spacing.$name;
 						break;
 					case 'HTML':
@@ -1227,10 +1253,15 @@ class gacl_api extends gacl {
 						 */
 						$width= $level * 20;
 						$spacing = "<img src=\"s.gif\" width=\"$width\">";
+						$next = $level + 1;
 						$text = $spacing." ".$name;
 						break;
-					case "ARRAY":
+					case 'ARRAY':
+						$next = $level;
+						$text = $name;
 						break;
+					default:
+						return FALSE;
 				}
 				
 				$formatted_groups[$id] = $text;
@@ -1241,7 +1272,7 @@ class gacl_api extends gacl {
 				//if (isset($sorted_groups[$id]) AND count($sorted_groups[$id]) > 0) {
 				if (isset($sorted_groups[$id]) ) {
 					//$this->debug_text("format_groups(): Recursing! Level: $level");
-					$formatted_groups = $this->format_groups($sorted_groups, $type, $id, $level + 1, $formatted_groups);
+					$formatted_groups = $this->format_groups($sorted_groups, $type, $id, $next, $formatted_groups);
 				} else {
 					//$this->debug_text("format_groups(): Found last branch!");
 				}
