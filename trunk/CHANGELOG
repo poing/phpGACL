@@ -1,6 +1,7 @@
 Sat Feb 28 2004
     mikeb - Upgraded ADODB to 4.20.
-	mikeb - Applied group value patch from Christer Lindh <clindh@homenet.se>. Admin interface still needs updating.
+	mikeb - Applied group value patch from Christer Lindh <clindh@homenet.se>.
+				Admin interface still needs updating. As well as the gacl.class. 
 Tue Feb 24 2004
 	dcech - minor fix to display AXO controls when editing ACLs
 Sat Feb 14 2004

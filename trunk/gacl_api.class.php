@@ -1244,10 +1244,10 @@ class gacl_api extends gacl {
 
 	/*======================================================================*\
 		Function:	get_group_id()
-		Purpose:	Gets the group_id given the name.
+		Purpose:	Gets the group_id given the name or value.
 						Will only return one group id, so if there are duplicate names, it will return false.
 	\*======================================================================*/
-	function get_group_id($name = null, $group_type = 'ARO') {
+	function get_group_id($value = NULL, $name = NULL, $group_type = 'ARO') {
 
 		$this->debug_text("get_group_id(): Name: $name");
 
@@ -1262,12 +1262,17 @@ class gacl_api extends gacl {
 
 		$name = trim($name);
 
-		if (empty($name) ) {
-			$this->debug_text("get_group_id(): name ($name) is empty, this is required");
+		if (empty($name) AND empty($value) ) {
+			$this->debug_text("get_group_id(): name and value, at least one is required");
 			return false;
 		}
 
-		$query = "SELECT id FROM $table WHERE name='$name'";
+		$query = 'SELECT id FROM '. $table .' WHERE ';
+		if ( !empty($value) ) {
+		  $query .= ' value='. $this->db->quote($value);
+		} else {
+		  $query .= ' name='. $this->db->quote($name);
+		}
 		$rs = $this->db->Execute($query);
 
 		if (!is_object($rs)) {
@@ -1332,7 +1337,7 @@ class gacl_api extends gacl {
 		}
 
 		$query .= '
-				ORDER BY	g1.name';
+				ORDER BY	g1.value';
 
 		return $this->db->GetCol($query);
 	}
@@ -1361,7 +1366,7 @@ class gacl_api extends gacl {
 			return false;
 		}
 
-		$query  = 'SELECT id, parent_id, name, lft, rgt FROM '. $table .' WHERE id='. $group_id;
+		$query  = 'SELECT id, parent_id, name, value, lft, rgt FROM '. $table .' WHERE id='. $group_id;
 		//$rs = $this->db->Execute($query);
 		$row = $this->db->GetRow($query);
 
@@ -1494,7 +1499,7 @@ class gacl_api extends gacl {
 		Function:	add_group()
 		Purpose:	Inserts a group, defaults to be on the "root" branch.
 	\*======================================================================*/
-	function add_group($name, $parent_id=0, $group_type='ARO') {
+	function add_group($value, $name, $parent_id=0, $group_type='ARO') {
 
 		switch(strtolower(trim($group_type))) {
 			case 'axo':
@@ -1507,7 +1512,7 @@ class gacl_api extends gacl {
 				break;
 		}
 
-		$this->debug_text("add_group(): Name: $name Parent ID: $parent_id Group Type: $group_type");
+		$this->debug_text("add_group(): Name: $name Value: $value Parent ID: $parent_id Group Type: $group_type");
 
 		$name = trim($name);
 
@@ -1588,7 +1593,7 @@ class gacl_api extends gacl {
 			}
 		}
 
-		$query = 'INSERT INTO '. $table .' (id,parent_id,name,lft,rgt) VALUES ('. $insert_id .','. $parent_id .','. $this->db->quote($name) .','. $parent_rgt .','. ($parent_rgt + 1) .')';
+		$query = 'INSERT INTO '. $table .' (id,parent_id,name,value,lft,rgt) VALUES ('. $insert_id .','. $parent_id .','. $this->db->quote($name) .','. $this->db->quote($value) .','. $parent_rgt .','. ($parent_rgt + 1) .')';
 		$rs = $this->db->Execute($query);
 
 		if (!is_object($rs)) {
@@ -1808,8 +1813,8 @@ class gacl_api extends gacl {
 		Function:	edit_group()
 		Purpose:	Edits a group
 	\*======================================================================*/
-	function edit_group($group_id, $name=NULL, $parent_id=NULL, $group_type='ARO') {
-		$this->debug_text("edit_group(): ID: $group_id Name: $name Parent ID: $parent_id Group Type: $group_type");
+	function edit_group($group_id, $value=NULL, $name=NULL, $parent_id=NULL, $group_type='ARO') {
+		$this->debug_text("edit_group(): ID: $group_id Name: $name Value: $value Parent ID: $parent_id Group Type: $group_type");
 
 		switch(strtolower(trim($group_type))) {
 			case 'axo':
@@ -1878,6 +1883,11 @@ class gacl_api extends gacl {
 		// update parent_id if it is specified.
 		if (!empty($parent_id)) {
 			$set[] = 'parent_id='. $parent_id;
+		}
+
+		// update value if it is specified.
+		if (!empty($value)) {
+			$set[] = 'value='. $this->db->quote($value);
 		}
 
 		if (empty($set)) {
@@ -2051,7 +2061,7 @@ class gacl_api extends gacl {
 			$query = 'SELECT count(*) FROM '. $table .' WHERE parent_id='. $group_id;
 			$child_count = $this->db->GetOne($query);
 
-			if ($child_count > 1 && $reparent_children) {
+			if ($child_count > 1 AND $reparent_children) {
 				$this->debug_text ('del_group (): You cannot delete the root group and reparent children, this would create multiple root groups.');
 				$this->db->RollbackTrans();
 				return FALSE;
