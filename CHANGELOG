@@ -1,3 +1,5 @@
+Thu Jan 29 2004
+	dcech - major overhaul of acl_list filtering
 Wed Jan 28 2004
 	dcech - major update to acl_list
 	dcech - fix for stress_test to handle existing groups
