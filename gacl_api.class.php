@@ -1545,6 +1545,7 @@ class gacl_api extends gacl {
 		} else {
 			if (empty($parent_id)) {
 				$this->debug_text("add_group (): parent id ($parent_id) is empty, this is required");
+				$this->db->RollbackTrans();
 				return FALSE;
 			}
 
@@ -2052,6 +2053,7 @@ class gacl_api extends gacl {
 
 			if ($child_count > 1 && $reparent_children) {
 				$this->debug_text ('del_group (): You cannot delete the root group and reparent children, this would create multiple root groups.');
+				$this->db->RollbackTrans();
 				return FALSE;
 			}
 		}
@@ -2730,6 +2732,8 @@ class gacl_api extends gacl {
 			return false;
 		}
 
+    $this->db->BeginTrans();
+
 		//Get old value incase it changed, before we do the update.
 		$query = 'SELECT value, section_value FROM '. $table .' WHERE id='. $object_id;
 		$old = $this->db->GetRow($query);
@@ -2746,6 +2750,7 @@ class gacl_api extends gacl {
 
 		if (!is_object($rs)) {
 			$this->debug_db('edit_object');
+			$this->db->RollbackTrans();
 			return false;
 		}
 
@@ -2764,11 +2769,14 @@ class gacl_api extends gacl {
 
 			if (!is_object($rs)) {
 				$this->debug_db('edit_object');
+				$this->db->RollbackTrans();
 				return FALSE;
 			}
 
 			$this->debug_text ('edit_object(): Modified Map Value: '. $value .' Section Value: '. $section_value);
 		}
+
+    $this->db->CommitTrans();
 
 		return TRUE;
 	}
@@ -2826,6 +2834,7 @@ class gacl_api extends gacl {
 
 		if (empty($object)) {
 			$this->debug_text('del_object(): The specified object ('. strtoupper($object_type) .' ID: '. $object_id .') could not be found.');
+			$this->db->RollbackTrans();
 			return FALSE;
 		}
 
@@ -2949,7 +2958,7 @@ class gacl_api extends gacl {
 			// The Object is referenced somewhere (group or acl), can't delete it
 
 			$this->debug_text("del_object(): Can't delete the object as it is being referenced by GROUPs (".@implode($groups_ids).") or ACLs (".@implode($acl_ids,",").")");
-
+			$this->db->RollBackTrans();
 			return false;
 		} else {
 			// The Object is NOT referenced anywhere, delete it
@@ -2967,6 +2976,7 @@ class gacl_api extends gacl {
 			return true;
 		}
 
+		$this->db->RollbackTrans();
 		return false;
 	}
 
@@ -3230,6 +3240,7 @@ class gacl_api extends gacl {
 				}
 			}
 
+      $this->db->CommitTrans();
 			return true;
 		}
 	}
