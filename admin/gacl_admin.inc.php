@@ -30,7 +30,7 @@
 
 require_once(dirname(__FILE__).'/../gacl.class.php');
 require_once(dirname(__FILE__).'/../gacl_api.class.php');
-
+require_once(dirname(__FILE__).'/gacl_admin_api.class.php');
 
 $gacl_options = array(
 								'debug' => FALSE,
@@ -50,7 +50,7 @@ $gacl_options = array(
 							);
 
 
-$gacl_api = new gacl_api($gacl_options);
+$gacl_api = new gacl_admin_api($gacl_options);
 
 $gacl = &$gacl_api;
 
