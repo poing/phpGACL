@@ -2,7 +2,7 @@
 $debug=1;
 require_once("gacl_admin.inc.php");
 
-//$gacl_api->add_consolidated_acl('system', 'add_pop','accounts',1, 98);
+$gacl_api->consolidated_edit_acl('system', 'add_pop','accounts',1, 99);
 
 //$gacl_api->add_consolidated_acl('system', 'add_pop','accounts',2, 99);
 ///$gacl_api->add_consolidated_acl('system', 'add_pop','accounts',3, 99);
@@ -10,7 +10,18 @@ require_once("gacl_admin.inc.php");
 
 //$gacl_api->add_consolidated_acl('system', 'add_pop','accounts',6, 99);
 
+//$gacl_api->search_acl('system','add_pop','accounts',1, 'Browsers','projects',5599,'Projects',99);
 
+/*
+$gacl_api->shift_acl(	18,
+								array('accounts' => array(1)),
+								array(14),
+								array('projects' => array(5599)),
+								array(23),
+								array('system' => array('add_pop'))						
+						);
+*/
+/*
 $gacl_api->append_acl(	18,
 								array('accounts' => array(1,2,3,4)),
 								array(14),
@@ -18,7 +29,7 @@ $gacl_api->append_acl(	18,
 								array(23),
 								array('system' => array('add_pop'))
 						);
-
+*/
 
 /*
 $gacl_api->add_acl(	array('system' => array(99)),

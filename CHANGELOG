@@ -1,5 +1,9 @@
+Thu Jan 30 2003
+	- Created search_acl() to search for ACLs mapped to specific objects. This should also work for detecting conflicting ACLs.
+	- Created shift_acl() that basically does the opposite of append_acl(). Remove just the specific objects from the ACL mapping.
+	
 Wed Jan 29 2003
-
+	- Created append_acl() function for simply appending ACO/ARO/ARO Groups/AXO/AXO Groups on to an already existing ACL.
 Mon Jan 28 2003
 	- Added ACL searching.
 	- Added ACL debug page.
