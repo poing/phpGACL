@@ -3,6 +3,7 @@
     <meta name="generator" content="HTML Tidy, see www.w3.org">
     <title>phpGACL Admin</title>
     <meta http-equiv="content-type" content="text/html; charset=ISO-8859-1">
+{include file="phpgacl/acl_admin_js.tpl"}
   </head>
   <body>
     <form method="post" name="edit_group" action="edit_group.php">
@@ -47,6 +48,7 @@
             </td>
             <td valign="top" bgcolor="#999999">
               <div align="center">
+                <input type="checkbox" name="select_all" onClick="checkAll(this)"/>Select/Deselect All&nbsp;
                 <input type="submit" name="action" value="Add">
                 <input type="submit" name="action" value="Delete">
               </div>

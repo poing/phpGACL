@@ -4,6 +4,7 @@
     <meta name="generator" content="HTML Tidy, see www.w3.org">
     <title>phpGACL Admin</title>
     <meta http-equiv="content-type" content="text/html; charset=ISO-8859-1">
+{include file="phpgacl/acl_admin_js.tpl"}
   </head>
 
 <form method="get" name="acl_list" action="acl_list.php">
@@ -248,6 +249,7 @@
 		</td>
 		<td valign="top" bgcolor="#999999">
 		  <div align="center">
+			<input type="checkbox" name="select_all" onClick="checkAll(this)"/>Select/Deselect All<br/>
 			<input type="submit" name="action" value="Delete">
 		  </div>
 		</td>
