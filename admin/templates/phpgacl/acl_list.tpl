@@ -7,20 +7,10 @@
 {include file="phpgacl/acl_admin_js.tpl"}
   </head>
 
+<body>
+{include file="phpgacl/navigation.tpl"}
 <form method="get" name="acl_list" action="acl_list.php">
 <table cellpadding="2" cellspacing="2" border="2" width="100%">
-  <tr align="center">
-	<td valign="top" colspan="12" bgcolor="#cccccc"><b>phpGACL ACL List
-		[ <a href="group_admin.php?group_type=aro">ARO Group Admin</a> ]
-		[ <a href="group_admin.php?group_type=axo">AXO Group Admin</a> ]
-		[ <a href="acl_admin.php?return_page=acl_list.php">ACL Admin</a> ]
-		[ <a href="acl_test.php">ACL Test</a> ]
-		[ <a href="acl_debug.php">ACL Debug</a> ]
-		[ <a href="about.php">Help / About</a> ]
-		</b>
-		<br>
-	</td>
-  </tr>
   <tr>
     <td colspan="12" valign="top" bgcolor="#cccccc" align="center">
         <b>Filter</b>
@@ -116,9 +106,10 @@
     </td>
   </tr>
 </table>
+<br>
 <table cellpadding="2" cellspacing="2" border="2" width="100%">
   <tr>
-	<td valign="top" colspan="12" bgcolor="#cccccc">
+	<td valign="top" colspan="13" bgcolor="#cccccc">
 		{include file="phpgacl/pager.tpl" pager_data=$paging_data link="?action=$action&filter_aco_section_name=$filter_aco_section_name&filter_aco_name=$filter_aco_name&filter_aro_section_name=$filter_aro_section_name&filter_aro_name=$filter_aro_name&filter_axo_section_name=$filter_axo_section_name&filter_axo_name=$filter_axo_name&filter_aro_group_name=$filter_aro_group_name&filter_axo_group_name=$filter_axo_group_name&filter_return_value=$filter_return_value&filter_allow=$filter_allow&filter_enabled=$filter_enabled&"}
 	</td>
   </tr>
@@ -159,7 +150,9 @@
     <td valign="top" bgcolor="#cccccc" align="center">
         <b>Functions</b>
     </td>
-
+    <td valign="top" bgcolor="#cccccc" align="center">
+        <input type="checkbox" name="select_all" onClick="checkAll(this)"/>
+    </td>
   </tr>
 
     {section name=x loop=$acls}
@@ -230,6 +223,8 @@
      </td>
     <td valign="middle" rowspan="2" bgcolor="#cccccc" align="center">
         [ <a href="acl_admin.php?action=edit&acl_id={$acls[x].id}&return_page={$return_page}">Edit</a> ]
+    </td>
+    <td valign="middle" rowspan="2" bgcolor="#cccccc" align="center">
         <input type="checkbox" name="delete_acl[]" value="{$acls[x].id}">
     </td>
   </tr>
@@ -240,16 +235,15 @@
   </tr>
     {/section}
   <tr>
-	<td valign="top" colspan="12" bgcolor="#cccccc">
+	<td valign="top" colspan="13" bgcolor="#cccccc">
 		{include file="phpgacl/pager.tpl" pager_data=$paging_data link="?action=$action&filter_aco_section_name=$filter_aco_section_name&filter_aco_name=$filter_aco_name&filter_aro_section_name=$filter_aro_section_name&filter_aro_name=$filter_aro_name&filter_axo_section_name=$filter_axo_section_name&filter_axo_name=$filter_axo_name&filter_aro_group_name=$filter_aro_group_name&filter_axo_group_name=$filter_axo_group_name&filter_return_value=$filter_return_value&filter_allow=$filter_allow&filter_enabled=$filter_enabled&"}
 	</td>
   </tr>
 	  <tr>
 		<td valign="top" bgcolor="#999999" colspan="11">
 		</td>
-		<td valign="top" bgcolor="#999999">
+		<td valign="top" bgcolor="#999999" colspan="2">
 		  <div align="center">
-			<input type="checkbox" name="select_all" onClick="checkAll(this)"/>Select/Deselect All<br/>
 			<input type="submit" name="action" value="Delete">
 		  </div>
 		</td>
@@ -259,3 +253,4 @@
 </form>
 {include file="phpgacl/footer.tpl"}
 
+</body>

@@ -2632,7 +2632,8 @@ class gacl_api extends gacl {
 		$name = trim($name);
 		$value = trim($value);
 		$order = trim($order);
-
+		$hidden = intval($hidden);
+		
 		if ($order == NULL OR $order == '') {
 			$order = 0;
 		}
@@ -2721,6 +2722,7 @@ class gacl_api extends gacl {
 		$name = trim($name);
 		$value = trim($value);
 		$order = trim($order);
+		$hidden = intval($hidden);
 		
 		if (empty($object_id) OR empty($section_value) ) {
 			$this->debug_text("edit_object(): Object ID ($object_id) OR Section Value ($section_value) is empty, this is required");
@@ -3085,6 +3087,7 @@ class gacl_api extends gacl {
 		$name = trim($name);
 		$value = trim($value);
 		$order = trim($order);
+		$hidden = intval($hidden);
 
 		if ($order == NULL OR $order == '') {
 			$order = 0;
@@ -3153,6 +3156,7 @@ class gacl_api extends gacl {
 		$name = trim($name);
 		$value = trim($value);
 		$order = trim($order);
+		$hidden = intval($hidden);
 
 		if (empty($object_section_id) ) {
 			$this->debug_text("edit_object_section(): Section ID ($object_section_id) is empty, this is required");

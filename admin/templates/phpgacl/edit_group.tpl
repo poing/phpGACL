@@ -6,15 +6,10 @@
     <meta http-equiv="content-type" content="text/html; charset=ISO-8859-1">
   </head>
   <body>
+    {include file="phpgacl/navigation.tpl"}    
     <form method="post" name="edit_group" action="edit_group.php">
       <table cellpadding="2" cellspacing="2" border="2" width="100%">
         <tbody>
-          <tr align="center">
-            <td valign="top" colspan="3" bgcolor="#cccccc"><b>phpGACL</b> <b>{$group_type|upper} Group Administrator</b>
-            <b>[ <a href="group_admin.php?group_type={$group_type}&return_page={$return_page}">{$group_type|upper} Group Admin</a> ] </b>
-            <br>
-             </td>
-          </tr>
           <tr>
             <td valign="top" bgcolor="#d3dce3" align="center"><b>ID</b> </td>
             <td valign="top" bgcolor="#d3dce3" align="center"><b>Parent</b> </td>

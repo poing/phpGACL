@@ -12,14 +12,10 @@
 {include file="phpgacl/acl_admin_js.tpl"}
 
   <body onload="populate(document.assign_group.{$group_type}_section,document.assign_group.elements['objects[]'], '{$js_array_name}')">
+    {include file="phpgacl/navigation.tpl"}    
     <form method="post" name="assign_group" action="assign_group.php">
       <table cellpadding="2" cellspacing="2" border="2" width="100%">
         <tbody>
-          <tr align="center">
-            <td valign="top" rowspan="1" colspan="4" bgcolor="#cccccc"><b>phpGACL</b> <b>Group Assign {$group_type|upper}'s [ <a href="group_admin.php?group_type={$group_type}">{$group_type|upper} Group Admin</a> ] </b><br>
-             </td>
-          </tr>
-
           <tr>
             <td valign="top" align="center" bgcolor="#d3dce3"><b>Sections</b><br>
              </td>
@@ -77,26 +73,25 @@
     <br>
     <table cellpadding="2" cellspacing="2" border="2" width="100%">
   <tr align="center">
-	<td valign="top" colspan="4" bgcolor="#cccccc"><b>{$total_objects}</b> {$group_type|upper}'s in Group: <b>{$group_name}</b><br>
+	<td valign="top" colspan="5" bgcolor="#cccccc"><b>{$total_objects}</b> {$group_type|upper}'s in Group: <b>{$group_name}</b><br>
 	 </td>
   </tr>
   <tr>
-    <td valign="top" colspan="11" bgcolor="#cccccc">
+    <td valign="top" colspan="12" bgcolor="#cccccc">
         {include file="phpgacl/pager.tpl" pager_data=$paging_data link="?group_type=$group_type&group_id=$group_id&"}
     </td>
   </tr>
   <tr>
-	<td valign="top" align="center" bgcolor="#d3dce3"><b>Value</b><br>
-	 </td>
+	<td valign="top" align="center" bgcolor="#d3dce3"><b>Value</b></td>
 
-	<td valign="top" align="center" bgcolor="#d3dce3"><b>Sections</b><br>
-	 </td>
+	<td valign="top" align="center" bgcolor="#d3dce3"><b>Sections</b></td>
 
-	<td valign="top" align="center" bgcolor="#d3dce3"><b>Access Request Objects</b><br>
-	 </td>
+	<td valign="top" align="center" bgcolor="#d3dce3"><b>Access Request Objects</b></td>
 
-	<td valign="top" align="center" bgcolor="#d3dce3"><b>Functions</b><br>
-	 </td>
+	<td valign="top" align="center" bgcolor="#d3dce3"><b>Functions</b></td>
+	<td valign="top" align="center" bgcolor="#d3dce3">
+        <input type="checkbox" name="select_all" onClick="checkAll(this)"/>
+    </td>
 
   </tr>
 
@@ -115,6 +110,8 @@
      </td>
     <td valign="top" bgcolor="#cccccc" align="center">
         [ <a href="acl_list.php?action=Filter&filter_{$group_type}_section_name={$rows[x].section}&filter_{$group_type}_name={$rows[x].name}&return_page={$return_page}">ACLs</a> ]
+     </td>
+    <td valign="top" bgcolor="#cccccc" align="center">
         <input type="checkbox" name="delete_assigned_object[]" value="{$rows[x].section_value}^{$rows[x].value}">
      </td>
 
@@ -128,9 +125,8 @@
 	  <tr>
 		<td valign="top" bgcolor="#999999" colspan="3">
 		</td>
-		<td valign="top" bgcolor="#999999">
+		<td valign="top" bgcolor="#999999" colspan="2">
 		  <div align="center">
-			<input type="checkbox" name="select_all" onClick="checkAll(this)"/>Select/Deselect All<br/>
 			<input type="submit" name="action" value="Delete">
 		  </div>
 		</td>

@@ -31,18 +31,13 @@
 
 {$js_axo_array}
 </script>
-
 {include file="phpgacl/acl_admin_js.tpl"}
 <div align="center">
 <body onload="populate(document.acl_admin.aco_section,document.acl_admin.elements['aco[]'], '{$js_aco_array_name}');populate(document.acl_admin.aro_section,document.acl_admin.elements['aro[]'], '{$js_aro_array_name}')">
+{include file="phpgacl/navigation.tpl"}
     <form method="post" name="acl_admin" action="acl_admin.php">
       <table cellpadding="2" cellspacing="2" border="0" width="850">
         <tbody>
-          <tr align="center">
-            <td valign="top" colspan="5" bgcolor="#cccccc"><b>phpGACL</b> <b>Administrator [ <a href="acl_list.php?return_page={$return_page}">ACL List</a> ] </b><br>
-             </td>
-          </tr>
-
           <tr>
             <td width="200" valign="top" align="center" bgcolor="#d3dce3">&nbsp;<b>Sections</b><br>
              </td>

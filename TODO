@@ -1,8 +1,9 @@
-* Value is a reserved word on SapDB/MaxDB. Quote it.
+* Create regression tests. - Need more of these.
 
+* Write function to find which groups an object is in.
 * Add ability to find all groups objects are assigned too in admin interface.
 
-* Add button to "select all" in group assignment pages(s).
+* Value is a reserved word on SapDB/MaxDB. Quote it.
 
 * Make sure all input values in gacl.class.php are quoted. 
 
@@ -16,10 +17,6 @@
 * Add filters/AXO's to ACL Test page.
 
 * Oracle compatibility. XML Schema should fix the majority of the Oracle issues.
-
-* Create include files with queries in each for the different databases. ie: include($db->db_type."-custom_sql.php");
-
-* Create regression tests. - Need more of these.
 
 * FUTURE: Build framework for the plugin system.
     Create a "plugin" directory.

@@ -5,17 +5,10 @@
     <title>phpGACL Admin</title>
     <meta http-equiv="content-type" content="text/html; charset=ISO-8859-1">
   </head>
-
+<body>
+{include file="phpgacl/navigation.tpl"}
 <form method="get" name="acl_debug" action="acl_debug.php">
 <table cellpadding="2" cellspacing="2" border="2" width="100%">
-  <tr align="center">
-	<td valign="top" colspan="9" bgcolor="#cccccc"><b>phpGACL ACL Debug Console
-		[ <a href="acl_list.php">ACL List</a> ]
-		[ <a href="acl_test.php">ACL Test</a> ]
-		</b>
-		<br>
-	</td>
-  </tr>
   <tr>
     <td valign="top" bgcolor="#cccccc" align="center">
         <b><br></b>
