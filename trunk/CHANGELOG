@@ -2,6 +2,7 @@ Sun Nov 7 2004
 	mikeb - Updated Cache Lite class to latest version, including improved Hashed_Cache_Lite class thanks to Dan.
 	mikeb - If caching is not enabled, improved the bypassing of the caching library/overhead thanks to Andrew Eddie <eddieajau@iprimus.com.au>
 	mikeb - Updated manual thanks to Andrew Eddie <eddieajau@iprimus.com.au>
+	mikeb - add_group API function now assigns the value to the insert ID if the value is not specified. thanks to Andrew Eddie <eddieajau@iprimus.com.au>
 Mon Oct 4 2004
 	mikeb - Added phpDoc style comments thanks to Gordon Luk <gordon.luk@dfafunds.com>
 Sat Oct 2 2004
