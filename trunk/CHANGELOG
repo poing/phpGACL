@@ -1,3 +1,9 @@
+Wed Jan 14 2003
+	mikeb - modified TODO list slightly.
+	mikeb - added Navigation bar submitted by: <eddieajau@iprimus.com.au> on Oct 13/2003.
+	mikeb - Moved the "select all" checkboxes...
+	mikeb - modified include syntax in acl_admin_js.tpl slightly.
+	mikeb - add_object(), edit_object(), edit_object_section(), add_object_section(), fixed issue with hidden being set to a non-int value.
 Thu Jan 08 2003
 	dcech - Added Select/Deselect All to Admin Interface
 Thu Jan 08 2003

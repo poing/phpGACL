@@ -7,12 +7,9 @@
   </head>
 
   <body>
-
+	{include file="phpgacl/navigation.tpl"}
       <table cellpadding="2" cellspacing="2" border="2" width="100%">
         <tbody>
-          <tr align="center">
-            <td valign="top" rowspan="1" colspan="4" bgcolor="#cccccc"><b>phpGACL</b> <b>About [ <a href="acl_list.php">ACL List</a> ] </b><br></td>
-          </tr>
           <tr>
 			<td valign="top" align="center" rowspan="1" colspan="4" bgcolor="#cccccc">
 				<b>Help</b>

@@ -5,16 +5,10 @@
     <title>phpGACL Admin</title>
     <meta http-equiv="content-type" content="text/html; charset=ISO-8859-1">
   </head>
-
+<body>
+{include file="phpgacl/navigation.tpl"}
 <form method="post" name="acl_list" action="acl_list.php">
 <table cellpadding="2" cellspacing="2" border="2" width="100%">
-  <tr align="center">
-	<td valign="top" colspan="10" bgcolor="#cccccc"><b>phpGACL ACL Test
-		[ <a href="acl_list.php">ACL List</a> ]
-		</b>
-		<br>
-	 </td>
-  </tr>
   <tr>
 	<td valign="top" colspan="11" bgcolor="#cccccc">
 		{include file="phpgacl/pager.tpl" pager_data=$paging_data link="?"}
