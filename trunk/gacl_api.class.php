@@ -45,12 +45,58 @@
  */
 
 class gacl_api extends gacl {
+
 	/*
 	 *
-	 * ACL
+	 * Misc helper functions.
 	 *
 	 */
 
+	/*======================================================================*\
+		Function:   showarray()
+		Purpose:    Dump all contents of an array in HTML (kinda).
+	\*======================================================================*/
+	function showarray($array) {
+		echo "<br><pre>\n";
+		var_dump($array);
+		echo "</pre><br>\n";
+	}
+
+	/*======================================================================*\
+		Function:   $gacl_api->return_page()
+		Purpose:	Sends the user back to a passed URL, unless debug is enabled, then we don't redirect.
+						If no URL is passed, try the REFERER
+	\*======================================================================*/
+	function return_page($url="") {
+		global $_SERVER, $debug;
+		
+		if (empty($url) AND !empty($_SERVER[HTTP_REFERER])) {
+			$this->debug_text("$gacl_api->return_page(): URL not set, using referer!");
+			$url = $_SERVER[HTTP_REFERER];
+		}
+		
+		if (!$debug OR $debug==0) {
+			header("Location: $url\n\n");
+		} else {
+			$gacl_api->debug_text("$gacl_api->return_page(): URL: $url -- Referer: $_SERVER[HTTP_REFERRER]");   
+		}
+	}
+
+	/*======================================================================*\
+		Function:   get_pading_data()
+		Purpose:	Creates a basic array for Smarty to deal with paging large recordsets.
+						Pass it the ADODB recordset.
+	\*======================================================================*/
+	function get_paging_data($rs) {
+
+		return array( 'prevpage' => $rs->absolutepage() - 1,
+							'currentpage' => $rs->absolutepage(),
+							'nextpage' => $rs->absolutepage() + 1,
+							'atfirstpage' => $rs->atfirstpage(),
+							'atlastpage' => $rs->atlastpage(),
+							'lastpageno' => $rs->lastpageno()
+					 );			
+	}
 
 	/*======================================================================*\
 		Function:	count_all()
@@ -74,6 +120,12 @@ class gacl_api extends gacl {
 		
 		return false;
 	}
+
+	/*
+	 *
+	 * ACL
+	 *
+	 */
 
 	/*======================================================================*\
 		Function:	consolidated_edit_acl()
@@ -520,7 +572,7 @@ class gacl_api extends gacl {
 
 		while (list(,$row) = @each($rows)) {
 			list($section_value, $value, $section, $aco) = $row;
-			debug("Section Value: $section_value Value: $value Section: $section ACO: $aco");
+			$gacl_api->debug_text("Section Value: $section_value Value: $value Section: $section ACO: $aco");
 			
 			$retarr['aco'][$section_value][] = $value;
 			
@@ -535,7 +587,7 @@ class gacl_api extends gacl {
 
 		while (list(,$row) = @each($rows)) {
 			list($section_value, $value, $section, $aro) = $row;
-			debug("Section Value: $section_value Value: $value Section: $section ARO: $aro");
+			$gacl_api->debug_text("Section Value: $section_value Value: $value Section: $section ARO: $aro");
 			
 			$retarr['aro'][$section_value][] = $value;
 			
@@ -550,7 +602,7 @@ class gacl_api extends gacl {
 
 		while (list(,$row) = @each($rows)) {
 			list($section_value, $value, $section, $axo) = $row;
-			debug("Section Value: $section_value Value: $value Section: $section AXO: $axo");
+			$gacl_api->debug_text("Section Value: $section_value Value: $value Section: $section AXO: $axo");
 			
 			$retarr['axo'][$section_value][] = $value;
 			
@@ -1191,16 +1243,25 @@ class gacl_api extends gacl {
 		Function:	get_group_parent_id()
 		Purpose:	Grabs the parent_id of a given group
 	\*======================================================================*/
-	function get_group_parent_id($id) {
+	function get_group_parent_id($id, $group_type='ARO') {
 		
-		$this->debug_text("get_group_parent_id(): ID: $id");
+		$this->debug_text("get_group_parent_id(): ID: $id Group Type: $group_type");
 		
+		switch(strtolower($group_type)) {
+			case 'axo':
+				$table = 'axo_groups';
+				break;
+			default:
+				$table = 'aro_groups';
+				break;
+		}
+
 		if (empty($id) ) {
 			$this->debug_text("get_group_parent_id(): ID ($id) is empty, this is required");
 			return false;	
 		}
 			
-		$query = "select parent_id from groups where id=$id";
+		$query = "select parent_id from $table where id=$id";
 		$rs = $this->db->Execute($query);
 
 		if ($this->db->ErrorNo() != 0) {
@@ -1238,6 +1299,11 @@ class gacl_api extends gacl {
 			default:
 				$table = 'aro_groups_path_map';
 				break;
+		}
+
+		if (empty($group_id) OR empty($path_id) ) {
+			$this->debug_text("map_group_path_to_root(): group id ($group_id) OR path id ($path_id) is empty, this is required");
+			return false;	
 		}
 
 		$this->db->BeginTrans();
@@ -1347,6 +1413,11 @@ class gacl_api extends gacl {
 
 		$this->debug_text("gen_group_path_to_root():");
 		$parent_id = $group_id;
+
+		if (empty($parent_id)) {
+			$this->debug_text("gen_group_path_to_root(): group id ($group_id) is empty, this is required");
+			return false;	
+		}
 		
 		/*
 		 * Simply repeat the SQL query until we reach the root (0). Obviously this won't scale that well, but it should do the trick
@@ -1563,10 +1634,7 @@ class gacl_api extends gacl {
 		} else {
 			$this->debug_text("edit_group(): Modified group ID: $group_id");
 			
-			$this->map_group_path_to_root($insert_id, $this->put_group_path_to_root( $this->gen_group_path_to_root($insert_id, $group_type), $group_type ), $group_type );
-			//$this->map_group_path_to_root($group_id, $this->put_group_path_to_root( $this->gen_group_path_to_root($group_id) ) );
-			
-			return true;
+			return $this->map_group_path_to_root($group_id, $this->put_group_path_to_root( $this->gen_group_path_to_root($group_id, $group_type), $group_type ), $group_type );
 		}
 	}
 	

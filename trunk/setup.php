@@ -1,6 +1,7 @@
 <?php
 require_once("admin/gacl_admin.inc.php");
 
+$db_table_prefix = $gacl->_db_table_prefix;
 $db_type = $gacl->_db_type;
 $db_name = $gacl->_db_name;
 $db_host = $gacl->_db_host;

@@ -3,7 +3,7 @@ require_once("gacl_admin.inc.php");
 
 switch ($_GET['action']) {
     case Delete:
-	    debug("Delete!");
+	    $gacl_api->debug_text("Delete!");
 
         if (count($_GET['delete_acl']) > 0) {
             foreach($_GET['delete_acl'] as $id) {
@@ -12,11 +12,11 @@ switch ($_GET['action']) {
         }   
 
         //Return page.
-        return_page($_GET['return_page']);
+        $gacl_api->return_page($_GET['return_page']);
 	
         break;
     case Submit:
-        debug("Submit!!");
+        $gacl_api->debug_text("Submit!!");
         break;    
     default:
 /*
@@ -119,7 +119,7 @@ switch ($_GET['action']) {
 			//while (list(,$row) = @each($rows)) {
 			foreach ($rows as $row) {
 				list($acl_id, $aco_section, $aco, $aro_section, $aro, $aro_group, $axo, $axo_section, $axo_group, $allow, $enabled, $return_value, $note, $updated_date) = $row;
-				debug("<b>ID:</b> $acl_id <b>ACO Section:</b> $aco_section <b>ACO:</b> $aco  <b>ARO Section:</b> $aro_section <b>ARO:</b> $aro <b>AXO Section:</b> $axo_section <b>AXO:</b> $axo");
+				$gacl_api->debug_text("<b>ID:</b> $acl_id <b>ACO Section:</b> $aco_section <b>ACO:</b> $aco  <b>ARO Section:</b> $aro_section <b>ARO:</b> $aro <b>AXO Section:</b> $axo_section <b>AXO:</b> $axo");
 
 				$prepared_rows[$acl_id][acl][id] = $acl_id;
 				$prepared_rows[$acl_id][acl][allow] = $allow;
@@ -202,7 +202,7 @@ switch ($_GET['action']) {
 		
         $smarty->assign("acls", $acls);
 
-        $smarty->assign("paging_data", get_paging_data($rs));
+        $smarty->assign("paging_data", $gacl_api->get_paging_data($rs));
         
         $smarty->assign("filter_aco_section_name", $_GET['filter_aco_section_name']);
         $smarty->assign("filter_aco_name", $_GET['filter_aco_name']);

@@ -13,7 +13,7 @@ switch ($_POST['action']) {
     case 'Delete':
         break;
     case 'Submit':
-        debug("Submit!!");
+        $gacl_api->debug_text("Submit!!");
 		//showarray($_POST['selected_aco']);
 		//showarray($_POST['selected_aro']);
 		
@@ -71,13 +71,13 @@ switch ($_POST['action']) {
 			}
 		}       
 
-        return_page($_POST[return_page]);
+        $gacl_api->return_page($_POST[return_page]);
         
         break;    
     default:
 		//showarray($_GET);
 		if ($_GET['action'] == 'edit' AND !empty($_GET['acl_id']) ) {
-			debug("EDITING ACL");	
+			$gacl_api->debug_text("EDITING ACL");	
 
 			//Grab ACL information
 			$query = "select id, allow, enabled, return_value, note from acl where id = ".$_GET['acl_id']."";
@@ -92,7 +92,7 @@ switch ($_POST['action']) {
 
 			while (list(,$row) = @each($rows)) {
 				list($section_value, $value, $section, $aco) = $row;
-				debug("Section Value: $section_value Value: $value Section: $section ACO: $aco");
+				$gacl_api->debug_text("Section Value: $section_value Value: $value Section: $section ACO: $aco");
 				
 				$options_selected_aco[$section_value.'^'.$value] = "$section > $aco";
 				
@@ -107,7 +107,7 @@ switch ($_POST['action']) {
 
 			while (list(,$row) = @each($rows)) {
 				list($section_value, $value, $section, $aro) = $row;
-				debug("Section Value: $section_value Value: $value Section: $section ARO: $aro");
+				$gacl_api->debug_text("Section Value: $section_value Value: $value Section: $section ARO: $aro");
 				
 				$options_selected_aro[$section_value.'^'.$value] = "$section > $aro";
 				
@@ -122,7 +122,7 @@ switch ($_POST['action']) {
 
 			while (list(,$row) = @each($rows)) {
 				list($section_value, $value, $section, $axo) = $row;
-				debug("Section Value: $section_value Value: $value Section: $section AXO: $axo");
+				$gacl_api->debug_text("Section Value: $section_value Value: $value Section: $section AXO: $axo");
 				
 				$options_selected_axo[$section_value.'^'.$value] = "$section > $axo";
 				
@@ -140,7 +140,7 @@ switch ($_POST['action']) {
 			//showarray($selected_groups);
 
 		} else {
-			debug("NOT EDITING ACL");
+			$gacl_api->debug_text("NOT EDITING ACL");
 			$allow=1;
 			$enabled=1;
 		}
@@ -219,10 +219,10 @@ switch ($_POST['action']) {
 
         //Init the main aco js array.
         $js_aco_array .= "options['$js_aco_array_name'] = new Array();\n";
-        debug("Blah1");
+        $gacl_api->debug_text("Blah1");
         while (list(,$row) = @each($rows)) {
             list($section_value, $value, $name) = $row;
-            debug("Blah2: $section_value, $value, $name");
+            $gacl_api->debug_text("Blah2: $section_value, $value, $name");
             //Prepare javascript code for dynamic select box.
             //Init the javascript sub-array.
             if (!isset($tmp_section_value) OR $section_value != $tmp_section_value) {

@@ -95,7 +95,7 @@ if ($total_rows > 0) {
 }
 $smarty->assign("avg_acl_check_time", number_format( ($avg_acl_check_time + 0) ,2));
 
-$smarty->assign("paging_data", get_paging_data($rs));
+$smarty->assign("paging_data", $gacl_api->get_paging_data($rs));
 
 $smarty->assign("return_page", $_SERVER[PHP_SELF] );
 

@@ -67,7 +67,7 @@ class gacl {
 			$this->_debug=TRUE;
 		}
 			
-		$available_options = array('debug','items_per_page','max_select_box_items','max_search_return_items','db_type','db_host','db_user','db_password','db_name','caching','cache_dir','cache_expire_time');
+		$available_options = array('debug','items_per_page','max_select_box_items','max_search_return_items','db_table_prefix','db_type','db_host','db_user','db_password','db_name','caching','cache_dir','cache_expire_time');
 		if (is_array($options)) {
 			foreach ($options as $key => $value) {
 					$this->debug_text("Option: $key - $value");
@@ -111,7 +111,7 @@ class gacl {
 	}
 
 	/*======================================================================*\
-		Function:   debug()
+		Function:   $gacl_api->debug_text()
 		Purpose:    Prints debug text if debug is enabled.
 	\*======================================================================*/
 	function debug_text($text) {

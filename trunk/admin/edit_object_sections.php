@@ -38,11 +38,11 @@ switch ($_POST[action]) {
         }   
             
         //Return page.
-        return_page($_POST[return_page]);
+        $gacl_api->return_page($_POST[return_page]);
         
         break;
     case Submit:
-        debug("Submit!!");
+        $gacl_api->debug_text("Submit!!");
         //showarray($_POST[sections]);
         //showarray($_POST[new_sections]);
     
@@ -63,11 +63,11 @@ switch ($_POST[action]) {
             if (!empty($value) AND !empty($order) AND !empty($name)) {
 
                 $object_section_id = $gacl_api->add_object_section($name, $value, $order, 0, $object_type);
-                debug("Section ID: $object_section_id");
+                $gacl_api->debug_text("Section ID: $object_section_id");
             }
         }
-        debug("return_page: $_POST[return_page]");
-        return_page("$_POST[return_page]");
+        $gacl_api->debug_text("return_page: $_POST[return_page]");
+        $gacl_api->return_page("$_POST[return_page]");
         
         break;    
     default:

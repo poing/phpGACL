@@ -1,3 +1,16 @@
+* Move all templates in to a 'phpgacl' subdirectory.
+
+* Try to use paths more when including files, so require_once works
+correctly if they already included Smarty or something.
+
+change $smarty to $gacl_smarty. Also move all functions in to the api
+class to avoid conflicts.
+
+* Add search pop-up to assigning ARO/AXO's to groups.
+
+* Figure out how to do ACLs on select boxes.
+
+
 * Add visual notification when a section has hit the $max_select_box_items.
 
 * Write "mock" implementations to show off some of phpGACL's benefits.

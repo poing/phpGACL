@@ -37,11 +37,11 @@ switch ($_POST[action]) {
         }   
             
         //Return page.
-        return_page($_POST[return_page]);
+        $gacl_api->return_page($_POST[return_page]);
         
         break;
     case Submit:
-        debug("Submit!!");
+        $gacl_api->debug_text("Submit!!");
     
         //Update objects
         while (list(,$row) = @each($_POST[objects])) {
@@ -62,8 +62,8 @@ switch ($_POST[action]) {
                 $object_id= $gacl_api->add_object($_POST['section_value'], $name, $value, $order, 0, $object_type);
             }
         }
-        debug("return_page: $_POST[return_page]");
-        return_page("$_POST[return_page]");
+        $gacl_api->debug_text("return_page: $_POST[return_page]");
+        $gacl_api->return_page("$_POST[return_page]");
         
         break;    
     default:

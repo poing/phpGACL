@@ -3,7 +3,7 @@ require_once("gacl_admin.inc.php");
 
 switch ($_GET['action']) {
     case Submit:
-        debug("Submit!!");
+        $gacl_api->debug_text("Submit!!");
 		//$result = $gacl_api->acl_query('system', 'email_pw', 'users', '1', NULL, NULL, NULL, NULL, TRUE);
 		$result = $gacl_api->acl_query(	$_GET['aco_section_value'],
 															$_GET['aco_value'],
