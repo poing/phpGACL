@@ -1723,8 +1723,9 @@ class gacl_api extends gacl {
 		$this->debug_text("add_group(): Name: $name Value: $value Parent ID: $parent_id Group Type: $group_type");
 
 		$name = trim($name);
+		$value = trim($value);
 
-		if (empty($name)) {
+		if ( $name == '' ) {
 			$this->debug_text("add_group(): name ($name) OR parent id ($parent_id) is empty, this is required");
 			return false;
 		}
@@ -1732,7 +1733,7 @@ class gacl_api extends gacl {
 		//This has to be outside the transaction, because the first time it is run, it will say the sequence
 		//doesn't exist. Then try to create it, but the transaction will already by aborted by then.
 		$insert_id = $this->db->GenID($this->_db_table_prefix.$group_type.'_groups_id_seq',10);
-		if (trim( $value ) === '') {
+		if ( $value === '' ) {
 			$value = $insert_id;
 		}
 
