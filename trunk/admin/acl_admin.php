@@ -261,6 +261,8 @@ switch ($_POST['action']) {
             $tmp_section_value = $section_value;
             $i++;
         }
+        unset($section_value);
+        unset($tmp_section_value);
 
         //
         //Grab all AXO's for select box
@@ -289,6 +291,8 @@ switch ($_POST['action']) {
             $tmp_section_value = $section_value;
             $i++;
         }
+        unset($section_value);
+        unset($tmp_section_value);
 
         $smarty->assign("options_axo_sections", $options_axo_sections);
         $smarty->assign("axo_section_value", $axo_section_value);
