@@ -2,7 +2,7 @@
 <head>
     <title>phpGACL Millennium Falcon API</title>
     <meta http-equiv="content-type" content="text/html; charset=ISO-8859-1" />
-    <link rel="stylesheet" href="../admin/admin.css" type="text/css" title="phpGACL Millennium Demo" /> 
+    <link rel="stylesheet" href="../../../admin/admin.css" type="text/css" title="phpGACL Millennium Demo" /> 
 </head>
 <body>
 <div id="top-tr">

@@ -11,7 +11,7 @@
 </p>
 <p>
 	These 3 examples work hand in hand with the phpGACL documentation Millenium Falcon example, which can be found here: <a href='../docs/manual.pdf' target='_new'>phpGACL documentation</a><br />
-	Run the examples and have a look at the code, but don't forget to check out phpGACLs excellent <a href='../admin/index.php' target='_new'>admin suite</a>.
+	Run the examples and have a look at the code, but don't forget to check out phpGACLs excellent <a href='../../../admin/index.php' target='_new'>admin suite</a>.
 </p>
 <p>
 	<ul>

@@ -133,6 +133,6 @@ if ($outputDebug == TRUE){
 
 if ($outputDebug == TRUE){
 	echo "<br>\n<br>\nDone! Now how easy was that? <br>\n";
-	echo "Remember to check out the <a href='../admin/acl_list.php'>Administration Interface</a> which can do all of the above in a few simple clicks.<br>\n<br>\n";
+	echo "Remember to check out the <a href='../../../admin/acl_list.php'>Administration Interface</a> which can do all of the above in a few simple clicks.<br>\n<br>\n";
 }
 ?>
