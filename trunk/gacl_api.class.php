@@ -1261,6 +1261,7 @@ class gacl_api extends gacl {
 		}
 
 		$name = trim($name);
+		$value = trim($value);
 
 		if (empty($name) AND empty($value) ) {
 			$this->debug_text("get_group_id(): name and value, at least one is required");
@@ -2061,7 +2062,7 @@ class gacl_api extends gacl {
 			$query = 'SELECT count(*) FROM '. $table .' WHERE parent_id='. $group_id;
 			$child_count = $this->db->GetOne($query);
 
-			if ($child_count > 1 AND $reparent_children) {
+			if (($child_count > 1) AND $reparent_children) {
 				$this->debug_text ('del_group (): You cannot delete the root group and reparent children, this would create multiple root groups.');
 				$this->db->RollbackTrans();
 				return FALSE;

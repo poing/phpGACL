@@ -4,7 +4,7 @@
       select {
         margin-top: 0px;
       }
-      input.group-name {
+      input.group-name, input.group-value {
         width: 99%;
       }
     {/literal}
@@ -17,22 +17,26 @@
         <tbody>
           <tr>
             <th width="4%">ID</th>
-            <th width="46%">Parent</th>
-            <th width="50%">Name</th>
+            <th width="32%">Parent</th>
+            <th width="32%">Name</th>
+            <th width="32%">Value</th>
           </tr>
           <tr valign="top">
-            <td>{$id|default:"N/A"}</td>
+            <td align="center">{$id|default:"N/A"}</td>
             <td>
                 <select name="parent_id" tabindex="0" multiple>
                     {html_options options=$options_groups selected=$parent_id}
                 </select>
-             </td>
+            </td>
             <td>
                 <input type="text" class="group-name" size="50" name="name" value="{$name}">
             </td>
+            <td>
+                <input type="text" class="group-value" size="50" name="value" value="{$value}">
+            </td>
           </tr>
           <tr class="controls" align="center">
-            <td colspan="3">
+            <td colspan="4">
               <input type="submit" name="action" value="Submit"> <input type="reset" value="Reset">
             </td>
           </tr>
