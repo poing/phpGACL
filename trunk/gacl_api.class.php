@@ -1844,7 +1844,7 @@ class gacl_api extends gacl {
 		$name = trim($name);
 
 		// don't set name if it is unchanged
-		if ($name == $curr[2]) {
+		if ($name == $curr[3]) {
 			unset($name);
 		}
 

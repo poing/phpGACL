@@ -1,3 +1,5 @@
+Tue May 24 2004
+        mikeb - Fixed bug in API that stopped you from changing a group name to the same thing as the group value. Hakan Kuecuekyilmaz <hakan@lisas.de>
 Sat May 08 2004
 	mikeb - Released v3.3.1
 Fri May 07 2004
