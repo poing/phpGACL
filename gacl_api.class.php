@@ -1884,7 +1884,7 @@ class gacl_api extends gacl {
 		// prevent deletion of root group & reparent of children if it has more than one immediate child
 		if ($parent_id == 0) {
 			$query = 'SELECT count(*) FROM '. $table .' WHERE parent_id='. $group_id;
-			$child_count = $this->db->GetOne($query);
+			$child_count = $this->db->GetOne($sql);
 			
 			if ($child_count > 1 && $reparent_children) {
 				$this->debug_text ('del_group (): You cannot delete the root group and reparent children, this would create multiple root groups.');
