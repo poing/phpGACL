@@ -381,9 +381,16 @@
 		<field name="name" type="C" size="255">
 			<NOTNULL/>
 		</field>
+		<field name="value" type="C" size="255">
+			<NOTNULL/>
+			<KEY/>
+		</field>
 	</table>
 	<index name="#PREFIX#parent_id_aro_groups" table="#PREFIX#aro_groups">
 		<col>parent_id</col>
+	</index>
+	<index name="#PREFIX#value_aro_groups" table="#PREFIX#aro_groups">
+		<col>value</col>
 	</index>
 	<index name="#PREFIX#lft_rgt_aro_groups" table="#PREFIX#aro_groups">
 		<col>lft</col>
@@ -440,9 +447,16 @@
 		<field name="name" type="C" size="255">
 			<NOTNULL/>
 		</field>
+		<field name="value" type="C" size="255">
+			<NOTNULL/>
+			<KEY/>
+		</field>
 	</table>
 	<index name="#PREFIX#parent_id_axo_groups" table="#PREFIX#axo_groups">
 		<col>parent_id</col>
+	</index>
+	<index name="#PREFIX#value_aro_groups" table="#PREFIX#aro_groups">
+		<col>value</col>
 	</index>
 	<index name="#PREFIX#lft_rgt_axo_groups" table="#PREFIX#axo_groups">
 		<col>lft</col>
