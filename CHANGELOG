@@ -1,3 +1,5 @@
+Mon May 03 2004
+	mikeb - Updated comments for add_group() to explain the Root group limitation of our MPTT format.
 Sun May 02 2004
 	mikeb - Added Perl ACL_Check module written by Gordon Luk <gluk@dfafunds.com>
 	mikeb - Upgraded to ADODB v4.22
