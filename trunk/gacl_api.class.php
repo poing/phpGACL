@@ -921,7 +921,7 @@ class gacl_api extends gacl {
 				foreach ($axo_value_array as $axo_value) {
 					$axo_object_id = &$this->get_object_id($axo_section_value, $axo_value, 'AXO');
 
-					if (!empty($aro_object_id)) {
+					if (!empty($axo_object_id)) {
 						$query = "insert into axo_map (acl_id,section_value, value) VALUES($acl_id, '$axo_section_value', '$axo_value')";
 						$rs = $this->db->Execute($query);
 
