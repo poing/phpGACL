@@ -36,7 +36,7 @@ if (is_resource($db->_connectionID)) {
 	echo_success("Connected to \"<b>$db_type</b>\" database on \"<b>$db_host</b>\".");
 } else {
 	echo_failed("<b>ERROR</b> connecting to database,
-				  <br>are you sure your specified the proper host, user name, password, and database in <b>config.inc.php</b>?
+				  <br>are you sure your specified the proper host, user name, password, and database in <b>admin/gacl_admin.inc.php</b>?
 				  <br>Did you create the database, and give read/write permissions to \"<b>$db_user</b>\" already?");
 	exit;
 }
