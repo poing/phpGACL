@@ -174,6 +174,9 @@ $smarty->assign('group_type', $group_type);
 $smarty->assign('object_type', $object_type);
 $smarty->assign('return_page', $_SERVER['REQUEST_URI'] );
 
+$smarty->assign('current','assign_group_'. $group_type);
+$smarty->assign('page_title', 'Assign Group - '. strtoupper($group_type));
+
 $smarty->assign('phpgacl_version', $gacl_api->get_version() );
 $smarty->assign('phpgacl_schema_version', $gacl_api->get_schema_version() );
 

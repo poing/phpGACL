@@ -2,6 +2,6 @@
 
 <html>
   <head>
-    <title>phpGACL Admin</title>
+    <title>phpGACL - {$page_title}</title>
     <meta http-equiv="content-type" content="text/html; charset=ISO-8859-1" />
     <link rel="stylesheet" href="admin.css" type="text/css" title="phpGACL" />

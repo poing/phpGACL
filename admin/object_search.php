@@ -1,6 +1,14 @@
 <?php
 require_once('gacl_admin.inc.php');
 
+switch (strtolower($_GET['object_type'])) {
+	case 'axo':
+		$object_type = 'axo';
+		break;
+	default:
+		$object_type = 'aro';
+}
+
 switch ($_GET['action']) {
 	case 'Search':
 		$gacl_api->debug_text('Submit!!');
@@ -33,7 +41,7 @@ switch ($_GET['action']) {
 		//Search
 		$query = '
 			SELECT	section_value,value,name
-			FROM	'. $gacl_api->_db_table_prefix . $_GET['object_type'] .'
+			FROM	'. $gacl_api->_db_table_prefix . $object_type .'
 			WHERE	section_value='. $db->qstr($_GET['section_value']) .'
 			AND		(';
 		
@@ -78,11 +86,14 @@ switch ($_GET['action']) {
 		$smarty->assign('src_form', $_GET['src_form']);
 		$smarty->assign('section_value', $_GET['section_value']);
 		$smarty->assign('section_value_name', ucfirst($_GET['section_value']));
-		$smarty->assign('object_type', $_GET['object_type']);
-		$smarty->assign('object_type_name', strtoupper($_GET['object_type']));
+		$smarty->assign('object_type', $object_type);
+		$smarty->assign('object_type_name', strtoupper($object_type));
 		
 		break;
 }
+
+$smarty->assign('current', $object_type .'_search');
+$smarty->assign('page_title', strtoupper($object_type) .' Search');
 
 $smarty->assign('phpgacl_version', $gacl_api->get_version());
 $smarty->assign('phpgacl_schema_version', $gacl_api->get_schema_version());

@@ -81,6 +81,13 @@ $smarty->assign("first_run", $_GET['first_run'] );
 $smarty->assign("return_page", $_SERVER['PHP_SELF'] );
 
 $smarty->assign('current','about');
+if ($_GET['first_run']) {
+	$smarty->assign('page_title', 'Installation Report');
+	$smarty->assign('hidemenu', 1);
+} else {
+	$smarty->assign('page_title', 'About phpGACL');
+}
+
 $smarty->assign("phpgacl_version", $gacl_api->get_version() );
 $smarty->assign("phpgacl_schema_version", $gacl_api->get_schema_version() );
 

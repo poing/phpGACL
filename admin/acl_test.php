@@ -95,6 +95,8 @@ $smarty->assign("paging_data", $gacl_api->get_paging_data($rs));
 $smarty->assign("return_page", $_SERVER['PHP_SELF'] );
 
 $smarty->assign('current','acl_test');
+$smarty->assign('page_title', 'ACL Test');
+
 $smarty->assign("phpgacl_version", $gacl_api->get_version() );
 $smarty->assign("phpgacl_schema_version", $gacl_api->get_schema_version() );
 

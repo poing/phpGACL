@@ -251,6 +251,8 @@ if (isset($_GET['action'])) {
 }
 
 $smarty->assign('current','acl_admin');
+$smarty->assign('page_title', 'ACL Admin');
+
 $smarty->assign('phpgacl_version', $gacl_api->get_version() );
 $smarty->assign('phpgacl_schema_version', $gacl_api->get_schema_version() );
 $smarty->display('phpgacl/acl_admin.tpl');

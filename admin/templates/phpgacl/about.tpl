@@ -1,9 +1,6 @@
 {include file="phpgacl/header.tpl"}
   </head>
   <body>
-    {if $first_run == 1}
-    {assign var="hidemenu" value="1"}
-	{/if}
 	{include file="phpgacl/navigation.tpl"}
     <div style="text-align: center;">
       <table cellpadding="2" cellspacing="2" border="2" align="center">
