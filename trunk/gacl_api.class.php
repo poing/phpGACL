@@ -2298,7 +2298,7 @@ class gacl_api extends gacl {
 		Purpose:	Grabs all Objects in the database, or specific to a section_value
 					returns format suitable for add_acl and is_conflicting_acl
 	\*======================================================================*/
-	function get_objects ($section_value = NULL, $return_hidden = 1, $object_type = NULL) {
+	function get_objects($section_value = NULL, $return_hidden = 1, $object_type = NULL) {
 		switch (strtolower(trim($object_type))) {
 			case 'aco':
 				$object_type = 'aco';
@@ -3295,11 +3295,14 @@ class gacl_api extends gacl {
 			// Delete all objects in the section and for
 			// each object delete the referencing object
 			// (see del_object method)
-
 			if (is_array($object_ids)) {
-				foreach ($object_ids as $id) {
-					$this->del_object($id, $object_type, TRUE);
-				}
+					foreach ($object_ids as $id) {
+						if ( $object_type === 'acl' ) {
+							$this->del_acl($id);
+						} else {
+							$this->del_object($id, $object_type, TRUE);
+						}
+					}
 			}
 		}
 
