@@ -5,6 +5,24 @@
     <title>phpGACL Admin</title>
     <meta http-equiv="content-type" content="text/html; charset=ISO-8859-1">
   </head>
+{literal}
+<style type="text/css">
+        tr.hide {
+        display: none;
+        }
+        table.hide {
+        display: none;
+        }
+
+        td.tabon {
+                background: #438EC5;
+        }
+
+        td.taboff {
+                background: #ABC3D4;
+        }
+</style>
+{/literal}
 
 <script LANGUAGE="JavaScript">
 {$js_aco_array}
@@ -21,24 +39,24 @@
       <table cellpadding="2" cellspacing="2" border="2" width="100%">
         <tbody>
           <tr align="center">
-            <td valign="top" rowspan="1" colspan="5" bgcolor="#cccccc"><b>phpGACL</b> <b>Administrator [ <a href="acl_list.php?return_page={$return_page}">ACL List</a> ] </b><br>
+            <td valign="top" colspan="5" bgcolor="#cccccc"><b>phpGACL</b> <b>Administrator [ <a href="acl_list.php?return_page={$return_page}">ACL List</a> ] </b><br>
              </td>
           </tr>
 
           <tr>
-            <td valign="top" align="center" bgcolor="#d3dce3">&nbsp;<b>Sections</b><br>
+            <td width="100" valign="top" align="center" bgcolor="#d3dce3">&nbsp;<b>Sections</b><br>
              </td>
 
-            <td valign="top" align="center" bgcolor="#d3dce3"><b>Access Control Objects</b> <br>
+            <td width="100" valign="top" align="center" bgcolor="#d3dce3"><b>Access Control Objects</b> <br>
              </td>
 
-            <td valign="top" align="center" bgcolor="#d3dce3">&nbsp;<br>
+            <td width="100" valign="top" align="center" bgcolor="#d3dce3">&nbsp;<br>
              </td>
 
-            <td valign="top" align="center" bgcolor="#d3dce3"><b>Selected</b><br>
+            <td width="100" valign="top" align="center" bgcolor="#d3dce3"><b>Selected</b><br>
              </td>
 
-            <td valign="top" align="center" bgcolor="#d3dce3"><b>Access</b><br>
+            <td width="100" valign="top" align="center" bgcolor="#d3dce3"><b>Access</b><br>
              </td>
           </tr>
 
@@ -144,27 +162,26 @@
 
           <tr>
             <td colspan="5" valign="top" align="center" bgcolor="#d3dce3">
-                <b>(Optional)</b>
+                <b>[ <a href="javascript: showObject('axo_row1');">Show</a> / <a href="javascript: hideObject('axo_row1');">Hide</a> ] Access eXtension Objects (Optional)</b>
              </td>
           </tr>
-          <tr>
-            <td valign="top" align="center" bgcolor="#d3dce3"><b>Sections</b><br>
+          <tr id="axo_row1" class="hide">
+            <td width="100" valign="top" align="center" bgcolor="#d3dce3"><b>Sections</b><br>
              </td>
 
-            <td valign="top" align="center" bgcolor="#d3dce3"><b>Access eXtension Objects</b><br>
+            <td width="100" valign="top" align="center" bgcolor="#d3dce3"><b>Access eXtension Objects</b><br>
              </td>
 
-            <td valign="top" align="center" bgcolor="#d3dce3">&nbsp;<br>
+            <td width="100" valign="top" align="center" bgcolor="#d3dce3">&nbsp;<br>
              </td>
 
-            <td valign="top" align="center" bgcolor="#d3dce3"><b>Selected</b><br>
+            <td width="100" valign="top" align="center" bgcolor="#d3dce3"><b>Selected</b><br>
              </td>
 
-            <td valign="top" align="center" bgcolor="#d3dce3"><b>Groups</b><br>
+            <td width="100" valign="top" align="center" bgcolor="#d3dce3"><b>Groups</b><br>
              </td>
           </tr>
-
-          <tr>
+          <tr id="axo_row2"  class="hide">
             <td valign="middle" bgcolor="#cccccc" align="center">[ <a href="edit_object_sections.php?object_type=axo&return_page={$return_page}">Edit</a> ]<br>
              <br>
              <select name="axo_section" tabindex="0" size="10" width="200" onclick="populate(document.acl_admin.axo_section,document.acl_admin.elements['axo[]'],'{$js_axo_array_name}')">
@@ -205,7 +222,7 @@
 				<input type="BUTTON" name="Un-Select" value="Un-Select" onClick="unselect_all(document.acl_admin.elements['axo_groups[]'])">
             </td>
           </tr>
-          <tr>
+          <tr class="hide">
             <td valign="top" align="right" bgcolor="#d3dce3" rowspan="1" colspan="1">
                 <b>Extended Return Value:</b>
             </td>
@@ -213,7 +230,7 @@
                 <input type="text" name="return_value" size="50" value="{$return_value}">
             </td>
           </tr>
-          <tr>
+          <tr class="hide">
             <td valign="top" align="right" bgcolor="#d3dce3" rowspan="1" colspan="1">
                 <b>Note:</b>
             </td>
