@@ -1999,7 +1999,7 @@ class gacl_api extends gacl {
 			return false;	
 		}
 		
-		if (get_object_section_section_id(NULL, $section_value, $object_type == FALSE) ) {
+		if ($this->get_object_section_section_id(NULL, $section_value, $object_type) == FALSE) {
 			$this->debug_text("add_object(): Section Value: $section_value Object Type ($object_type) does not exist, this is required");
 			return false;				
 		}
