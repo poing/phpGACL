@@ -22,7 +22,7 @@
 
           <tr>
             <td colspan="2" valign="top" align="center" bgcolor="#d3dce3">
-				<b>{$object_type} {$section_value} Search</b><br>
+				<b>{$object_type_name} > {$section_value_name}</b><br>
              </td>
           </tr>
           <tr>

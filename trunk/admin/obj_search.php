@@ -26,7 +26,8 @@ switch ($_GET['action']) {
 											value LIKE '".$value_search_str."'
 												OR name LIKE '".$name_search_str."'
 											)
-							order by section_value, order_value";
+							order by section_value, order_value
+							limit $gacl_api->_max_search_return_items";
         $rs = $db->Execute($query);
         $rows = $rs->GetRows();
 
@@ -49,7 +50,10 @@ switch ($_GET['action']) {
     default:
 		
         $smarty->assign("section_value", $_GET['section_value']);
+        $smarty->assign("section_value_name", ucfirst($_GET['section_value']));
         $smarty->assign("object_type", $_GET['object_type']);
+        $smarty->assign("object_type_name", strtoupper($_GET['object_type']));
+
 
         break;
 }

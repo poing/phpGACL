@@ -1,9 +1,4 @@
-* Build framework for the plugin system.
-    Create a "plugin" directory.
-    Create a "plugin" section on the acl_admin page where plugin form fields can be displayed?
-    Plugins must be enabled in the config file, for both the admin interface and the calling interface?
-
-* Create include files with queries in each for the different databases. ie: include($db->db_type."-custom_sql.php");
+* Add visual notification when a section has hit the $max_select_box_items.
 
 * Investigate a way to detect ACL conflicts and alert the user.
 
@@ -12,11 +7,14 @@
 * Write tutorial, some people may find phpGACL difficult to figure out.
 
 * Oracle compatibility.
-    
-* FUTURE: Possibly support tree'd ACOs.
+* Create include files with queries in each for the different databases. ie: include($db->db_type."-custom_sql.php");
 
-* FUTURE: Add a "reason" table which maps to ACLs. this can be used purely for the admins sanity to help
-	remember why certain ACLs were added, as well to help resolve conflicts.
+* FUTURE: Build framework for the plugin system.
+    Create a "plugin" directory.
+    Create a "plugin" section on the acl_admin page where plugin form fields can be displayed?
+    Plugins must be enabled in the config file, for both the admin interface and the calling interface?
+
+* FUTURE: Possibly support tree'd ACOs.
 
 * FUTURE: Allow phpGACL to set permissions on its own administration interface. 
 Having said that, I think going 99.9% of the way would be inside said scope and
