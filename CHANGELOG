@@ -1,5 +1,5 @@
 Sun Dec 15 2002
-	- Moved to completely OO structure.
+	- Moved to a completely OO structure.
 	- Config options can now be passed during object creation. $gacl = new gacl($options);
 	
 Sun Dec 01 2002
