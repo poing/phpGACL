@@ -130,7 +130,7 @@ switch ($_POST['action']) {
 	
 	//Grab list of assigned Objects
 	$query = '
-		SELECT	b.section_value,b.value,b.name,c.name
+		SELECT	b.section_value,b.value,b.name AS b_name,c.name AS c_name
 		FROM	'. $group_map_table .' a
 		JOIN	'. $table .' b ON b.id=a.'. $group_type .'_id
 		JOIN	'. $group_sections_table .' c ON c.value=b.section_value

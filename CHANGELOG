@@ -1,4 +1,6 @@
-Sun Feb 07 2004
+Sun Feb 08 2004
+	dcech - SQL syntax fixes for admin system
+Sat Feb 07 2004
 	dcech - New style for admin interface
 Wed Feb 04 2004
 	mikeb - Removed old, out dated examples from gacl_api.class.php

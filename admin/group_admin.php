@@ -30,7 +30,11 @@ switch ($_POST['action']) {
     default:
         $formatted_groups = $gacl_api->format_groups($gacl_api->sort_groups($group_type), HTML);
 
-        $query = "select a.id, count(*) from $group_table as a, $group_map_table as b where a.id=b.group_id group by a.id";
+        $query = '
+        	SELECT		a.id, count(*)
+        	FROM		'. $group_table .' a
+        	JOIN		'. $group_map_table .' b ON b.group_id=a.id
+        	GROUP BY	a.id';
         $rs = $db->Execute($query);
 
         $rows = $rs->GetRows();
