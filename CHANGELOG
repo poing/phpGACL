@@ -1,3 +1,5 @@
+Thu Feb 12 2004
+	dcech - removed final trailing semicolon from schema.xml
 Tue Feb 10 2004
 	mikeb - Fixed get_object() to support ACLs.
 Mon Feb 09 2004
