@@ -31,16 +31,14 @@
 			<td><input type="text" class="search" name="value_search_str" value="{$value_search_str}" /></td>
 		  </tr>
 		  <tr class="controls" align="center">
-		  	<td colspan="2"><input type="submit" name="action" value="Search" /></td>
+		  	<td colspan="2"><input type="submit" class="button" name="action" value="Search" /> <input type="button" class="button" name="action" value="Close" onClick="window.close();" /></td>
           </tr>
         </tbody>
       </table>
 {if (strlen($total_rows) != 0)}
+	  <br />
       <table cellpadding="2" cellspacing="2" border="2" width="100%">
         <tbody>
-          <tr class="spacer">
-          	<td colspan="2"></td>
-          </tr>
           <tr>
             <th colspan="2">{$total_rows} Objects Found</th>
           </tr>
