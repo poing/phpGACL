@@ -1,7 +1,6 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
 
-<html>
-  <head>
+{include file="header.tpl"} 
     <meta name="generator" content="HTML Tidy, see www.w3.org">
     <title>phpGACL Admin</title>
     <meta http-equiv="content-type" content="text/html; charset=ISO-8859-1">
@@ -15,7 +14,9 @@
       <table cellpadding="2" cellspacing="2" border="2" width="100%">
         <tbody>
           <tr align="center">
-            <td valign="top" colspan="6" bgcolor="#cccccc"><b>phpGACL</b> <b>ACO Administrator</b><br>
+            <td valign="top" colspan="6" bgcolor="#cccccc"><b>phpGACL</b> <b>ACO Administrator</b>
+             <b>[ <a href="acl_admin.php?return_page={$return_page}">ACL Admin</a> ] </b>
+            <br>
              </td>
           </tr>
 
@@ -105,6 +106,5 @@
     <input type="hidden" name="return_page" value="{$return_page}">
     
     </form>
-  </body>
-</html>
+{include file="footer.tpl"} 
 
