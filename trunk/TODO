@@ -1,3 +1,4 @@
 * Write tutorial, some people may find phpGACL difficult to figure out.
 * Clean up Administration interface and add many more sanity checks
 * Improve setup script, including support for more databases
+* Implement some sort of caching, it seems ADODB's caching is very poor. It didn't improve the speed at all.
