@@ -139,18 +139,36 @@ class phpgacl_api_test extends TestCase {
         return $result;
     }
     
+    function get_object2_id_aro() {
+        $result = $this->gacl_api->get_object_id('unit_test','jane_doe', 'ARO');
+        $message = 'get_object2_id failed';
+        $this->assert($result, $message);
+        
+        return $result;
+    }
+
     function add_object_aro() {
         $result = $this->gacl_api->add_object('unit_test', 'John Doe', 'john_doe', 999, 0, 'ARO');
         $message = 'add_object failed';
         $this->assert($result, $message);
-    }
-    
+    }    
     function del_object_aro() {
         $result = $this->gacl_api->del_object($this->get_object_id_aro(), 'ARO');
         $message = 'del_object failed';
         $this->assert($result, $message);
     }
 	
+    function add_object2_aro() {
+        $result = $this->gacl_api->add_object('unit_test', 'Jane Doe', 'jane_doe', 998, 0, 'ARO');
+        $message = 'add_object2 failed';
+        $this->assert($result, $message);
+    }
+    function del_object2_aro() {
+        $result = $this->gacl_api->del_object($this->get_object2_id_aro(), 'ARO');
+        $message = 'del_object2 failed';
+        $this->assert($result, $message);
+    }
+
 	/** AXO SECTION **/
 	
     function get_object_section_section_id_axo() {
@@ -214,6 +232,62 @@ class phpgacl_api_test extends TestCase {
         return $result;
     }
     
+    function get_group_parent_id_aro() {
+        $parent_id = $this->gacl_api->get_group_parent_id($this->get_group_id_child_aro(), 'ARO');
+		//Make sure it matches with the actual parent.
+		if ($parent_id === $this->get_group_id_parent_aro() ) {
+			$result = TRUE;
+		} else {
+			$result = FALSE;
+		}
+        $message = 'get_group_parent_id_aro failed';
+        $this->assert($result, $message);
+        
+        return $result;
+    }
+
+    function get_group_data_aro() {
+        list($id, $parent_id, $name, $lft, $rgt) = $this->gacl_api->get_group_data($this->get_group_id_parent_aro(), 'ARO');
+		//Check all values in the resulting array.
+		if ( $id > 0 AND $parent_id >= 0 AND strlen($name) > 0 AND $lft >= 1 AND $rgt > 1) {
+			$result = TRUE;
+		} else  {
+			$result = FALSE;
+		}
+        $message = 'get_group_data_aro failed';
+        $this->assert($result, $message);
+        
+        return $result;
+    }
+
+    function get_parent_group_objects_aro() {
+        $group_objects = $this->gacl_api->get_group_objects($this->get_group_id_parent_aro(), 'ARO');
+		if (count($group_objects, COUNT_RECURSIVE) == 2 AND $group_objects['unit_test'][0] == 'john_doe') {
+			$result = TRUE;
+		} else {
+			$result = FALSE;
+		}
+        $message = 'get_parent_group_objects_aro failed';
+        $this->assert($result, $message);
+        
+        return $result;
+    }
+
+    function get_parent_group_objects_recurse_aro() {
+        $group_objects = $this->gacl_api->get_group_objects($this->get_group_id_parent_aro(), 'ARO', 'RECURSE');
+		if (count($group_objects, COUNT_RECURSIVE) == 3
+				AND $group_objects['unit_test'][0] == 'john_doe'
+				AND $group_objects['unit_test'][1] == 'jane_doe') {
+			$result = TRUE;
+		} else {
+			$result = FALSE;
+		}
+        $message = 'get_parent_group_objects_recurse_aro failed';
+        $this->assert($result, $message);
+        
+        return $result;
+    }
+
     function add_group_parent_aro() {
         $result = $this->gacl_api->add_group('ARO Group 1', 0, 'ARO');
         $message = 'add_group_parent_aro failed';
@@ -238,18 +312,28 @@ class phpgacl_api_test extends TestCase {
         $this->assert($result, $message);
     }
     
-    function add_group_object_aro() {
+    function add_parent_group_object_aro() {
         $result = $this->gacl_api->add_group_object($this->get_group_id_parent_aro(), 'unit_test', 'john_doe', 'ARO');
-        $message = 'add_group_object failed';
+        $message = 'add_parent_group_object failed';
         $this->assert($result, $message);
     }
-    
-    function del_group_object_aro() {
+    function del_parent_group_object_aro() {
         $result = $this->gacl_api->del_group_object($this->get_group_id_parent_aro(), 'unit_test', 'john_doe', 'ARO');
         $message = 'del_group_object failed';
         $this->assert($result, $message);
     }
 	
+    function add_child_group_object_aro() {
+        $result = $this->gacl_api->add_group_object($this->get_group_id_child_aro(), 'unit_test', 'jane_doe', 'ARO');
+        $message = 'add_child_group_object failed';
+        $this->assert($result, $message);
+    }
+    function del_child_group_object_aro() {
+        $result = $this->gacl_api->del_group_object($this->get_group_id_child_aro(), 'unit_test', 'jane_doe', 'ARO');
+        $message = 'del_child_group_object failed';
+        $this->assert($result, $message);
+    }
+
 	/** AXO GROUP **/
 	
     function get_group_id_parent_axo() {
@@ -268,6 +352,34 @@ class phpgacl_api_test extends TestCase {
         return $result;
     }
     
+    function get_group_parent_id_axo() {
+        $parent_id = $this->gacl_api->get_group_parent_id($this->get_group_id_child_axo(), 'AXO');
+		//Make sure it matches with the actual parent.
+		if ($parent_id === $this->get_group_id_parent_axo() ) {
+			$result = TRUE;
+		} else {
+			$result = FALSE;
+		}
+        $message = 'get_group_parent_id_aro failed';
+        $this->assert($result, $message);
+        
+        return $result;
+    }
+
+    function get_group_data_axo() {
+        list($id, $parent_id, $name, $lft, $rgt) = $this->gacl_api->get_group_data($this->get_group_id_parent_axo(), 'AXO');
+		//Check all values in the resulting array.
+		if ( $id > 0 AND $parent_id >= 0 AND strlen($name) > 0 AND $lft >= 1 AND $rgt > 1) {
+			$result = TRUE;
+		} else  {
+			$result = FALSE;
+		}
+        $message = 'get_group_data_axo failed';
+        $this->assert($result, $message);
+        
+        return $result;
+    }
+
     function add_group_parent_axo() {
         $result = $this->gacl_api->add_group('AXO Group 1', 0, 'AXO');
         $message = 'add_group failed';
@@ -305,6 +417,9 @@ class phpgacl_api_test extends TestCase {
     }
 }
 
+//This comes in handy.
+//$this->gacl_api->db->debug=TRUE;
+
 // general
 $suite->addTest(new phpgacl_api_test('get_version'));
 $suite->addTest(new phpgacl_api_test('get_schema_version'));
@@ -321,6 +436,9 @@ $suite->addTest(new phpgacl_api_test('add_object_section_aro'));
 $suite->addTest(new phpgacl_api_test('get_object_section_section_id_aco'));
 $suite->addTest(new phpgacl_api_test('add_object_aro'));
 $suite->addTest(new phpgacl_api_test('get_object_id_aro'));
+$suite->addTest(new phpgacl_api_test('add_object2_aro'));
+$suite->addTest(new phpgacl_api_test('get_object2_id_aro'));
+
 
 $suite->addTest(new phpgacl_api_test('add_object_section_axo'));
 $suite->addTest(new phpgacl_api_test('get_object_section_section_id_axo'));
@@ -329,15 +447,25 @@ $suite->addTest(new phpgacl_api_test('get_object_id_axo'));
 
 $suite->addTest(new phpgacl_api_test('add_group_parent_aro'));
 $suite->addTest(new phpgacl_api_test('get_group_id_parent_aro'));
+$suite->addTest(new phpgacl_api_test('get_group_data_aro')); 
 $suite->addTest(new phpgacl_api_test('add_group_child_aro'));
 $suite->addTest(new phpgacl_api_test('get_group_id_child_aro'));
-$suite->addTest(new phpgacl_api_test('add_group_object_aro'));
+$suite->addTest(new phpgacl_api_test('get_group_parent_id_aro'));
+
+$suite->addTest(new phpgacl_api_test('add_parent_group_object_aro'));
+$suite->addTest(new phpgacl_api_test('add_child_group_object_aro'));
+
+$suite->addTest(new phpgacl_api_test('get_parent_group_objects_aro'));
+$suite->addTest(new phpgacl_api_test('get_parent_group_objects_recurse_aro'));
+
 
 $suite->addTest(new phpgacl_api_test('add_group_parent_axo'));
 $suite->addTest(new phpgacl_api_test('get_group_id_parent_axo'));
+$suite->addTest(new phpgacl_api_test('get_group_data_axo')); 
 $suite->addTest(new phpgacl_api_test('add_group_child_axo'));
 $suite->addTest(new phpgacl_api_test('get_group_id_child_axo'));
 $suite->addTest(new phpgacl_api_test('add_group_object_axo'));
+$suite->addTest(new phpgacl_api_test('get_group_parent_id_axo'));
 
 // clean up...
 $suite->addTest(new phpgacl_api_test('del_group_object_aro'));
@@ -352,6 +480,7 @@ $suite->addTest(new phpgacl_api_test('del_object_aco'));
 $suite->addTest(new phpgacl_api_test('del_object_section_aco'));
 
 $suite->addTest(new phpgacl_api_test('del_object_aro'));
+$suite->addTest(new phpgacl_api_test('del_object2_aro'));
 $suite->addTest(new phpgacl_api_test('del_object_section_aro'));
 
 $suite->addTest(new phpgacl_api_test('del_object_axo'));
