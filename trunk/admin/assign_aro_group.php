@@ -6,10 +6,9 @@ switch ($_POST[action]) {
 	    debug("Delete!!");
 
         if (count($_POST[delete_assigned_aro]) > 0) {
-			$sql_acl_ids = implode(",", $_POST[delete_assigned_aro]);
-
-			$query = "delete from groups_aro_map where aro_id in ($sql_acl_ids)";
-			$db->Execute($query);
+            foreach($_POST[delete_assigned_aro] as $id) {
+                $gacl_api->del_group_aro($_POST['group_id'], $id);            
+            }
         }   
             
         //Return page.
@@ -19,16 +18,11 @@ switch ($_POST[action]) {
     case Submit:
         debug("Submit!!");
 
-/*
-        showarray($_POST[aro]);
-        showarray($_POST[group_id]);
-*/
         //Insert ARO -> GROUP mappings
         while (list(,$aro_id) = @each($_POST[selected_aro])) {
             debug("Assign: ARO ID: $aro_id to Group: $_POST[group_id]");   
 
-            $query = "insert into groups_aro_map (group_id,aro_id) VALUES($_POST[group_id], $aro_id)";
-            $rs = $db->Execute($query);
+            $gacl_api->add_group_aro($_POST['group_id'], $aro_id);            			
         }
                 
         return_page();
