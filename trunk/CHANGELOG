@@ -1,3 +1,5 @@
+Tue Nov 30 2004
+	mikeb - modified query in get_group_objects() to speed it up. It could still be optimized further though.
 Mon Nov 29 2004
 	mikeb - Applied patch to admin/edit_group.php enabling the deletion of all groups. John Mortlock <johnm@hlaustralia.com.au>
 Sun Nov 28 2004

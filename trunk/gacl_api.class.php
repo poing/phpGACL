@@ -1814,7 +1814,7 @@ class gacl_api extends gacl {
 		$query  = '
 				SELECT		o.section_value,o.value
 				FROM		'. $object_table .' o
-				LEFT JOIN	'. $map_table .' gm ON o.id=gm.'. $group_type .'_id';
+				RIGHT JOIN	'. $map_table .' gm ON o.id=gm.'. $group_type .'_id';
 
 		if ($option == 'RECURSE') {
 		    $query .= '
