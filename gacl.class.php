@@ -180,12 +180,10 @@ class gacl {
 				$axo_path_ids = $this->acl_get_group_path($axo_group_ids['parent_ids'], 'AXO');
 			}
 
-			//$profiler->startTimer( "acl_query()");
-
 			/*
 			 * Generate SQL text for SQL's in () statements
 			 */
-			if ( isset($aro_group_ids['group_ids']) ) {
+			if ( isset($aro_group_ids['group_ids']) AND !empty($aro_group_ids['group_ids']) ) {
 				$sql_aro_group_ids = implode(",", $aro_group_ids['group_ids']);   
 			}
 
@@ -278,11 +276,6 @@ class gacl {
 			 */
 			$query .=                           "	)
 									order by c.value is not null desc,";
-
-			/*
-			$query .=                           "	)
-									order by c.aro_value desc,";
-			*/
 			
 			/*
 			 * Tree levels are 0 furthest from root. The highest value is always the root, and this
@@ -316,7 +309,6 @@ class gacl {
 			} else {
 				$allow = FALSE;
 			}
-			//$profiler->stopTimer( "acl_query()");
 
 			/*
 			 * Return ACL ID. This is the key to "hooking" extras like pricing assigned to ACLs etc... Very useful.
