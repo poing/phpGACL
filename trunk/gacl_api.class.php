@@ -3268,7 +3268,7 @@ class gacl_api extends gacl {
 				break;
 			case 'acl':
 				$object_type = 'acl';
-				$object_sections_table = $this->$this->_db_table_prefix .'acl_sections';
+				$object_sections_table = $this->_db_table_prefix .'acl_sections';
 				break;
 		}
 
