@@ -242,7 +242,10 @@ switch ($_POST['action']) {
         $gacl_api->debug_text("Blah1");
         while (list(,$row) = @each($rows)) {
             list($section_value, $value, $name) = $row;
-
+            $section_value = addslashes($section_value);
+            $value = addslashes($value);
+            $name = addslashes($name);
+            
             //Prepare javascript code for dynamic select box.
             //Init the javascript sub-array.
             if (!isset($tmp_section_value) OR $section_value != $tmp_section_value) {
@@ -252,7 +255,7 @@ switch ($_POST['action']) {
             }
 
             //Add each select option for the section
-            $js_aco_array .= "options['$js_aco_array_name']['$section_value'][$i] = new Array('".addslashes($value)."', '".addslashes($name)."');\n";
+            $js_aco_array .= "options['$js_aco_array_name']['$section_value'][$i] = new Array('$value', '$name');\n";
 
             $tmp_section_value = $section_value;
             $i++;
@@ -272,6 +275,9 @@ switch ($_POST['action']) {
         $js_aro_array = "options['$js_aro_array_name'] = new Array();\n";
         while (list(,$row) = @each($rows)) {
             list($section_value, $value, $name) = $row;
+            $section_value = addslashes($section_value);
+            $value = addslashes($value);
+            $name = addslashes($name);
 
             //Prepare javascript code for dynamic select box.
             //Init the javascript sub-array.
@@ -282,7 +288,7 @@ switch ($_POST['action']) {
             }
 
             //Add each select option for the section
-            $js_aro_array .= "options['$js_aro_array_name']['$section_value'][$i] = new Array('".addslashes($value)."', '".addslashes($name)."');\n";
+            $js_aro_array .= "options['$js_aro_array_name']['$section_value'][$i] = new Array('$value', '$name');\n";
 
             $tmp_section_value = $section_value;
             $i++;
@@ -302,6 +308,9 @@ switch ($_POST['action']) {
         $js_axo_array = "options['$js_axo_array_name'] = new Array();\n";
         while (list(,$row) = @each($rows)) {
             list($section_value, $value, $name) = $row;
+            $section_value = addslashes($section_value);
+            $value = addslashes($value);
+            $name = addslashes($name);
 
             //Prepare javascript code for dynamic select box.
             //Init the javascript sub-array.
@@ -312,7 +321,7 @@ switch ($_POST['action']) {
             }
 
             //Add each select option for the section
-            $js_axo_array .= "options['$js_axo_array_name']['$section_value'][$i] = new Array('".addslashes($value)."', '".addslashes($name)."');\n";
+            $js_axo_array .= "options['$js_axo_array_name']['$section_value'][$i] = new Array('$value', '$name');\n";
 
             $tmp_section_value = $section_value;
             $i++;
@@ -320,8 +329,8 @@ switch ($_POST['action']) {
         unset($section_value);
         unset($tmp_section_value);
 
-		//echo "Section ID: $section_id<br>\n";
-		//echo "Section Value: ". $acl_section_value ."<br>\n";
+        //echo "Section ID: $section_id<br>\n";
+        //echo "Section Value: ". $acl_section_value ."<br>\n";
 
         $smarty->assign("options_acl_sections", $options_acl_sections);
         $smarty->assign("acl_section_value", $acl_section_value);
