@@ -255,7 +255,7 @@ class gacl {
 					LEFT JOIN	'. $this->_db_table_prefix .'aro_map ar ON ar.acl_id=a.id';
 			}
 			
-			if ($aro_section_value != $this->_group_switch) {
+			if ($axo_section_value != $this->_group_switch) {
 				$query .= '
 					LEFT JOIN	'. $this->_db_table_prefix .'axo_map ax ON ax.acl_id=a.id';
 			}
