@@ -1398,6 +1398,10 @@ class gacl_api extends gacl {
 			$this->debug_text("add_group(): name ($name) OR parent id ($parent_id) is empty, this is required");
 			return false;
 		}
+
+		//This has to be outside the transaction, because the first time it is run, it will say the sequence
+		//doesn't exist. Then try to create it, but the transaction will already by aborted by then.
+		$insert_id = $this->db->GenID($this->_db_table_prefix.$group_type.'_groups_id_seq',10);
 		
 		$this->db->BeginTrans();
 		
@@ -1459,8 +1463,6 @@ class gacl_api extends gacl {
 				return FALSE;
 			}
 		}
-		
-		$insert_id = $this->db->GenID('groups_id_seq',10);
 		
 		$query = 'INSERT INTO '. $table .' (id,parent_id,name,lft,rgt) VALUES ('. $insert_id .','. $parent_id . ",'" . addslashes ($name) . "'," . $parent_rgt .','. ($parent_rgt + 1) .')';
 		$rs = $this->db->Execute($query);
@@ -1575,15 +1577,24 @@ class gacl_api extends gacl {
 		}
 
 		// test to see if object & group exist and if object is already a member
-		$query  = '
-				SELECT		g.id AS group_id,
-						o.id AS id,
-						(gm.group_id IS NOT NULL) AS member
-				FROM		'. $group_table .' g,
-						'. $object_table .' o
-				LEFT JOIN	'. $table .' gm ON (gm.group_id=g.id AND gm.'. $group_type .'_id=o.id)
-				WHERE		g.id='. $group_id .'
-				AND		(o.section_value='. $this->db->quote($object_section_value) .' AND o.value='. $this->db->quote($object_value) .')';
+		//This query gives a "no relation 'g'" in PostgreSQL.
+		/*
+		$query  = '	SELECT		g.id AS group_id,
+											o.id AS id,
+											(gm.group_id IS NOT NULL) AS member
+							FROM		'. $group_table .' g, '. $object_table .' o
+							LEFT JOIN	'. $table .' gm ON (gm.group_id=g.id AND gm.'. $group_type .'_id=o.id)
+							WHERE		g.id='. $group_id .'
+							AND			(o.section_value='. $this->db->quote($object_section_value) .' AND o.value='. $this->db->quote($object_value) .')';
+		*/
+		$query  = '	SELECT		g.id AS group_id,
+											o.id AS id,
+											(gm.group_id IS NOT NULL) AS member
+							FROM		'. $object_table .' o
+							LEFT JOIN	'. $group_table .' g ON g.id='. $group_id .'
+							LEFT JOIN	'. $table .' gm ON (gm.group_id=g.id AND gm.'. $group_type .'_id=o.id)
+							WHERE		(o.section_value='. $this->db->quote($object_section_value) .' AND o.value='. $this->db->quote($object_value) .')';
+		
 		$rs = $this->db->Execute($query);
 		
 		if (!is_object($rs)) {
@@ -1873,7 +1884,7 @@ class gacl_api extends gacl {
 		// prevent deletion of root group & reparent of children if it has more than one immediate child
 		if ($parent_id == 0) {
 			$query = 'SELECT count(*) FROM '. $table .' WHERE parent_id='. $group_id;
-			$child_count = $this->db->GetOne($sql);
+			$child_count = $this->db->GetOne($query);
 			
 			if ($child_count > 1 && $reparent_children) {
 				$this->debug_text ('del_group (): You cannot delete the root group and reparent children, this would create multiple root groups.');
@@ -2581,8 +2592,7 @@ class gacl_api extends gacl {
 		$query = 'SELECT section_value,value FROM '. $table .' WHERE id='. $object_id;
 		$object = $this->db->GetRow($query);
 		
-		if (empty($object))
-		{
+		if (empty($object)) {
 			$this->debug_text('del_object(): The specified object ('. strtoupper($object_type) .' ID: '. $object_id .') could not be found.');
 			return FALSE;
 		}
@@ -2612,8 +2622,7 @@ class gacl_api extends gacl {
 					$this->debug_db('edit_object');
 					$this->db->RollBackTrans();
 					return false;
-				}
-				
+				}				
 			}
 
 			if ($acl_ids) {
@@ -2652,14 +2661,14 @@ class gacl_api extends gacl {
 
 					$sql_acl_ids = implode(",", $acl_ids);
 
-					$query = '	SELECT a.id
-							FROM '.$this->_db_table_prefix.'acl a
-								LEFT JOIN $object_map_table b ON a.id=b.acl_id
-								LEFT JOIN $groups_map_table c ON a.id=c.acl_id
-							WHERE value IS NULL
-								AND section_value IS NULL
-								AND group_id IS NULL
-								AND a.id in ('. $sql_acl_ids .')';
+					$query = '	SELECT 	a.id
+									FROM 		'.$this->_db_table_prefix.'acl a
+									LEFT JOIN	$object_map_table b ON a.id=b.acl_id
+									LEFT JOIN	$groups_map_table c ON a.id=c.acl_id
+									WHERE 	value IS NULL
+										AND 	section_value IS NULL
+										AND 	group_id IS NULL
+										AND 	a.id in ('. $sql_acl_ids .')';
 					$orphan_acl_ids = $this->db->GetCol($query);
 
 				} // End of else section of "if ($object_type == "aco")"
@@ -2702,7 +2711,7 @@ class gacl_api extends gacl {
 			$groups_ids = $this->db->GetCol($query);
 		}
 
-		if ($acl_ids OR $groups_ids) {
+		if ( ( isset($acl_ids) AND $acl_ids !== FALSE ) OR ( isset($groups_ids) AND $groups_ids !== FALSE) ) {
 			// The Object is referenced somewhere (group or acl), can't delete it
 
 			$this->debug_text("del_object(): Can't delete the object as it is being referenced by GROUPs (".@implode($group_ids).") or ACLs (".@implode($acl_ids,",").")");
