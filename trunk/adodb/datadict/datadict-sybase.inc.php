@@ -10,8 +10,9 @@
  
 */
 
-class ADODB2_mssql extends ADODB_DataDict {
-	var $databaseType = 'mssql';
+class ADODB2_sybase extends ADODB_DataDict {
+	var $databaseType = 'sybase';
+	
 	
 	function MetaType($t,$len=-1,$fieldobj=false)
 	{
@@ -81,7 +82,6 @@ class ADODB2_mssql extends ADODB_DataDict {
 		return $sql;
 	}
 	
-	/*
 	function AlterColumnSQL($tabname, $flds)
 	{
 		$tabname = $this->TableName ($tabname);
@@ -93,15 +93,13 @@ class ADODB2_mssql extends ADODB_DataDict {
 
 		return $sql;
 	}
-	*/
 	
 	function DropColumnSQL($tabname, $flds)
 	{
 		$tabname = $this->TableName ($tabname);
-		if (!is_array($flds))
-			$flds = explode(',',$flds);
+		if (!is_array($flds)) $flds = explode(',',$flds);
 		$f = array();
-		$s = 'ALTER TABLE ' . $tabname;
+		$s = "ALTER TABLE $tabname";
 		foreach($flds as $v) {
 			$f[] = "\n$this->dropCol $v";
 		}
@@ -115,7 +113,7 @@ class ADODB2_mssql extends ADODB_DataDict {
 	{	
 		$suffix = '';
 		if (strlen($fdefault)) $suffix .= " DEFAULT $fdefault";
-		if ($fautoinc) $suffix .= ' IDENTITY(1,1)';
+		if ($fautoinc) $suffix .= ' DEFAULT AUTOINCREMENT';
 		if ($fnotnull) $suffix .= ' NOT NULL';
 		else if ($suffix == '') $suffix .= ' NULL';
 		if ($fconstraint) $suffix .= ' '.$fconstraint;
@@ -217,7 +215,6 @@ CREATE TABLE
 		
 		if ( isset($idxoptions[$this->upperName]) )
 			$s .= $idxoptions[$this->upperName];
-		
 
 		$sql[] = $s;
 		

@@ -1,4 +1,5 @@
 Thu Jan 29 2004
+	mikeb - Upgraded to ADODB 4.11, removed trailing whitespace from adodb-pager.inc.php
 	dcech - major overhaul of acl_list filtering
 Wed Jan 28 2004
 	dcech - major update to acl_list
