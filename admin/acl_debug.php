@@ -27,10 +27,10 @@ switch ($_GET['action']) {
 															c.section_value aro_section_value,
 															c.value aro_value,
 															h.section_value axo_section_value,
-															h.value axo_value,
-															d.group_id aro_group_id,
-															e.tree_level aro_tree_level
+															h.value axo_value
 															",$result['query']);
+//															d.group_id aro_group_id,
+//															e.tree_level aro_tree_level
 															
 															//f.group_id axo_group_id,
 															//g.tree_level axo_tree_level

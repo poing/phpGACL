@@ -60,7 +60,8 @@
         {$acls[x].return_value}<br>
      </td>
     <td valign="top" bgcolor="#cccccc" align="left">
-		acl_check('{$acls[x].aco_section_value}', '{$acls[x].aco_value}', '{$acls[x].aro_section_value}', '{$acls[x].aro_value}')	
+		acl_check('{$acls[x].aco_section_value}', '{$acls[x].aco_value}', '{$acls[x].aro_section_value}', '{$acls[x].aro_value}')
+		 [ <a href="acl_debug.php?aco_section_value={$acls[x].aco_section_value}&aco_value={$acls[x].aco_value}&aro_section_value={$acls[x].aro_section_value}&aro_value={$acls[x].aro_value}&action=Submit">debug</a> ]
     </td>  
     <td valign="top" bgcolor="#cccccc" align="center">
 		{$acls[x].acl_check_time}
