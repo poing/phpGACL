@@ -16,22 +16,34 @@ include("$path/../adodb-exceptions.inc.php");
 include("$path/../adodb.inc.php");	
 
 try {
-$db = NewADOConnection("oci8");
-$db->Connect('','scott','natsoft');
+
+$dbt = 'oci8';
+
+switch($dbt) {
+case 'oci8':
+	$db = NewADOConnection("oci8");
+	$db->Connect('','scott','natsoft');
+	break;
+default:
+case 'mysql':
+	$db = NewADOConnection("mysql");
+	$db->Connect('localhost','root','','test');
+	break;
+}
+
 $db->debug=1;
 
 $cnt = $db->GetOne("select count(*) from adoxyz");
 $rs = $db->Execute("select * from adoxyz order by id");
 
 $i = 0;
-foreach($rs as $k => $v) {
+foreach($rs as  $v) {
 	$i += 1;
-	echo $k; adodb_pr($v);
+	echo "$i: "; adodb_pr($v); adodb_pr($rs->fields);
 	flush();
 }
 
 if ($i != $cnt) die("actual cnt is $i, cnt should be $cnt\n");
-
 
 
 $rs = $db->Execute("select bad from badder");
