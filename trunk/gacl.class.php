@@ -86,7 +86,7 @@ class gacl {
 		$this->db = ADONewConnection($this->_db_type);		
 		$this->db->PConnect($this->_db_host, $this->_db_user, $this->_db_password, $this->_db_name);
 
-		require_once('Cache_Lite/Hashed_Cache_Lite.php');
+		require_once(dirname(__FILE__) .'/Cache_Lite/Hashed_Cache_Lite.php');
 
 		/*
 		 * Cache options. We default to the highest performance. If you run in to cache corruption problems,
