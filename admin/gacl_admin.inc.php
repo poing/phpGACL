@@ -65,7 +65,7 @@ $smarty_compile_dir = $smarty_dir.'/templates_c'; //NO trailing slash!
 require_once($smarty_dir.'/Smarty.class.php');
 
 $smarty = new Smarty;
-$smarty->compile_check = true;
+$smarty->compile_check = TRUE;
 $smarty->template_dir = $smarty_template_dir;
 $smarty->compile_dir = $smarty_compile_dir;
 
@@ -76,7 +76,7 @@ $author_email = 'ipso@snappymail.ca';
 
 /*
  * Don't need to show notices, some of them are pretty lame and people get overly worried when they see them.
- * Mean while I will try to fix most of these. ;)
+ * Mean while I will try to fix most of these. ;) Please submit patches if you find any I may have missed. 
  */
-error_reporting (E_ALL ^ E_NOTICE);
+//error_reporting (E_ALL ^ E_NOTICE);
 ?>

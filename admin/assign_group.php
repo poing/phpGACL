@@ -21,8 +21,8 @@ switch(strtolower(trim($group_type))) {
         break;
 }
 
-switch ($_POST[action]) {
-    case Delete:
+switch ($_POST['action']) {
+    case 'Delete':
 	    $gacl_api->debug_text("Delete!!");
 
 		//Parse the form values
@@ -45,7 +45,7 @@ switch ($_POST[action]) {
         $gacl_api->return_page("$PHP_SELF?group_type=".$_POST['group_type']."&group_id=".$_POST['group_id']."");
 		
         break;
-    case Submit:
+    case 'Submit':
         $gacl_api->debug_text("Submit!!");
 
 		//showarray($_POST['selected_'.$_POST['group_type']]);
@@ -153,10 +153,10 @@ switch ($_POST[action]) {
             list($section_value, $value, $name, $section) = $row;
             
             $object_rows[] = array(
-								section_value => $section_value,
-                                value => $value,
-                                name => $name,
-                                section => $section
+								'section_value' => $section_value,
+                                'value' => $value,
+                                'name' => $name,
+                                'section' => $section
                             );
 
         }

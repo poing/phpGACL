@@ -2,7 +2,7 @@
 require_once("gacl_admin.inc.php");
 
 switch ($_GET['action']) {
-    case Delete:
+    case 'Delete':
 	    $gacl_api->debug_text("Delete!");
 
         if (count($_GET['delete_acl']) > 0) {
@@ -15,7 +15,7 @@ switch ($_GET['action']) {
         $gacl_api->return_page($_GET['return_page']);
 	
         break;
-    case Submit:
+    case 'Submit':
         $gacl_api->debug_text("Submit!!");
         break;    
     default:
@@ -161,27 +161,27 @@ switch ($_GET['action']) {
 				list($acl_id, $aco_section, $aco, $aro_section, $aro, $aro_group, $axo, $axo_section, $axo_group, $allow, $enabled, $return_value, $note, $updated_date) = $row;
 				$gacl_api->debug_text("<b>ID:</b> $acl_id <b>ACO Section:</b> $aco_section <b>ACO:</b> $aco  <b>ARO Section:</b> $aro_section <b>ARO:</b> $aro <b>AXO Section:</b> $axo_section <b>AXO:</b> $axo");
 
-				$prepared_rows[$acl_id][acl][id] = $acl_id;
-				$prepared_rows[$acl_id][acl][allow] = $allow;
-				$prepared_rows[$acl_id][acl][enabled] = $enabled;
-				$prepared_rows[$acl_id][acl][return_value] = $return_value;
-				$prepared_rows[$acl_id][acl][note] = $note;
-				$prepared_rows[$acl_id][acl][updated_date] = $updated_date;
+				$prepared_rows[$acl_id]['acl']['id'] = $acl_id;
+				$prepared_rows[$acl_id]['acl']['allow'] = $allow;
+				$prepared_rows[$acl_id]['acl']['enabled'] = $enabled;
+				$prepared_rows[$acl_id]['acl']['return_value'] = $return_value;
+				$prepared_rows[$acl_id]['acl']['note'] = $note;
+				$prepared_rows[$acl_id]['acl']['updated_date'] = $updated_date;
 
-				$prepared_rows[$acl_id][aco][$aco_section.$aco] = "$aco_section > $aco";
+				$prepared_rows[$acl_id]['aco'][$aco_section.$aco] = "$aco_section > $aco";
 				
 				if ($aro_section AND $aro) {
-					$prepared_rows[$acl_id][aro][$aro_section.$aro] = "$aro_section > $aro";
+					$prepared_rows[$acl_id]['aro'][$aro_section.$aro] = "$aro_section > $aro";
 				}
 				if ($aro_group) {
-					$prepared_rows[$acl_id][aro_groups][$aro_group] = "$aro_group";
+					$prepared_rows[$acl_id]['aro_groups'][$aro_group] = "$aro_group";
 				}
 
 				if ($axo_section AND $axo) {
-					$prepared_rows[$acl_id][axo][$axo_section.$axo] = "$axo_section > $axo";
+					$prepared_rows[$acl_id]['axo'][$axo_section.$axo] = "$axo_section > $axo";
 				}
 				if ($axo_group) {
-					$prepared_rows[$acl_id][axo_groups][$axo_group] = "$axo_group";
+					$prepared_rows[$acl_id]['axo_groups'][$axo_group] = "$axo_group";
 				}
 			
 			}
@@ -190,46 +190,46 @@ switch ($_GET['action']) {
 			$i=-1;
 			foreach ($prepared_rows as $acl_id => $acl_array) {
 				
-				if ($acl_array[aco]) {
-					foreach ($acl_array[aco] as $key => $value) {
+				if ($acl_array['aco']) {
+					foreach ($acl_array['aco'] as $key => $value) {
 						$aco_array[] = array('aco' => $value);
 					}
 				}
 
-				if ($acl_array[aro]) {
-					foreach ($acl_array[aro] as $key => $value) {
+				if ($acl_array['aro']) {
+					foreach ($acl_array['aro'] as $key => $value) {
 						$aro_array[] = array('aro' => $value);
 					}
 				}
-				if ($acl_array[aro_groups]) {
-					foreach ($acl_array[aro_groups] as $key => $value) {
+				if ($acl_array['aro_groups']) {
+					foreach ($acl_array['aro_groups'] as $key => $value) {
 						$aro_groups_array[] = array('group' => $value);
 					}
 				}
 
-				if ($acl_array[axo]) {
-					foreach ($acl_array[axo] as $key => $value) {
+				if ($acl_array['axo']) {
+					foreach ($acl_array['axo'] as $key => $value) {
 						$axo_array[] = array('axo' => $value);
 					}
 				}
-				if ($acl_array[axo_groups]) {
-					foreach ($acl_array[axo_groups] as $key => $value) {
+				if ($acl_array['axo_groups']) {
+					foreach ($acl_array['axo_groups'] as $key => $value) {
 						$axo_groups_array[] = array('group' => $value);
 					}
 				}
 				
 				$acls[] = array(
-									id => $acl_array[acl][id],
-									allow => (bool)$acl_array[acl][allow],
-									enabled => (bool)$acl_array[acl][enabled],
-									return_value => $acl_array[acl][return_value],
-									note => $acl_array[acl][note],
-									updated_date => date("d-M-y H:m:i",$acl_array[acl][updated_date]),
-									aco => $aco_array,
-									aro => $aro_array,
-									aro_groups => $aro_groups_array,
-									axo => $axo_array,
-									axo_groups => $axo_groups_array								
+									'id' => $acl_array['acl']['id'],
+									'allow' => (bool)$acl_array['acl']['allow'],
+									'enabled' => (bool)$acl_array['acl']['enabled'],
+									'return_value' => $acl_array['acl']['return_value'],
+									'note' => $acl_array['acl']['note'],
+									'updated_date' => date("d-M-y H:m:i",$acl_array[acl][updated_date]),
+									'aco' => $aco_array,
+									'aro' => $aro_array,
+									'aro_groups' => $aro_groups_array,
+									'axo' => $axo_array,
+									'axo_groups' => $axo_groups_array								
 								);
 				
 				unset($aco_array);
