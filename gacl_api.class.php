@@ -107,26 +107,27 @@ class gacl_api extends gacl {
 
 	/*======================================================================*\
 		Function:	count_all()
-		Purpose:	Recursively counts elements in an array.
+		Purpose:	Recursively counts elements in an array and sub-arrays.
+					The returned count is a count of all scalar elements found.
+					
+					This is different from count($arg, COUNT_RECURSIVE)
+					in PHP >= 4.2.0, which includes sub-arrays in the count.
 	\*======================================================================*/
-	function count_all($arg) {
-		#unset($count);
-		$count = 0;
-		// skip if argument is empty
-		if ($arg) {
-			// not an array, return 1 (base case)
-			if (!is_array($arg)) {
+	function count_all($arg = NULL) {
+		switch (TRUE) {
+			case is_scalar($arg):
+			case is_object($arg):
+				// single object
 				return 1;
-			}
-			// else call recursively for all elements $arg
-			foreach($arg as $key => $val) {
-				$count += $this->count_all($val);
-			}
-			$this->debug_text("count_all(): Count: $count");
-			return $count;
+			case is_array($arg):
+				// call recursively for all elements of $arg
+				$count = 0;
+				foreach ($arg as $val) {
+					$count += $this->count_all($val);
+				}
+				return $count;
 		}
-
-		return false;
+		return FALSE;
 	}
 
 	/*======================================================================*\
