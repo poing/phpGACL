@@ -8,5 +8,6 @@
 
 * Improve setup script, including support for more databases
 
-* Implement some sort of caching, it seems ADODB's caching is very poor. It didn't improve the speed at all.
+* Implement some sort of caching (custom version of Pears Cache Lite with hashed directories?) , it seems ADODB's caching is very poor.
+    It didn't improve the speed at all.
 
