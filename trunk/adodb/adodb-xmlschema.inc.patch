@@ -1,0 +1,35 @@
+--- adodb-xmlschema.inc.php	Sat Sep 20 13:30:56 2003
++++ ../../phpgacl/adodb/adodb-xmlschema.inc.php	Sat Sep 20 13:30:36 2003
+@@ -11,7 +11,7 @@
+  * XML schema.
+  *
+  * @author Richard Tango-Lowy
+- * @version $Revision$
++ * @version $Revision$
+  * @package xmlschema
+  */
+  
+@@ -225,12 +225,13 @@
+ 		
+ 		// Check for existing table
+ 		$legacyTables = $dict->MetaTables();
++
+ 		if( is_array( $legacyTables ) and count( $legacyTables > 0 ) ) {
+ 			foreach( $dict->MetaTables() as $table ) {
+ 				$this->legacyTables[ strtoupper( $table ) ] = $table;
+ 			}
+-			if( in_array( strtoupper( $tableName ), $legacyTables ) ) {
+-				$existingTableName = $legacyTables[strtoupper( $tableName )];
++			if( in_array( strtolower( $this->tableName ), $legacyTables ) ) {
++				$existingTableName = $this->tableName;
+ 			}
+ 		} 
+ 		// Build table array
+@@ -601,6 +602,7 @@
+ 				foreach( $this->dict->MetaTables() as $table ) {
+ 					$this->legacyTables[ strtoupper( $table ) ] = $table;
+ 				}
++				if( $this->debug ) print "LEGACY table<BR/>\n";
+ 			} 
+ 			
+ 			$forceReplace == TRUE ? $this->upgradeMethod = 'REPLACE' : $this->upgradeMethod = 'ALTER';
