@@ -574,7 +574,7 @@ class gacl_api extends gacl {
 		Function:	is_conflicting_acl()
 		Purpose:	Checks for conflicts when adding a specific ACL.
 	\*======================================================================*/
-	function is_conflicting_acl($aco_array, $aro_array, $aro_group_ids=NULL, $axo_array=NULL, $axo_group_ids=NULL) {
+	function is_conflicting_acl($aco_array, $aro_array, $aro_group_ids=NULL, $axo_array=NULL, $axo_group_ids=NULL, $ignore_acl_ids=NULL) {
 		//Check for potential conflicts. Ignore groups, as groups will almost always have "conflicting" ACLs.
 		//Thats part of inheritance.
 
@@ -601,9 +601,14 @@ class gacl_api extends gacl {
 								$conflict_result = &$this->search_acl($aco_section_value, $aco_value, $aro_section_value, $aro_value);
 								if ($conflict_result != FALSE) {
 									//showarray($conflict_result);
-									$conflicting_acls = implode($conflict_result,",");
-									$this->debug_text("is_conflicting_acl(): Conflict FOUND!!! ACL_IDS: ($conflicting_acls)");
-									return true;
+									
+									$conflicting_acls = array_diff($conflict_result, $ignore_acl_ids);
+
+									if (count($conflicting_acls) > 0) {
+										$conflicting_acls_str = implode($conflicting_acls,",");
+										$this->debug_text("is_conflicting_acl(): Conflict FOUND!!! ACL_IDS: ($conflicting_acls_str)");
+										return true;
+									}
 									
 								}
 								
@@ -667,9 +672,9 @@ class gacl_api extends gacl {
 		if (is_array($axo_group_ids)) {
 			$axo_group_ids = array_unique($axo_group_ids);
 		}
-		
+
 		//Check for conflicting ACLs, only on adding however. 
-		if ($acl_id == FALSE AND $this->is_conflicting_acl($aco_array,$aro_array) ) {
+		if ($this->is_conflicting_acl($aco_array,$aro_array, NULL, NULL, NULL, array($acl_id)) ) {
 			$this->debug_text("add_acl(): Detected possible ACL conflict, not adding ACL!");
 			return false;
 		}
