@@ -149,45 +149,40 @@ $schema = new adoSchema($db, TRUE);
 $orig_xml_file = $final_xml_file = 'schema.xml';
 
 // special handling if we are going to do table prefixing
-//if ($db_table_prefix) {
-	if (function_exists('file_get_contents')) {   // 4.3.0 and above only
-
-		$xml = file_get_contents($orig_xml_file);
+if (function_exists('file_get_contents')) {   // 4.3.0 and above only
+	$xml = file_get_contents($orig_xml_file);
 	} else {
 
-		$fp = fopen($orig_xml_file, 'r');
-		if ($fp) {
-			while (!feof($fp)) {
-				$xml .= fgets($fp, 4096);
-			}
-			fclose ($fp);
-		}
-	}
-
-	if (strlen($orig_xml_file) == 0) {
-		echo_failed("Can't read the database schema file '$orig_xml_file'!");
-	}
-
-	// apply prefix
-	$xml = preg_replace('/#PREFIX#/i', $db_table_prefix, $xml);
-
-	$tmp_xml_file = tempnam('/tmp', $xml_file);
-	$fp = fopen($tmp_xml_file, 'w');
+	$fp = fopen($orig_xml_file, 'r');
 	if ($fp) {
-		fwrite($fp, $xml);
-		fclose($fp);
-		$final_xml_file = $tmp_xml_file;
-	} else {
-		echo_failed("Can't write translated database schema file to '$tmp_xml_file'. Check permissions in directory?");
+		while (!feof($fp)) {
+			$xml .= fgets($fp, 4096);
+		}
+		fclose ($fp);
 	}
-//}
+}
+
+if (strlen($orig_xml_file) == 0) {
+	echo_failed("Can't read the database schema file '$orig_xml_file'!");
+}
+// apply prefix
+$xml = preg_replace('/#PREFIX#/i', $db_table_prefix, $xml);
+$tmp_xml_file = tempnam('/tmp', $xml_file);
+$fp = fopen($tmp_xml_file, 'w');
+if ($fp) {
+	fwrite($fp, $xml);
+	fclose($fp);
+	$final_xml_file = $tmp_xml_file;
+} else {
+	echo_failed("Can't write translated database schema file to '$tmp_xml_file'. Check permissions in directory?");
+}
 
 // Build the SQL array
 $sql = $schema->ParseSchema($final_xml_file);
 
 // clean up temp file if we created one
 if ($final_xml_file != $orig_xml_file) {
-#  unlink($final_xml_file);
+  unlink($final_xml_file);
 }
 
 /*
