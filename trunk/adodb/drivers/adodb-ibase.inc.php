@@ -1,6 +1,6 @@
 <?php
 /*
-V4.23 16 June 2004  (c) 2000-2004 John Lim (jlim@natsoft.com.my). All rights reserved.  
+V4.50 6 July 2004  (c) 2000-2004 John Lim (jlim@natsoft.com.my). All rights reserved.  
   Released under both BSD license and Lesser GPL library license. 
   Whenever there is any discrepancy between the two licenses, 
   the BSD license will take precedence.
@@ -30,8 +30,10 @@ class ADODB_ibase extends ADOConnection {
 	var $databaseType = "ibase";
 	var $dataProvider = "ibase";
 	var $replaceQuote = "''"; // string to use to replace quotes
-	var $ibase_timefmt = '%Y-%m-%d'; // For hours,mins,secs change to '%Y-%m-%d %H:%M:%S';
+	var $ibase_datefmt = '%Y-%m-%d'; // For hours,mins,secs change to '%Y-%m-%d %H:%M:%S';
 	var $fmtDate = "'Y-m-d'";
+	var $ibase_timestampfmt = "%Y-%m-%d %H:%M:%S";
+	var $ibase_timefmt = "%H:%M:%S";
 	var $fmtTimeStamp = "'Y-m-d, H:i:s'";
 	var $concat_operator='||';
 	var $_transactionID;
@@ -274,10 +276,21 @@ class ADODB_ibase extends ADOConnection {
 		
 		// PHP5 change.
 		if (function_exists('ibase_timefmt')) {
-			ibase_timefmt($this->ibase_timefmt);
+			ibase_timefmt($this->ibase_datefmt,IBASE_DATE );
+			if ($this->dialect == 1) ibase_timefmt($this->ibase_datefmt,IBASE_TIMESTAMP );
+			else ibase_timefmt($this->ibase_timestampfmt,IBASE_TIMESTAMP );
+			ibase_timefmt($this->ibase_timefmt,IBASE_TIME );
 		} else {
-			ini_set("ibase.timestampformat", $this->ibase_timefmt);
+			ini_set("ibase.timestampformat", $this->base_timestampfmt);
+			ini_set("ibase.dateformat", $this->ibase_datefmt);
+			ini_set("ibase.timeformat", $this->ibase_timefmt);
 		}
+		//you can use
+		/*
+		ini_set("ibase.timestampformat", $this->ibase_timestampfmt);
+		ini_set("ibase.dateformat", $this->ibase_datefmt);
+		ini_set("ibase.timeformat", $this->ibase_timefmt);
+		*/
 		return true;
 	}
 	   // returns true or false
@@ -442,10 +455,10 @@ class ADODB_ibase extends ADOConnection {
 				}
 				break;
 			case 12:
-				$fld->type = 'time';
+				$fld->type = 'date';
 				break;
 			case 13:
-				$fld->type = 'date';
+				$fld->type = 'time';
 				break;
 			case 37:
 				$fld->type = 'varchar';

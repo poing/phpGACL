@@ -1,6 +1,6 @@
 <?php
 /*
-V4.23 16 June 2004  (c) 2000-2004 John Lim (jlim@natsoft.com.my). All rights reserved.
+V4.50 6 July 2004  (c) 2000-2004 John Lim (jlim@natsoft.com.my). All rights reserved.
   Released under both BSD license and Lesser GPL library license. 
   Whenever there is any discrepancy between the two licenses, 
   the BSD license will take precedence.
@@ -14,10 +14,10 @@ Based on adodb 3.40
 */ 
 
 // security - hide paths
-if (!defined('ADODB_DIR')) die();
+//if (!defined('ADODB_DIR')) die();
 
-if (! defined("_ADODB_MYSQL_LAYER")) {
- define("_ADODB_MYSQL_LAYER", 1 );
+if (! defined("_ADODB_MYSQLI_LAYER")) {
+ define("_ADODB_MYSQLI_LAYER", 1 );
  
 class ADODB_mysqli extends ADOConnection {
 	var $databaseType = 'mysqli';
@@ -38,8 +38,8 @@ class ADODB_mysqli extends ADOConnection {
 	var $forceNewConnect = false;
 	var $poorAffectedRows = true;
 	var $clientFlags = 0;
-	var $executeOnly = true;
 	var $substr = "substring";
+	//var $poorAffectedRows = true;
 	var $nameQuote = '`';		/// string to use to quote identifiers and names
 	//var $_bindInputArray = true;
 	
@@ -628,10 +628,11 @@ class ADORecordSet_mysqli extends ADORecordSet{
 	function ADORecordSet_mysqli($queryID, $mode = false) 
 	{
 	  if ($mode === false) 
-	    { 
+	   { 
 	      global $ADODB_FETCH_MODE;
 	      $mode = $ADODB_FETCH_MODE;
-	    }
+	   }
+	   
 	  switch ($mode)
 	    {
 	    case ADODB_FETCH_NUM: 
@@ -643,24 +644,19 @@ class ADORecordSet_mysqli extends ADORecordSet{
 	    case ADODB_FETCH_DEFAULT:
 	    case ADODB_FETCH_BOTH:
 	    default:
-	      $this->fetchMode = MYSQLI_ASSOC; 
+	      $this->fetchMode = MYSQLI_BOTH; 
 	      break;
 	    }
+	  
 	  $this->ADORecordSet($queryID);	
 	}
 	
 	function _initrs()
 	{
-	    // mysqli_num_rows only return correct number, depens
-	    // on the use of mysql_store_result and mysql_use_result
-	    if (!$this->Connection->executeOnly) {
-			$this->_numOfRows = @mysqli_num_rows($this->_queryID);
-			$this->_numOfFields = @mysqli_num_fields($this->_queryID);
-	    }
-	    else {
-			$this->_numOfRows = 0;
-			$this->_numOfFields = 0;
-	    }
+	global $ADODB_COUNTRECS;
+	
+		$this->_numOfRows = $ADODB_COUNTRECS ? @mysqli_num_rows($this->_queryID) : -1;
+		$this->_numOfFields = @mysqli_num_fields($this->_queryID);
 	}
 	
 	function &FetchField($fieldOffset = -1) 
@@ -715,43 +711,25 @@ class ADORecordSet_mysqli extends ADORecordSet{
 	// Other functions return no or the wrong results.
 	function MoveNext() 
 	{
-	  if ($this->EOF) 
-	    return false;
-	  $this->_currentRow++;
-	  switch($this->fetchMode)
-	    {
-	    case MYSQLI_NUM:
-	      $this->fields = mysqli_fetch_array($this->_queryID);
-	      break;
-	    case MYSQLI_ASSOC:
-	    case MYSQLI_BOTH:
-	      $this->fields = mysqli_fetch_assoc($this->_queryID);
-	      break;
-	    default:
-	    }
-	  if (is_array($this->fields)) 
-	    return true;
-	  $this->EOF = true;
-	  return false;
+		if ($this->EOF) return false;
+		$this->_currentRow++;
+		$this->fields = mysqli_fetch_array($this->_queryID,$this->fetchMode);
+		
+		if (is_array($this->fields)) return true;
+		$this->EOF = true;
+		return false;
 	}	
 	
 	function _fetch()
 	{
-	  // mysqli_fetch_array($this->_queryID, MYSQLI_NUM) does not
-	  // work (22-10-2003). But mysqli_fetch_array($this->_queryID) gives
-	  // int resulttype should default to MYSQLI_BOTH,but give MYSQLI_NUM.
-
-	  //	  $this->fields =  mysqli_fetch_fields($this->_queryID);
-	  //	  $this->fields =  mysqli_fetch_array($this->_queryID); //, $this->fetchMode);
-		  
-	  $this->fields =  mysqli_fetch_assoc($this->_queryID); // $this->fetchMode);
-	  return is_array($this->fields);
+		$this->fields = mysqli_fetch_array($this->_queryID,$this->fetchMode);  
+	  	return is_array($this->fields);
 	}
 	
 	function _close() 
 	{
-	  mysqli_free_result($this->_queryID); 
-	  $this->_queryID = false;	
+		mysqli_free_result($this->_queryID); 
+	  	$this->_queryID = false;	
 	}
 	
 	function MetaType($t, $len = -1, $fieldobj = false)

@@ -1,7 +1,7 @@
 <?php
 
 /**
-  V4.23 16 June 2004  (c) 2000-2004 John Lim (jlim@natsoft.com.my). All rights reserved.
+  V4.50 6 July 2004  (c) 2000-2004 John Lim (jlim@natsoft.com.my). All rights reserved.
   Released under both BSD license and Lesser GPL library license. 
   Whenever there is any discrepancy between the two licenses, 
   the BSD license will take precedence.
@@ -127,7 +127,7 @@ class ADODB2_postgres extends ADODB_DataDict {
 	function DropColumnSQL($tabname, $flds)
 	{
 		if ($this->debug) ADOConnection::outp("DropColumnSQL only works with PostgreSQL 7.3+");
-		return ADODB_DataDict::DropColumnSQL($tabname, $flds);
+		return ADODB_DataDict::DropColumnSQL($tabname, $flds)."/* only works for PostgreSQL 7.3+ */";
 	}
 
 	// return string must begin with space
