@@ -98,8 +98,8 @@ switch ($db_type) {
 																"
 																CREATE TABLE aco_map (
 																  acl_id int(12) NOT NULL default '0',
-																  aco_section_value varchar(230) NOT NULL default '0',
-																  aco_value varchar(230) NOT NULL default '0',
+																  section_value varchar(230) NOT NULL default '0',
+																  value varchar(230) NOT NULL default '0',
 																  INDEX (acl_id)
 																) TYPE=MyISAM
 																",
@@ -134,8 +134,8 @@ switch ($db_type) {
 																"
 																 CREATE TABLE aro_map (
 																  acl_id int(12) NOT NULL default '0',
-																  aro_section_value varchar(230) NOT NULL default '0',
-																  aro_value varchar(230) NOT NULL default '0',
+																  section_value varchar(230) NOT NULL default '0',
+																  value varchar(230) NOT NULL default '0',
 																  INDEX (acl_id)
 																) TYPE=MyISAM
 																",
@@ -152,9 +152,45 @@ switch ($db_type) {
 																  INDEX (hidden)
 																) TYPE=MyISAM
 																",
-													groups =>
+													axo =>
 																"
-																CREATE TABLE groups (
+																CREATE TABLE axo (
+																  id int(12) NOT NULL default '0',
+																  section_value varchar(230) NOT NULL default '0',
+																  value varchar(230) NOT NULL default '',
+																  order_value int(10) NOT NULL default '0',
+																  name varchar(255) NOT NULL default '',
+																  hidden smallint(1) NOT NULL default '0',
+																  UNIQUE KEY value (section_value,value),
+																  UNIQUE KEY id (id),
+																  INDEX (hidden)
+																) TYPE=MyISAM
+																",
+													axo_map =>
+																"
+																 CREATE TABLE axo_map (
+																  acl_id int(12) NOT NULL default '0',
+																  section_value varchar(230) NOT NULL default '0',
+																  value varchar(230) NOT NULL default '0',
+																  INDEX (acl_id)
+																) TYPE=MyISAM
+																",
+													axo_sections =>
+																"
+																CREATE TABLE axo_sections (
+																  id int(12) NOT NULL default '0',
+																  value varchar(255) NOT NULL default '',
+																  order_value int(10) NOT NULL default '0',
+																  name varchar(255) NOT NULL default '',
+																  hidden smallint(1) NOT NULL default '0',
+																  UNIQUE KEY id (id),
+																  UNIQUE KEY value (value),
+																  INDEX (hidden)
+																) TYPE=MyISAM
+																",
+													aro_groups =>
+																"
+																CREATE TABLE aro_groups (
 																  id int(12) NOT NULL default '0',
 																  parent_id int(12) NOT NULL default '0',
 																  name varchar(255) NOT NULL default '',
@@ -166,23 +202,23 @@ switch ($db_type) {
 																"
 																CREATE TABLE groups_aro_map (
 																  group_id int(12) NOT NULL default '0',
-																  aro_section_value varchar(230) NOT NULL default '0',
-																  aro_value varchar(230) NOT NULL default '0',
-																  UNIQUE KEY group_id (group_id,aro_section_value,aro_value)
+																  section_value varchar(230) NOT NULL default '0',
+																  value varchar(230) NOT NULL default '0',
+																  UNIQUE KEY group_id (group_id,section_value,value)
 																) TYPE=MyISAM
 																",
-													groups_map =>
+													aro_groups_map =>
 																"
-																CREATE TABLE groups_map (
+																CREATE TABLE aro_groups_map (
 																  acl_id int(12) NOT NULL default '0',
 																  group_id int(12) NOT NULL default '0',
 																  PRIMARY KEY  (acl_id,group_id),
 																  INDEX (acl_id)
 																) TYPE=MyISAM
 																",	
-													groups_path =>
+													aro_groups_path =>
 																"
-																CREATE TABLE groups_path (
+																CREATE TABLE aro_groups_path (
 																  id int(12) NOT NULL default '0',
 																  group_id int(12) NOT NULL default '0',
 																  tree_level int(12) NOT NULL default '0',
@@ -190,9 +226,55 @@ switch ($db_type) {
 																  KEY group_id (group_id,tree_level)
 																) TYPE=MyISAM
 																",
-													groups_path_map =>
+													aro_groups_path_map =>
 																"
-																CREATE TABLE groups_path_map (
+																CREATE TABLE aro_groups_path_map (
+																  path_id int(12) NOT NULL default '0',
+																  group_id int(12) NOT NULL default '0',
+																  PRIMARY KEY  (path_id,group_id)
+																) TYPE=MyISAM
+																",
+													axo_groups =>
+																"
+																CREATE TABLE axo_groups (
+																  id int(12) NOT NULL default '0',
+																  parent_id int(12) NOT NULL default '0',
+																  name varchar(255) NOT NULL default '',
+																  PRIMARY KEY  (id),
+																  KEY parent_id (parent_id)
+																) TYPE=MyISAM
+																",
+													groups_axo_map =>
+																"
+																CREATE TABLE groups_axo_map (
+																  group_id int(12) NOT NULL default '0',
+																  section_value varchar(230) NOT NULL default '0',
+																  value varchar(230) NOT NULL default '0',
+																  UNIQUE KEY group_id (group_id,section_value,value)
+																) TYPE=MyISAM
+																",
+													axo_groups_map =>
+																"
+																CREATE TABLE axo_groups_map (
+																  acl_id int(12) NOT NULL default '0',
+																  group_id int(12) NOT NULL default '0',
+																  PRIMARY KEY  (acl_id,group_id),
+																  INDEX (acl_id)
+																) TYPE=MyISAM
+																",	
+													axo_groups_path =>
+																"
+																CREATE TABLE axo_groups_path (
+																  id int(12) NOT NULL default '0',
+																  group_id int(12) NOT NULL default '0',
+																  tree_level int(12) NOT NULL default '0',
+																  PRIMARY KEY  (id,tree_level),
+																  KEY group_id (group_id,tree_level)
+																) TYPE=MyISAM
+																",
+													axo_groups_path_map =>
+																"
+																CREATE TABLE axo_groups_path_map (
 																  path_id int(12) NOT NULL default '0',
 																  group_id int(12) NOT NULL default '0',
 																  PRIMARY KEY  (path_id,group_id)

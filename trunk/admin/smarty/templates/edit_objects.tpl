@@ -10,11 +10,11 @@
     <br>
      
 
-    <form method="post" name="edit_aco" action="edit_aco.php">
+    <form method="post" name="edit_objects" action="edit_objects.php">
       <table cellpadding="2" cellspacing="2" border="2" width="100%">
         <tbody>
           <tr align="center">
-            <td valign="top" colspan="6" bgcolor="#cccccc"><b>phpGACL</b> <b>ACO Administrator</b>
+            <td valign="top" colspan="6" bgcolor="#cccccc"><b>phpGACL</b> <b>{$object_type|upper} Administrator</b>
              <b>[ <a href="acl_admin.php?return_page={$return_page}">ACL Admin</a> ] </b>
             <br>
              </td>
@@ -31,11 +31,11 @@
             <td valign="top" bgcolor="#d3dce3" align="center"><b>Name</b> </td>
             <td valign="top" bgcolor="#d3dce3" align="center"><b>Functions</b> </td>
           </tr>
-            {section name=x loop=$aco}
+            {section name=x loop=$objects}
           <tr>
             <td valign="top" bgcolor="#cccccc" align="center">
-                    {$aco[x].id}
-                    <input type="hidden" name="aco[{$aco[x].id}][]" value="{$aco[x].id}">
+                    {$objects[x].id}
+                    <input type="hidden" name="objects[{$objects[x].id}][]" value="{$objects[x].id}">
              </td>
 
             <td valign="top" bgcolor="#cccccc" align="center">
@@ -43,23 +43,23 @@
              </td>
 
             <td valign="top" bgcolor="#cccccc" align="center">
-                <input type="text" size="10" name="aco[{$aco[x].id}][]" value="{$aco[x].value}">
+                <input type="text" size="10" name="objects[{$objects[x].id}][]" value="{$objects[x].value}">
              </td>
 
             <td valign="top" bgcolor="#cccccc" align="center">
-                <input type="text" size="10" name="aco[{$aco[x].id}][]" value="{$aco[x].order}">
+                <input type="text" size="10" name="objects[{$objects[x].id}][]" value="{$objects[x].order}">
              </td>
 
             <td valign="top" bgcolor="#cccccc" align="center">
-                <input type="text" size="40" name="aco[{$aco[x].id}][]" value="{$aco[x].name}">                
+                <input type="text" size="40" name="objects[{$objects[x].id}][]" value="{$objects[x].name}">                
              </td>
             <td valign="top" bgcolor="#cccccc" align="center">
-                <input type="checkbox" name="delete_aco[]" value="{$aco[x].id}">                
+                <input type="checkbox" name="delete_object[]" value="{$objects[x].id}">                
              </td>
 
           </tr>
             {/section}
-            {section name=y loop=$new_aco}
+            {section name=y loop=$new_objects}
           <tr>
             <td valign="top" bgcolor="#cccccc" align="center">
                     N/A
@@ -70,15 +70,15 @@
              </td>
 
             <td valign="top" bgcolor="#cccccc" align="center">
-                <input type="text" size="10" name="new_aco[{$new_aco[y].id}][]" value="">
+                <input type="text" size="10" name="new_objects[{$new_objects[y].id}][]" value="">
              </td>
 
             <td valign="top" bgcolor="#cccccc" align="center">
-                <input type="text" size="10" name="new_aco[{$new_aco[y].id}][]" value="">
+                <input type="text" size="10" name="new_objects[{$new_objects[y].id}][]" value="">
              </td>
 
             <td valign="top" bgcolor="#cccccc" align="center">
-                <input type="text" size="40" name="new_aco[{$new_aco[y].id}][]" value="">                
+                <input type="text" size="40" name="new_objects[{$new_objects[y].id}][]" value="">                
              </td>
             <td valign="top" bgcolor="#cccccc" align="center">
                 &nbsp;
@@ -103,6 +103,7 @@
         </tbody>
       </table>
     <input type="hidden" name="section_value" value="{$section_value}">
+    <input type="hidden" name="object_type" value="{$object_type}">
     <input type="hidden" name="return_page" value="{$return_page}">
     
     </form>

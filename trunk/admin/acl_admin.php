@@ -33,13 +33,19 @@ switch ($_POST['action']) {
 		}
 		//showarray($selected_aro_array);
 
+		while (list(,$axo_value) = @each($_POST['selected_axo'])) {			
+				$split_axo_value = explode("^", $axo_value);
+				$selected_axo_array[$split_axo_value[0]][] = $split_axo_value[1];
+		}
+		showarray($selected_axo_array);
+		
 		//Some sanity checks.
 		if (count($selected_aco_array) == 0) {
 			echo "Must select at least one Access Control Object<br>\n";
 			exit;
 		}
 		
-		if (count($selected_aro_array) == 0 AND count($_POST['groups']) == 0) {
+		if (count($selected_aro_array) == 0 AND count($_POST['aro_groups']) == 0) {
 			echo "Must select at least one Access Request Object or Group<br>\n";
 			exit;
 		}
@@ -49,13 +55,14 @@ switch ($_POST['action']) {
 			$enabled=0;	
 		}
 
+		//function add_acl($aco_array, $aro_array, $aro_group_ids=NULL, $axo_array=NULL, $axo_group_ids=NULL, $allow=1, $enabled=1, $acl_id=FALSE ) {
 		if (!empty($_POST['acl_id']) ) {
 			//Update existing ACL
 			$acl_id = $_POST['acl_id'];
-			$gacl_api->edit_acl($acl_id, $selected_aco_array, $selected_aro_array, $_POST['groups'], $_POST['allow'], $enabled);
+			$gacl_api->edit_acl($acl_id, $selected_aco_array, $selected_aro_array, $_POST['aro_groups'], $selected_axo_array, $_POST['axo_groups'], $_POST['allow'], $enabled);
 		} else {
 			//Insert new ACL.
-			$acl_id = $gacl_api->add_acl($selected_aco_array, $selected_aro_array, $_POST['groups'], $_POST['allow'], $enabled);
+			$acl_id = $gacl_api->add_acl($selected_aco_array, $selected_aro_array, $_POST['aro_groups'], $selected_axo_array, $_POST['axo_groups'], $_POST['allow'], $enabled);
 		}       
 
         return_page($_POST[return_page]);
@@ -72,8 +79,8 @@ switch ($_POST['action']) {
 			list($acl_id, $allow, $enabled) = $acl_row;
 
 			//Grab selected ACO's
-			$query = "select a.aco_section_value, a.aco_value, c.name, b.name from aco_map a, aco b, aco_sections c
-								where ( a.aco_section_value=b.section_value AND a.aco_value = b.value) AND b.section_value=c.value AND a.acl_id = $acl_id";
+			$query = "select a.section_value, a.value, c.name, b.name from aco_map a, aco b, aco_sections c
+								where ( a.section_value=b.section_value AND a.value = b.value) AND b.section_value=c.value AND a.acl_id = $acl_id";
 			$rs = $db->Execute($query);
 			$rows = $rs->GetRows();
 
@@ -87,8 +94,8 @@ switch ($_POST['action']) {
 			//showarray($options_aco);
 		
 			//Grab selected ARO's
-			$query = "select a.aro_section_value, a.aro_value, c.name, b.name from aro_map a, aro b, aro_sections c
-								where ( a.aro_section_value=b.section_value AND a.aro_value = b.value) AND b.section_value=c.value AND a.acl_id = $acl_id";
+			$query = "select a.section_value, a.value, c.name, b.name from aro_map a, aro b, aro_sections c
+								where ( a.section_value=b.section_value AND a.value = b.value) AND b.section_value=c.value AND a.acl_id = $acl_id";
 			$rs = $db->Execute($query);
 			$rows = $rs->GetRows();
 
@@ -101,11 +108,31 @@ switch ($_POST['action']) {
 			}
 			//showarray($options_aro);
 
-			//Grab selected groups.
-			$query = "select group_id from groups_map where  acl_id = $acl_id";
-			$selected_groups = $db->GetCol($query);
+			//Grab selected AXO's
+			$query = "select a.section_value, a.value, c.name, b.name from axo_map a, axo b, axo_sections c
+								where ( a.section_value=b.section_value AND a.value = b.value) AND b.section_value=c.value AND a.acl_id = $acl_id";
+			$rs = $db->Execute($query);
+			$rows = $rs->GetRows();
+
+			while (list(,$row) = @each($rows)) {
+				list($section_value, $value, $section, $axo) = $row;
+				debug("Section Value: $section_value Value: $value Section: $section AXO: $axo");
+				
+				$options_selected_axo[$section_value.'^'.$value] = "$section > $axo";
+				
+			}
+			//showarray($options_aro);
+
+			//Grab selected ARO groups.
+			$query = "select group_id from aro_groups_map where  acl_id = $acl_id";
+			$selected_aro_groups = $db->GetCol($query);
 			//showarray($selected_groups);
 			
+			//Grab selected AXO groups.
+			$query = "select group_id from axo_groups_map where  acl_id = $acl_id";
+			$selected_axo_groups = $db->GetCol($query);
+			//showarray($selected_groups);
+
 		} else {
 			debug("NOT EDITING ACL");
 			$allow=1;
@@ -148,6 +175,26 @@ switch ($_POST['action']) {
             }
 
             $options_aro_sections[$id] = $value;
+            
+            $i++;
+        }
+
+        //
+        //Grab all AXO sections for select box
+        //
+        $query = "select value, name from axo_sections where hidden = 0 order by order_value";
+        $rs = $db->Execute($query);
+        $rows = $rs->GetRows();
+
+        $i=0;
+        while (list(,$row) = @each($rows)) {
+            list($id, $value) = $row;
+            
+            if ($i==0) {
+                $axo_section_id=$id;   
+            }
+
+            $options_axo_sections[$id] = $value;
             
             $i++;
         }
@@ -215,6 +262,37 @@ switch ($_POST['action']) {
             $i++;
         }
 
+        //
+        //Grab all AXO's for select box
+        //
+        $query = "select section_value, value, name from axo  where hidden = 0 order by section_value, order_value";
+        $rs = $db->Execute($query);
+        $rows = $rs->GetRows();
+
+        $js_axo_array_name = "axo";
+        //Init the main aro js array.
+        $js_axo_array = "options['$js_axo_array_name'] = new Array();\n";
+        while (list(,$row) = @each($rows)) {
+            list($section_value, $value, $name) = $row;
+            
+            //Prepare javascript code for dynamic select box.
+            //Init the javascript sub-array.
+            if (!isset($tmp_section_value) OR $section_value != $tmp_section_value) {
+                $i=0;
+
+                $js_axo_array .= "options['$js_axo_array_name']['$section_value'] = new Array();\n";
+            }
+
+            //Add each select option for the section
+            $js_axo_array .= "options['$js_axo_array_name']['$section_value'][$i] = new Array('$value', '$name');\n";
+            
+            $tmp_section_value = $section_value;
+            $i++;
+        }
+
+        $smarty->assign("options_axo_sections", $options_axo_sections);
+        $smarty->assign("axo_section_value", $axo_section_value);
+
         $smarty->assign("options_aro_sections", $options_aro_sections);
         $smarty->assign("aro_section_value", $aro_section_value);
 
@@ -227,10 +305,17 @@ switch ($_POST['action']) {
         $smarty->assign("js_aco_array", $js_aco_array);
         $smarty->assign("js_aco_array_name", $js_aco_array_name);
 
-        //Grab formatted Groups for select box
-        $smarty->assign("options_groups", $gacl_api->format_groups($gacl_api->sort_groups()) );
-		$smarty->assign("selected_groups", $selected_groups);
+        $smarty->assign("js_axo_array", $js_axo_array);
+        $smarty->assign("js_axo_array_name", $js_axo_array_name);
+
+        //Grab formatted ARO Groups for select box
+        $smarty->assign("options_aro_groups", $gacl_api->format_groups($gacl_api->sort_groups('ARO')) );
+		$smarty->assign("selected_aro_groups", $selected_aro_groups);
         
+        //Grab formatted AXO Groups for select box
+        $smarty->assign("options_axo_groups", $gacl_api->format_groups($gacl_api->sort_groups('AXO')) );
+		$smarty->assign("selected_axo_groups", $selected_axo_groups);
+
 		$smarty->assign("allow", $allow);
 		$smarty->assign("enabled", $enabled);
 
@@ -243,6 +328,11 @@ switch ($_POST['action']) {
 			$smarty->assign("options_selected_aro", $options_selected_aro);
 		}
 		$smarty->assign("selected_aro", @array_keys($options_selected_aro));
+
+		if (isset($options_selected_axo)) {
+			$smarty->assign("options_selected_axo", $options_selected_axo);
+		}
+		$smarty->assign("selected_axo", @array_keys($options_selected_axo));
 
 		if (isset($_GET['acl_id'])) {
 			$smarty->assign("acl_id", $_GET['acl_id'] );

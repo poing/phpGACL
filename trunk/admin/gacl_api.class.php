@@ -57,7 +57,7 @@ class gacl_api {
 		Function:	add_acl()
 		Purpose:	Add's an ACL. ACO_IDS, ARO_IDS, GROUP_IDS must all be arrays.
 	\*======================================================================*/
-	function add_acl($aco_array, $aro_array, $group_ids, $allow=1, $enabled=1, $acl_id=FALSE ) {
+	function add_acl($aco_array, $aro_array, $aro_group_ids=NULL, $axo_array=NULL, $axo_group_ids=NULL, $allow=1, $enabled=1, $acl_id=FALSE ) {
 		global $db;
 		
 		debug("add_acl():");
@@ -110,13 +110,30 @@ class gacl_api {
 					return false;	
 				}
 
-				$query = "delete from groups_map where acl_id=$acl_id";
+				$query = "delete from axo_map where acl_id=$acl_id";
 				$db->Execute($query);
 
 				if ($db->ErrorNo() != 0) {
 					debug("add_acl(): database error: ". $db->ErrorMsg() ." (". $db->ErrorNo() .")");
 					return false;	
 				}
+
+				$query = "delete from aro_groups_map where acl_id=$acl_id";
+				$db->Execute($query);
+
+				if ($db->ErrorNo() != 0) {
+					debug("add_acl(): database error: ". $db->ErrorMsg() ." (". $db->ErrorNo() .")");
+					return false;	
+				}
+
+				$query = "delete from axo_groups_map where acl_id=$acl_id";
+				$db->Execute($query);
+
+				if ($db->ErrorNo() != 0) {
+					debug("add_acl(): database error: ". $db->ErrorMsg() ." (". $db->ErrorNo() .")");
+					return false;	
+				}
+
 			}
 		}
 		
@@ -132,7 +149,7 @@ class gacl_api {
 				debug("Insert: ACO Section Value: $aco_section_value ACO VALUE: $aco_value_array");   
 				//showarray($aco_array);
 				foreach ($aco_value_array as $aco_value) {
-					$query = "insert into aco_map (acl_id,aco_section_value,aco_value) VALUES($acl_id, '$aco_section_value', '$aco_value')";
+					$query = "insert into aco_map (acl_id,section_value,value) VALUES($acl_id, '$aco_section_value', '$aco_value')";
 					$rs = $db->Execute($query);
 
 					if ($db->ErrorNo() != 0) {
@@ -147,7 +164,7 @@ class gacl_api {
 				debug("Insert: ARO Section Value: $aro_section_value ARO VALUE: $aro_value_array");   
 
 				foreach ($aro_value_array as $aro_value) {
-					$query = "insert into aro_map (acl_id,aro_section_value, aro_value) VALUES($acl_id, '$aro_section_value', '$aro_value')";
+					$query = "insert into aro_map (acl_id,section_value, value) VALUES($acl_id, '$aro_section_value', '$aro_value')";
 					$rs = $db->Execute($query);
 
 					if ($db->ErrorNo() != 0) {
@@ -157,11 +174,39 @@ class gacl_api {
 				}
 			}
 			
-			//Insert GROUP mappings
-			while (list(,$group_id) = @each($group_ids)) {
-				debug("Insert: GROUP ID: $group_id");   
+			//Insert AXO mappings
+			while (list($axo_section_value,$axo_value_array) = @each($axo_array)) {
+				debug("Insert: AXO Section Value: $axo_section_value AXO VALUE: $axo_value_array");   
 
-				$query = "insert into groups_map (acl_id,group_id) VALUES($acl_id, $group_id)";
+				foreach ($axo_value_array as $axo_value) {
+					$query = "insert into axo_map (acl_id,section_value, value) VALUES($acl_id, '$axo_section_value', '$axo_value')";
+					$rs = $db->Execute($query);
+
+					if ($db->ErrorNo() != 0) {
+						debug("add_acl(): database error: ". $db->ErrorMsg() ." (". $db->ErrorNo() .")");
+						return false;	
+					}
+				}
+			}
+
+			//Insert ARO GROUP mappings
+			while (list(,$aro_group_id) = @each($aro_group_ids)) {
+				debug("Insert: ARO GROUP ID: $aro_group_id");   
+
+				$query = "insert into aro_groups_map (acl_id,group_id) VALUES($acl_id, $aro_group_id)";
+				$rs = $db->Execute($query);
+
+				if ($db->ErrorNo() != 0) {
+					debug("add_acl(): database error: ". $db->ErrorMsg() ." (". $db->ErrorNo() .")");
+					return false;	
+				}
+			}
+
+			//Insert AXO GROUP mappings
+			while (list(,$axo_group_id) = @each($axo_group_ids)) {
+				debug("Insert: AXO GROUP ID: $axo_group_id");   
+
+				$query = "insert into axo_groups_map (acl_id,group_id) VALUES($acl_id, $axo_group_id)";
 				$rs = $db->Execute($query);
 
 				if ($db->ErrorNo() != 0) {
@@ -170,6 +215,7 @@ class gacl_api {
 				}
 
 			}
+
 		}
 
 		if ($db->ErrorNo() != 0) {
@@ -186,7 +232,8 @@ class gacl_api {
 		Function:	edit_acl()
 		Purpose:	Edit's an ACL, ACO_IDS, ARO_IDS, GROUP_IDS must all be arrays.
 	\*======================================================================*/
-	function edit_acl($acl_id, $aco_array, $aro_array, $group_ids, $allow=1, $enabled=1) {
+	function edit_acl($acl_id, $aco_array, $aro_array, $aro_group_ids=NULL, $axo_array=NULL, $axo_group_ids=NULL, $allow=1, $enabled=1) {
+	//function edit_acl($acl_id, $aco_array, $aro_array, $group_ids, $allow=1, $enabled=1) {
 		global $db;
 		
 		debug("edit_acl():");
@@ -213,7 +260,8 @@ class gacl_api {
 			$enabled=0;	
 		}
 		
-		if ($this->add_acl($aco_array, $aro_array, $group_ids, $allow, $enabled, $acl_id)) {
+		//if ($this->add_acl($aco_array, $aro_array, $group_ids, $allow, $enabled, $acl_id)) {
+		if ($this->add_acl($aco_array, $aro_array, $aro_group_ids, $axo_array, $axo_group_ids, $allow=1, $enabled=1, $acl_id)) {
 			return true;	
 		} else {
 			debug("edit_acl(): error in add_acl()");
@@ -249,15 +297,30 @@ class gacl_api {
 			debug("del_acl(): database error: ". $db->ErrorMsg() ." (". $db->ErrorNo() .")");
 			return false;	
 		}
+
 		$query = "delete from aro_map where acl_id = $acl_id";
 		$db->Execute($query);
 		if ($db->ErrorNo() != 0) {
 			debug("del_acl(): database error: ". $db->ErrorMsg() ." (". $db->ErrorNo() .")");
 			return false;	
 		}		
-		$query = "delete from groups_map where acl_id = $acl_id";
-		$db->Execute($query);			
 
+		$query = "delete from axo_map where acl_id = $acl_id";
+		$db->Execute($query);
+		if ($db->ErrorNo() != 0) {
+			debug("del_acl(): database error: ". $db->ErrorMsg() ." (". $db->ErrorNo() .")");
+			return false;	
+		}		
+
+		$query = "delete from aro_groups_map where acl_id = $acl_id";
+		$db->Execute($query);
+		if ($db->ErrorNo() != 0) {
+			debug("del_acl(): database error: ". $db->ErrorMsg() ." (". $db->ErrorNo() .")");
+			return false;	
+		}		
+
+		$query = "delete from axo_groups_map where acl_id = $acl_id";
+		$db->Execute($query);			
 		if ($db->ErrorNo() != 0) {
 			debug("del_acl(): database error: ". $db->ErrorMsg() ." (". $db->ErrorNo() .")");
 			return false;	
@@ -279,15 +342,24 @@ class gacl_api {
 		Function:	sort_groups()
 		Purpose:	Grabs all the groups from the database doing preliminary grouping by parent
 	\*======================================================================*/
-	function sort_groups() {
+	function sort_groups($group_type='ARO') {
 		global $db;
+		
+		switch(strtolower($group_type)) {
+			case 'axo':
+				$table = 'axo_groups';
+				break;
+			default:
+				$table = 'aro_groups';
+				break;
+		}
 		
 		//Grab all groups from the database.
 		$query = "select
 									id,
 									parent_id,
 									name
-						from    groups
+						from    $table
 						order by parent_id";
 		$rs = $db->Execute($query);
 		$rows = $rs->GetRows();
@@ -308,19 +380,20 @@ class gacl_api {
 		Function:	format_groups()
 		Purpose:	Takes the array returned by sort_groups() and formats for human consumption.
 	\*======================================================================*/
-	function format_groups($sorted_groups, $type='TEXT', $root_id=0, $level=0) {
+	function format_groups($sorted_groups, $type='TEXT', $root_id=0, $level=0, $formatted_groups=NULL) {
 		/*
 		 * Recursing with a global array, not the most effecient or safe way to do it, but it will work for now.
 		 */
-		global $formatted_groups;
-		
+		//global $formatted_groups;
+
 		while (list($id,$name) = @each($sorted_groups[$root_id])) {
 			switch ($type) {
 				case 'TEXT':
 					/*
 					 * Formatting optimized for TEXT (combo box) output.
 					 */
-					$spacing = str_repeat("|&nbsp;&nbsp;", $level * 1);
+					//$spacing = str_repeat("|&nbsp;&nbsp;", $level * 1);
+					$spacing = str_repeat("|  &nbsp;", $level * 1);
 					$text = $spacing.$name;
 					break;
 				case 'HTML':
@@ -340,13 +413,15 @@ class gacl_api {
 			 * Recurse if we can.
 			 */
 			if (isset($sorted_groups[$id]) AND count($sorted_groups[$id]) > 0) {
-				debug("Recursing! Level: $level");
-				$this->format_groups($sorted_groups, $type, $id, $level + 1);
+				debug("format_groups(): Recursing! Level: $level");
+				return $this->format_groups($sorted_groups, $type, $id, $level + 1, $formatted_groups);
 			} else {
-				debug("Found last branch!");
+				debug("format_groups(): Found last branch!");
 			}
 		}
-		
+
+		debug("format_groups(): Returning final array.");
+
 		return $formatted_groups;
 	}
 
@@ -434,13 +509,22 @@ class gacl_api {
 		Purpose:	Maps a unique path to root to a specific group. Each group can only have
 						one path to root.
 	\*======================================================================*/
-	function map_group_path_to_root($group_id, $path_id) {
+	function map_group_path_to_root($group_id, $path_id, $group_type='ARO') {
 		global $db;
 		
-		$query = "delete from groups_path_map where group_id=$group_id";
+		switch(strtolower($group_type)) {
+			case 'axo':
+				$table = 'axo_groups_path_map';
+				break;
+			default:
+				$table = 'aro_groups_path_map';
+				break;
+		}
+
+		$query = "delete from $table where group_id=$group_id";
 		$db->Execute($query);
 
-		$query = "insert into groups_path_map (path_id, group_id) VALUES($path_id, $group_id)";
+		$query = "insert into $table (path_id, group_id) VALUES($path_id, $group_id)";
 		$db->Execute($query);
 		
 		return true;
@@ -453,51 +537,73 @@ class gacl_api {
 						10 levels deep, there should only be 10 unique path to roots. These of course
 						overlap each other more and more the closer to the root/trunk they get.
 	\*======================================================================*/
-	function put_group_path_to_root($path_to_root) {
+	function put_group_path_to_root($path_to_root, $group_type='ARO') {
 		global $db;
-		
-		/*
-		 * See if the path has already been created.
-		 */
-		$query = "select
-									id
-						from    groups_path
-						where group_id = $path_to_root[0]
-								AND tree_level = 0";
-		$path_id = $db->GetOne($query);
-		debug("put_group_path_to_root(): Path ID: $path_id");
-		
-		if (empty($path_id)) {
-			debug("put_group_path_to_root(): Unique path not found, inserting...");
-			$insert_id = $db->GenID('groups_path_id_seq',10);
-			
-			$i=0;
-			foreach ($path_to_root as $group_id) {
 
-				$query = "insert into groups_path (id, group_id, tree_level) VALUES($insert_id, $group_id, $i)";
-				$db->Execute($query);
-				
-				$i++;
-			}
-			
-			$retval = $insert_id;
-		} else {
-			debug("put_group_path_to_root(): Unique path FOUND, returning ID: $path_id");
-			$retval = $path_id;
+		switch(strtolower($group_type)) {
+			case 'axo':
+				$table = 'axo_groups_path';
+				break;
+			default:
+				$table = 'aro_groups_path';
+				break;
 		}
 
-		/*
-		 * Return path to root ID.
-		 */
-		return $retval;
+		if (count($path_to_root) > 0) {
+			/*
+			 * See if the path has already been created.
+			 */
+			$query = "select
+										id
+							from    $table
+							where group_id = $path_to_root[0]
+									AND tree_level = 0";
+			$path_id = $db->GetOne($query);
+			debug("put_group_path_to_root(): Path ID: $path_id");
+			
+			if (empty($path_id)) {
+				debug("put_group_path_to_root(): Unique path not found, inserting...");
+				$insert_id = $db->GenID($table.'_id_seq',10);
+				
+				$i=0;
+				foreach ($path_to_root as $group_id) {
+
+					$query = "insert into $table (id, group_id, tree_level) VALUES($insert_id, $group_id, $i)";
+					$db->Execute($query);
+					
+					$i++;
+				}
+				
+				$retval = $insert_id;
+			} else {
+				debug("put_group_path_to_root(): Unique path FOUND, returning ID: $path_id");
+				$retval = $path_id;
+			}
+
+			/*
+			 * Return path to root ID.
+			 */
+			return $retval;
+		}
+		
+		return false;
 	}
 
 	/*======================================================================*\
 		Function:	get_path_to_root()
 		Purpose:	Generates the path to root for a given group.
 	\*======================================================================*/
-	function gen_group_path_to_root($group_id) {
+	function gen_group_path_to_root($group_id, $group_type='ARO') {
 		global $db;
+
+		switch(strtolower($group_type)) {
+			case 'axo':
+				$table = 'axo_groups';
+				break;
+			default:
+				$table = 'aro_groups';
+				break;
+		}
 
 		debug("gen_group_path_to_root():");
 		$parent_id = $group_id;
@@ -510,7 +616,7 @@ class gacl_api {
 		while ($parent_id > 0) {
 			$query = "select
 										parent_id
-							from    groups
+							from    $table
 							where id = $parent_id";
 			$parent_id = $db->GetOne($query);
 
@@ -524,10 +630,19 @@ class gacl_api {
 		Function:	add_group()
 		Purpose:	Inserts a group, defaults to be on the "root" branch.
 	\*======================================================================*/
-	function add_group($name, $parent_id=0) {
+	function add_group($name, $parent_id=0, $group_type='ARO') {
 		global $db;
 		
-		debug("add_group(): Name: $name Parent ID: $parent_id");
+		switch(strtolower($group_type)) {
+			case 'axo':
+				$table = 'axo_groups';
+				break;
+			default:
+				$table = 'aro_groups';
+				break;
+		}
+
+		debug("add_group(): Name: $name Parent ID: $parent_id Group Type: $group_type");
 
 		$name = trim($name);
 		
@@ -537,7 +652,7 @@ class gacl_api {
 		}
 		
 		$insert_id = $db->GenID('groups_id_seq',10);
-		$query = "insert into groups (id, parent_id,name) VALUES($insert_id, $parent_id, '$name')";
+		$query = "insert into $table (id, parent_id,name) VALUES($insert_id, $parent_id, '$name')";
 		$rs = $db->Execute($query);                   
 
 		if ($db->ErrorNo() != 0) {
@@ -546,7 +661,7 @@ class gacl_api {
 		} else {
 			debug("add_group(): Added group as ID: $insert_id");
 
-			$this->map_group_path_to_root($insert_id, $this->put_group_path_to_root( $this->gen_group_path_to_root($insert_id) ) );
+			$this->map_group_path_to_root($insert_id, $this->put_group_path_to_root( $this->gen_group_path_to_root($insert_id, $group_type), $group_type ), $group_type );
 			
 			return $insert_id;
 		}		
@@ -582,56 +697,74 @@ class gacl_api {
 		Function:	add_group_aro()
 		Purpose:	Assigns an ARO to a group
 	\*======================================================================*/
-	function add_group_aro($group_id, $aro_section_value, $aro_value) {
+	function add_group_object($group_id, $object_section_value, $object_value, $group_type='ARO') {
 		global $db;
 		
-		debug("add_group_aro(): Group ID: $group_id ARO Section Value: $aro_section_value ARO Value: $aro_value");
+		switch(strtolower($group_type)) {
+			case 'axo':
+				$table = 'groups_axo_map';
+				break;
+			default:
+				$table = 'groups_aro_map';
+				break;
+		}
+
+		debug("add_group_object(): Group ID: $group_id Section Value: $object_section_value Value: $object_value Group Type: $group_type");
 		
-		$aro_section_value = trim($aro_section_value);
-		$aro_value = trim($aro_value);
+		$object_section_value = trim($object_section_value);
+		$object__value = trim($object_value);
 		
-		if (empty($group_id) OR empty($aro_value) OR empty($aro_section_value)) {
-			debug("add_group(): Group ID:  ($group_id) OR ARO value ($aro_value) OR ARO section value ($aro_section_value) is empty, this is required");
+		if (empty($group_id) OR empty($object_value) OR empty($object_section_value)) {
+			debug("add_group_object(): Group ID:  ($group_id) OR Value ($object_value) OR Section value ($object_section_value) is empty, this is required");
 			return false;	
 		}
 			
-        $query = "insert into groups_aro_map (group_id,aro_section_value, aro_value) VALUES($group_id, '$aro_section_value', '$aro_value')";
+        $query = "insert into $table (group_id,section_value, value) VALUES($group_id, '$object_section_value', '$object_value')";
 		$rs = $db->Execute($query);                   
 
 		if ($db->ErrorNo() != 0) {
-			debug("add_group_aro(): database error: ". $db->ErrorMsg() ." (". $db->ErrorNo() .")");
+			debug("add_group_object(): database error: ". $db->ErrorMsg() ." (". $db->ErrorNo() .")");
 			return false;	
 		} else {
-			debug("add_group_aro(): Added ARO Value: $aro_value to Group ID: $group_id");			
+			debug("add_group_object(): Added Value: $object_value to Group ID: $group_id");			
 			return true;
 		}		
 	}
 
 	/*======================================================================*\
-		Function:	del_group_aro()
-		Purpose:	Removes an ARO to group assignment
+		Function:	del_group_object()
+		Purpose:	Removes an Object to group assignment
 	\*======================================================================*/
-	function del_group_aro($group_id, $aro_section_value, $aro_value) {
+	function del_group_object($group_id, $object_section_value, $object_value, $group_type='ARO') {
 		global $db;
 		
-		debug("del_group_aro(): Group ID: $group_id ARO Section value: $aro_section_value ARO Value: $aro_value");
-		
-		$aro_section_value = trim($aro_section_value);
-		$aro_value = trim($aro_value);
+		switch(strtolower($group_type)) {
+			case 'axo':
+				$table = 'groups_axo_map';
+				break;
+			default:
+				$table = 'groups_aro_map';
+				break;
+		}
 
-		if (empty($group_id) OR empty($aro_value) OR empty($aro_section_value)) {
-			debug("del_group(): Group ID:  ($group_id) OR ARO Section value: $aro_section_value OR ARO Value ($aro_value) is empty, this is required");
+		debug("del_group_object(): Group ID: $group_id Section value: $object_section_value Value: $object_value");
+		
+		$object_section_value = trim($object_section_value);
+		$object_value = trim($object_value);
+
+		if (empty($group_id) OR empty($object_value) OR empty($object_section_value)) {
+			debug("del_group_object(): Group ID:  ($group_id) OR Section value: $object_section_value OR Value ($object_value) is empty, this is required");
 			return false;	
 		}
 				
-        $query = "delete from groups_aro_map where group_id=$group_id AND ( aro_section_value='$aro_section_value' AND aro_value='$aro_value')";
+        $query = "delete from $table where group_id=$group_id AND ( section_value='$object_section_value' AND value='$object_value')";
 		$rs = $db->Execute($query);                   
 
 		if ($db->ErrorNo() != 0) {
-			debug("del_group_aro(): database error: ". $db->ErrorMsg() ." (". $db->ErrorNo() .")");
+			debug("del_group_object(): database error: ". $db->ErrorMsg() ." (". $db->ErrorNo() .")");
 			return false;	
 		} else {
-			debug("del_group_aro(): Deleted ARO Value: $aro_value to Group ID: $group_id assignment");			
+			debug("del_group_object(): Deleted Value: $object_value to Group ID: $group_id assignment");			
 			return true;
 		}		
 	}
@@ -640,10 +773,19 @@ class gacl_api {
 		Function:	edit_group()
 		Purpose:	Edits a group
 	\*======================================================================*/
-	function edit_group($group_id, $name, $parent_id=0) {
+	function edit_group($group_id, $name, $parent_id=0, $group_type='ARO') {
 		global $db;
 		
-		debug("edit_group(): ID: $group_id Name: $name Parent ID: $parent_id");
+		switch(strtolower($group_type)) {
+			case 'axo':
+				$table = 'axo_groups';
+				break;
+			default:
+				$table = 'aro_groups';
+				break;
+		}
+
+		debug("edit_group(): ID: $group_id Name: $name Parent ID: $parent_id Group Type: $group_type");
 
 		$name = trim($name);
 		
@@ -659,13 +801,13 @@ class gacl_api {
 
 		//Make sure we don't re-parent to our own children.
 		//Grab all children of this group_id.
-		$children_ids = array_keys( $this->format_groups($this->sort_groups(), 'ARRAY', $group_id) );
-		if (in_array($parent_id, $children_ids) ) {
+		$children_ids = @array_keys( $this->format_groups($this->sort_groups($group_type), 'ARRAY', $group_id) );
+		if (@in_array($parent_id, $children_ids) ) {
 			debug("edit_group(): Groups can not be re-parented to there own children, this would be incestuous!");
 			return false;
 		}
 		
-		$query = "update groups set
+		$query = "update $table set
 																name = '$name',
 																parent_id = $parent_id
 													where   id=$group_id";
@@ -677,7 +819,8 @@ class gacl_api {
 		} else {
 			debug("edit_group(): Modified group ID: $group_id");
 			
-			$this->map_group_path_to_root($group_id, $this->put_group_path_to_root( $this->gen_group_path_to_root($group_id) ) );
+			$this->map_group_path_to_root($insert_id, $this->put_group_path_to_root( $this->gen_group_path_to_root($insert_id, $group_type), $group_type ), $group_type );
+			//$this->map_group_path_to_root($group_id, $this->put_group_path_to_root( $this->gen_group_path_to_root($group_id) ) );
 			
 			return true;
 		}
@@ -687,10 +830,21 @@ class gacl_api {
 		Function:	del_group()
 		Purpose:	deletes a given group
 	\*======================================================================*/
-	function del_group($group_id, $reparent_children=TRUE) {
+	function del_group($group_id, $reparent_children=TRUE, $group_type='ARO') {
 		global $db;
 		
-		debug("del_group(): ID: $group_id Reparent Children: $reparent_children");
+		switch(strtolower($group_type)) {
+			case 'axo':
+				$table = 'axo_groups';
+				$groups_map_table = 'axo_groups_map';
+				break;
+			default:
+				$table = 'groups';
+				$groups_map_table = 'aro_groups_map';
+				break;
+		}
+
+		debug("del_group(): ID: $group_id Reparent Children: $reparent_children Group Type: $group_type");
 		
 		if (empty($group_id) ) {
 			debug("del_group(): Group ID ($group_id) is empty, this is required");
@@ -700,7 +854,7 @@ class gacl_api {
 		/*
 		 * Find this groups parent. Which we use to reparent children.
 		 */
-		$query = "select parent_id from groups where id=$group_id";
+		$query = "select parent_id from $table where id=$group_id";
 		$parent_id = $db->GetOne($query);
 		
 		if ($db->ErrorNo() != 0) {
@@ -713,7 +867,7 @@ class gacl_api {
 		 */
 		if ($reparent_children) {
 			//Reparent children if any.
-			$query = "update groups set parent_id=$parent_id where parent_id=$group_id";
+			$query = "update $table set parent_id=$parent_id where parent_id=$group_id";
 			$db->Execute($query);
 
 			if ($db->ErrorNo() != 0) {
@@ -722,7 +876,7 @@ class gacl_api {
 			}
 		} else {
 			//Delete all children
-			$query = "delete from groups where parent_id=$parent_id";
+			$query = "delete from $table where parent_id=$parent_id";
 			$db->Execute($query);
 
 			if ($db->ErrorNo() != 0) {
@@ -731,7 +885,7 @@ class gacl_api {
 			}			
 		}
 
-		$query = "delete from groups where id=$group_id";
+		$query = "delete from $table where id=$group_id";
 		debug("delete query: $query");
 		$db->Execute($query);
 
@@ -740,7 +894,7 @@ class gacl_api {
 			return false;	
 		}
 		
-		$query = "delete from groups_map where group_id=$group_id";
+		$query = "delete from $groups_map_table where group_id=$group_id";
 		debug("delete query: $query");
 		$db->Execute($query);
 	
@@ -753,504 +907,35 @@ class gacl_api {
 		}
 	}
 
+
 	/*
 	 *
-	 * Access Request Objects (ARO)
+	 * Objects (ACO/ARO/AXO)
 	 *
 	 */
 
 	/*======================================================================*\
-		Function:	get_aro()
-		Purpose:	Grabs all ARO's in the database, or specific to a section_id
+		Function:	get_object()
+		Purpose:	Grabs all Objects's in the database, or specific to a section_id
 	\*======================================================================*/
-	function get_aro($section_value = null, $return_hidden=1) {
+	function get_object($section_value = null, $return_hidden=1, $object_type=NULL) {
 		global $db;
 		
-		debug("get_aro(): Section Value: $section_value");
-		
-			
-		$query = "select id from aro ";
-		if (!empty($section_value) ) {
-			$query .= " where section_value = '$section_value'";
-		}
-		
-		if ($return_hidden==0) {
-			$query .= "		and hidden=0";	
-		}
-
-		$rs = $db->GetCol($query);
-
-		if ($db->ErrorNo() != 0) {
-			debug("get_aro(): database error: ". $db->ErrorMsg() ." (". $db->ErrorNo() .")");
-			return false;	
-		} else {
-			//Return all ARO id's
-			return $rs;	
-		}
-	}
-
-	/*======================================================================*\
-		Function:	get_aro_data()
-		Purpose:	Gets all data pertaining to a specific ARO.
-	\*======================================================================*/
-	function aro_data($aro_id) {
-		global $db;
-		
-		debug("get_aro_data(): ARO ID: $aro_id");
-
-		if (empty($aro_id) ) {
-			debug("get_aro_data(): ARO ID ($aro_id) is empty, this is required");
-			return false;	
-		}
-		
-		$query = "select section_value, value, order_value, name, hidden from aro where id = $aro_id";
-
-		$rs = $db->Execute($query);
-
-		if ($db->ErrorNo() != 0) {
-			debug("get_aro_data(): database error: ". $db->ErrorMsg() ." (". $db->ErrorNo() .")");
-			return false;	
-		} else {
-			if ($rs->RecordCount() > 0) {
-				$rows = $rs->GetRows();
-
-				//Return all ACO id's
-				return $rows;
-			} else {
-				debug("get_aro_data(): Returned $row_count rows");
-				return false;	
-			}
-		}
-	}
-
-	/*======================================================================*\
-		Function:	get_aro_id()
-		Purpose:	Gets the aro_id given the name OR value of the ARO.
-						so if there are duplicate names, it will return false.
-	\*======================================================================*/
-	function get_aro_id($name = null, $value = null) {
-		global $db;
-		
-		debug("get_aro_id(): Value: $value Name: $name");
-		
-		$name = trim($name);
-		$value = trim($value);
-		
-		if (empty($name) AND empty($value) ) {
-			debug("get_aro_id(): name ($name) OR value ($value) is empty, this is required");
-			return false;	
-		}
-			
-		$query = "select id from aro where name='$name' OR value='$value'";
-		$rs = $db->Execute($query);
-
-		if ($db->ErrorNo() != 0) {
-			debug("get_aro_id(): database error: ". $db->ErrorMsg() ." (". $db->ErrorNo() .")");
-			return false;	
-		} else {
-			$row_count = $rs->RecordCount();
-			
-			if ($row_count > 1) {
-				debug("get_aro_id(): Returned $row_count rows, can only return one. Please search by value not name, or make your names unique.");
-				return false;	
-			} elseif($row_count == 0) {
-				debug("get_aro_id(): Returned $row_count rows");				
-				return false;
-			} else {
-				$rows = $rs->GetRows();
-
-				//Return only the ID in the first row.
-				return $rows[0][0];	
-			}
-		}
-	}
-
-	/*======================================================================*\
-		Function:	get_aro_section_id()
-		Purpose:	Gets the aro_section_id given ARO id
-	\*======================================================================*/
-	function get_aro_section_value($aro_id) {
-		global $db;
-		
-		debug("get_aro_section_value(): ARO ID: $aro_id");
-		
-		if (empty($aro_id) ) {
-			debug("get_aro_section_value(): ID ($aro_id) is empty, this is required");
-			return false;	
-		}
-			
-		$query = "select section_value from aro where id=$aro_id";
-		$rs = $db->Execute($query);
-
-		if ($db->ErrorNo() != 0) {
-			debug("get_aro_section_value(): database error: ". $db->ErrorMsg() ." (". $db->ErrorNo() .")");
-			return false;	
-		} else {
-			$row_count = $rs->RecordCount();
-			
-			if ($row_count > 1) {
-				debug("get_aro_section_value(): Returned $row_count rows, can only return one. Please search by value not name, or make your names unique.");
-				return false;	
-			} elseif($row_count == 0) {
-				debug("get_aro_section_value(): Returned $row_count rows");				
-				return false;
-			} else {
-				$rows = $rs->GetRows();
-
-				//Return only the ID in the first row.
-				return $rows[0][0];	
-			}
-		}
-	}
-
-	/*======================================================================*\
-		Function:	add_aro()
-		Purpose:	Inserts a new ARO
-	\*======================================================================*/
-	function add_aro($section_value, $name, $value=0, $order=0, $hidden=0) {
-		global $db;
-		
-		debug("add_aro(): Section Value: $section_value Value: $value Order: $order Name: $name");
-		
-		$section_value = trim($section_value);
-		$name = trim($name);
-		$value = trim($value);
-		$order = trim($order);
-		
-		if (empty($name) OR empty($section_value) ) {
-			debug("add_aro(): name ($name) OR section value ($section_value) is empty, this is required");
-			return false;	
-		}
-		
-		$insert_id = $db->GenID('aro_seq',10);
-		$query = "insert into aro (id,section_value, value,order_value,name,hidden) VALUES($insert_id, '$section_value', '$value', '$order', '$name', $hidden)";
-		$rs = $db->Execute($query);                   
-
-		if ($db->ErrorNo() != 0) {
-			debug("add_aro(): database error: ". $db->ErrorMsg() ." (". $db->ErrorNo() .")");
-			return false;	
-		} else {
-			debug("add_aro(): Added aro as ID: $insert_id");
-			return $insert_id;
-		}
-	}
-	
-	/*======================================================================*\
-		Function:	edit_aro()
-		Purpose:	Edits a given ARO
-	\*======================================================================*/
-	function edit_aro($aro_id, $section_value, $name, $value=0, $order=0, $hidden=0) {
-		global $db;
-		
-		debug("edit_aro(): ID: $aro_id Section Value: $section_value Value: $value Order: $order Name: $name Hidden: $hidden");
-		
-		$section_value = trim($section_value);
-		$name = trim($name);
-		$value = trim($value);
-		$order = trim($order);
-		
-		if (empty($aro_id) OR empty($section_value) ) {
-			debug("edit_aro(): ARO ID ($aro_id) OR Section ID ($section_value) is empty, this is required");
-			return false;	
+		switch(strtolower(trim($object_type))) {
+			case 'aco':
+				$object_type = 'aco';
+				break;
+			case 'aro':
+				$object_type = 'aro';
+				break;
+			case 'axo':
+				$object_type = 'axo';
+				break;
 		}
 
-		if (empty($name) ) {
-			debug("edit_aro(): name ($name) is empty, this is required");
-			return false;	
-		}
+		debug("get_object(): Section Value: $section_value Object Type: $object_type");
 		
-		//Get old value incase it changed, before we do the update.
-		$query = "select value from aro where id=$aro_id";
-		$old_value = $db->GetOne($query);
-
-		$query = "update aro set
-																section_value='$section_value',
-																value='$value',
-																order_value='$order',
-																name='$name',
-																hidden=$hidden
-													where   id=$aro_id";
-		$rs = $db->Execute($query);                   
-
-		if ($db->ErrorNo() != 0) {
-			debug("edit_aro(): database error: ". $db->ErrorMsg() ." (". $db->ErrorNo() .")");
-			return false;	
-		} else {
-			debug("edit_aro(): Modified aro ID: $aro_id");
-
-			if ($old_value != $value) {
-				debug("edit_aro(): Value Changed, update other tables.");
-				
-				$query = "update aro_map set
-																aro_value='$value'
-													where aro_section_value = '$section_value'
-														AND aro_value = '$old_value'";
-				$rs = $db->Execute($query);                   
-
-				if ($db->ErrorNo() != 0) {
-					debug("edit_aro(): database error: ". $db->ErrorMsg() ." (". $db->ErrorNo() .")");
-					return false;	
-				} else {
-					debug("edit_aro(): Modified aro_map value: $value");
-
-					$query = "update groups_aro_map set
-																	aro_value='$value'
-														where aro_section_value = '$section_value'
-															AND aro_value = '$old_value'";
-					$rs = $db->Execute($query);                   
-
-					if ($db->ErrorNo() != 0) {
-						debug("edit_aro(): database error: ". $db->ErrorMsg() ." (". $db->ErrorNo() .")");
-						return false;	
-					} else {
-						debug("edit_aro(): Modified groups_aro_map value: $value");
-						return true;
-					}
-				}
-			}
-			
-			return true;
-		}
-	}
-	
-	/*======================================================================*\
-		Function:	del_aro()
-		Purpose:	Delets a given ARO
-	\*======================================================================*/
-	function del_aro($aro_id) {
-		global $db;
-		
-		debug("del_aro(): ID: $aro_id");
-		
-		if (empty($aro_id) ) {
-			debug("del_aro(): ARO_ID ($aro_id) is empty, this is required");
-			return false;	
-		}
-
-		$query = "delete from aro where id=$aro_id";
-		$db->Execute($query);
-	
-		if ($db->ErrorNo() != 0) {
-			debug("del_aro(): database error: ". $db->ErrorMsg() ." (". $db->ErrorNo() .")");
-			return false;	
-		} else {
-			debug("del_aro(): deleted aro ID: $aro_id");
-			return true;
-		}
-
-	}
-
-
-	/*
-	 *
-	 * ARO Sections
-	 *
-	 */
-
-	
-	/*======================================================================*\
-		Function:	get_aro_section_section_id()
-		Purpose:	Gets the aro_section_id given the name OR value of the section.
-						Will only return one section id, so if there are duplicate names, it will return false.		
-	\*======================================================================*/
-	function get_aro_section_section_id($name = null, $value = null) {
-		global $db;
-		
-		debug("get_aro_section_section_id(): Value: $value Name: $name");
-		
-		$name = trim($name);
-		$value = trim($value);
-		
-		if (empty($name) AND empty($value) ) {
-			debug("get_aro_section_section_id(): name ($name) OR value ($value) is empty, this is required");
-			return false;	
-		}
-			
-		$query = "select id from aro_sections where name='$name' OR value='$value'";
-		$rs = $db->Execute($query);
-
-		if ($db->ErrorNo() != 0) {
-			debug("get_aro_section_section_id(): database error: ". $db->ErrorMsg() ." (". $db->ErrorNo() .")");
-			return false;	
-		} else {
-			$row_count = $rs->RecordCount();
-			
-			if ($row_count > 1) {
-				debug("get_aro_section_section_id(): Returned $row_count rows, can only return one. Please search by value not name, or make your names unique.");
-				return false;	
-			} else {
-				$rows = $rs->GetRows();
-
-				//Return only the ID in the first row.
-				return $rows[0][0];	
-			}
-		}
-	}
-
-	/*======================================================================*\
-		Function:	add_aro_section()
-		Purpose:	Inserts an ARO Section
-	\*======================================================================*/
-	function add_aro_section($name, $value=0, $order=0, $hidden=0) {
-		global $db;
-		
-		debug("add_aro_section(): Value: $value Order: $order Name: $name");
-		
-		$name = trim($name);
-		$value = trim($value);
-		$order = trim($order);
-		
-		if (empty($name) ) {
-			debug("add_aro_section(): name ($name) is empty, this is required");
-			return false;	
-		}
-			
-		$insert_id = $db->GenID('aro_sections_seq',10);
-		$query = "insert into aro_sections (id,value,order_value,name,hidden) VALUES($insert_id, '$value', '$order', '$name', $hidden)";
-		$rs = $db->Execute($query);                   
-
-		if ($db->ErrorNo() != 0) {
-			debug("add_aro_section(): database error: ". $db->ErrorMsg() ." (". $db->ErrorNo() .")");
-			return false;	
-		} else {
-			debug("add_aro_section(): Added aro_section as ID: $insert_id");
-			return $insert_id;
-		}
-	}
-	
-	/*======================================================================*\
-		Function:	edit_aro_section()
-		Purpose:	Edits a given ARO section
-	\*======================================================================*/
-	function edit_aro_section($aro_section_id, $name, $value=0, $order=0, $hidden=0) {
-		global $db;
-		
-		debug("edit_aro_section(): ID: $aro_section_id Value: $value Order: $order Name: $name");
-		
-		$name = trim($name);
-		$value = trim($value);
-		$order = trim($order);
-		
-		if (empty($aro_section_id) ) {
-			debug("edit_aro_section(): Section ID ($aro_section_id) is empty, this is required");
-			return false;	
-		}
-
-		if (empty($name) ) {
-			debug("edit_aro_section(): name ($name) is empty, this is required");
-			return false;	
-		}
-				
-		//Get old value incase it changed, before we do the update.
-		$query = "select value from aro_sections where id=$aro_section_id";
-		$old_value = $db->GetOne($query);
-
-		$query = "update aro_sections set
-																value='$value',
-																order_value='$order',
-																name='$name',
-																hidden=$hidden
-													where   id=$aro_section_id";
-		$rs = $db->Execute($query);                   
-
-		if ($db->ErrorNo() != 0) {
-			debug("edit_aro_section(): database error: ". $db->ErrorMsg() ." (". $db->ErrorNo() .")");
-			return false;	
-		} else {
-			debug("edit_aro_section(): Modified aro_section ID: $aro_section_id");
-
-			if ($old_value != $value) {
-				debug("edit_aro_section(): Value Changed, update other tables.");
-				
-				$query = "update aro set
-																section_value='$value'
-													where section_value = '$old_value'";
-				$rs = $db->Execute($query);                   
-
-				if ($db->ErrorNo() != 0) {
-					debug("edit_aro_section(): database error: ". $db->ErrorMsg() ." (". $db->ErrorNo() .")");
-					return false;	
-				} else {
-					$query = "update aro_map set
-																	aro_section_value='$value'
-														where aro_section_value = '$old_value'";
-					$rs = $db->Execute($query);                   
-
-					if ($db->ErrorNo() != 0) {
-						debug("edit_aro_section(): database error: ". $db->ErrorMsg() ." (". $db->ErrorNo() .")");
-						return false;	
-					} else {
-						debug("edit_aro_section(): Modified aro_map value: $value");						
-
-						$query = "update groups_aro_map set
-																		aro_section_value='$value'
-															where aro_section_value = '$old_value'";
-						$rs = $db->Execute($query);                   
-
-						if ($db->ErrorNo() != 0) {
-							debug("edit_aro_section(): database error: ". $db->ErrorMsg() ." (". $db->ErrorNo() .")");
-							return false;	
-						} else {
-							debug("edit_aro_section(): Modified group_aro_map value: $value");						
-							return true;
-						}
-					}
-				}	
-			}
-
-			return true;
-		}
-	}
-
-
-	/*======================================================================*\
-		Function:	del_aro_section()
-		Purpose:	Deletes a given ARO section
-	\*======================================================================*/
-	function del_aro_section($aro_section_id) {
-		global $db;
-		
-		debug("del_aro_section(): ID: $aro_section_id");
-		
-		if (empty($aro_section_id) ) {
-			debug("del_aro_section(): Section ID ($aro_section_id) is empty, this is required");
-			return false;	
-		}
-
-		/*
-		 * FIXME: Should we delete all AROs in this section as well?
-		 */
-		$query = "delete from aro_sections where id=$aro_section_id";
-		$db->Execute($query);
-	
-		if ($db->ErrorNo() != 0) {
-			debug("del_aro_section(): database error: ". $db->ErrorMsg() ." (". $db->ErrorNo() .")");
-			return false;	
-		} else {
-			debug("del_aro_section(): deleted aro_section ID: $aro_section_id");
-			return true;
-		}
-
-	}
-
-
-	/*
-	 *
-	 * Access Control Objects (ACO)
-	 *
-	 */
-
-	/*======================================================================*\
-		Function:	get_aco()
-		Purpose:	Grabs all ACO's in the database, or specific to a section_id
-	\*======================================================================*/
-	function get_aco($section_value = null, $return_hidden=1) {
-		global $db;
-		
-		debug("get_aco(): Section Value: $section_value");
-		
-			
-		$query = "select id from aco ";
+		$query = "select id from $object_type ";
 		if (!empty($section_value) ) {
 			$query .= " where section_value = '$section_value'";
 		}
@@ -1262,34 +947,51 @@ class gacl_api {
 		$rs = $db->GetCol($query);
 
 		if ($db->ErrorNo() != 0) {
-			debug("get_aco(): database error: ". $db->ErrorMsg() ." (". $db->ErrorNo() .")");
+			debug("get_object(): database error: ". $db->ErrorMsg() ." (". $db->ErrorNo() .")");
 			return false;	
 		} else {
-			//Return all ACO id's
+			//Return all Object id's
 			return $rs;	
 		}
 	}
 
 	/*======================================================================*\
-		Function:	get_aco_data()
-		Purpose:	Gets all data pertaining to a specific ACO.
+		Function:	get_object_data()
+		Purpose:	Gets all data pertaining to a specific Object.
 	\*======================================================================*/
-	function get_aco_data($aco_id) {
+	function get_object_data($object_id, $object_type=NULL) {
 		global $db;
 		
-		debug("get_aco_data(): ACO ID: $aco_id");
+		switch(strtolower(trim($object_type))) {
+			case 'aco':
+				$object_type = 'aco';
+				break;
+			case 'aro':
+				$object_type = 'aro';
+				break;
+			case 'axo':
+				$object_type = 'axo';
+				break;
+		}
 
-		if (empty($aco_id) ) {
-			debug("get_aco_data(): ACO ID ($aco_id) is empty, this is required");
+		debug("get_aco_data(): Object ID: $object_id Object Type: $object_type");
+
+		if (empty($object_id) ) {
+			debug("get_object_data(): Object ID ($object_id) is empty, this is required");
 			return false;	
 		}
 		
-		$query = "select section_value, value, order_value, name, hidden from aco where id = $aco_id";
+		if (empty($object_type) ) {
+			debug("get_object_data(): Object Type ($object_type) is empty, this is required");
+			return false;	
+		}
+
+		$query = "select section_value, value, order_value, name, hidden from $object_type where id = $object_id";
 
 		$rs = $db->Execute($query);
 
 		if ($db->ErrorNo() != 0) {
-			debug("get_aco_data(): database error: ". $db->ErrorMsg() ." (". $db->ErrorNo() .")");
+			debug("get_object_data(): database error: ". $db->ErrorMsg() ." (". $db->ErrorNo() .")");
 			return false;	
 		} else {
 			if ($rs->RecordCount() > 0) {
@@ -1298,44 +1000,61 @@ class gacl_api {
 				//Return all ACO id's
 				return $rows;
 			} else {
-				debug("get_aco_data(): Returned $row_count rows");
+				debug("get_object_data(): Returned $row_count rows");
 				return false;	
 			}
 		}
 	}
 
 	/*======================================================================*\
-		Function:	get_aco_id()
-		Purpose:	Gets the aco_id given the name OR value of the ARO.
+		Function:	get_object_id()
+		Purpose:	Gets the object_id given the name OR value of the object.
 						so if there are duplicate names, it will return false.
 	\*======================================================================*/
-	function get_aco_id($name = null, $value = null) {
+	function get_object_id($section_value, $value, $object_type=NULL) {
 		global $db;
 		
-		debug("get_aco_id(): Value: $value Name: $name");
+		switch(strtolower(trim($object_type))) {
+			case 'aco':
+				$object_type = 'aco';
+				break;
+			case 'aro':
+				$object_type = 'aro';
+				break;
+			case 'axo':
+				$object_type = 'axo';
+				break;
+		}
+
+		debug("get_object_id(): Section Value: $section_value Value: $value Object Type: $object_type");
 		
 		$name = trim($name);
 		$value = trim($value);
 		
 		if (empty($name) AND empty($value) ) {
-			debug("get_aco_id(): name ($name) OR value ($value) is empty, this is required");
+			debug("get_object_id(): name ($name) OR value ($value) is empty, this is required");
+			return false;	
+		}
+
+		if (empty($object_type) ) {
+			debug("get_object_id(): Object Type ($object_type) is empty, this is required");
 			return false;	
 		}
 			
-		$query = "select id from aco where name='$name' OR value='$value'";
+		$query = "select id from $object_type where section_value='$section_value' AND value='$value'";
 		$rs = $db->Execute($query);
 
 		if ($db->ErrorNo() != 0) {
-			debug("get_aco_id(): database error: ". $db->ErrorMsg() ." (". $db->ErrorNo() .")");
+			debug("get_object_id(): database error: ". $db->ErrorMsg() ." (". $db->ErrorNo() .")");
 			return false;	
 		} else {
 			$row_count = $rs->RecordCount();
 			
 			if ($row_count > 1) {
-				debug("get_aco_id(): Returned $row_count rows, can only return one. Please search by value not name, or make your names unique.");
+				debug("get_object_id(): Returned $row_count rows, can only return one. Please search by value not name, or make your names unique.");
 				return false;	
 			} elseif($row_count == 0) {
-				debug("get_aco_id(): Returned $row_count rows");				
+				debug("get_object_id(): Returned $row_count rows");				
 				return false;
 			} else {
 				$rows = $rs->GetRows();
@@ -1347,33 +1066,50 @@ class gacl_api {
 	}
 
 	/*======================================================================*\
-		Function:	get_aco_section_id()
-		Purpose:	Gets the aco_section_id given ARO id
+		Function:	get_object_section_id()
+		Purpose:	Gets the object_section_id given object id
 	\*======================================================================*/
-	function get_aco_section_value($aco_id) {
+	function get_object_section_value($object_id, $object_type=NULL) {
 		global $db;
 		
-		debug("get_aco_section_value(): ACO ID: $aco_id");
+		switch(strtolower(trim($object_type))) {
+			case 'aco':
+				$object_type = 'aco';
+				break;
+			case 'aro':
+				$object_type = 'aro';
+				break;
+			case 'axo':
+				$object_type = 'axo';
+				break;
+		}
+
+		debug("get_object_section_value(): Object ID: $object_id Object Type: $object_type");
 		
-		if (empty($aco_id) ) {
-			debug("get_aco_section_value(): ACO ID ($aco_id) is empty, this is required");
+		if (empty($object_id) ) {
+			debug("get_object_section_value(): Object ID ($object_id) is empty, this is required");
 			return false;	
 		}
 			
-		$query = "select section_value from aco where id=$aco_id";
+		if (empty($object_type) ) {
+			debug("get_object_section_value(): Object Type ($object_type) is empty, this is required");
+			return false;	
+		}
+
+		$query = "select section_value from $object_type where id=$object_id";
 		$rs = $db->Execute($query);
 
 		if ($db->ErrorNo() != 0) {
-			debug("get_aco_section_value(): database error: ". $db->ErrorMsg() ." (". $db->ErrorNo() .")");
+			debug("get_object_section_value(): database error: ". $db->ErrorMsg() ." (". $db->ErrorNo() .")");
 			return false;	
 		} else {
 			$row_count = $rs->RecordCount();
 			
 			if ($row_count > 1) {
-				debug("get_aco_section_value(): Returned $row_count rows, can only return one. Please search by value not name, or make your names unique.");
+				debug("get_object_section_value(): Returned $row_count rows, can only return one. Please search by value not name, or make your names unique.");
 				return false;	
 			} elseif($row_count == 0) {
-				debug("get_aco_section_value(): Returned $row_count rows");				
+				debug("get_object_section_value(): Returned $row_count rows");				
 				return false;
 			} else {
 				$rows = $rs->GetRows();
@@ -1388,10 +1124,25 @@ class gacl_api {
 		Function:	add_aco()
 		Purpose:	Inserts a new ARO
 	\*======================================================================*/
-	function add_aco($section_value, $name, $value=0, $order=0, $hidden=0) {
+	function add_object($section_value, $name, $value=0, $order=0, $hidden=0, $object_type=NULL) {
 		global $db;
 		
-		debug("add_aco(): Section Value: $section_value Value: $value Order: $order Name: $name");
+		switch(strtolower(trim($object_type))) {
+			case 'aco':
+				$object_type = 'aco';
+				$object_sections_table = 'aco_sections';
+				break;
+			case 'aro':
+				$object_type = 'aro';
+				$object_sections_table = 'aro_sections';
+				break;
+			case 'axo':
+				$object_type = 'axo';
+				$object_sections_table = 'axo_sections';
+				break;
+		}
+
+		debug("add_object(): Section Value: $section_value Value: $value Order: $order Name: $name Object Type: $object_type");
 		
 		$section_value = trim($section_value);
 		$name = trim($name);
@@ -1399,80 +1150,105 @@ class gacl_api {
 		$order = trim($order);
 		
 		if (empty($name) OR empty($section_value) ) {
-			debug("add_aco(): name ($name) OR section value ($section_value) is empty, this is required");
+			debug("add_object(): name ($name) OR section value ($section_value) is empty, this is required");
 			return false;	
 		}
 		
-		$insert_id = $db->GenID('aco_seq',10);
-		$query = "insert into aco (id,section_value, value,order_value,name,hidden) VALUES($insert_id, '$section_value', '$value', '$order', '$name', $hidden)";
+		if (empty($object_type) ) {
+			debug("add_object(): Object Type ($object_type) is empty, this is required");
+			return false;	
+		}
+
+		$insert_id = $db->GenID($object_type.'_seq',10);
+		$query = "insert into $object_type (id,section_value, value,order_value,name,hidden) VALUES($insert_id, '$section_value', '$value', '$order', '$name', $hidden)";
 		$rs = $db->Execute($query);                   
 
 		if ($db->ErrorNo() != 0) {
-			debug("add_aco(): database error: ". $db->ErrorMsg() ." (". $db->ErrorNo() .")");
+			debug("add_object(): database error: ". $db->ErrorMsg() ." (". $db->ErrorNo() .")");
 			return false;	
 		} else {
-			debug("add_aco(): Added aco as ID: $insert_id");
+			debug("add_object(): Added object as ID: $insert_id");
 			return $insert_id;
 		}
 	}
-	
+
 	/*======================================================================*\
-		Function:	edit_aco()
-		Purpose:	Edits a given ACO
+		Function:	edit_object()
+		Purpose:	Edits a given Object
 	\*======================================================================*/
-	function edit_aco($aco_id, $section_value, $name, $value=0, $order=0, $hidden=0) {
+	function edit_object($object_id, $section_value, $name, $value=0, $order=0, $hidden=0, $object_type=NULL) {
 		global $db;
 		
-		debug("edit_aco(): ID: $aco_id Section Value: $section_value Value: $value Order: $order Name: $name");
+		switch(strtolower(trim($object_type))) {
+			case 'aco':
+				$object_type = 'aco';
+				$object_map_table = 'aco_map';
+				break;
+			case 'aro':
+				$object_type = 'aro';
+				$object_map_table = 'aro_map';
+				break;
+			case 'axo':
+				$object_type = 'axo';
+				$object_map_table = 'axo_map';
+				break;
+		}
+
+		debug("edit_object(): ID: $object_id Section Value: $section_value Value: $value Order: $order Name: $name Object Type: $object_type");
 		
 		$section_value = trim($section_value);
 		$name = trim($name);
 		$value = trim($value);
 		$order = trim($order);
 		
-		if (empty($aco_id) OR empty($section_value) ) {
-			debug("edit_aco(): ARO ID ($aco_id) OR Section Value ($section_value) is empty, this is required");
+		if (empty($object_id) OR empty($section_value) ) {
+			debug("edit_object(): Object ID ($object_id) OR Section Value ($section_value) is empty, this is required");
 			return false;	
 		}
 
 		if (empty($name) ) {
-			debug("edit_aco(): name ($name) is empty, this is required");
+			debug("edit_object(): name ($name) is empty, this is required");
 			return false;	
 		}
 				
+		if (empty($object_type) ) {
+			debug("edit_object(): Object Type ($object_type) is empty, this is required");
+			return false;	
+		}
+
 		//Get old value incase it changed, before we do the update.
-		$query = "select value from aco where id=$aco_id";
+		$query = "select value from $object_type where id=$object_id";
 		$old_value = $db->GetOne($query);
 
-		$query = "update aco set
+		$query = "update $object_type set
 																section_value='$section_value',
 																value='$value',
 																order_value='$order',
 																name='$name',
 																hidden=$hidden
-													where   id=$aco_id";
+													where   id=$object_id";
 		$rs = $db->Execute($query);                   
 
 		if ($db->ErrorNo() != 0) {
-			debug("edit_aco(): database error: ". $db->ErrorMsg() ." (". $db->ErrorNo() .")");
+			debug("edit_object(): database error: ". $db->ErrorMsg() ." (". $db->ErrorNo() .")");
 			return false;	
 		} else {
-			debug("edit_aco(): Modified aco ID: $aco_id");
+			debug("edit_object(): Modified aco ID: $aco_id");
 			
 			if ($old_value != $value) {
-				debug("edit_aco(): Value Changed, update other tables.");
+				debug("edit_object(): Value Changed, update other tables.");
 				
-				$query = "update aco_map set
-																aco_value='$value'
-													where aco_section_value = '$section_value'
-														AND aco_value = '$old_value'";
+				$query = "update $object_map_table set
+																value='$value'
+													where section_value = '$section_value'
+														AND value = '$old_value'";
 				$rs = $db->Execute($query);                   
 
 				if ($db->ErrorNo() != 0) {
-					debug("edit_aco(): database error: ". $db->ErrorMsg() ." (". $db->ErrorNo() .")");
+					debug("edit_object(): database error: ". $db->ErrorMsg() ." (". $db->ErrorNo() .")");
 					return false;	
 				} else {
-					debug("edit_aco(): Modified aco_map value: $value");
+					debug("edit_object(): Modified aco_map value: $value");
 					return true;
 				}
 				
@@ -1481,73 +1257,110 @@ class gacl_api {
 			return true;
 		}
 	}
-	
+
 	/*======================================================================*\
-		Function:	del_aco()
-		Purpose:	Deletes a given ARO
+		Function:	del_object()
+		Purpose:	Deletes a given Object
 	\*======================================================================*/
-	function del_aco($aco_id) {
+	function del_object($object_id, $object_type=NULL) {
 		global $db;
 		
-		debug("del_aco(): ID: $aco_id");
+		switch(strtolower(trim($object_type))) {
+			case 'aco':
+				$object_type = 'aco';
+				break;
+			case 'aro':
+				$object_type = 'aro';
+				break;
+			case 'axo':
+				$object_type = 'axo';
+				break;
+		}
+
+		debug("del_object(): ID: $object_id Object Type: $object_type");
 		
-		if (empty($aco_id) ) {
-			debug("del_aco(): ACO ID ($aco_id) is empty, this is required");
+		if (empty($object_id) ) {
+			debug("del_object(): Object ID ($object_id) is empty, this is required");
 			return false;	
 		}
 
-		$query = "delete from aco where id=$aco_id";
+		if (empty($object_type) ) {
+			debug("del_object(): Object Type ($object_type) is empty, this is required");
+			return false;	
+		}
+
+		$query = "delete from $object_type where id=$object_id";
 		$db->Execute($query);
 	
 		if ($db->ErrorNo() != 0) {
-			debug("del_aco(): database error: ". $db->ErrorMsg() ." (". $db->ErrorNo() .")");
+			debug("del_object(): database error: ". $db->ErrorMsg() ." (". $db->ErrorNo() .")");
 			return false;	
 		} else {
-			debug("del_aco(): deleted aco ID: $aco_id");
+			debug("del_object(): deleted object ID: $aco_id");
 			return true;
 		}
 
 	}
 
+
 	/*
 	 *
-	 * ACO Sections
+	 * Object Sections
 	 *
 	 */
 
-	
 	/*======================================================================*\
-		Function:	get_aco_section_section_id()
-		Purpose:	Gets the aco_section_id given the name OR value of the section.
+		Function:	get_object_section_section_id()
+		Purpose:	Gets the object_section_id given the name OR value of the section.
 						Will only return one section id, so if there are duplicate names, it will return false.
 	\*======================================================================*/
-	function get_aco_section_section_id($name = null, $value = null) {
+	function get_object_section_section_id($name = null, $value = null, $object_type=NULL) {
 		global $db;
+
+		switch(strtolower(trim($object_type))) {
+			case 'aco':
+				$object_type = 'aco';
+				$object_sections_table = 'aco_sections';
+				break;
+			case 'aro':
+				$object_type = 'aro';
+				$object_sections_table = 'aro_sections';
+				break;
+			case 'axo':
+				$object_type = 'axo';
+				$object_sections_table = 'axo_sections';
+				break;
+		}
 		
-		debug("get_aco_section_section_id(): Value: $value Name: $name");
+		debug("get_aco_section_section_id(): Value: $value Name: $name Object Type: $object_type");
 		
 		$name = trim($name);
 		$value = trim($value);
 		
 		if (empty($name) AND empty($value) ) {
-			debug("get_aco_section_section_id(): name ($name) OR value ($value) is empty, this is required");
+			debug("get_object_section_section_id(): name ($name) OR value ($value) is empty, this is required");
 			return false;	
 		}
 			
-		$query = "select id from aco_sections where name='$name' OR value='$value'";
+		if (empty($object_type) ) {
+			debug("get_object_section_section_id(): Object Type ($object_type) is empty, this is required");
+			return false;	
+		}
+
+		$query = "select id from $object_sections_table where name='$name' OR value='$value'";
 		$rs = $db->Execute($query);
 
 		if ($db->ErrorNo() != 0) {
-			debug("get_aco_section_section_id(): database error: ". $db->ErrorMsg() ." (". $db->ErrorNo() .")");
+			debug("get_object_section_section_id(): database error: ". $db->ErrorMsg() ." (". $db->ErrorNo() .")");
 			return false;	
 		} else {
 			$row_count = $rs->RecordCount();
 			
 			if ($row_count > 1) {
-				debug("get_aco_section_section_id(): Returned $row_count rows, can only return one. Please search by value not name, or make your names unique.");
+				debug("get_object_section_section_id(): Returned $row_count rows, can only return one. Please search by value not name, or make your names unique.");
 				return false;	
 			} elseif($row_count == 0) {
-				debug("get_aco_section_section_id(): Returned $row_count rows");				
+				debug("get_object_section_section_id(): Returned $row_count rows");				
 				return false;
 			} else {
 				$rows = $rs->GetRows();
@@ -1559,99 +1372,142 @@ class gacl_api {
 	}
 
 	/*======================================================================*\
-		Function:	add_aco_section()
-		Purpose:	Inserts an ACO Section
+		Function:	add_object_section()
+		Purpose:	Inserts an object Section
 	\*======================================================================*/
-	function add_aco_section($name, $value=0, $order=0, $hidden=0) {
+	function add_object_section($name, $value=0, $order=0, $hidden=0, $object_type=NULL) {
 		global $db;
 		
-		debug("add_aco_section(): Value: $value Order: $order Name: $name");
+		switch(strtolower(trim($object_type))) {
+			case 'aco':
+				$object_type = 'aco';
+				$object_sections_table = 'aco_sections';
+				break;
+			case 'aro':
+				$object_type = 'aro';
+				$object_sections_table = 'aro_sections';
+				break;
+			case 'axo':
+				$object_type = 'axo';
+				$object_sections_table = 'axo_sections';
+				break;
+		}
+
+		debug("add_object_section(): Value: $value Order: $order Name: $name Object Type: $object_type");
 		
 		$name = trim($name);
 		$value = trim($value);
 		$order = trim($order);
 		
 		if (empty($name) ) {
-			debug("add_aco_section(): name ($name) is empty, this is required");
+			debug("add_object_section(): name ($name) is empty, this is required");
 			return false;	
 		}
-				
-		$insert_id = $db->GenID('aco_sections_seq',10);
-		$query = "insert into aco_sections (id,value,order_value,name,hidden) VALUES($insert_id, '$value', '$order', '$name', $hidden)";
+
+		if (empty($object_type) ) {
+			debug("add_object_section(): Object Type ($object_type) is empty, this is required");
+			return false;	
+		}
+	
+		$insert_id = $db->GenID($object_type.'_sections_seq',10);
+		$query = "insert into $object_sections_table (id,value,order_value,name,hidden) VALUES($insert_id, '$value', '$order', '$name', $hidden)";
 		$rs = $db->Execute($query);                   
 
 		if ($db->ErrorNo() != 0) {
-			debug("add_aco_section(): database error: ". $db->ErrorMsg() ." (". $db->ErrorNo() .")");
+			debug("add_object_section(): database error: ". $db->ErrorMsg() ." (". $db->ErrorNo() .")");
 			return false;	
 		} else {
-			debug("add_aco_section(): Added aco_section as ID: $insert_id");
+			debug("add_object_section(): Added object_section as ID: $insert_id");
 			return $insert_id;
 		}
 	}
-	
+
 	/*======================================================================*\
-		Function:	edit_aco_section()
-		Purpose:	Edits a given ACO Section
+		Function:	edit_object_section()
+		Purpose:	Edits a given Object Section
 	\*======================================================================*/
-	function edit_aco_section($aco_section_id, $name, $value=0, $order=0, $hidden=0) {
+	function edit_object_section($object_section_id, $name, $value=0, $order=0, $hidden=0, $object_type=NULL) {
 		global $db;
 		
-		debug("edit_aco_section(): ID: $aco_section_id Value: $value Order: $order Name: $name");
+		switch(strtolower(trim($object_type))) {
+			case 'aco':
+				$object_type = 'aco';
+				$object_sections_table = 'aco_sections';
+				$object_map_table = 'aco_map';
+				break;
+			case 'aro':
+				$object_type = 'aro';
+				$object_sections_table = 'aro_sections';
+				$object_map_table = 'aro_map';
+				break;
+			case 'axo':
+				$object_type = 'axo';
+				$object_sections_table = 'axo_sections';
+				$object_map_table = 'axo_map';
+				break;
+		}
+
+		debug("edit_object_section(): ID: $object_section_id Value: $value Order: $order Name: $name Object Type: $object_type");
 
 		$name = trim($name);
 		$value = trim($value);
 		$order = trim($order);
 		
-		if (empty($aco_section_id) ) {
-			debug("edit_aco_section(): Section ID ($aco_section_id) is empty, this is required");
+		if (empty($object_section_id) ) {
+			debug("edit_object_section(): Section ID ($object_section_id) is empty, this is required");
 			return false;	
 		}
 
 		if (empty($name) ) {
-			debug("edit_aco_section(): name ($name) is empty, this is required");
+			debug("edit_object_section(): name ($name) is empty, this is required");
 			return false;	
 		}
 			
+		if (empty($object_type) ) {
+			debug("edit_object_section(): Object Type ($object_type) is empty, this is required");
+			return false;	
+		}
+
 		//Get old value incase it changed, before we do the update.
-		$query = "select value from aco_sections where id=$aco_section_id";
+		$query = "select value from $object_sections_table where id=$object_section_id";
 		$old_value = $db->GetOne($query);
 
-		$query = "update aco_sections set
+		$query = "update $object_sections_table set
 																value='$value',
 																order_value='$order',
 																name='$name',
 																hidden=$hidden
-													where   id=$aco_section_id";
+													where   id=$object_section_id";
 		$rs = $db->Execute($query);                   
 
 		if ($db->ErrorNo() != 0) {
-			debug("edit_aco_section(): database error: ". $db->ErrorMsg() ." (". $db->ErrorNo() .")");
+			debug("edit_object_section(): database error: ". $db->ErrorMsg() ." (". $db->ErrorNo() .")");
 			return false;	
 		} else {
-			debug("edit_aco_section(): Modified aco_section ID: $aco_section_id");
+			debug("edit_object_section(): Modified aco_section ID: $aco_section_id");
 
 			if ($old_value != $value) {
-				debug("edit_aco_section(): Value Changed, update other tables.");
+				debug("edit_object_section(): Value Changed, update other tables.");
 				
-				$query = "update aco set
+				$query = "update $object_type set
 																section_value='$value'
 													where section_value = '$old_value'";
 				$rs = $db->Execute($query);                   
 
 				if ($db->ErrorNo() != 0) {
-					debug("edit_aco_section(): database error: ". $db->ErrorMsg() ." (". $db->ErrorNo() .")");
+					debug("edit_object_section(): database error: ". $db->ErrorMsg() ." (". $db->ErrorNo() .")");
 					return false;	
 				} else {
-					$query = "update aco_map set
-																	aco_section_value='$value'
-														where aco_section_value = '$old_value'";
+					$query = "update $object_map_table set
+																	section_value='$value'
+														where section_value = '$old_value'";
 					$rs = $db->Execute($query);                   
 
 					if ($db->ErrorNo() != 0) {
-						debug("edit_aco_section(): database error: ". $db->ErrorMsg() ." (". $db->ErrorNo() .")");
+						debug("edit_object_section(): database error: ". $db->ErrorMsg() ." (". $db->ErrorNo() .")");
 						return false;	
 					} else {
-						debug("edit_aco_section(): Modified aco_map value: $value");
+						debug("edit_object_section(): Modified ojbect_map value: $value");
 						return true;
 					}
 				}	
@@ -1660,32 +1516,53 @@ class gacl_api {
 			return true;
 		}
 	}
-	
+
 	/*======================================================================*\
-		Function:	del_aco_section()
-		Purpose:	Deletes a given ACO Section
+		Function:	del_object_section()
+		Purpose:	Deletes a given Object Section
 	\*======================================================================*/
-	function del_aco_section($aco_section_id) {
+	function del_object_section($object_section_id, $object_type=NULL) {
 		global $db;
 		
-		debug("del_aco_section(): ID: $aco_section_id");
+		switch(strtolower(trim($object_type))) {
+			case 'aco':
+				$object_type = 'aco';
+				$object_sections_table = 'aco_sections';
+				break;
+			case 'aro':
+				$object_type = 'aro';
+				$object_sections_table = 'aro_sections';
+				break;
+			case 'axo':
+				$object_type = 'axo';
+				$object_sections_table = 'axo_sections';
+				break;
+		}
+
+		debug("del_object_section(): ID: $object_section_id Object Type: $object_type");
 		
-		if (empty($aco_section_id) ) {
-			debug("del_aco_section(): Section ID ($aco_section_id) is empty, this is required");
+		if (empty($object_section_id) ) {
+			debug("del_object_section(): Section ID ($object_section_id) is empty, this is required");
 			return false;	
 		}
 
-		$query = "delete from aco_sections where id=$aco_section_id";
+		if (empty($object_type) ) {
+			debug("del_object_section(): Object Type ($object_type) is empty, this is required");
+			return false;	
+		}
+
+		$query = "delete from $object_sections_table where id=$object_section_id";
 		$db->Execute($query);
 	
 		if ($db->ErrorNo() != 0) {
-			debug("del_aco_section(): database error: ". $db->ErrorMsg() ." (". $db->ErrorNo() .")");
+			debug("del_object_section(): database error: ". $db->ErrorMsg() ." (". $db->ErrorNo() .")");
 			return false;	
 		} else {
-			debug("del_aco_section(): deleted aco_section ID: $aco_section_id");
+			debug("del_object_section(): deleted aco_section ID: $object_section_id");
 			return true;
 		}
 
 	}
+
 }
 ?>
