@@ -130,6 +130,7 @@
 		</td>
 		<td valign="top" bgcolor="#999999">
 		  <div align="center">
+			<input type="checkbox" name="select_all" onClick="checkAll(this)"/>Select/Deselect All<br/>
 			<input type="submit" name="action" value="Delete">
 		  </div>
 		</td>

@@ -1,4 +1,6 @@
 Thu Jan 08 2003
+	dcech - Added Select/Deselect All to Admin Interface
+Thu Jan 08 2003
 	dcech - applied _group_ patch
 Mon Nov 24 2003
 	mikeb - Fixed PostgreSQL LEFT JOIN issue with is_conflicting_acl(), Can't reference multiple tables, then a LEFT JOIN. ie:
