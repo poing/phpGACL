@@ -1,3 +1,5 @@
+Sat Feb 14 2004
+	mikeb - Added DB schema diagram to docs/ directory. Thanks to Falk John <support@fajo.de>
 Fri Feb 13 2004
 	dcech - Changed all JOIN queries to INNER JOIN for MySQL 3.23.x compatibility
 Thu Feb 12 2004
