@@ -1,4 +1,6 @@
-Sun Nov 30 2002
+Sun Dec 01 2002
+	- Fixed bug that broke allow and enabled from being changed when editing ACLs.
+Sat Nov 30 2002
 	- Merged ERASE feature in to API functions, del_object() and del_object_section() thanks to Martino.
 	- Changed the acl list page layout
 	- Changed the acl test page layout

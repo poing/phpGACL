@@ -1,14 +1,4 @@
-* FIX subtree bug? Does subtree'ing actually check more then one or two levels deep?
-    - I think I have this fixed. But do we want to keep subtree'ing once AXO's are implemented?
-
-* Fix the demo data .sql file to support the new schema.
-
-* Add "3rd layer" support for ACL'ing individual items.
-    Two ways we can do this:
-        1. Use the current ACO's, and add a 3rd param to acl_check($aco_id, $aro_id, $aco_id) or acl_check(array($aco_id,$aco_id), $aro_id)
-        2. Add a completely seperate layer (what should I call it? AXO for now), acl_check($aco_id, $aro_id, $axo_id)
-        
-* Create include files with queries in each for the different databases. ie: include($db->db_type."-custom_sql.php");
+34* Create include files with queries in each for the different databases. ie: include($db->db_type."-custom_sql.php");
 
 * Investigate a way to detect ACL conflicts and alert the user.
 
