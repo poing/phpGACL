@@ -418,7 +418,7 @@ $note = "Allowing the Passengers to have Access to the lounge!";
 $result = $gacl_api->add_acl($aco_array, NULL, $aro_array_GroupID, NULL, NULL, $allow, $enabled, $return_value, $note);
 if ($outputDebug == TRUE){
 	if ($result !== FALSE) {
-		echo "Created our second ACL sucessfully! Click <a href='../admin/acl_test.php'>here</a> to see it in action!<br>\n";
+		echo "Created our second ACL sucessfully! Click <a href='../../../admin/acl_test.php'>here</a> to see it in action!<br>\n";
 	} else {
 		echo "Error creating ACL.<br>\n";
 	}
