@@ -268,7 +268,7 @@ class gacl {
 	* @return array Returns as much information as possible about the ACL so other functions can trim it down and omit unwanted data.
 	*/
 	function acl_query($aco_section_value, $aco_value, $aro_section_value, $aro_value, $axo_section_value=NULL, $axo_value=NULL, $root_aro_group=NULL, $root_axo_group=NULL, $debug=NULL) {
-
+				
 		$cache_id = 'acl_query_'.$aco_section_value.'-'.$aco_value.'-'.$aro_section_value.'-'.$aro_value.'-'.$axo_section_value.'-'.$axo_value.'-'.$root_aro_group.'-'.$root_axo_group.'-'.$debug;
 
 		$retarr = $this->get_cache($cache_id);
@@ -523,7 +523,7 @@ class gacl {
 			 * This essentially creates a virtual "subtree" and ignores all outside groups.
 			 * Useful for sites like sourceforge where you may seperate groups by "project".
 			 */
-			if (isset($root_group)) {
+			if ( $root_group != '') {
 				//It is important to note the below line modifies the tables being selected.
 				//This is the reason for the WHERE variable.
 				$query .= ','. $group_table .' g3';
