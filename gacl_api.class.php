@@ -2955,9 +2955,9 @@ class gacl_api extends gacl {
 			// The Object is NOT referenced anywhere, delete it
 
 			$query = "DELETE FROM $table WHERE id='$object_id'";
-			$this->db->Execute($query);
+			$rs = $this->db->Execute($query);
 
-			if ( is_string( $this->db->ErrorNo() ) ) {
+			if ( !is_object($rs) ) {
 				$this->debug_db('edit_object');
 				$this->db->RollBackTrans();
 				return false;
@@ -3208,7 +3208,7 @@ class gacl_api extends gacl {
 															where section_value = '$old_value'";
 						$rs = $this->db->Execute($query);
 
-						if ( is_string( $this->db->ErrorNo() ) ) {
+						if ( !is_object($rs) ) {
 							$this->debug_db('edit_object_section');
 
 							$this->db->RollbackTrans();
