@@ -416,7 +416,7 @@ class gacl {
 			 * This essentially creates a virtual "subtree" and ignores all outside groups.
 			 * Useful for sites like sourceforge where you may seperate groups by "project".
 			 */
-			if (!isset($parent_ids_sql)) {
+			if (isset($parent_ids_sql)) {
 				//$query .= " AND (a.id = $root_group_id OR a.parent_id = $root_group_id)";
 				$query .= " AND ( a.parent_id in ($parent_ids_sql) )";
 			}
