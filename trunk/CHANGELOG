@@ -1,3 +1,6 @@
+Wed June 11 2003
+	- Object searching now supports a newline delimited list of names/values. 
+
 Sun June 8 2003
 	- Fixed more warnings.
 	
