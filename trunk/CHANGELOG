@@ -1,4 +1,5 @@
 Wed Oct 08 2003
+	- Released 3.2.2
 	- Fixed bug in acl_list.php where the filter wasn't being passed between pages. Thanks to Dan Cech <dcech@phpwerx.net>
 	- Greatly improved the speed of acl_list.php. Thanks to Dan Cech <dcech@phpwerx.net>
 Sun Oct 05 2003
