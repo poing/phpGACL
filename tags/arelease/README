@@ -1,0 +1,33 @@
+NAME:
+
+    phpGACL - PHP based Access Control Lists.
+
+VERSION: 0.9
+
+AUTHORS:
+    
+    Mike Benoit <ipso@snappymail.ca>
+
+MAILING LISTS:
+
+    See here: http://sourceforge.net/mail/?group_id=57103
+
+SYNOPSIS:
+
+    require("gacl.inc.php");
+
+    if ( acl_check( <Access Control Object> , <Access Request Object> ) ) {
+	echo "Access Granted!";
+    } else {
+	echo "Access Denied!";
+    }
+
+
+DESCRIPTION:
+
+    See here: http://phpgacl.sourceforge.net/
+
+COPYRIGHT:
+    Copyright (c) 2002 Mike Benoit, All rights reserved.
+    This software is released under the GNU General Public License.
+    Please read the disclaimer at the top of the gacl.inc.php file.
