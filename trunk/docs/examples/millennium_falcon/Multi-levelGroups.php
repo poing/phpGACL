@@ -311,6 +311,6 @@ if ( $gacl_api->acl_check('access', 'engines', 'jedi', 'obi-wan') ) {
 
 if ($outputDebug == TRUE){
 echo "<br>\n<br>\nDone! Not difficult really! <br>\n";
-echo "Remember to check out the <a href='../admin/acl_list.php'>Administration Interface</a> which can do all of the above in a few simple clicks.<br>\n<br>\n";
+echo "Remember to check out the <a href='../../../admin/acl_list.php'>Administration Interface</a> which can do all of the above in a few simple clicks.<br>\n<br>\n";
 }
 ?>

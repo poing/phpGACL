@@ -467,6 +467,6 @@ $gacl = new gacl($gacl_options); //Use the same options as above.
 
 if ($outputDebug == TRUE){
 	echo "<br>\n<br>\nDone! Easy - lots of setting up done in this example - but next we'll extend this setup <br>\n";
-	echo "Remember to check out the <a href='../admin/acl_list.php'>Administration Interface</a> which can do all of the above in a few simple clicks.<br>\n<br>\n";
+	echo "Remember to check out the <a href='../../../admin/acl_list.php'>Administration Interface</a> which can do all of the above in a few simple clicks.<br>\n<br>\n";
 }
 ?>
