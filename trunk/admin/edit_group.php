@@ -101,6 +101,9 @@ switch ($_POST['action']) {
 $smarty->assign('group_type', $group_type);
 $smarty->assign('return_page', $return_page);
 
+$smarty->assign('current','edit_'. $group_type .'_group');
+$smarty->assign('page_title', 'Edit '. strtoupper($group_type) .' Group');
+
 $smarty->assign("phpgacl_version", $gacl_api->get_version() );
 $smarty->assign("phpgacl_schema_version", $gacl_api->get_schema_version() );
 

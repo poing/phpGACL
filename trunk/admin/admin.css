@@ -11,7 +11,7 @@ div {
 div#top-tr {
 	margin: 0px;
 	padding: 0px;
-	background: url("images/top-r.png") no-repeat top right;
+	background: #cccccc url("images/top-r.png") no-repeat top right;
 }
 
 div#top-tl {
@@ -49,6 +49,13 @@ div#top-bl h1 span {
 	visibility: hidden;
 }
 
+div#top-bl h2 {
+	color: #eeeeee;
+	font-size: 150%;
+	margin: 0px 4px 6px;
+	padding: 0px;
+}
+
 ul#menu {
 	margin: 0px;
 	padding: 0px;
@@ -62,7 +69,7 @@ ul#menu li {
 	
 	margin: 0px 2px 0px 0px;
 	padding: 0px;
-	background: url("images/tab-off-r.png") no-repeat top right;
+	background: #999999 url("images/tab-off-r.png") no-repeat top right;
 	border-bottom: 1px solid #666666;
 }
 
@@ -91,6 +98,7 @@ ul#menu li a:hover {
 }
 
 ul#menu li.current {
+	background-color: #ffffff;
 	background-image: url("images/tab-on-r.png");
 	border-bottom-width: 0px;
 }
@@ -110,7 +118,7 @@ ul#menu li.current a:hover {
 div#mid-r {
 	margin: 0px;
 	padding: 0px;
-	background: url("images/mid-r.png") repeat-y top right;
+	background: #ffffff url("images/mid-r.png") repeat-y top right;
 }
 
 div#mid-l {
@@ -141,7 +149,7 @@ div#bot-tl a {
 div#bot-br {
 	margin: 0px;
 	padding: 0px;
-	background: url("images/bot-r.png") no-repeat bottom right;
+	background: #cccccc url("images/bot-r.png") no-repeat bottom right;
 }
 
 div#bot-bl {
@@ -151,7 +159,7 @@ div#bot-bl {
 }
 
 body, td, th {
-	font-family: verdana, sans-serif;
+	font-family: Verdana, Helvetica, Arial, sans-serif;
 	font-size: 9pt;
 }
 

@@ -1,4 +1,4 @@
-{include file="phpgacl/header.tpl"} 
+{include file="phpgacl/header.tpl"}
 <script LANGUAGE="JavaScript">
 {$js_array}
 </script>

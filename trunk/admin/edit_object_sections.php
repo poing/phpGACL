@@ -112,6 +112,9 @@ switch ($_POST['action']) {
 $smarty->assign('object_type', $object_type);
 $smarty->assign('return_page', $_SERVER['REQUEST_URI']);
 
+$smarty->assign('current','edit_'. $object_type .'_sections');
+$smarty->assign('page_title', 'Edit '. strtoupper($object_type) .' Sections');
+
 $smarty->assign("phpgacl_version", $gacl_api->get_version() );
 $smarty->assign("phpgacl_schema_version", $gacl_api->get_schema_version() );
 

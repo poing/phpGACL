@@ -265,6 +265,8 @@ $smarty->assign('action', $_GET['action']);
 $smarty->assign('return_page', $_SERVER['PHP_SELF']);
 
 $smarty->assign('current','acl_list');
+$smarty->assign('page_title', 'ACL List');
+
 $smarty->assign('phpgacl_version', $gacl_api->get_version());
 $smarty->assign('phpgacl_schema_version', $gacl_api->get_schema_version());
 

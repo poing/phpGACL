@@ -17,9 +17,6 @@
     <form method="get" name="object_search" action="object_search.php">
       <table cellpadding="2" cellspacing="2" border="2" width="100%">
         <tbody>
-          <tr align="center">
-            <td colspan="2"><b>phpGACL Object Search</b></td>
-          </tr>
           <tr>
             <th colspan="2">{$object_type_name} > {$section_value_name}</th>
           </tr>
