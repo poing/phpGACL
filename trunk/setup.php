@@ -1,5 +1,5 @@
 <?
-require_once("admin/gacl_admin.inc.php");
+require_once("gacl.inc.php");
 //$debug=1;
 
 function echo_success($text) {
