@@ -266,9 +266,11 @@ class gacl {
 				$query .= '		LEFT JOIN '. $this->_db_table_prefix.'aro_groups_path e ON d.group_id=e.group_id';
 			}
 
-			if (isset($sql_axo_group_ids)) {
+                        //We always need to join the AXO groups, so we don't
+                        //if an ACL has just an AXO group assigned to it, and AXOs aren't specified for acl_check(), it doesn't match.
+			//if (isset($sql_axo_group_ids)) {
 				$query .= '		LEFT JOIN '. $this->_db_table_prefix.'axo_groups_map f ON a.id=f.acl_id';
-			}
+			//}
 
 			if (isset($sql_axo_path_ids)) {
 				$query .= '		LEFT JOIN '. $this->_db_table_prefix.'axo_groups_path g ON f.group_id=g.group_id';
@@ -297,17 +299,12 @@ class gacl {
 			if (isset($sql_axo_group_ids)) {
 				$query .= '								OR f.group_id in ('. $sql_axo_group_ids .')';
 			} else {
-				//Should these be ANDs or ORs? ... This needs some testing
 				$query .= '								AND f.group_id is NULL';
 			}
 
 			if (isset($sql_axo_path_ids)) {
 				$query .= '								OR g.id in ('. $sql_axo_path_ids .') ';
-			} else {
-				//Should these be ANDs or ORs? ... This needs some testing
-				$query .= '								AND g.id is NULL';
 			}
-
 
 			/*
 			 * The ordering is always very tricky and makes all the difference in the world.

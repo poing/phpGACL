@@ -1616,10 +1616,10 @@ class gacl_api extends gacl {
 		 * It's only run during group administration so speed is not much of a concern. Its all for a better cause. ;)
 		 */
 		while ($parent_id > 0) {
-			$query = "select
-										parent_id
-							from    $table
-							where id = $parent_id";
+			$query = "  select
+                                            parent_id
+                                    from    $table
+                                    where id = $parent_id";
 			$parent_id = $this->db->GetOne($query);
 
 			$path[] = (int)$parent_id;
@@ -2593,7 +2593,7 @@ class gacl_api extends gacl {
 
 		} // End of "if ($erase)"
 
-
+                $groups_ids = FALSE;
 		if ($object_type == 'axo' OR $object_type == 'aro') {
 			// If the object is "groupable" (may become unnecessary,
 			// see above
@@ -2606,7 +2606,7 @@ class gacl_api extends gacl {
 			$groups_ids = $this->db->GetCol($query);
 		}
 
-		if ($acl_ids OR $groups_ids) {
+		if ($acl_ids OR $groups_ids ) {
 			// The Object is referenced somewhere (group or acl), can't delete it
 
 			$this->debug_text("del_object(): Can't delete the object as it is being referenced by GROUPs (".@implode($group_ids).") or ACLs (".@implode($acl_ids,",").")");
