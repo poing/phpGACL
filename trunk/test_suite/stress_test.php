@@ -125,7 +125,7 @@ for ( $i = $start; $i <= $max; $i++ )
 		$parent_id = 0;
 	}
 	
-	$result = $gacl_api->add_group ('ARO Group: '. $i, $parent_id, 'ARO');
+	$result = $gacl_api->add_group ('aro_group'.$i,'ARO Group: '. $i, $parent_id, 'ARO');
 	
 	if ( $result == FALSE )
 	{
@@ -206,7 +206,7 @@ for ( $i = $start; $i <= $max; $i++ )
 		$parent_id = 0;
 	}
 	
-	$result = $gacl_api->add_group ('AXO Group: '. $i, $parent_id, 'AXO');
+	$result = $gacl_api->add_group ('axo_group'.$i,'AXO Group: '. $i, $parent_id, 'AXO');
 	if ( $result == FALSE )
 	{
 		echo "    Error creating AXO Group: $i.\n";
