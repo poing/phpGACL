@@ -136,6 +136,18 @@ class gacl {
 	}
 
 	/*======================================================================*\
+		Function:   $gacl_api->debug_db()
+		Purpose:    Prints database debug text if debug is enabled.
+	\*======================================================================*/
+	function debug_db($function_name = '') {
+		if ($function_name != '') {
+			$function_name .= ' (): ';
+		}
+
+		return $this->debug_text ($function_name . 'database error: ' . $this->db->ErrorMsg() . ' (' . $this->db->ErrorNo() . ')');
+	}
+
+	/*======================================================================*\
 		Function:   acl_check()
 		Purpose:	Function that wraps the actual acl_query() function.
 						It is simply here to return TRUE/FALSE accordingly.
