@@ -59,10 +59,10 @@ switch ($_POST['action']) {
 		if (!empty($_POST['acl_id']) ) {
 			//Update existing ACL
 			$acl_id = $_POST['acl_id'];
-			$gacl_api->edit_acl($acl_id, $selected_aco_array, $selected_aro_array, $_POST['aro_groups'], $selected_axo_array, $_POST['axo_groups'], $_POST['allow'], $enabled, $return_value, $note);
+			$gacl_api->edit_acl($acl_id, $selected_aco_array, $selected_aro_array, $_POST['aro_groups'], $selected_axo_array, $_POST['axo_groups'], $_POST['allow'], $enabled, $_POST['return_value'], $_POST['note']);
 		} else {
 			//Insert new ACL.
-			$acl_id = $gacl_api->add_acl($selected_aco_array, $selected_aro_array, $_POST['aro_groups'], $selected_axo_array, $_POST['axo_groups'], $_POST['allow'], $enabled, $return_value, $note);
+			$acl_id = $gacl_api->add_acl($selected_aco_array, $selected_aro_array, $_POST['aro_groups'], $selected_axo_array, $_POST['axo_groups'], $_POST['allow'], $enabled, $_POST['return_value'], $_POST['note']);
 		}       
 
         return_page($_POST[return_page]);
@@ -74,9 +74,9 @@ switch ($_POST['action']) {
 			debug("EDITING ACL");	
 
 			//Grab ACL information
-			$query = "select id, allow, enabled from acl where id = ".$_GET['acl_id']."";
+			$query = "select id, allow, enabled, return_value, note from acl where id = ".$_GET['acl_id']."";
 			$acl_row = $db->GetRow($query);
-			list($acl_id, $allow, $enabled) = $acl_row;
+			list($acl_id, $allow, $enabled, $return_value, $note) = $acl_row;
 
 			//Grab selected ACO's
 			$query = "select a.section_value, a.value, c.name, b.name from aco_map a, aco b, aco_sections c
@@ -323,6 +323,8 @@ switch ($_POST['action']) {
 
 		$smarty->assign("allow", $allow);
 		$smarty->assign("enabled", $enabled);
+		$smarty->assign("return_value", $return_value);
+		$smarty->assign("note", $note);
 
 		if (isset($options_selected_aco)) {
 			$smarty->assign("options_selected_aco", $options_selected_aco);
