@@ -1,3 +1,7 @@
+* Add ACL List searching
+
+* Add ACL verbose debug page. (explain_acl())
+
 * Add visual notification when a section has hit the $max_select_box_items.
 
 * Investigate a way to detect ACL conflicts and alert the user.
