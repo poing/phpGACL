@@ -1,6 +1,6 @@
 <?php
 /* 
-V3.00 6 Jan 2003  (c) 2000-2003 John Lim (jlim@natsoft.com.my). All rights reserved.
+V3.50 19 May 2003  (c) 2000-2003 John Lim (jlim@natsoft.com.my). All rights reserved.
   Released under both BSD license and Lesser GPL library license. 
   Whenever there is any discrepancy between the two licenses, 
   the BSD license will take precedence. 
@@ -20,6 +20,21 @@ class ADODB_borland_ibase extends ADODB_ibase {
 	function ADODB_borland_ibase()
 	{
 		$this->ADODB_ibase();
+	}
+	
+	function ServerInfo()
+	{
+		$arr['dialect'] = $this->dialect;
+		switch($arr['dialect']) {
+		case '': 
+		case '1': $s = 'Interbase 6.5, Dialect 1'; break;
+		case '2': $s = 'Interbase 6.5, Dialect 2'; break;
+		default:
+		case '3': $s = 'Interbase 6.5, Dialect 3'; break;
+		}
+		$arr['version'] = '6.5';
+		$arr['description'] = $s;
+		return $arr;
 	}
 	
 	// Note that Interbase 6.5 uses ROWS instead - don't you love forking wars!

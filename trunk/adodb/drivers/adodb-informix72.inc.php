@@ -1,6 +1,6 @@
 <?php
 /*
-V3.00 6 Jan 2003  (c) 2000-2003 John Lim. All rights reserved.
+V3.50 19 May 2003  (c) 2000-2003 John Lim. All rights reserved.
   Released under both BSD license and Lesser GPL library license.
   Whenever there is any discrepancy between the two licenses,
   the BSD license will take precedence.
@@ -100,7 +100,8 @@ class ADODB_informix72 extends ADOConnection {
 		return $this->_errorMsg;
 	}
 
-   function ErrorNo() {
+   function ErrorNo() 
+   {
 	  return ifx_error();
    }
 
@@ -109,7 +110,17 @@ class ADODB_informix72 extends ADOConnection {
 		return ADOConnection::MetaColumns($table,false);
    }
 
+   function UpdateBlob($table, $column, $val, $where, $blobtype = 'BLOB')
+   {
+   		$type = ($blobtype == 'TEXT') ? 1 : 0;
+		$blobid = ifx_create_blob($type,0,$val);
+		return $this->Execute("UPDATE $table SET $column=(?) WHERE $where",array($blobid));
+   }
 
+   function BlobDecode($blobid)
+   {
+   		return @ifx_get_blob($blobid);
+   }
 	// returns true or false
    function _connect($argHostname, $argUsername, $argPassword, $argDatabasename)
 	{
@@ -157,7 +168,7 @@ class ADODB_informix72 extends ADOConnection {
 
 	  // In case of select statement, we use a scroll cursor in order
 	  // to be able to call "move", or "movefirst" statements
-	  if (!$ADODB_COUNTRECS && preg_match("/^\s*select/i", $sql)) {
+	  if (!$ADODB_COUNTRECS && preg_match("/^\s*select/is", $sql)) {
 		 if ($inputarr) {
 			$this->lastQuery = ifx_query($sql,$this->_connectionID, IFX_SCROLL, $tab);
 		 }

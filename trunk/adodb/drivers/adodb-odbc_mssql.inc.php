@@ -1,6 +1,6 @@
 <?php
 /* 
-V3.00 6 Jan 2003  (c) 2000-2003 John Lim (jlim@natsoft.com.my). All rights reserved.
+V3.50 19 May 2003  (c) 2000-2003 John Lim (jlim@natsoft.com.my). All rights reserved.
   Released under both BSD license and Lesser GPL library license. 
   Whenever there is any discrepancy between the two licenses, 
   the BSD license will take precedence. 
@@ -30,6 +30,8 @@ class  ADODB_odbc_mssql extends ADODB_odbc {
 	var $leftOuter = '*=';
 	var $rightOuter = '=*';
 	var $ansiOuter = true; // for mssql7 or later
+	var $identitySQL = 'select @@IDENTITY'; // 'select SCOPE_IDENTITY'; # for mssql 2000
+	var $hasInsertID = true;
 	
 	function ADODB_odbc_mssql()
 	{
@@ -45,6 +47,16 @@ class  ADODB_odbc_mssql extends ADODB_odbc {
 	}
 	
 	
+	function _insertid()
+	{
+	// SCOPE_IDENTITY()
+	// Returns the last IDENTITY value inserted into an IDENTITY column in 
+	// the same scope. A scope is a module -- a stored procedure, trigger, 
+	// function, or batch. Thus, two statements are in the same scope if 
+	// they are in the same stored procedure, function, or batch.
+			return $this->GetOne($this->identitySQL);
+	}
+	
 	function MetaTables()
 	{
 		return ADOConnection::MetaTables();
@@ -55,10 +67,24 @@ class  ADODB_odbc_mssql extends ADODB_odbc {
 		return ADOConnection::MetaColumns($table);
 	}
 	
+	// "Stein-Aksel Basma" <basma@accelero.no>
+	// tested with MSSQL 2000
+	function MetaPrimaryKeys($table)
+	{
+		$sql = "select k.column_name from information_schema.key_column_usage k,
+		information_schema.table_constraints tc 
+		where tc.constraint_name = k.constraint_name and tc.constraint_type =
+		'PRIMARY KEY' and k.table_name = '$table'";
+		
+		$a = $this->GetCol($sql);
+		if ($a && sizeof($a)>0) return $a;
+		return false;	  
+	}
+	
 	// Format date column in sql string given an input format that understands Y M D
 	function SQLDate($fmt, $col=false)
 	{	
-		if (!$col) $col = $this->sysDate;
+		if (!$col) $col = $this->sysTimeStamp;
 		$s = '';
 		
 		$len = strlen($fmt);
@@ -71,19 +97,38 @@ class  ADODB_odbc_mssql extends ADODB_odbc {
 				$s .= "datename(yyyy,$col)";
 				break;
 			case 'M':
+				$s .= "convert(char(3),$col,0)";
+				break;
 			case 'm':
 				$s .= "replace(str(month($col),2),' ','0')";
 				break;
-			
 			case 'Q':
 			case 'q':
 				$s .= "datename(quarter,$col)";
 				break;
-				
 			case 'D':
 			case 'd':
 				$s .= "replace(str(day($col),2),' ','0')";
 				break;
+			case 'h':
+				$s .= "substring(convert(char(14),$col,0),13,2)";
+				break;
+			
+			case 'H':
+				$s .= "replace(str(datepart(mi,$col),2),' ','0')";
+				break;
+				
+			case 'i':
+				$s .= "replace(str(datepart(mi,$col),2),' ','0')";
+				break;
+			case 's':
+				$s .= "replace(str(datepart(ss,$col),2),' ','0')";
+				break;
+			case 'a':
+			case 'A':
+				$s .= "substring(convert(char(19),$col,0),18,2)";
+				break;
+				
 			default:
 				if ($ch == '\\') {
 					$i++;
@@ -95,6 +140,7 @@ class  ADODB_odbc_mssql extends ADODB_odbc {
 		}
 		return $s;
 	}
+
 } 
  
 class  ADORecordSet_odbc_mssql extends ADORecordSet_odbc {	
@@ -104,7 +150,6 @@ class  ADORecordSet_odbc_mssql extends ADORecordSet_odbc {
 	function ADORecordSet_odbc_mssql($id,$mode=false)
 	{
 		return $this->ADORecordSet_odbc($id,$mode);
-	}
-	
+	}	
 }
 ?>

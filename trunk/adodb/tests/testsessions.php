@@ -1,6 +1,6 @@
 <?php
 /* 
-V3.00 6 Jan 2003  (c) 2000-2003 John Lim (jlim@natsoft.com.my). All rights reserved.
+V3.50 19 May 2003  (c) 2000-2003 John Lim (jlim@natsoft.com.my). All rights reserved.
   Released under both BSD license and Lesser GPL library license. 
   Whenever there is any discrepancy between the two licenses, 
   the BSD license will take precedence. 
@@ -8,6 +8,13 @@ V3.00 6 Jan 2003  (c) 2000-2003 John Lim (jlim@natsoft.com.my). All rights reser
 	
   Latest version is available at http://php.weblogs.com/
 */
+
+function NotifyExpire($ref,$key)
+{
+	print "<p><b>Notify Expiring=$ref, sessionkey=$key</b></p>";
+}
+$USER = 'JLIM'.rand();
+$ADODB_SESSION_EXPIRE_NOTIFY = array('USER','NotifyExpire');
 
 GLOBAL $HTTP_SESSION_VARS;
 	ob_start();

@@ -1,7 +1,7 @@
 <?php
 /*
 
-  version V3.00 6 Jan 2003 (c) 2000-2003 John Lim. All rights reserved.
+  version V3.50 19 May 2003 (c) 2000-2003 John Lim. All rights reserved.
 
   Released under both BSD license and Lesser GPL library license. 
   Whenever there is any discrepancy between the two licenses, 
@@ -41,7 +41,7 @@ class ADODB_oci8 extends ADOConnection {
 	var $concat_operator='||';
 	var $sysDate = "TRUNC(SYSDATE)";
 	var $sysTimeStamp = 'SYSDATE';
-	
+	var $metaDatabasesSQL = "SELECT USERNAME FROM ALL_USERS WHERE USERNAME NOT IN ('SYS','SYSTEM','DBSNMP','OUTLN') ORDER BY 1";
 	var $_stmt;
 	var $_commit = OCI_COMMIT_ON_SUCCESS;
 	var $_initdate = true; // init date to YYYY-MM-DD
@@ -70,24 +70,28 @@ class ADODB_oci8 extends ADOConnection {
     
 	function ADODB_oci8() 
 	{
-	global $ADODB_PHPVER;
 	
-		$this->_hasOCIFetchStatement = $ADODB_PHPVER >= 0x4200;
+		$this->_hasOCIFetchStatement = ADODB_PHPVER >= 0x4200;
 	}
 	
 	
 /*
 
-  4 modes of connection are supported:
+  Multiple modes of connection are supported:
   
-  a. $conn->Connect(false,'scott','tiger'); // local database
+  a. Local Database
+    $conn->Connect(false,'scott','tiger');
   
-  b. $conn->Connect(false,'scott','tiger',$tnsname); // from tnsnames.ora
+  b. From tnsnames.ora
+    $conn->Connect(false,'scott','tiger',$tnsname); 
+    $conn->Connect($tnsname,'scott','tiger'); 
   
-  c. $conn->Connect($serveraddress,'scott,'tiger',$service_name); 
+  c. Server + service name
+    $conn->Connect($serveraddress,'scott,'tiger',$service_name);
   
-  d. $conn->connectSID = true;
-	 $conn->Connect($serveraddress,'scott,'tiger',$SID);
+  d. Server + SID
+  	$conn->connectSID = true;
+	$conn->Connect($serveraddress,'scott,'tiger',$SID);
 
 
 Example TNSName:
@@ -105,24 +109,26 @@ NATSOFT.DOMAIN =
   There are 3 connection modes, 0 = non-persistent, 1 = persistent, 2 = force new connection
 	
 */
-	// returns true or false
 	function _connect($argHostname, $argUsername, $argPassword, $argDatabasename,$mode=0)
 	{
 		if($argHostname) { // added by Jorma Tuomainen <jorma.tuomainen@ppoy.fi>
-			if(strpos($argHostname,":")) {
-				$argHostinfo=explode(":",$argHostname);
-			   	$argHostname=$argHostinfo[0];
-				$argHostport=$argHostinfo[1];
-		 	} else {
-				$argHostport="1521";
-   			}
-			
-			if ($this->connectSID) {
-				$argDatabasename="(DESCRIPTION=(ADDRESS=(PROTOCOL=TCP)(HOST=".$argHostname
-				.")(PORT=$argHostport))(CONNECT_DATA=(SID=$argDatabasename)))";
-			} else
-				$argDatabasename="(DESCRIPTION=(ADDRESS=(PROTOCOL=TCP)(HOST=".$argHostname
-				.")(PORT=$argHostport))(CONNECT_DATA=(SERVICE_NAME=$argDatabasename)))";
+			if (empty($argDatabasename)) $argDatabasename = $argHostname;
+			else {
+				if(strpos($argHostname,":")) {
+					$argHostinfo=explode(":",$argHostname);
+				   	$argHostname=$argHostinfo[0];
+					$argHostport=$argHostinfo[1];
+			 	} else {
+					$argHostport="1521";
+	   			}
+				
+				if ($this->connectSID) {
+					$argDatabasename="(DESCRIPTION=(ADDRESS=(PROTOCOL=TCP)(HOST=".$argHostname
+					.")(PORT=$argHostport))(CONNECT_DATA=(SID=$argDatabasename)))";
+				} else
+					$argDatabasename="(DESCRIPTION=(ADDRESS=(PROTOCOL=TCP)(HOST=".$argHostname
+					.")(PORT=$argHostport))(CONNECT_DATA=(SERVICE_NAME=$argDatabasename)))";
+			}
 		}
 				
  		//if ($argHostname) print "<p>Connect: 1st argument should be left blank for $this->databaseType</p>";
@@ -176,7 +182,7 @@ NATSOFT.DOMAIN =
 		if (empty($d) && $d !== 0) return 'null';
 		
 		if (is_string($d)) $d = ADORecordSet::UnixDate($d);
-		return "TO_DATE(".date($this->fmtDate,$d).",'".$this->NLS_DATE_FORMAT."')";
+		return "TO_DATE(".adodb_date($this->fmtDate,$d).",'".$this->NLS_DATE_FORMAT."')";
 	}
 
 	
@@ -185,7 +191,7 @@ NATSOFT.DOMAIN =
 	{
 		if (empty($ts) && $ts !== 0) return 'null';
 		if (is_string($ts)) $ts = ADORecordSet::UnixTimeStamp($ts);
-		return 'TO_DATE('.date($this->fmtTimeStamp,$ts).",'RRRR-MM-DD, HH:MI:SS AM')";
+		return 'TO_DATE('.adodb_date($this->fmtTimeStamp,$ts).",'RRRR-MM-DD, HH:MI:SS AM')";
 	}
 	
 	function RowLock($tables,$where) 
@@ -235,6 +241,7 @@ NATSOFT.DOMAIN =
 	function ErrorMsg() 
 	{
 		$arr = @OCIerror($this->_stmt);
+		
 		if ($arr === false) {
 			$arr = @OCIerror($this->_connectionID);
 			if ($arr === false) $arr = @OCIError();
@@ -259,7 +266,7 @@ NATSOFT.DOMAIN =
 	// Format date column in sql string given an input format that understands Y M D
 	function SQLDate($fmt, $col=false)
 	{	
-		if (!$col) $col = $this->sysDate;
+		if (!$col) $col = $this->sysTimeStamp;
 		$s = 'TO_CHAR('.$col.",'";
 		
 		$len = strlen($fmt);
@@ -276,6 +283,9 @@ NATSOFT.DOMAIN =
 				break;
 				
 			case 'M':
+				$s .= 'Mon';
+				break;
+				
 			case 'm':
 				$s .= 'MM';
 				break;
@@ -283,6 +293,28 @@ NATSOFT.DOMAIN =
 			case 'd':
 				$s .= 'DD';
 				break;
+			
+			case 'H':
+				$s.= 'HH24';
+				break;
+				
+			case 'h':
+				$s .= 'HH';
+				break;
+				
+			case 'i':
+				$s .= 'MI';
+				break;
+			
+			case 's':
+				$s .= 'SS';
+				break;
+			
+			case 'a':
+			case 'A':
+				$s .= 'AM';
+				break;
+				
 			default:
 			// handle escape characters...
 				if ($ch == '\\') {
@@ -365,7 +397,7 @@ NATSOFT.DOMAIN =
 				}
 			}
 			
-			 if (!$success = OCIExecute($stmt, OCI_DEFAULT)) {
+			 if (!OCIExecute($stmt, OCI_DEFAULT)) {
 				 OCIFreeStatement($stmt); 
 				 return false;
 			 }
@@ -508,15 +540,26 @@ NATSOFT.DOMAIN =
 		
 		Example:
 			Note: we return a cursor variable in :RS2
-			$rs = $db->RunCursor("BEGIN adodb.open_tab(:RS2); END;",'RS2');
+			$rs = $db->ExecuteCursor("BEGIN adodb.open_tab(:RS2); END;",'RS2');
+			
+			$rs = $db->ExecuteCursor(
+				"BEGIN :RS2 = adodb.getdata(:VAR1); END;", 
+				'RS2',
+				array('VAR1' => 'Mr Bean'));
 			
 	*/
-	function &ExecuteCursor($sql,$cursorName='rs')
+	function &ExecuteCursor($sql,$cursorName='rs',$params=false)
 	{
 		$stmt = ADODB_oci8::Prepare($sql);
 			
 		if (is_array($stmt) && sizeof($stmt) >= 5) {
 			$this->Parameter($stmt, $ignoreCur, $cursorName, false, -1, OCI_B_CURSOR);
+			if ($params) {
+				reset($params);
+				while (list($k,$v) = each($params)) {
+					$this->Parameter($stmt,$params[$k], $k);
+				}
+			}
 		}
 		return $this->Execute($stmt);
 	}
@@ -670,20 +713,23 @@ NATSOFT.DOMAIN =
 					// jlim
 						$cursor = $sql[4];
 					// jlim
-                        OCIExecute($cursor);
-                        return $cursor;
+						if (is_resource($cursor)) {
+							OCIExecute($cursor);						
+	                        return $cursor;
+						}
+						return $stmt;
                     } else {
+						if (!is_array($sql) && is_resource($stmt)) {
+								OCIFreeStatement($stmt);
+								return true;
+						}
                         return $stmt;
                     }
                     break;
                 default :
+					// ociclose?
                     return true;
             }
-        
-		   /* Now this could be an Update/Insert or Delete */
-			//if (@OCIStatementType($stmt) != 'SELECT') return true;
-			//return $stmt;
-            
 		}
 		return false;
 	}
@@ -697,8 +743,10 @@ NATSOFT.DOMAIN =
 		$this->_connectionID = false;
 	}
 	
-	function MetaPrimaryKeys($table, $owner=false)
+	function MetaPrimaryKeys($table, $owner=false,$internalKey=false)
 	{
+		if ($internalKey) return array('ROWID');
+		
 	// tested with oracle 8.1.7
 		$table = strtoupper($table);
 		if ($owner) {
@@ -727,29 +775,6 @@ SELECT /*+ RULE */ distinct b.column_name
 	}
 	
 
- 	function ActualType($meta)
-	{
-		switch($meta) {
-		case 'C': return 'VARCHAR';
-		case 'X': return 'VARCHAR(4000)';
-		
-		case 'C2': return 'NVARCHAR';
-		case 'X2': return 'NVARCHAR(4000)';
-		
-		case 'B': return 'BLOB';
-			
-		case 'D': 
-		case 'T': return 'DATE';
-		case 'L': return 'NUMBER(1)';
-		case 'R': return false;
-		case 'I': return 'NUMBER(16)';  // enough for 9 petabytes!
-		
-		case 'F': return 'NUMBER';
-		case 'N': return 'NUMBER';
-		default:
-			return false;
-		}
-	}
 	
 	function CharMax()
 	{
@@ -831,17 +856,18 @@ class ADORecordset_oci8 extends ADORecordSet {
 		if ($this->_inited) return;
 		
 		$this->_inited = true;
-		$this->fields = array();
 		
 		if ($this->_queryID) {
 						
 			$this->_currentRow = 0;
-			
 			@$this->_initrs();
-			
 			$this->EOF = !$this->_fetch(); 	
-		
+			if (!is_array($this->fields)) {
+				$this->_numOfRows = 0;
+				$this->fields = array();
+			}
 		} else {
+			$this->fields = array();
 			$this->_numOfRows = 0;
 			$this->_numOfFields = 0;
 			$this->EOF = true;
@@ -885,35 +911,19 @@ class ADORecordset_oci8 extends ADORecordSet {
 		return $this->_fieldobjs[$fieldOffset];
 	}
 	
-	/**
-	 * return recordset as a 2-dimensional array.
-	 *
-	 * @param [nRows]  is the number of rows to return. -1 means every row.
-	 *
-	 * @return an array indexed by the rows (0-based) from the recordset
-	 */
-	function GetArray($nRows = -1) 
-	{
-	//	if ($this->_arr) return $this->_arr;
-		$results = array();
-		$cnt = 0;
-		while (!$this->EOF && $nRows != $cnt) {
-			$results[$cnt++] = $this->fields;
-			$this->MoveNext();
-		}
-		return $results;
-	}
 	
 	// 10% speedup to move MoveNext to child class
 	function MoveNext() 
 	{
-		if (!$this->EOF) {		
-			$this->_currentRow++;
-			if(@OCIfetchinto($this->_queryID,$this->fields,$this->fetchMode))
-				return true;
-			
-			$this->EOF = true;
-		}
+	//global $ADODB_EXTENSION;if ($ADODB_EXTENSION) return @adodb_movenext($this);
+		
+		if ($this->EOF) return false;
+		
+		$this->_currentRow++;
+		if(@OCIfetchinto($this->_queryID,$this->fields,$this->fetchMode))
+			return true;
+		$this->EOF = true;
+		
 		return false;
 	}	
 	
@@ -986,10 +996,10 @@ class ADORecordset_oci8 extends ADORecordSet {
 		case 'BINARY':
 		case 'NCHAR':
 		case 'NVARCHAR':
-				 if ($len <= $this->blobSize) return 'C';
+				 if (isset($this) && $len <= $this->blobSize) return 'C';
 		
 		case 'NCLOB':
-			 case 'LONG':
+		case 'LONG':
 		case 'LONG VARCHAR':
 		case 'CLOB';
 		return 'X';
