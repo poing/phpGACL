@@ -1,10 +1,18 @@
 {literal}
 <script LANGUAGE="JavaScript">
 //Function to totally clear a select box.
+
 function depopulate(form_element) {
-	for (i=0; i < (form_element.length + 5); i++) {
-		form_element.options[0] = null;
+	//document.getElementById(form_element).innerHTML =''
+	if (form_element.options.length > 0) {
+		form_element.innerHTML = '';
 	}
+/*	
+	for (i=0; i < (form_element.options.length + 5); i++) {
+		form_element.options[0] = null;
+		form_element.options[1] = null;
+	}
+*/	
 }
 
 //Populates a select box based off the value of "parent" select box. 
@@ -20,7 +28,7 @@ function populate(parent_form_element, child_form_element, src_array) {
     
     //Populate child form element
 	//FIXME: Mozilla reports the below array value is undefined... 
-	if (options[src_array][parent_id] != "undefined") {
+	if (options[src_array][parent_id] != 'undefined') {
 		for (i=0; i < options[src_array][parent_id].length; i++) {
 			child_form_element.options[i] = new Option(options[src_array][parent_id][i][1], options[src_array][parent_id][i][0]);
 		}
@@ -50,14 +58,16 @@ function select_item(parent_form_element, src_form_element, dst_form_element) {
 				src_id = src_form_element.options[i].value;
 				src_section = parent_form_element.options[parent_form_element.selectedIndex].text;
 				src_text = src_form_element.options[i].text;
+			   
 				//alert('Src ID: ' + src_id);
 				//alert('Parent: ' + src_section);
 				//alert('Src Text: ' + src_text);
 
-				length = dst_form_element.options.length;
-				dst_form_element.options[length] = new Option(src_section + ' > ' + src_text, src_id);
-				dst_form_element.options[length].selected = true;
+				options_length = dst_form_element.options.length;
+				dst_form_element.options[options_length] = new Option(src_section + ' > ' + src_text, src_id);
+				dst_form_element.options[options_length].selected = true;			   
 			}
+			
 		}
 
 	}

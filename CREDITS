@@ -1,6 +1,9 @@
 Mike Benoit <ipso@snappymail.ca>:
     Wrote initial "proof of concept" implementation, and maintains documentation & code base.
     
+ Paul Munn <pmunn@munn.com>
+    Sent in Postgres7 table schema, plus some very good suggestions.
+
 Eric Batchelor <>:
     Always there to bounce ideas off of, he has consistently helped me out in many areas, including testing.
 
