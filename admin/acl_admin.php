@@ -1,6 +1,8 @@
 <?php
 require_once("gacl_admin.inc.php");
 
+$debug=1;
+
 if (!isset($_POST['action']) ) {
 	$_POST['action'] = FALSE;
 }
