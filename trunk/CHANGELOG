@@ -1,4 +1,6 @@
-Mon Jan 27 2003
+Wed Jan 29 2003
+
+Mon Jan 28 2003
 	- Added ACL searching.
 	- Added ACL debug page.
 	- Added sanity checks to add_acl()/edit_acl() to make sure the objects mapped to ACLs actually exist.

@@ -10,6 +10,17 @@ require_once("gacl_admin.inc.php");
 
 //$gacl_api->add_consolidated_acl('system', 'add_pop','accounts',6, 99);
 
+
+$gacl_api->append_acl(	18,
+								array('accounts' => array(1,2,3,4)),
+								array(14),
+								array('projects' => array(5599)),
+								array(23),
+								array('system' => array('add_pop'))
+						);
+
+
+/*
 $gacl_api->add_acl(	array('system' => array(99)),
 								array('accounts' => array(99)),
 								array(99),
@@ -19,7 +30,7 @@ $gacl_api->add_acl(	array('system' => array(99)),
 								TRUE,
 								666,
 								'NOTE');
-
+*/
 
 //$rows = $rs->GetRows();
 //showarray($rows);

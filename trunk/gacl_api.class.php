@@ -60,7 +60,7 @@ class gacl_api extends gacl {
 						As well this function is designed for handling ACLs with return values,
 						and consolidating on the return_value, in hopes of keeping the ACL count to a minimum.
 	\*======================================================================*/
-	function add_consolidated_acl($aco_section_value, $aco_value, $aro_section_value, $aro_value, $return_value) {
+	function consolidated_append_acl($aco_section_value, $aco_value, $aro_section_value, $aro_value, $return_value) {
 
 		$this->debug_text("add_consolidated_acl(): ACO Section Value: $aco_section_value ACO Value: $aco_value ARO Section Value: $aro_section_value ARO Value: $aro_value Return Value: $return_value");
 
@@ -134,6 +134,7 @@ class gacl_api extends gacl {
 
 				$this->debug_text("add_consolidated_acl(): Found valid ACL_ID: $acl_id");
 				
+				
 				//Grab ACL data.
 				$acl_array = $this->get_acl($acl_id);
 				showarray($acl_array);
@@ -149,7 +150,7 @@ class gacl_api extends gacl {
 					showarray($acl_array);
 
 					//function edit_acl($acl_id, $aco_array, $aro_array, $aro_group_ids=NULL, $axo_array=NULL, $axo_group_ids=NULL, $allow=1, $enabled=1, $return_value=NULL, $note=NULL) {
-					$this->edit_acl($acl_id, $acl_array['aco'], $acl_array['aro'], $acl_array['aro_groups'], $acl_array['axo'], $acl_array['axo_groups'], $acl_array['allow'], $acl_array['enabled'], $acl_array['return_value'], $acl_array['note']);
+					$this->append_acl($acl_id, $acl_array['aco'], $acl_array['aro'], $acl_array['aro_groups'], $acl_array['axo'], $acl_array['axo_groups'], $acl_array['allow'], $acl_array['enabled'], $acl_array['return_value'], $acl_array['note']);
 						
 					return true;
 				}
@@ -166,6 +167,94 @@ class gacl_api extends gacl {
 		return false;
 	}
 
+	/*======================================================================*\
+		Function:	append_acl()
+		Purpose:	Appends objects on to a specific ACL.
+	\*======================================================================*/
+	function append_acl($acl_id, $aro_array=NULL, $aro_group_ids=NULL, $axo_array=NULL, $axo_group_ids=NULL, $aco_array=NULL) {
+		$this->debug_text("append_acl(): ACL_ID: $acl_id");
+		
+		if (empty($acl_id)) {
+			$this->debug_text("append_acl(): No ACL_ID specified! ACL_ID: $acl_id");
+			return false;
+		}
+		
+		//Grab ACL data.
+		$acl_array = &$this->get_acl($acl_id);
+	
+		showarray($acl_array);
+		
+		
+		//Append each object type seperately.
+		if (is_array($aro_array) AND count($aro_array) > 0) {
+			$this->debug_text("append_acl(): Appending ARO's");
+
+			while (list($aro_section_value,$aro_value_array) = @each($aro_array)) {
+				foreach ($aro_value_array as $aro_value) {
+
+					if (!in_array($aro_value, $acl_array['aro'][$aro_section_value])) {
+						$this->debug_text("append_acl(): ARO Section Value: $aro_section_value ARO VALUE: $aro_value");
+						$acl_array['aro'][$aro_section_value][] = $aro_value;
+						$update=1;
+					} else {
+						$this->debug_text("append_acl(): Duplicate ARO, ignoring... ");
+					}
+					
+				}
+			}
+		}
+
+		if (is_array($aro_group_ids) AND count($aro_group_ids) > 0) {
+			$this->debug_text("append_acl(): Appending ARO_GROUP_ID's");
+
+			while (list(,$aro_group_id) = @each($aro_group_ids)) {
+				if (!is_array($acl_array['aro_groups']) OR !in_array($aro_group_id, $acl_array['aro_groups'])) {
+					$this->debug_text("append_acl(): ARO Group ID: $aro_group_id");   
+					$acl_array['aro_groups'][] = $aro_group_id;
+					$update=1;
+				} else {
+					$this->debug_text("append_acl(): Duplicate ARO_Group_ID, ignoring... ");
+				}				
+			}
+		}
+
+		if (is_array($axo_array) AND count($axo_array) > 0) {
+			$this->debug_text("append_acl(): Appending AXO's");
+
+			while (list($axo_section_value,$axo_value_array) = @each($axo_array)) {
+				foreach ($axo_value_array as $axo_value) {
+					$this->debug_text("append_acl(): AXO Section Value: $axo_section_value AXO VALUE: $axo_value");   
+					$acl_array['axo'][$axo_section_value][] = $axo_value;
+				}
+			}
+		}
+		
+		if (is_array($axo_group_ids) AND count($axo_group_ids) > 0) {
+			$this->debug_text("append_acl(): Appending AXO_GROUP_ID's");
+			while (list(,$axo_group_id) = @each($axo_group_ids)) {
+				$this->debug_text("append_acl(): AXO Group ID: $axo_group_id");   
+				$acl_array['axo_groups'][] = $axo_group_id;
+			}
+		}
+
+		if (is_array($aco_array) AND count($aco_array) > 0) {
+			$this->debug_text("append_acl(): Appending ACO's");
+
+			while (list($aco_section_value,$aco_value_array) = @each($aco_array)) {
+				foreach ($aco_value_array as $aco_value) {
+					$this->debug_text("append_acl(): ACO Section Value: $aco_section_value ACO VALUE: $aco_value");   
+					$acl_array['aco'][$aco_section_value][] = $aco_value;
+				}
+			}
+		}
+		
+		
+		showarray($acl_array);
+		
+		//function edit_acl($acl_id, $aco_array, $aro_array, $aro_group_ids=NULL, $axo_array=NULL, $axo_group_ids=NULL, $allow=1, $enabled=1, $return_value=NULL, $note=NULL) {
+		return $this->edit_acl($acl_id, $acl_array['aco'], $acl_array['aro'], $acl_array['aro_groups'], $acl_array['axo'], $acl_array['axo_groups'], $acl_array['allow'], $acl_array['enabled'], $acl_array['return_value'], $acl_array['note']);
+	}
+	
 	/*======================================================================*\
 		Function:	get_acl()
 		Purpose:	Grabs ACL data.
@@ -266,6 +355,23 @@ class gacl_api extends gacl {
 
 		if (empty($enabled)) {
 			$enabled=0;	
+		}
+		
+		//Unique all the arrays.
+		if (is_array($aco_array)) {
+			$aco_array = array_unique($aco_array);
+		}
+		if (is_array($aro_array)) {
+			$aro_array = array_unique($aro_array);
+		}
+		if (is_array($aro_group_ids)) {
+			$aro_group_ids = array_unique($aro_group_ids);
+		}
+		if (is_array($axo_array)) {
+			$axo_array = array_unique($axo_array);
+		}
+		if (is_array($axo_group_ids)) {
+			$axo_group_ids = array_unique($axo_group_ids);
 		}
 		
 		$this->db->BeginTrans();
@@ -442,7 +548,7 @@ class gacl_api extends gacl {
 			while (list(,$axo_group_id) = @each($axo_group_ids)) {
 				$this->debug_text("Insert: AXO GROUP ID: $axo_group_id");   
 
-				$axo_group_data = &$this->get_group_data($aro_group_id, 'AXO');
+				$axo_group_data = &$this->get_group_data($axo_group_id, 'AXO');
 
 				if (!empty($axo_group_data)) {
 
@@ -557,6 +663,7 @@ class gacl_api extends gacl {
 		$this->db->Execute($query);
 		if ($this->db->ErrorNo() != 0) {
 			$this->debug_text("del_acl(): database error: ". $this->db->ErrorMsg() ." (". $this->db->ErrorNo() .")");
+			$this->db->RollBackTrans();
 			return false;	
 		}		
 
@@ -746,22 +853,33 @@ class gacl_api extends gacl {
 		}
 			
 		$query = "select id, parent_id, name from $table where id=$group_id";
-		$rs = $this->db->Execute($query);
+		//$rs = $this->db->Execute($query);
+		$row = $this->db->GetRow($query);
+		
+		if ($row) {
+			return $row;
 
+		}
+		
+		$this->debug_text("get_object_data(): Goup does not exist.");
+		return false;
+/*
 		if ($this->db->ErrorNo() != 0) {
 			$this->debug_text("get_group_data(): database error: ". $this->db->ErrorMsg() ." (". $this->db->ErrorNo() .")");
 			return false;	
 		} else {
 			if ($rs->RecordCount() > 0) {
-				$row = $rs->GetRow();
+				$this->debug_text("get_group_data(): Returned Rows: ". $rs->RecordCount() ."");
+				$row = $rs->GetRows();
 
-				//Return data
-				return $row;
+				//Return just first row. As there should never be more then that.
+				return $row[0];
 			} else {
 				$this->debug_text("get_object_data(): Returned $row_count rows");
 				return false;	
 			}
 		}
+*/		
 	}
 
 	/*======================================================================*\
@@ -817,12 +935,25 @@ class gacl_api extends gacl {
 				break;
 		}
 
+		$this->db->BeginTrans();
+		
 		$query = "delete from $table where group_id=$group_id";
 		$this->db->Execute($query);
+		if ($this->db->ErrorNo() != 0) {
+			$this->debug_text("map_group_path_to_root(): database error: ". $this->db->ErrorMsg() ." (". $this->db->ErrorNo() .")");
+			$this->db->RollBackTrans();
+			return false;	
+		}
 
 		$query = "insert into $table (path_id, group_id) VALUES($path_id, $group_id)";
 		$this->db->Execute($query);
+		if ($this->db->ErrorNo() != 0) {
+			$this->debug_text("map_group_path_to_root(): database error: ". $this->db->ErrorMsg() ." (". $this->db->ErrorNo() .")");
+			$this->db->RollBackTrans();
+			return false;	
+		}
 		
+		$this->db->CommitTrans();
 		return true;
 	}
 
@@ -856,7 +987,10 @@ class gacl_api extends gacl {
 			$path_id = $this->db->GetOne($query);
 			$this->debug_text("put_group_path_to_root(): Path ID: $path_id");
 			
+
 			if (empty($path_id)) {
+				$this->db->BeginTrans();
+				
 				$this->debug_text("put_group_path_to_root(): Unique path not found, inserting...");
 				$insert_id = $this->db->GenID($table.'_id_seq',10);
 				
@@ -865,11 +999,18 @@ class gacl_api extends gacl {
 
 					$query = "insert into $table (id, group_id, tree_level) VALUES($insert_id, $group_id, $i)";
 					$this->db->Execute($query);
+					if ($this->db->ErrorNo() != 0) {
+						$this->debug_text("put_group_path_to_root(): database error: ". $this->db->ErrorMsg() ." (". $this->db->ErrorNo() .")");
+						$this->db->RollBackTrans();
+						return false;	
+					}
 					
 					$i++;
 				}
 				
 				$retval = $insert_id;
+				
+				$this->db->CommitTrans();				
 			} else {
 				$this->debug_text("put_group_path_to_root(): Unique path FOUND, returning ID: $path_id");
 				$retval = $path_id;
