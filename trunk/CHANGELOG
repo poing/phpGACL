@@ -1,6 +1,7 @@
 Fri Feb 14 2003
 	- Tweeked consolidate_edit_acl() to better consolidate ACL() in the expected manor.
-	- Fixed cache ID bug.
+	- Fixed cache ID bug in acl_get_group_path().
+	
 Wed Feb 12 2003
 	- Fixed bug caused by overzealous array_unique in add_acl()
 	- Switched acl_query() to return TRUE/FALSE for the 'allow' return value instead of 1/0
