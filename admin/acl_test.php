@@ -2,10 +2,11 @@
 //$debug=1;
 require_once("../gacl.inc.php");
 
-echo "You'll find profile information displayed at the bottom of this page.<br>
+echo "<center>You'll find profile information displayed at the bottom of this page.<br>
 		Keep in mind the server hosting this may be overloaded. Preliminary benchmarks<br>
 		on my Celeron 800 running Apache, MySQL, and X11 show about 5ms per
-		acl_check() with caching tured off, which of course is heavily dependant on the database itself.<br><br>\n";
+		acl_check() with caching tured off, <br>
+		which of course is heavily dependant on the database itself.</centeR><br><br>\n";
 //
 //Grab all ACO sections for select box
 //
