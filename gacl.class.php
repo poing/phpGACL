@@ -90,8 +90,12 @@ class gacl {
 		require_once( ADODB_DIR .'/adodb-pager.inc.php');
 		
 		//Use NUM for slight performance/memory reasons.
+		//Leave this in for backwards compatibility with older ADODB installations.
+		//If your using ADODB v3.5+ feel free to comment out the following line if its giving you problems.
 		$ADODB_FETCH_MODE = ADODB_FETCH_NUM;
-		$this->db = ADONewConnection($this->_db_type);		
+		
+		$this->db = ADONewConnection($this->_db_type);
+		$this->db->SetFetchMode(ADODB_FETCH_NUM);
 		$this->db->PConnect($this->_db_host, $this->_db_user, $this->_db_password, $this->_db_name);
 		$this->db->debug = $this->_debug;
 

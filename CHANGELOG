@@ -1,6 +1,8 @@
 Mon May 26 2003
 	- Fixed many more PHP warnings all over.
 	- Added example.php
+	- Upgraded Smarty to v2.5
+	- Upgraded ADODB to v3.5. Added line to set FETCH_MODE on a per connection basis.
 	
 Wed May 21 2003
 	- Fixed add_acl() for AXOs, as it was previously completely broken.
