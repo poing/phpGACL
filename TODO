@@ -1,20 +1,23 @@
-* Add links to group page so you can view all ACLs associated with that group. Do the same for ARO/AXOs?
+* Add "About" page that shows the CREDITS file, and some useful information about the system to send in for bug
+reports perhaps? Ask user if they wish to submit system info for record keeping perhaps?
 
-* Reverse ACL Checks, you pass a ACO, and it tells you all AROs or AXOs  that have access to it.
+* Create upgrade.php script, to handle as much of the upgrade process as possible. Have it display the changelog as well?
 
-* Array ACL Checks for select boxes.
+* Create "demo" script that creates sample objects/ACLs using only API commands.
+
+* Array ACL Checks for select boxes. - Half done currently.
 
 * Use ADODB's XML Schema to simplify the setup.php?
-
-* Figure out best way to do ACLs on select boxes.
 
 * Add visual notification when a section has hit the $max_select_box_items.
 
 * Add filters/AXO's to ACL Test page.
 
-* Oracle compatibility.
+* Oracle compatibility. XML Schema should fix the majority of the Oracle issues.
 
 * Create include files with queries in each for the different databases. ie: include($db->db_type."-custom_sql.php");
+
+* Create regression tests.
 
 * FUTURE: Build framework for the plugin system.
     Create a "plugin" directory.
