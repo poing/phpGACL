@@ -108,6 +108,22 @@ class phpgacl_api_test extends gacl_test_case {
         $this->assert($result, $message);
     }
     
+    function edit_object_section_aro() {
+		$object_id = $this->get_object_section_section_id_aro();
+		
+        $rename_result = $this->gacl_api->edit_object_section($object_id, 'unit_test_tmp', 'unit_test_tmp', 999, 0, 'ARO');
+		$rename2_result = $this->gacl_api->edit_object_section($object_id, 'unit_test', 'unit_test', 999, 0, 'ARO');
+		
+		if ($rename_result === TRUE AND $rename2_result === TRUE) {
+			$result = TRUE;
+		} else {
+			$result = FALSE;
+		}
+		
+        $message = 'edit_object_section failed';
+        $this->assert($result, $message);
+    }
+
     function del_object_section_aro() {
         $result = $this->gacl_api->del_object_section($this->get_object_section_section_id_aro(), 'ARO');
         $message = 'del_object_section failed';
@@ -473,6 +489,8 @@ $suite->addTest(new phpgacl_api_test('get_object_id_aco'));
 $suite->addTest(new phpgacl_api_test('add_object_section_aro'));
 $suite->addTest(new phpgacl_api_test('get_object_section_section_id_aco'));
 $suite->addTest(new phpgacl_api_test('add_object_aro'));
+//Test the below with ACLs as well... I haven't gotten around to that just yet.
+$suite->addTest(new phpgacl_api_test('edit_object_section_aro'));
 $suite->addTest(new phpgacl_api_test('get_object_id_aro'));
 $suite->addTest(new phpgacl_api_test('add_object2_aro'));
 $suite->addTest(new phpgacl_api_test('get_object2_id_aro'));
