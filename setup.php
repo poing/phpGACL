@@ -32,7 +32,7 @@ function echo_normal($text) {
 echo_normal("<hr>");
 echo_normal("Testing database connection...");
 echo_normal("<br>");
-/*
+
 if (is_resource($db->_connectionID)) {
 	echo_success("Connected to \"<b>$db_type</b>\" database on \"<b>$db_host</b>\".");
 } else {
@@ -41,7 +41,7 @@ if (is_resource($db->_connectionID)) {
 				  <br>Did you create the database, and give read/write permissions to \"<b>$db_user</b>\" already?");
 	exit;
 }
-*/
+
 /*
  * Do database specific stuff.
  */
@@ -49,7 +49,7 @@ echo_normal("<hr>");
 echo_normal("Testing database type...");
 echo_normal("<br>");
 
-/*
+
 switch ($db_type) {
 	case mysql:
 		echo_success("Compatible database type \"<b>$db_type</b>\" detected!");
@@ -131,25 +131,25 @@ switch ($db_type) {
 					<br>I'm assuming you've already created the database \"$db_name\", attempting to create tables.
 					<br> Please email <b>$author_email</b> code to detect if a database is created or not so full support for \"<b>$db_type</b>\" can be added.");
 }
-*/
+
 
 /*
  * Attempt to create tables
  */
 // Create the schema object and build the query array.
-$schema = new adoSchema($db);
+$schema = new adoSchema($db, TRUE);
 
 // Build the SQL array
 $sql = $schema->ParseSchema("schema.xml");
 
-
+/*
 print "Here's the SQL to do the build:<br>\n<pre>";
 print_r( $sql );
 print "</pre><br>\n";
-
+*/
 
 // Execute the SQL on the database
-//$result = $schema->ExecuteSchema($sql, FALSE); //Don't continue on error.
+$result = $schema->ExecuteSchema($sql, FALSE); //Don't continue on error.
 
 if ($result != 2) {
 	echo_failed("Failed creating tables. Please enable DEBUG mode to see the error and try again. You will most likely need to delete any tables already created.");

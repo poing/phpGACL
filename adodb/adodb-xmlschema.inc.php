@@ -34,11 +34,16 @@ if (!defined( '_ADODB_LAYER' ) ) {
  * @access private
  */
 class dbTable {
-	
+
 	/**
 	* @var string	Table name
 	*/
 	var $tableName;
+
+	/**
+	* @var bool	Determines if ChnageTableSQL is used instead of just CreateTableSQL.
+	*/
+	var $useChangeTableSQL;
 
 	/**
 	* @var array	Field specifier: Meta-information about each field
@@ -60,8 +65,9 @@ class dbTable {
 	*
 	* @param string	$name		Table name
 	*/
-	function dbTable( $name ) {
+	function dbTable( $name, $useChangeTableSQL = FALSE ) {
 		$this->tableName = $name;
+		$this->useChangeTableSQL = $useChangeTableSQL;
 	}
 	
 	/**
@@ -195,7 +201,11 @@ class dbTable {
 		}
 
 		// Build table array
-		$sqlArray = $dict->CreateTableSQL( $this->tableName, $fldarray, $this->tableOpts );
+		if ($this->useChangeTableSQL == TRUE) {
+			$sqlArray = $dict->ChangeTableSQL( $this->tableName, $fldarray, $this->tableOpts ); 
+		} else {
+			$sqlArray = $dict->CreateTableSQL( $this->tableName, $fldarray, $this->tableOpts );
+		}
 
 		// Return the array containing the SQL to create the table
 		return $sqlArray;
@@ -453,11 +463,21 @@ class adoSchema {
 	var $mgq;
 
 	/**
+	* @var bool	Determines if ChangeTableSQL function is used instead of just CreateTable.
+	* @access private
+	*/
+	var $useChangeTableSQL;
+
+	/**
 	* Constructor. Initializes the xmlschema object
 	*
 	* @param object $dbconn		ADOdb connection object
 	*/
-	function adoSchema( $dbconn ) {
+	function adoSchema( $dbconn, $useChangeTableSQL = FALSE ) {
+
+		if ($useChangeTableSQL == TRUE) {
+			$this->useChangeTableSQL = TRUE;
+		}
 
 		// Initialize the environment
 		$this->mgq = get_magic_quotes_runtime();
@@ -557,7 +577,8 @@ class adoSchema {
 
 			case "TABLE":	// Table element
 				if( $this->supportedPlatform( $attrs['PLATFORM'] ) ) {
-					$this->table = new dbTable( $attrs['NAME'] );
+					var_dump($this->useChangeTableSQL);
+					$this->table = new dbTable( $attrs['NAME'], $this->useChangeTableSQL );
 				} else {
 					unset( $this->table );
 				}

@@ -553,7 +553,7 @@ This function changes/adds new fields to your table. You
 own.
 
 */
-	function ChangeTableSQL($tablename, $flds)
+	function ChangeTableSQL($tablename, $flds, $tableoptions=false)
 	{
 		if ($this->schema) $tabname = $this->schema.'.'.$tablename;
 		else $tabname = $tablename;
@@ -562,7 +562,7 @@ own.
 		if (!$conn) return false;
 		
 		$colarr = $conn->MetaColumns($tabname);
-		if (!$colarr) return $this->CreateTableSQL($tablename,$flds);
+		if (!$colarr) return $this->CreateTableSQL($tablename,$flds, $tableoptions);
 		foreach($colarr as $col) $cols[strtoupper($col->name)] = " ALTER ";
 		
 		$sql = array();
