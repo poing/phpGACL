@@ -1,3 +1,6 @@
+Wed Nov 05 2003
+	- Fixed issue where ARO and AXO groups use the same sequence. Not really a bug, but shouldn't 
+	be the case. Thanks to Dan Cech <dcech@phpwerx.net>
 Wed Oct 29 2003
 	- Fixed bug in schema.xml where group_id was missing from a unique index.
 Tue Oct 21 2003
