@@ -195,18 +195,14 @@ switch ($db_type) {
 			if (in_array($table_name, $tables) ) {
 				echo_success("Table: \"<b>$table_name</b>\" already exists! ");	
 			} else {
-				$test = $db->Execute($schema);
-				//showarray($test);
-				//exit;
-				if (!$test ) {
+				if (!$db->Execute($schema) ) {
 					echo_failed("Creation of table: \"<b>$table_name</b>\" ");	
 				} else {
 					echo_success("Table \"<b>$table_name</b>\" created successfully!");	
 				}
 			}		
 		}
-/*
-*/
+		
 		break;
 	default:
 		echo_failed("Sorry, <b>setup.php</b> currently does not support \"<b>$db_type</b>\" databases.
