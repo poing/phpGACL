@@ -1428,10 +1428,10 @@ class gacl_api extends gacl {
 		
 		switch (strtolower($group_type)) {
 			case 'axo':
-				$table = 'axo_groups';
+				$table = $this->_db_table_prefix .'axo_groups';
 				break;
 			case 'aro':
-				$table = 'aro_groups';
+				$table = $this->_db_table_prefix .'aro_groups';
 				break;
 			default:
 				$this->debug_text('get_root_group_id(): Invalid Group Type: '. $group_type);
