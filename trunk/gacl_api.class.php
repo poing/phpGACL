@@ -1485,9 +1485,15 @@ class gacl_api extends gacl {
 			$query = 'SELECT id FROM '. $table .' WHERE parent_id=0';
 			$rs = $this->db->Execute($query);
 			
-			if ($rs->RowCount() > 0) {
+			if (!is_object($rs)) {
+				$this->debug_db('add_group');
 				$this->db->RollBackTrans();
+				return FALSE;
+			}
+			
+			if ($rs->RowCount() > 0) {
 				$this->debug_text('add_group (): A root group already exists.');
+				$this->db->RollBackTrans();
 				return FALSE;
 			}
 			
@@ -1504,14 +1510,14 @@ class gacl_api extends gacl {
 			$row = $this->db->GetRow($query);
 			
 			if (!is_array($row) OR is_string($this->db->ErrorNo())) {
-				$this->db->RollBackTrans();
 				$this->debug_db('add_group');
+				$this->db->RollBackTrans();
 				return FALSE;
 			}
 			
 			if (empty($row)) {
-				$this->db->RollBackTrans();
 				$this->debug_text('add_group (): Parent ID: '. $parent_id .' not found.');
+				$this->db->RollBackTrans();
 				return FALSE;
 			}
 			
@@ -1523,8 +1529,8 @@ class gacl_api extends gacl {
 			$rs = $this->db->Execute($query);
 			
 			if (!is_object($rs)) {
-				$this->db->RollBackTrans();
 				$this->debug_db('add_group');
+				$this->db->RollBackTrans();
 				return FALSE;
 			}
 			
@@ -1532,8 +1538,8 @@ class gacl_api extends gacl {
 			$rs = $this->db->Execute($query);
 			
 			if (!is_object($rs)) {
-				$this->db->RollBackTrans();
 				$this->debug_db('add_group');
+				$this->db->RollBackTrans();
 				return FALSE;
 			}
 		}
@@ -1542,8 +1548,8 @@ class gacl_api extends gacl {
 		$rs = $this->db->Execute($query);
 		
 		if (!is_object($rs)) {
-			$this->db->RollBackTrans();
 			$this->debug_db('add_group');
+			$this->db->RollBackTrans();
 			return FALSE;
 		}
 		
@@ -2688,7 +2694,7 @@ class gacl_api extends gacl {
 					$this->debug_db('edit_object');
 					$this->db->RollBackTrans();
 					return false;
-				}				
+				}
 			}
 
 			if ($acl_ids) {

@@ -1,6 +1,7 @@
 Fri Nov 14 2003
 	dcech - improved count_all function and documentation
 	dcech - updated Stress Test & added script to do random ACL checks
+	dcech - fixed bug where debug_db was called after RollBackTrans
 Wed Nov 12 2003
 	mikeb - More MPTT fixes from Dan
 	mikeb - is_conflicting_acl() patch from Dan also.
