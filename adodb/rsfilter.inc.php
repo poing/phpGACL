@@ -1,6 +1,6 @@
 <?php
 /** 
- * @version V2.40 4 Sept 2002 (c) 2000-2002 John Lim (jlim@natsoft.com.my). All rights reserved.
+ * @version V3.00 6 Jan 2003 (c) 2000-2003 John Lim (jlim@natsoft.com.my). All rights reserved.
  * Released under both BSD license and Lesser GPL library license. 
  * Whenever there is any discrepancy between the two licenses, 
  * the BSD license will take precedence. 
@@ -13,7 +13,10 @@
 */
 
 /*
-	Filter all fields and all rows in a recordset.
+	Filter all fields and all rows in a recordset and returns the 
+	processed recordset. We scroll to the beginning of the new recordset
+	after processing.
+	
 	We pass a recordset and function name to RSFilter($rs,'rowfunc');
 	and the function will be called multiple times, once
 	for each row in the recordset. The function will be passed
@@ -22,7 +25,7 @@
 	Example: 
  	
 	// ucwords() every element in the recordset
-	function do_ucwords(&$arr)
+	function do_ucwords(&$arr,$rs)
 	{
 		foreach($arr as $k => $v) {
 			$arr[$k] = ucwords($v);

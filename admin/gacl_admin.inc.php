@@ -31,7 +31,7 @@
 require_once(dirname(__FILE__).'/../gacl.class.php');
 require_once(dirname(__FILE__).'/../gacl_api.class.php');
 
-/*
+
 $gacl_options = array(
 								'db_type' => 'mysql',
 								'db_host' => 'localhost',
@@ -39,10 +39,10 @@ $gacl_options = array(
 								'db_password' => '',
 								'db_name' => 'gacl',
 								'caching' => FALSE,
-								'cache_dir' => '/tmp/phpgacl_test_cache',
+								'cache_dir' => '/tmp/phpgacl',
 								'cache_expire_time' => 600
 							);
-*/
+
 
 $gacl_api = new gacl_api($gacl_options);
 

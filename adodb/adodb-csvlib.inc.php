@@ -1,7 +1,7 @@
 <?php
 
 /* 
-V2.40 4 Sept 2002  (c) 2000-2002 John Lim (jlim@natsoft.com.my). All rights reserved.
+V3.00 6 Jan 2003  (c) 2000-2003 John Lim (jlim@natsoft.com.my). All rights reserved.
   Released under both BSD license and Lesser GPL library license. 
   Whenever there is any discrepancy between the two licenses, 
   the BSD license will take precedence. See License.txt. 
@@ -91,7 +91,7 @@ V2.40 4 Sept 2002  (c) 2000-2002 John Lim (jlim@natsoft.com.my). All rights rese
 		$arr = array();
 		$ttl = 0;
 		
-		if ($meta = fgetcsv ($fp, 8192, ",")) {
+		if ($meta = fgetcsv ($fp, 32000, ",")) {
 			// check if error message
 			if (substr($meta[0],0,4) === '****') {
 				$err = trim(substr($meta[0],4,1024));
@@ -162,7 +162,8 @@ V2.40 4 Sept 2002  (c) 2000-2002 John Lim (jlim@natsoft.com.my). All rights rese
 					}// (timeout>0)
 					$ttl = $meta[1];
 				}
-				$meta = fgetcsv($fp, 8192, ",");
+				$meta = false;
+				$meta = fgetcsv($fp, 16000, ",");
 				if (!$meta) {
 					fclose($fp);
 					$err = "Unexpected EOF 1";
@@ -205,7 +206,8 @@ V2.40 4 Sept 2002  (c) 2000-2002 John Lim (jlim@natsoft.com.my). All rights rese
 		
 		//var_dump($arr);
 		if (!is_array($arr)) {
-			$err = "Recordset had unexpected EOF 3";
+			$err = "Recordset had unexpected EOF (in serialized recordset)";
+			if (get_magic_quotes_runtime()) $err .= ". Magic Quotes Runtime should be disabled!";
 			return false;
 		}
 		$rs = new ADORecordSet_array();

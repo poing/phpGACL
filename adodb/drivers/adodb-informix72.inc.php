@@ -1,6 +1,6 @@
 <?php
 /*
-V2.40 4 Sept 2002  (c) 2000-2002 John Lim. All rights reserved.
+V3.00 6 Jan 2003  (c) 2000-2003 John Lim. All rights reserved.
   Released under both BSD license and Lesser GPL library license.
   Whenever there is any discrepancy between the two licenses,
   the BSD license will take precedence.
@@ -60,6 +60,8 @@ class ADODB_informix72 extends ADOConnection {
 
 	function BeginTrans()
 	{
+		if ($this->transOff) return true;
+		$this->transCnt += 1;
 		$this->Execute('BEGIN');
 		$this->_autocommit = false;
 		return true;
@@ -68,6 +70,8 @@ class ADODB_informix72 extends ADOConnection {
 	function CommitTrans($ok=true) 
 	{ 
 		if (!$ok) return $this->RollbackTrans();
+		if ($this->transOff) return true;
+		if ($this->transCnt) $this->transCnt -= 1;
 		$this->Execute('COMMIT');
 		$this->_autocommit = true;
 		return true;
@@ -75,9 +79,11 @@ class ADODB_informix72 extends ADOConnection {
 
 	function RollbackTrans()
 	{
-		 $this->Execute('ROLLBACK');
-		 $this->_autocommit = true;
-		 return true;
+		if ($this->transOff) return true;
+		if ($this->transCnt) $this->transCnt -= 1;
+		$this->Execute('ROLLBACK');
+		$this->_autocommit = true;
+		return true;
 	}
 
 	function RowLock($tables,$where)
@@ -195,11 +201,13 @@ class ADORecordset_informix72 extends ADORecordSet {
 	var $canSeek = true;
 	var $_fieldprops = false;
 
-	function ADORecordset_informix72($id)
+	function ADORecordset_informix72($id,$mode=false)
 	{
-	global $ADODB_FETCH_MODE;
-
-		$this->fetchMode = $ADODB_FETCH_MODE;
+		if ($mode === false) { 
+			global $ADODB_FETCH_MODE;
+			$mode = $ADODB_FETCH_MODE;
+		}
+		$this->fetchMode = $mode;
 		return $this->ADORecordSet($id);
 	}
 

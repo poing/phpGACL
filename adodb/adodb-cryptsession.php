@@ -1,11 +1,12 @@
 <?php
 /*
-V2.40 4 Sept 2002  (c) 2000-2002 John Lim (jlim@natsoft.com.my). All rights reserved.
+V3.00 6 Jan 2003  (c) 2000-2003 John Lim (jlim@natsoft.com.my). All rights reserved.
   Released under both BSD license and Lesser GPL library license. 
   Whenever there is any discrepancy between the two licenses, 
   the BSD license will take precedence.
 	Made table name configurable - by David Johnson djohnson@inpro.net
 	Encryption by Ari Kuorikoski <ari.kuorikoski@finebyte.com>
+	
   Set tabs to 4 for best viewing.
   
   Latest version of ADODB is available at http://php.weblogs.com/adodb
@@ -19,7 +20,9 @@ wrapper library.
  
  	GLOBAL $HTTP_SESSION_VARS;
 	include('adodb.inc.php');
-	include('adodb-session.php');
+	#---------------------------------#
+	include('adodb-cryptsession.php'); 
+	#---------------------------------#
 	session_start();
 	session_register('AVAR');
 	$HTTP_SESSION_VARS['AVAR'] += 1;
@@ -80,10 +83,10 @@ GLOBAL 	$ADODB_SESSION_CONNECT,
 	/* SET THE FOLLOWING PARAMETERS */
 if (empty($ADODB_SESSION_DRIVER)) {
 	$ADODB_SESSION_DRIVER='mysql';
-	$ADODB_SESSION_CONNECT='serverName';
-	$ADODB_SESSION_USER ='PhpSessions';
-	$ADODB_SESSION_PWD ='sessions';
-	$ADODB_SESSION_DB ='sessions';
+	$ADODB_SESSION_CONNECT='localhost';
+	$ADODB_SESSION_USER ='root';
+	$ADODB_SESSION_PWD ='';
+	$ADODB_SESSION_DB ='xphplens_2';
 }
 if (empty($ADODB_SESSION_TBL)){
 	$ADODB_SESSION_TBL = 'sessions';
@@ -156,7 +159,7 @@ global $ADODB_SESS_CONN,$ADODB_SESS_INSERT,$ADODB_SESSION_TBL;
 	}
 	else $ADODB_SESS_INSERT = true;
 	
-	return false;
+	return '';
 }
 
 function adodb_sess_write($key, $val) 
@@ -168,21 +171,19 @@ $Crypt = new MD5Crypt;
 
 	// encrypt session data..	
 	$val = $Crypt->Encrypt(rawurlencode($val), ADODB_Session_Key());
-	$qry = "UPDATE $ADODB_SESSION_TBL SET expiry=$expiry,data='$val' WHERE sesskey='$key'";
-	$rs = $ADODB_SESS_CONN->Execute($qry);
-	if ($rs) $rs->Close();
-	else print '<p>Session Update: '.$ADODB_SESS_CONN->ErrorMsg().'</p>';
 	
-	if ($ADODB_SESS_INSERT || $rs === false) {
-		$qry = "INSERT INTO $ADODB_SESSION_TBL(sesskey,expiry,data) VALUES ('$key',$expiry,'$val')";
-		$rs = $ADODB_SESS_CONN->Execute($qry);
-		if ($rs) $rs->Close();
-		else print '<p>Session Insert: '.$ADODB_SESS_CONN->ErrorMsg().'</p>';
-	}
-	// bug in access driver (could be odbc?) means that info is not commited
-	// properly unless select statement executed in Win2000
-	if ($ADODB_SESS_CONN->databaseType == 'access') $rs = $ADODB_SESS_CONN->Execute("select sesskey from $ADODB_SESSION_TBL WHERE sesskey='$key'");
+	$rs = $ADODB_SESS_CONN->Replace($ADODB_SESSION_TBL,
+	    array('sesskey' => $key, 'expiry' => $expiry, 'data' => $val),
+    	'sesskey',$autoQuote = true);
 
+	if (!$rs) {
+		ADOConnection::outp( '<p>Session Replace: '.$ADODB_SESS_CONN->ErrorMsg().'</p>',false);
+	} else {
+		// bug in access driver (could be odbc?) means that info is not commited
+		// properly unless select statement executed in Win2000
+	
+	if ($ADODB_SESS_CONN->databaseType == 'access') $rs = $ADODB_SESS_CONN->Execute("select sesskey from $ADODB_SESSION_TBL WHERE sesskey='$key'");
+	}
 	return isset($rs);
 }
 

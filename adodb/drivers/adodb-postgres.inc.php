@@ -1,6 +1,6 @@
 <?php
 /*
- V2.40 4 Sept 2002  (c) 2000-2002 John Lim (jlim@natsoft.com.my). All rights reserved.
+ V3.00 6 Jan 2003  (c) 2000-2003 John Lim (jlim@natsoft.com.my). All rights reserved.
   Released under both BSD license and Lesser GPL library license. 
   Whenever there is any discrepancy between the two licenses, 
   the BSD license will take precedence.
@@ -15,11 +15,12 @@ include_once(ADODB_DIR."/drivers/adodb-postgres64.inc.php");
 
 class ADODB_postgres extends ADODB_postgres64 {
 	var $databaseType = 'postgres';	
+	var $dataProvider = 'postgres';
 	var $hasLimit = true;	// set to true for pgsql 6.5+ only. support pgsql/mysql SELECT * FROM TABLE LIMIT 10
 	var $ansiOuter = true;
 	function ADODB_postgres() 
 	{
-		
+		$this->ADODB_postgres64();
 	}
 
 	// the following should be compat with postgresql 7.2, 
@@ -34,17 +35,7 @@ class ADODB_postgres extends ADODB_postgres64 {
 	   $this->Execute($sql."$limitStr$offsetStr",$inputarr,$arg3);
 	 }
  
- 	// 10% speedup to move MoveNext to child class
-	function MoveNext() 
-	{
-		if (!$this->EOF) {		
-			$this->_currentRow++;
-			$this->fields = @pg_fetch_array($this->_queryID,$this->_currentRow,$this->fetchMode);
-			if (is_array($this->fields)) return true;
-		}
-		$this->EOF = true;
-		return false;
-	}	
+
 }
 	
 /*--------------------------------------------------------------------------------------
@@ -55,10 +46,27 @@ class ADORecordSet_postgres extends ADORecordSet_postgres64{
 
 	var $databaseType = "postgres";
 
-	function ADORecordSet_postgres($queryID) 
+	function ADORecordSet_postgres($queryID,$mode=false) 
 	{
-		$this->ADORecordSet_postgres64($queryID);
+		$this->ADORecordSet_postgres64($queryID,$mode);
 	}
 
+	// 10% speedup to move MoveNext to child class
+	function MoveNext() 
+	{
+		if (!$this->EOF) {		
+			$this->_currentRow++;
+			
+			$f = @pg_fetch_array($this->_queryID,$this->_currentRow,$this->fetchMode);
+			
+			if (is_array($f)) {
+				$this->fields = $f;
+				if (isset($this->_blobArr)) $this->_fixblobs();
+				return true;
+			}
+		}
+		$this->EOF = true;
+		return false;
+	}		
 }
 ?>

@@ -1,6 +1,6 @@
 <?php
 /* 
-V2.40 4 Sept 2002  (c) 2000-2002 John Lim (jlim@natsoft.com.my). All rights reserved.
+V3.00 6 Jan 2003  (c) 2000-2003 John Lim (jlim@natsoft.com.my). All rights reserved.
   Released under both BSD license and Lesser GPL library license. 
   Whenever there is any discrepancy between the two licenses, 
   the BSD license will take precedence. 
@@ -76,7 +76,7 @@ class ADODB_DB2 extends ADODB_odbc {
 	{
 		$this->ADODB_odbc();
 	}
-
+	
 	// returns true or false
 	// curmode is not properly supported by DB2 odbc driver according to Mark Newnham
 	function _connect($argDSN, $argUsername, $argPassword, $argDatabasename)
@@ -109,6 +109,38 @@ class ADODB_DB2 extends ADODB_odbc {
 		return $this->GetOne("select 1 as ignore from $tables where $where for update");
 	}
 	
+	// Format date column in sql string given an input format that understands Y M D
+	function SQLDate($fmt, $col=false)
+	{	
+	// use right() and replace() ?
+		if (!$col) $col = $this->sysDate;
+		$s = '';
+		
+		$len = strlen($fmt);
+		for ($i=0; $i < $len; $i++) {
+			if ($s) $s .= '+';
+			$ch = $fmt[$i];
+			switch($ch) {
+			case 'Y':
+			case 'y':
+				$s .= "char(year($col))";
+				break;
+			case 'M':
+			case 'm':
+				$s .= "right(digits(month($col)),2)";
+				break;
+			case 'D':
+			case 'd':
+				$s .= "right(digits(day($col)),2)";
+				break;
+			default:
+				$s .= $this->qstr($ch);
+			}
+		}
+		return $s;
+	} 
+ 
+	
 	function &SelectLimit($sql,$nrows=-1,$offset=-1,$arg3=false)
 	{
 		if ($offset <= 0) {
@@ -129,9 +161,9 @@ class  ADORecordSet_db2 extends ADORecordSet_odbc {
 	
 	var $databaseType = "db2";		
 	
-	function ADORecordSet_db2($id)
+	function ADORecordSet_db2($id,$mode=false)
 	{
-		$this->ADORecordSet_odbc($id);
+		$this->ADORecordSet_odbc($id,$mode);
 	}
 
 	function MetaType($t,$len=-1,$fieldobj=false)

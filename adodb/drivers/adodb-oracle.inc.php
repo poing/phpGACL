@@ -1,6 +1,6 @@
 <?php
 /*
-V2.40 4 Sept 2002  (c) 2000-2002 John Lim (jlim@natsoft.com.my). All rights reserved.
+V3.00 6 Jan 2003  (c) 2000-2003 John Lim (jlim@natsoft.com.my). All rights reserved.
   Released under both BSD license and Lesser GPL library license. 
   Whenever there is any discrepancy between the two licenses, 
   the BSD license will take precedence.
@@ -90,8 +90,10 @@ class ADODB_oracle extends ADOConnection {
 			$this->_connectionID = ora_logon($argUsername,$argPassword);
 			if ($this->_connectionID === false) return false;
 			if ($this->autoCommit) ora_commiton($this->_connectionID);
-			if ($this->_initdate) $this->Execute("ALTER SESSION SET NLS_DATE_FORMAT='YYYY-MM-DD'");
-
+			if ($this->_initdate) {
+				$rs = $this->_query("ALTER SESSION SET NLS_DATE_FORMAT='YYYY-MM-DD'");
+				if ($rs) ora_close($rs);
+			}
 			return true;
 		}
 		// returns true or false
@@ -104,13 +106,15 @@ class ADODB_oracle extends ADOConnection {
 			if ($this->_connectionID === false) return false;
 			if ($this->autoCommit) ora_commiton($this->_connectionID);
 			if ($this->autoRollback) ora_rollback($this->_connectionID);
-			if ($this->_initdate) $this->Execute("ALTER SESSION SET NLS_DATE_FORMAT='YYYY-MM-DD'");
-
+			if ($this->_initdate) {
+				$rs = $this->_query("ALTER SESSION SET NLS_DATE_FORMAT='YYYY-MM-DD'");
+				if ($rs) ora_close($rs);
+			}
 			return true;
 		}
 
 		// returns query ID if successful, otherwise false
-		function _query($sql,$inputarr)
+		function _query($sql,$inputarr=false)
 		{
 			$curs = ora_open($this->_connectionID);
 		 
@@ -141,11 +145,14 @@ class ADORecordset_oracle extends ADORecordSet {
 	var $databaseType = "oracle";
 	var $bind = false;
 
-	function ADORecordset_oracle($queryID)
+	function ADORecordset_oracle($queryID,$mode=false)
 	{
-	global $ADODB_FETCH_MODE;
 		
-		$this->fetchMode = $ADODB_FETCH_MODE;
+		if ($mode === false) { 
+			global $ADODB_FETCH_MODE;
+			$mode = $ADODB_FETCH_MODE;
+		}
+		$this->fetchMode = $mode;
 		
 		$this->_queryID = $queryID;
 	
@@ -224,6 +231,12 @@ class ADORecordset_oracle extends ADORecordSet {
 
 	function MetaType($t,$len=-1)
 	{
+		if (is_object($t)) {
+			$fieldobj = $t;
+			$t = $fieldobj->type;
+			$len = $fieldobj->max_length;
+		}
+		
 		switch (strtoupper($t)) {
 		case 'VARCHAR':
 		case 'VARCHAR2':

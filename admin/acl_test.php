@@ -84,7 +84,11 @@ $smarty->assign("acls", $acls);
 
 $smarty->assign("total_acl_checks", $total_rows);
 $smarty->assign("total_acl_check_time", $total_acl_check_time);
-$smarty->assign("avg_acl_check_time", number_format($total_acl_check_time / $total_rows,2));
+
+if ($total_rows > 0) {
+	$avg_acl_check_time = $total_acl_check_time / $total_rows;
+}
+$smarty->assign("avg_acl_check_time", number_format( ($avg_acl_check_time + 0) ,2));
 
 $smarty->assign("return_page", $_SERVER[PHP_SELF] );
 

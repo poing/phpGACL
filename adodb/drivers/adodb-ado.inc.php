@@ -1,6 +1,6 @@
 <?php
 /* 
-V2.40 4 Sept 2002  (c) 2000-2002 John Lim (jlim@natsoft.com.my). All rights reserved.
+V3.00 6 Jan 2003  (c) 2000-2003 John Lim (jlim@natsoft.com.my). All rights reserved.
   Released under both BSD license and Lesser GPL library license. 
   Whenever there is any discrepancy between the two licenses, 
   the BSD license will take precedence. 
@@ -25,17 +25,22 @@ class ADODB_ado extends ADOConnection {
 	var $adoParameterType = 201; // 201 = long varchar, 203=long wide varchar, 205 = long varbinary
 	var $_affectedRows = false;
 	var $_thisTransactions;
-	var $_inTransaction = 0;
 	var $_cursor_type = 3; // 3=adOpenStatic,0=adOpenForwardOnly,1=adOpenKeyset,2=adOpenDynamic
 	var $_cursor_location = 3; // 2=adUseServer, 3 = adUseClient;
 	var $_lock_type = -1;
 	var $_execute_option = -1;
-					  
-	
+	var $poorAffectedRows = true; 
+	var $charPage;
+		
 	function ADODB_ado() 
 	{ 	
 	}
 
+	function ServerInfo()
+	{
+		if (!empty($this->_connectionID)) $desc = $this->_connectionID->provider;
+		return array('description' => $desc, 'version' => '');
+	}
 	
 	function _affectedrows()
 	{
@@ -50,7 +55,11 @@ class ADODB_ado extends ADOConnection {
 		$u = 'UID';
 		$p = 'PWD';
 	
-		$dbc = new COM('ADODB.Connection');
+		if (!empty($this->charPage))
+			$dbc = new COM('ADODB.Connection',null,$this->charPage);
+		else
+			$dbc = new COM('ADODB.Connection');
+			
 		if (! $dbc) return false;
 
 		/* special support if provider is mssql or access */
@@ -191,7 +200,11 @@ class ADODB_ado extends ADOConnection {
 		
 	//	return rs	
 		if ($inputarr) {
-			$oCmd = new COM('ADODB.Command');
+			
+			if (!empty($this->charPage))
+				$oCmd = new COM('ADODB.Command',null,$this->charPage);
+			else
+				$oCmd = new COM('ADODB.Command');
 			$oCmd->ActiveConnection = $dbc;
 			$oCmd->CommandText = $sql;
 			$oCmd->CommandType = 1;
@@ -227,6 +240,8 @@ class ADODB_ado extends ADOConnection {
 	
 	function BeginTrans() 
 	{ 
+		if ($this->transOff) return true;
+		
 		if (isset($this->_thisTransactions))
 			if (!$this->_thisTransactions) return false;
 		else {
@@ -235,19 +250,22 @@ class ADODB_ado extends ADOConnection {
 			if (!$o) return false;
 		}
 		@$this->_connectionID->BeginTrans();
-		$this->_inTransaction += 1;
+		$this->transCnt += 1;
 		return true;
 	}
 	function CommitTrans($ok=true) 
 	{ 
 		if (!$ok) return $this->RollbackTrans();
+		if ($this->transOff) return true;
+		
 		@$this->_connectionID->CommitTrans();
-		if ($this->_inTransaction) @$this->_inTransaction -= 1;
+		if ($this->transCnt) @$this->transCnt -= 1;
 		return true;
 	}
 	function RollbackTrans() {
+		if ($this->transOff) return true;
 		@$this->_connectionID->RollbackTrans();
-		if ($this->_inTransaction) @$this->_inTransaction -= 1;
+		if ($this->transCnt) @$this->transCnt -= 1;
 		return true;
 	}
 	
@@ -294,12 +312,14 @@ class ADORecordSet_ado extends ADORecordSet {
 	var $canSeek = true;
   	var $hideErrors = true;
 		  
-	function ADORecordSet_ado(&$id)
+	function ADORecordSet_ado($id,$mode=false)
 	{
-	global $ADODB_FETCH_MODE;
-	
-		$this->fetchMode = $ADODB_FETCH_MODE;
-		return $this->ADORecordSet($id);
+		if ($mode === false) { 
+			global $ADODB_FETCH_MODE;
+			$mode = $ADODB_FETCH_MODE;
+		}
+		$this->fetchMode = $mode;
+		return $this->ADORecordSet($id,$mode);
 	}
 
 
@@ -441,8 +461,14 @@ class ADORecordSet_ado extends ADORecordSet {
 	adPropVariant	= 138,
 	adVarNumeric	= 139
 */
-	function MetaType($t,$len=-1)
+	function MetaType($t,$len=-1,$fieldobj=false)
 	{
+		if (is_object($t)) {
+			$fieldobj = $t;
+			$t = $fieldobj->type;
+			$len = $fieldobj->max_length;
+		}
+		
 		if (!is_numeric($t)) return $t;
 		
 		switch ($t) {
@@ -541,8 +567,8 @@ class ADORecordSet_ado extends ADORecordSet {
 		if ($this->hideErrors) error_reporting($olde);
 		@$rs->MoveNext(); // @ needed for some versions of PHP!
 		
-		if ($this->fetchMode == ADODB_FETCH_ASSOC) {
-			$this->fields = $this->GetRowAssoc(false);
+		if ($this->fetchMode & ADODB_FETCH_ASSOC) {
+			$this->fields = $this->GetRowAssoc(ADODB_ASSOC_CASE);
 		}
 		return true;
 	}
@@ -556,81 +582,4 @@ class ADORecordSet_ado extends ADORecordSet {
 
 }
 
-/*
-ID:			   18253
- Updated by:	   mkools@euronet.nl
- Reported By:	  mkools@euronet.nl
- Status:		   Bogus
- Bug Type:		 COM related
- Operating System: Windows 2000 Pro SP2
- PHP Version:	  4.2.1
- New Comment:
-
-You were right, my code was wrong indeed. I did $VRows = new VARIANT();
-and then called the Execute function with &$VRows .. and that did work.
-But when I searched for a solution on the web, no site suggested this
-solution. Is it perhaps because of it's changed in version 4.2.1? Or is
-all the other code wrong too then?
-But many thanks!
-
-
-Previous Comments:
-------------------------------------------------------------------------
-
-[2002-07-17 18:48:01] phanto@php.net
-
-your code is wrong, try 
-
-$Vrows = new VARIANT();
-<..>
-
-$Vrows->value will most likely -1 then as almost no ADODB provider
-returns the right count.
-
-alternatively you can try using $this->QueryResult->RecordCount
-
-harald
-
-------------------------------------------------------------------------
-
-[2002-07-09 19:11:13] mkools@euronet.nl
-
-Forgot this in the original post: The queries itself do seem to work
-fine, so it's only the affectedrows which isn't working.
-
-------------------------------------------------------------------------
-
-[2002-07-09 19:09:42] mkools@euronet.nl
-
-I'm currently in the process of writing a wrapper class to connect
-through ADO with an MS Access database. The whole class works, except
-for one thing: I can't get the amound of affected records of an insert,
-update or delete statement.
-What I have now is this:
-	$Vrows = new VARIANT( 0, VT_I4|VT_BYREF);
-	$this->QueryResult = @$this->Link->Execute( $inQuery, $Vrows);
-	$this->AffectedRows = $Vrows->value;
-
-Explaination: QueryResult will be my RecordSet, Link is the ADO
-Connection object, inQuery is the query itself and AffectedRows will
-hold the amount of affected records by the query.
-But this seems to return the value 7779424 in all cases (even with
-select statements).
-The second things I've tried is:
-	$this->QueryResult = @$this->Link->Execute( $inQuery,
-&$this->AffectedRows);
-
-But that doesn't do anything with the AffectedRows variable. It keeps
-holding the value of what I put in it previously (I default it to -1).
-Is this a bug, or am I doing things totally wrong? I found the latter
-syntax on some other places on the web, so either those aren't working
-either or I'm forgetting something...
-
-------------------------------------------------------------------------
-
-
--- 
-Edit this bug report at http://bugs.php.net/?id=18253&edit=1
-
-*/
 ?>

@@ -1,6 +1,6 @@
 <?php
 /** 
- * @version V2.40 4 Sept 2002 (c) 2000-2002 John Lim (jlim@natsoft.com.my). All rights reserved.
+ * @version V3.00 6 Jan 2003 (c) 2000-2003 John Lim (jlim@natsoft.com.my). All rights reserved.
  * Released under both BSD license and Lesser GPL library license. 
  * Whenever there is any discrepancy between the two licenses, 
  * the BSD license will take precedence. 
@@ -25,36 +25,52 @@
  *						Since 2.3.1, if you can use your own aggregate function 
  *						instead of SUM, eg. $sumfield = 'AVG(fieldname)';
  * @sumlabel		Prefix to display in sum columns. Optional.
+ * @aggfn			Aggregate function to use (could be AVG, SUM, COUNT)
+ * @showcount		Show count of records
  *
  * @returns			Sql generated
  */
  
- function PivotTableSQL($db,$tables,$rowfields,$colfield, $where=false,$aggfield = false,$sumlabel='Sum ')
+ function PivotTableSQL($db,$tables,$rowfields,$colfield, $where=false,
+ 	$aggfield = false,$sumlabel='Sum ',$aggfn ='SUM', $showcount = true)
  {
- 	if ($where) $where = " WHERE $where";
-	if (!is_array($colfield)) $colarr = $db->GetCol("select distinct $colfield from $tables $where");
+	if ($aggfield) $hidecnt = true;
+	else $hidecnt = false;
+	
+	
+	//$hidecnt = false;
+	
+ 	if ($where) $where = "\nWHERE $where";
+	if (!is_array($colfield)) $colarr = $db->GetCol("select distinct $colfield from $tables $where order by 1");
+	if (!$aggfield) $hidecnt = false;
 	
 	$sel = "$rowfields, ";
 	if (is_array($colfield)) {
 		foreach ($colfield as $k => $v) {
-			$sel .= "\n\tSUM(CASE WHEN $v THEN 1 ELSE 0 END) AS \"$k\", ";
-			if ($sumfield)
-				$sel .= "\n\tSUM(CASE WHEN $v THEN $sumfield ELSE 0 END) AS \"$sumlabel$k\", ";
+			if (!$hidecnt) $sel .= "\n\t$aggfn(CASE WHEN $v THEN 1 ELSE 0 END) AS \"$k\", ";
+			if ($aggfield)
+				$sel .= "\n\t$aggfn(CASE WHEN $v THEN $aggfield ELSE 0 END) AS \"$sumlabel$k\", ";
 		} 
 	} else {
 		foreach ($colarr as $v) {
 			if (!is_numeric($v)) $vq = $db->qstr($v);
 			else $vq = $v;
 			if (strlen($v) == 0	) $v = 'null';
-			$sel .= "\n\tSUM(CASE WHEN $colfield=$vq THEN 1 ELSE 0 END) AS \"$v\", ";
+			if (!$hidecnt) $sel .= "\n\t$aggfn(CASE WHEN $colfield=$vq THEN 1 ELSE 0 END) AS \"$v\", ";
+			if ($aggfield) {
+				if ($hidecnt) $label = $v;
+				else $label = "{$v}_$aggfield";
+				$sel .= "\n\t$aggfn(CASE WHEN $colfield=$vq THEN $aggfield ELSE 0 END) AS \"$label\", ";
+			}
 		}
 	}
-	if ($aggfield){
-		$sel .= (strpos($aggfield,'(') === false) ? 
-			"\n\tSUM($aggfield) as \"$sumlabel$aggfield\", " : "\n\t$aggfield, ";
-		
+	if ($aggfield && $aggfield != '1'){
+		$agg = "$aggfn($aggfield)";
+		$sel .= "\n\t$agg as \"$sumlabel$aggfield\", ";		
 	}
-	$sel .= "\n\tSUM(1) as Total";
+	
+	if ($showcount)
+		$sel .= "\n\tSUM(1) as Total";
 	
 	
 	$sql = "SELECT $sel \nFROM $tables $where \nGROUP BY $rowfields";
@@ -133,16 +149,12 @@ array(
  Generated SQL:
  
 SELECT CompanyName,QuantityPerUnit, 
-	SUM(CASE WHEN UnitsInStock <= 0 THEN 1 ELSE 0 END) AS " 0 ", 
 	SUM(CASE WHEN UnitsInStock <= 0 THEN UnitsInStock ELSE 0 END) AS "Sum  0 ", 
-	SUM(CASE WHEN 0 < UnitsInStock and UnitsInStock <= 5 THEN 1 ELSE 0 END) AS "1 to 5", 
 	SUM(CASE WHEN 0 < UnitsInStock and UnitsInStock <= 5 THEN UnitsInStock ELSE 0 END) AS "Sum 1 to 5", 
-	SUM(CASE WHEN 5 < UnitsInStock and UnitsInStock <= 10 THEN 1 ELSE 0 END) AS "6 to 10", 
 	SUM(CASE WHEN 5 < UnitsInStock and UnitsInStock <= 10 THEN UnitsInStock ELSE 0 END) AS "Sum 6 to 10", 
-	SUM(CASE WHEN 10 < UnitsInStock and UnitsInStock <= 15 THEN 1 ELSE 0 END) AS "11 to 15", 
 	SUM(CASE WHEN 10 < UnitsInStock and UnitsInStock <= 15 THEN UnitsInStock ELSE 0 END) AS "Sum 11 to 15", 
-	SUM(CASE WHEN 15 < UnitsInStock THEN 1 ELSE 0 END) AS "16+", 
-	SUM(CASE WHEN 15 < UnitsInStock THEN UnitsInStock ELSE 0 END) AS "Sum 16+", 
+	SUM(CASE WHEN 15 < UnitsInStock THEN UnitsInStock ELSE 0 END) AS "Sum 16+",
+	SUM(UnitsInStock) AS "Sum UnitsInStock", 
 	SUM(1) as Total 
 FROM products p ,categories c ,suppliers s  WHERE  p.CategoryID = c.CategoryID and s.SupplierID= p.SupplierID 
 GROUP BY CompanyName,QuantityPerUnit

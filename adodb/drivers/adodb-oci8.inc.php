@@ -1,7 +1,7 @@
 <?php
 /*
 
-  version V2.40 4 Sept 2002 (c) 2000-2002 John Lim. All rights reserved.
+  version V3.00 6 Jan 2003 (c) 2000-2003 John Lim. All rights reserved.
 
   Released under both BSD license and Lesser GPL library license. 
   Whenever there is any discrepancy between the two licenses, 
@@ -51,6 +51,7 @@ class ADODB_oci8 extends ADOConnection {
 	var $hasGenID = true;
 	var $_genIDSQL = "SELECT (%s.nextval) FROM DUAL";
 	var $_genSeqSQL = "CREATE SEQUENCE %s START WITH %s";
+	var $_dropSeqSQL = "DROP SEQUENCE %s";
 	var $hasAffectedRows = true;
 	var $upperCase = 'upper';
 	var $noNullStrings = false;
@@ -63,12 +64,15 @@ class ADODB_oci8 extends ADOConnection {
 	var $firstrows = true; // enable first rows optimization on SelectLimit()
 	var $selectOffsetAlg1 = 100; // when to use 1st algorithm of selectlimit.
 	var $NLS_DATE_FORMAT = 'YYYY-MM-DD';
+ 	var $useDBDateFormatForTextInput=false;
 	
 	// var $ansiOuter = true; // if oracle9
     
 	function ADODB_oci8() 
 	{
-		$this->_hasOCIFetchStatement = (strnatcmp(PHP_VERSION,'4.2.0')>=0);;
+	global $ADODB_PHPVER;
+	
+		$this->_hasOCIFetchStatement = $ADODB_PHPVER >= 0x4200;
 	}
 	
 	
@@ -97,10 +101,12 @@ NATSOFT.DOMAIN =
 	  (SERVICE_NAME = natsoft.domain)
 	)
   )
+  
+  There are 3 connection modes, 0 = non-persistent, 1 = persistent, 2 = force new connection
 	
 */
 	// returns true or false
-	function _connect($argHostname, $argUsername, $argPassword, $argDatabasename,$persist=false)
+	function _connect($argHostname, $argUsername, $argPassword, $argDatabasename,$mode=0)
 	{
 		if($argHostname) { // added by Jorma Tuomainen <jorma.tuomainen@ppoy.fi>
 			if(strpos($argHostname,":")) {
@@ -120,15 +126,18 @@ NATSOFT.DOMAIN =
 		}
 				
  		//if ($argHostname) print "<p>Connect: 1st argument should be left blank for $this->databaseType</p>";
-	   if ($persist)$this->_connectionID = OCIPLogon($argUsername,$argPassword, $argDatabasename);
-	   else $this->_connectionID = OCILogon($argUsername,$argPassword, $argDatabasename);
-		
+		if ($mode==1) {
+			$this->_connectionID = OCIPLogon($argUsername,$argPassword, $argDatabasename);
+			if ($this->_connectionID && $this->autoRollback)  OCIrollback($this->_connectionID);
+		} else if ($mode==2) {
+			$this->_connectionID = OCINLogon($argUsername,$argPassword, $argDatabasename);
+		} else {
+			$this->_connectionID = OCILogon($argUsername,$argPassword, $argDatabasename);
+		}
 		if ($this->_connectionID === false) return false;
 		if ($this->_initdate) {
 			$this->Execute("ALTER SESSION SET NLS_DATE_FORMAT='".$this->NLS_DATE_FORMAT."'");
 		}
-		
-		if ($persist && $this->autoRollback)  OCIrollback($this->_connectionID);
 		
 		// looks like: 
 		// Oracle8i Enterprise Edition Release 8.1.7.0.0 - Production With the Partitioning option JServer Release 8.1.7.0.0 - Production
@@ -136,12 +145,25 @@ NATSOFT.DOMAIN =
 		// if (strpos($vers,'8i') !== false) $this->ansiOuter = true;
 		return true;
    	}
+	
+	function ServerInfo()
+	{
+		$arr['compat'] = $this->GetOne('select value from sys.database_compatible_level');
+		$arr['description'] = @OCIServerVersion($this->_connectionID);
+		$arr['version'] = ADOConnection::_findvers($arr['description']);
+		return $arr;
+	}
 		// returns true or false
 	function _pconnect($argHostname, $argUsername, $argPassword, $argDatabasename)
 	{
-		return $this->_connect($argHostname, $argUsername, $argPassword, $argDatabasename,true);
+		return $this->_connect($argHostname, $argUsername, $argPassword, $argDatabasename,1);
 	}
-
+	
+	// returns true or false
+	function _nconnect($argHostname, $argUsername, $argPassword, $argDatabasename)
+	{
+		return $this->_connect($argHostname, $argUsername, $argPassword, $argDatabasename,2);
+	}
 	
 	function Affected_Rows()
 	{
@@ -154,8 +176,9 @@ NATSOFT.DOMAIN =
 		if (empty($d) && $d !== 0) return 'null';
 		
 		if (is_string($d)) $d = ADORecordSet::UnixDate($d);
-		return 'TO_DATE('.date($this->fmtDate,$d).",'YYYY-MM-DD')";
+		return "TO_DATE(".date($this->fmtDate,$d).",'".$this->NLS_DATE_FORMAT."')";
 	}
+
 	
 	// format and return date string in database timestamp format
 	function DBTimeStamp($ts)
@@ -173,6 +196,8 @@ NATSOFT.DOMAIN =
 	
 	function BeginTrans()
 	{	
+		if ($this->transOff) return true;
+		$this->transCnt += 1;
 		$this->autoCommit = false;
 		$this->_commit = OCI_DEFAULT;
 		return true;
@@ -180,7 +205,10 @@ NATSOFT.DOMAIN =
 	
 	function CommitTrans($ok=true) 
 	{ 
+		if ($this->transOff) return true;
 		if (!$ok) return $this->RollbackTrans();
+		
+		if ($this->transCnt) $this->transCnt -= 1;
 		$ret = OCIcommit($this->_connectionID);
 		$this->_commit = OCI_COMMIT_ON_SUCCESS;
 		$this->autoCommit = true;
@@ -189,6 +217,8 @@ NATSOFT.DOMAIN =
 	
 	function RollbackTrans()
 	{
+		if ($this->transOff) return true;
+		if ($this->transCnt) $this->transCnt -= 1;
 		$ret = OCIrollback($this->_connectionID);
 		$this->_commit = OCI_COMMIT_ON_SUCCESS;
 		$this->autoCommit = true;
@@ -224,6 +254,47 @@ NATSOFT.DOMAIN =
 			if ($arr == false) return '';
 		}
 		return $arr['code'];
+	}
+	
+	// Format date column in sql string given an input format that understands Y M D
+	function SQLDate($fmt, $col=false)
+	{	
+		if (!$col) $col = $this->sysDate;
+		$s = 'TO_CHAR('.$col.",'";
+		
+		$len = strlen($fmt);
+		for ($i=0; $i < $len; $i++) {
+			$ch = $fmt[$i];
+			switch($ch) {
+			case 'Y':
+			case 'y':
+				$s .= 'YYYY';
+				break;
+			case 'Q':
+			case 'q':
+				$s .= 'Q';
+				break;
+				
+			case 'M':
+			case 'm':
+				$s .= 'MM';
+				break;
+			case 'D':
+			case 'd':
+				$s .= 'DD';
+				break;
+			default:
+			// handle escape characters...
+				if ($ch == '\\') {
+					$i++;
+					$ch = substr($fmt,$i,1);
+				}
+				if (strpos('-/.:;, ',$ch) !== false) $s .= $ch;
+				else $s .= '"'.$ch.'"';
+				
+			}
+		}
+		return $s. "')";
 	}
 	
 	
@@ -272,18 +343,40 @@ NATSOFT.DOMAIN =
 			
 			 // Let Oracle return the name of the columns
 			 $q_fields = "SELECT * FROM ($sql) WHERE NULL = NULL";
-			 if (!$result = OCIParse($this->_connectionID, $q_fields)) {
+			 if (!$stmt = OCIParse($this->_connectionID, $q_fields)) {
 				 return false;
 			 }
-			 if (!$success = OCIExecute($result, OCI_DEFAULT)) {
+			 if (is_array($inputarr)) {
+				 foreach($inputarr as $k => $v) {
+					if (is_array($v)) {
+						if (sizeof($v) == 2) // suggested by g.giunta@libero.
+							OCIBindByName($stmt,":$k",$inputarr[$k][0],$v[1]);
+						else
+							OCIBindByName($stmt,":$k",$inputarr[$k][0],$v[1],$v[2]);
+					} else {
+						$len = -1;
+						if ($v === ' ') $len = 1;
+						if (isset($bindarr)) {	// is prepared sql, so no need to ocibindbyname again
+							$bindarr[$k] = $v;
+						} else { 				// dynamic sql, so rebind every time
+							OCIBindByName($stmt,":$k",$inputarr[$k],$len);
+						}
+					}
+				}
+			}
+			
+			 if (!$success = OCIExecute($stmt, OCI_DEFAULT)) {
+				 OCIFreeStatement($stmt); 
 				 return false;
 			 }
-			 $ncols = OCINumCols($result);
+			 
+			 $ncols = OCINumCols($stmt);
 			 for ( $i = 1; $i <= $ncols; $i++ ) {
-				 $cols[] = OCIColumnName($result, $i);
+				 $cols[] = '"'.OCIColumnName($stmt, $i).'"';
 			 }
 			 $result = false;
-			 
+			
+			 OCIFreeStatement($stmt); 
 			 $fields = implode(',', $cols);
 			 $nrows += $offset;
 			 $offset += 1; // in Oracle rownum starts at 1
@@ -603,17 +696,24 @@ NATSOFT.DOMAIN =
 		$this->_stmt = false;
 		$this->_connectionID = false;
 	}
-
-	function MetaPrimaryKeys($table)
+	
+	function MetaPrimaryKeys($table, $owner=false)
 	{
 	// tested with oracle 8.1.7
 		$table = strtoupper($table);
-		$sql = "SELECT /*+ RULE */ distinct b.column_name
+		if ($owner) {
+			$owner_clause = "AND ((a.OWNER = b.OWNER) AND (a.OWNER = UPPER('$owner')))";
+		} else $owner_clause = '';
+		
+		$sql = "
+SELECT /*+ RULE */ distinct b.column_name
    FROM ALL_CONSTRAINTS a
 	  , ALL_CONS_COLUMNS b
   WHERE ( UPPER(b.table_name) = ('$table'))
 	AND (UPPER(a.table_name) = ('$table') and a.constraint_type = 'P')
+	$owner_clause
 	AND (a.constraint_name = b.constraint_name)";
+
  		$rs = $this->Execute($sql);
 		if ($rs && !$rs->EOF) {
 			$arr = $rs->GetArray();
@@ -676,7 +776,7 @@ NATSOFT.DOMAIN =
 	$nofixquotes=false;
 	
 	
-		if ($this->noNullStrings && $s === '')$s = ' ';
+		if ($this->noNullStrings && strlen($s)==0)$s = ' ';
 		if (!$magic_quotes) {	
 			if ($this->replaceQuote[0] == '\\'){
 				$s = str_replace('\\','\\\\',$s);
@@ -708,11 +808,13 @@ class ADORecordset_oci8 extends ADORecordSet {
 	var $_fieldobjs;
 	//var $_arr = false;
 		
-	function ADORecordset_oci8($queryID)
+	function ADORecordset_oci8($queryID,$mode=false)
 	{
-	global $ADODB_FETCH_MODE;
-
-		switch ($ADODB_FETCH_MODE)
+		if ($mode === false) { 
+			global $ADODB_FETCH_MODE;
+			$mode = $ADODB_FETCH_MODE;
+		}
+		switch ($mode)
 		{
 		default:
 		case ADODB_FETCH_NUM: $this->fetchMode = OCI_NUM+OCI_RETURN_NULLS+OCI_RETURN_LOBS; break;
@@ -871,6 +973,11 @@ class ADORecordset_oci8 extends ADORecordSet {
 
 	function MetaType($t,$len=-1)
 	{
+		if (is_object($t)) {
+			$fieldobj = $t;
+			$t = $fieldobj->type;
+			$len = $fieldobj->max_length;
+		}
 		switch (strtoupper($t)) {
 	 	case 'VARCHAR':
 	 	case 'VARCHAR2':
