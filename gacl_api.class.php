@@ -1199,7 +1199,7 @@ class gacl_api extends gacl {
 								$spacing = substr($level, 0, -8) .'|- ';
 							}
 						} else {
-							$spacing = $prefix;
+							$spacing = $level;
 						}
 
 						$next = $level .'|&nbsp; ';
