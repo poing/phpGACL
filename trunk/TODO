@@ -1,4 +1,13 @@
-34* Create include files with queries in each for the different databases. ie: include($db->db_type."-custom_sql.php");
+* Move to entirely OO code.
+
+* Get rid of config.inc.php file, use an array of configuration variables instead so you can have mutiple instances of phpGACL in the same application.
+
+* Build framework for the plugin system.
+    Create a "plugin" directory.
+    Create a "plugin" section on the acl_admin page where plugin form fields can be displayed?
+    Plugins must be enabled in the config file, for both the admin interface and the calling interface?
+
+* Create include files with queries in each for the different databases. ie: include($db->db_type."-custom_sql.php");
 
 * Investigate a way to detect ACL conflicts and alert the user.
 
