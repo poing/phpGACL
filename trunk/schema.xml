@@ -391,7 +391,7 @@
 		</field>
 		<field name="value" type="C" size="255">
 			<NOTNULL/>
-			<UNIQUE/>
+			<KEY/>
 		</field>
 		
 		<index name="parent_id_aro_groups">
@@ -399,6 +399,7 @@
 		</index>
 		<index name="value_aro_groups">
 			<col>value</col>
+			<UNIQUE/>
 		</index>
 		<index name="lft_rgt_aro_groups">
 			<col>lft</col>
@@ -458,7 +459,7 @@
 		</field>
 		<field name="value" type="C" size="255">
 			<NOTNULL/>
-			<UNIQUE/>
+			<KEY/>
 		</field>
 		
 		<index name="parent_id_axo_groups">
@@ -466,6 +467,7 @@
 		</index>
 		<index name="value_axo_groups">
 			<col>value</col>
+			<UNIQUE/>
 		</index>
 		<index name="lft_rgt_axo_groups">
 			<col>lft</col>

@@ -31,10 +31,10 @@ switch ($_POST['action']) {
 		$formatted_groups = $gacl_api->format_groups($gacl_api->sort_groups($group_type), HTML);
 		
 		$query = '
-			SELECT		max(a.id) as id, max(a.name) as name, max(a.value) as value, count(b.'. $group_type .'_id)
+			SELECT		a.id, a.name, a.value, count(b.'. $group_type .'_id)
 			FROM		'. $group_table .' a
 			LEFT JOIN	'. $group_map_table .' b ON b.group_id=a.id
-			GROUP BY	a.id';
+			GROUP BY	a.id,a.name,a.value';
 		$rs = $db->Execute($query);
 		
 		$group_data = array();
