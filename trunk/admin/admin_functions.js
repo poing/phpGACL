@@ -83,7 +83,7 @@ function select_item(parent_form_element, src_form_element, dst_form_element) {
 				
 				options_length = dst_form_element.options.length;
 				dst_form_element.options[options_length] = new Option(src_section_text + ' > ' + src_text, src_section_id + '^' + src_id);
-				// dst_form_element.options[options_length].selected = true;
+				dst_form_element.options[options_length].selected = true;
 			}
 		}
 		
