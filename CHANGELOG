@@ -1,3 +1,5 @@
+Wed Dec 8 2004
+	mikeb - Release v3.3.4
 Sun Dec 5 2004
         mikeb - Added clear_database() API function that truncates all phpGACL tables. Thanks to Ross Lawley <ross.lawley@mediatelgroup.co.uk>
         mikeb - Modified millennium falcon example.
