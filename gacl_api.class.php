@@ -586,7 +586,7 @@ class gacl_api extends gacl {
 
 		if ($update == 1) {
 			//We know something was changed, so lets see if no ACO's or no ARO's are left assigned to this ACL, if so, delete the ACL completely.
-			$this->showarray($acl_array);
+			//$this->showarray($acl_array);
 			$this->debug_text("shift_acl(): ACOs: ". $this->count_all($acl_array['aco']) ." AROs: ".$this->count_all($acl_array['aro'])."");
 			
 			if ( $this->count_all($acl_array['aco']) == 0 
