@@ -1,4 +1,5 @@
 Mon Feb 09 2004
+	mikeb - Took ";" out of schema.xml, and changed version to b2.
 	mikeb - Added some missing transaction rollbacks to gacl_api. Thanks to Falk John <support@fajo.de>
 Sun Feb 08 2004
 	dcech - Added titles to admin interface
