@@ -724,59 +724,121 @@ class gacl_api extends gacl {
 	function is_conflicting_acl($aco_array, $aro_array, $aro_group_ids=NULL, $axo_array=NULL, $axo_group_ids=NULL, $ignore_acl_ids=NULL) {
 		//Check for potential conflicts. Ignore groups, as groups will almost always have "conflicting" ACLs.
 		//Thats part of inheritance.
-
+		
+		if (!is_array($aco_array)) {
+			$this->debug_text('is_conflicting_acl(): Invalid ACO Array.');
+			return FALSE;
+		}
+		
+		if (!is_array($aro_array)) {
+			$this->debug_text('is_conflicting_acl(): Invalid ARO Array.');
+			return FALSE;
+		}
+		
+		$query  = '
+			SELECT		a.id
+			FROM		'. $this->_db_table_prefix .'acl a,
+						'. $this->_db_table_prefix .'aco_map ac,
+						'. $this->_db_table_prefix .'aro_map ar
+			LEFT JOIN	'. $this->_db_table_prefix .'axo_map ax ON ax.acl_id=a.id
+			LEFT JOIN	'. $this->_db_table_prefix .'axo_groups_map axg ON axg.acl_id=a.id
+			LEFT JOIN	'. $this->_db_table_prefix .'axo_groups xg ON xg.id=axg.group_id
+			';
+		
 		//ACO
-		while (list($aco_section_value,$aco_value_array) = @each($aco_array)) {
+		foreach ($aco_array as $aco_section_value => $aco_value_array) {
 			$this->debug_text("is_conflicting_acl(): ACO Section Value: $aco_section_value ACO VALUE: $aco_value_array");   
 			//showarray($aco_array);
-
-			foreach ($aco_value_array as $aco_value) {
-				$aco_object_id = &$this->get_object_id($aco_section_value, $aco_value, 'ACO');
-
-				if (!empty($aco_object_id)) {
-					//ARO
-					while (list($aro_section_value,$aro_value_array) = @each($aro_array)) {
-						$this->debug_text("is_conflicting_acl():  ARO Section Value: $aro_section_value ARO VALUE: $aro_value_array");   
-
-						foreach ($aro_value_array as $aro_value) {
-							$aro_object_id = &$this->get_object_id($aro_section_value, $aro_value, 'ARO');
-
-							if (!empty($aro_object_id)) {
-								$this->debug_text("is_conflicting_acl():  ARO Object ID: $aro_object_id");
-								$this->debug_text("is_conflicting_acl(): Search: ACO Section: $aco_section_value ACO Value: $aco_value ARO Section: $aro_section_value ARO Value: $aro_value");
-
-								$conflict_result = &$this->search_acl($aco_section_value, $aco_value, $aro_section_value, $aro_value);
-								if ($conflict_result != FALSE) {
-									//showarray($conflict_result);
-									
-									$conflicting_acls = array_diff($conflict_result, $ignore_acl_ids);
-
-									if (count($conflicting_acls) > 0) {
-										$conflicting_acls_str = implode($conflicting_acls,",");
-										$this->debug_text("is_conflicting_acl(): Conflict FOUND!!! ACL_IDS: ($conflicting_acls_str)");
-										return true;
-									}
-									
-								}
-								
-							} else {
-								$this->debug_text("is_conflicting_acl():  ARO Object Section Value: $aro_section_value Value: $aro_value DOES NOT exist in the database. Skipping...");
-								return true;
+			
+			if (!is_array($aco_value_array)) {
+				$this->debug_text('is_conflicting_acl(): Invalid Format for ACO Array item. Skipping...');
+				continue;
+				// return TRUE;
+			}
+			
+			$where_query = array(
+				'ac1' => 'ac.acl_id=a.id',
+				'ac2' => '(ac.section_value='. $this->db->quote($aco_section_value) .' AND ac.value IN (\''. implode ('\',\'', $aco_value_array) .'\'))'
+			);
+			
+			//ARO
+			foreach ($aro_array as $aro_section_value => $aro_value_array) {
+				$this->debug_text("is_conflicting_acl(): ARO Section Value: $aro_section_value ARO VALUE: $aro_value_array");
+				
+				if (!is_array($aro_value_array))
+				{
+					$this->debug_text('is_conflicting_acl(): Invalid Format for ARO Array item. Skipping...');
+					continue;
+					// return TRUE;
+				}
+				
+				$this->debug_text("is_conflicting_acl(): Search: ACO Section: $aco_section_value ACO Value: $aco_value_array ARO Section: $aro_section_value ARO Value: $aro_value_array");
+				
+				$where_query['ar1'] = 'ar.acl_id=a.id';
+				$where_query['ar2'] = '(ar.section_value='. $this->db->quote($aro_section_value) .' AND ar.value IN (\''. implode ('\',\'', $aro_value_array) .'\'))';
+				
+				if (is_array($axo_array)) {
+					foreach ($axo_array as $axo_section_value => $axo_value_array) {
+						$this->debug_text("is_conflicting_acl(): AXO Section Value: $axo_section_value AXO VALUE: $axo_value_array");   
+						
+						if (!is_array($axo_value_array)) {
+							$this->debug_text('is_conflicting_acl(): Invalid Format for AXO Array item. Skipping...');
+							continue;
+							// return TRUE;
+						}
+						
+						$this->debug_text("is_conflicting_acl(): Search: ACO Section: $aco_section_value ACO Value: $aco_value_array ARO Section: $aro_section_value ARO Value: $aro_value_array AXO Section: $axo_section_value AXO Value: $axo_value_array");
+						
+						$where_query['ax1'] = 'ax.acl_id=x.id';
+						$where_query['ax2'] = '(ax.section_value='. $this->db->quote($axo_section_value) .' AND ax.value IN (\''. implode ('\',\'', $axo_value_array) .'\'))';
+						
+						$where  = 'WHERE ' . implode(' AND ', $where_query);
+						
+						$conflict_result = $this->db->GetCol($query . $where);
+						
+						if (is_array($conflict_result) AND !empty($conflict_result)) {
+							// showarray($conflict_result);
+							
+							if (is_array($ignore_acl_ids)) {
+								$conflict_result = array_diff($conflict_result, $ignore_acl_ids);
+							}
+							
+							if (count($conflict_result) > 0) {
+								$conflicting_acls_str = implode(',', $conflict_result);
+								$this->debug_text("is_conflicting_acl(): Conflict FOUND!!! ACL_IDS: ($conflicting_acls_str)");
+								return TRUE;
 							}
 						}
 					}
-
 				} else {
-					$this->debug_text("is_conflicting_acl(): ACO Object Section Value: $aco_section_value Value: $aco_value DOES NOT exist in the database. Skipping...");
-					return true;
+					$where_query['ax1'] = '(ax.section_value IS NULL AND ax.value IS NULL)';
+					$where_query['ax2'] = 'xg.name IS NULL';
+					
+					$where  = 'WHERE ' . implode(' AND ', $where_query);
+					
+					$conflict_result = $this->db->GetCol($query . $where);
+					
+					if (is_array($conflict_result) AND !empty($conflict_result)) {
+						// showarray($conflict_result);
+						
+						if (is_array($ignore_acl_ids)) {
+							$conflict_result = array_diff($conflict_result, $ignore_acl_ids);
+						}
+						
+						if (count($conflict_result) > 0) {
+							$conflicting_acls_str = implode(',', $conflict_result);
+							$this->debug_text("is_conflicting_acl(): Conflict FOUND!!! ACL_IDS: ($conflicting_acls_str)");
+							return TRUE;
+						}
+					}
 				}
 			}
 		}
-
-		$this->debug_text("is_conflicting_acl(): No conflicting ACL found.");
-		return false;
-
+		
+		$this->debug_text('is_conflicting_acl(): No conflicting ACL found.');
+		return FALSE;
 	}
+	
 	/*======================================================================*\
 		Function:	add_acl()
 		Purpose:	Add's an ACL. ACO_IDS, ARO_IDS, GROUP_IDS must all be arrays.
@@ -1588,24 +1650,12 @@ class gacl_api extends gacl {
 		}
 
 		// test to see if object & group exist and if object is already a member
-		//This query gives a "no relation 'g'" in PostgreSQL.
-		/*
-		$query  = '	SELECT		g.id AS group_id,
-											o.id AS id,
-											(gm.group_id IS NOT NULL) AS member
-							FROM		'. $group_table .' g, '. $object_table .' o
-							LEFT JOIN	'. $table .' gm ON (gm.group_id=g.id AND gm.'. $group_type .'_id=o.id)
-							WHERE		g.id='. $group_id .'
-							AND			(o.section_value='. $this->db->quote($object_section_value) .' AND o.value='. $this->db->quote($object_value) .')';
-		*/
-		$query  = '	SELECT		g.id AS group_id,
-											o.id AS id,
-											(gm.group_id IS NOT NULL) AS member
-							FROM		'. $object_table .' o
-							LEFT JOIN	'. $group_table .' g ON g.id='. $group_id .'
-							LEFT JOIN	'. $table .' gm ON (gm.group_id=g.id AND gm.'. $group_type .'_id=o.id)
-							WHERE		(o.section_value='. $this->db->quote($object_section_value) .' AND o.value='. $this->db->quote($object_value) .')';
-		
+		$query  = '
+				SELECT		g.id AS group_id,o.id AS id,(gm.group_id IS NOT NULL) AS member
+				FROM		'. $object_table .' o
+				LEFT JOIN	'. $group_table .' g ON g.id='. $group_id .'
+				LEFT JOIN	'. $table .' gm ON (gm.group_id=g.id AND gm.'. $group_type .'_id=o.id)
+				WHERE		(o.section_value='. $this->db->quote($object_section_value) .' AND o.value='. $this->db->quote($object_value) .')';
 		$rs = $this->db->Execute($query);
 		
 		if (!is_object($rs)) {
@@ -2675,14 +2725,15 @@ class gacl_api extends gacl {
 
 					$sql_acl_ids = implode(",", $acl_ids);
 
-					$query = '	SELECT 	a.id
-									FROM 		'.$this->_db_table_prefix.'acl a
-									LEFT JOIN	$object_map_table b ON a.id=b.acl_id
-									LEFT JOIN	$groups_map_table c ON a.id=c.acl_id
-									WHERE 	value IS NULL
-										AND 	section_value IS NULL
-										AND 	group_id IS NULL
-										AND 	a.id in ('. $sql_acl_ids .')';
+					$query = '
+						SELECT		a.id
+						FROM		'. $this->_db_table_prefix .'acl a
+						LEFT JOIN	'. $object_map_table .' b ON a.id=b.acl_id
+						LEFT JOIN	'. $groups_map_table .' c ON a.id=c.acl_id
+						WHERE		value IS NULL
+							AND		section_value IS NULL
+							AND		group_id IS NULL
+							AND		a.id in ('. $sql_acl_ids .')';
 					$orphan_acl_ids = $this->db->GetCol($query);
 
 				} // End of else section of "if ($object_type == "aco")"
