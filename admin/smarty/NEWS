@@ -1,5 +1,198 @@
-Version 2.3.0
--------------
+Version 2.5.0 (April 11, 2003)
+------------------------------
+
+   - fixed bug with default modifier when passing integer 0
+     (Monte)
+   - change backtic syntax from $`foo` to `$foo` (Monte)
+   - recognize $foo[][] syntax inside embedded quotes without
+     backtics (Monte)
+   - name=123 is passed as an integer (not a string) to plugins now (messju)
+   - $length is now propagated to sub-values in debug_print_var (messju) 
+
+Version 2.5.0-RC2 (March 26, 2003)
+----------------------------------
+
+    - made clear_cache() ignore compile_id, when clearing cache-groups (this
+      is when no $tpl_file is supplied) (messju)
+    - made onmouseout XHTML-compliant in function.popup.php (messju)
+    - applied local-var-naming-scheme to fetch() (messju)
+    - renamed $localvars to $_localvars in cache-file-handling-functions,
+      added _get_auto_id()-function (messju)
+    - swapped compile_id and cache_id in read_cache_file and write_cache_file
+      (messju)
+    - reverted patch for cache-file-handling (messju)
+    - made html_radios and html_checkboxes accept "selected" instead
+      of "checked" optionally. (messju)
+    - made compile_id ignored in clear_cache, made order of
+      auto_file_name $cache_id.$compile_id again, applied the the new
+      variable-naming-scheme for cache_file_handing functions (messju)
+    - removed notice of undefined var in _rm_auto() (messju)
+    - added warning message when an array is passed as
+      the "checked" value of html_radios (Monte)
+    - fixed errormessage in _compile_smarty_ref() (messju)
+    - updated docs for html_image "name" -> "file" (messju)
+    - fixed bug with html_options-optgroups (Nichlas Löfdahl, messju)
+    - cleaned up calls to readdir() (messju)
+    - fixed bug with passing multiple modifiers to a parameter
+      (Monte)
+    - updated docs for html_checkboxes, html_options and html_radios (messju)
+    - fixed wrong default "name" attribute for html_options (messju)
+    - html_checkboxes now expect the options as attribute "options" instead
+      of "checkboxes. html_radios expect "options" instead of "radios".
+      cleaned up indentiation (messju)
+    - fixed too greedy str_replace in trimwhitespace outputfilter (messju)
+    - html_checkboxes and html_radios passthru all unknown paramters now
+      additionally their output is now XHTML compliant (messju)
+    - html_options passthru all unknown paramters now (messju)
+    - fix link functionality of html_image, also make
+      output XHTML compatible (Hinrich Donner, Monte)
+    - append "@" to default modifier vars/args
+      supress possible warnings (Monte)
+    - fix problem with escaped double quotes (Monte)
+    - fix html_radios to not return an array (Monte)
+    - fixed length in modifier.truncate.php (messju)
+    - fixed handling of '$'-signs in trimwhitespace outputfilter (messju)
+    - fix bug that makes config files recompile every time
+      (Nagger, Monte)
+    - add dpi functionality to html_image, change "name"
+      parameter to "file" (Thomas Shulz, Monte)
+    - fix height/width parameter index in html_image (Gerard,
+      Monte)
+    - get rid of unsetting name and script attributes
+      to insert tag (Thomas Schulz, Monte)
+    - changed argument order of string_format modifier back,
+      was right in the first place (Monte)
+
+Version 2.5.0-RC1 (March 5, 2003)
+---------------------------------
+
+    - fixed notice in popup function (Nagger, Monte)
+    - fix "once" var compiling for include_php (Monte)
+    - added nl2br modifier to distribution (Monte)
+    - added html_image to distribution (Monte)
+    - added cat modifier to distribution (Monte)
+    - added html_table to distribution (Monte)
+    - added << >> <> support to if statments (SMK, Monte)
+    - fix _assign_smarty_interface to not overwrite keys
+      other than 'request' (Jerome Poudevigne, Monte)
+    - added html_checkboxes to distribution (Christopher Kvarme, Monte)
+    - added html_radios to distribution (Christopher Kvarme, Monte)
+    - fixed string_format modifier args (wrong order) (Paul
+      Lockaby, Monte)
+    - use tmp file for file writes, avoid file lock race (Monte)
+    - support syntax "$`smarty.config.foo`.tpl" for embedded
+      vars in quotes, and allow full dollar var syntax (Monte)
+    - add $smarty.config.varname variable for accessing config vars (Paul
+      Lockaby, Monte)
+    - silence PHP warnings in function.fetch.php (Eduardo,
+      Monte)
+    - added get_config_vars(), same basic functionality as
+      get_template_vars() (Monte)
+    - update get_template_vars() to be able to get
+      individual vars (Monte)
+    - fix minor logic in _fetch_template_info (Dennis Gearon,
+      Monte)
+    - fix cache groups with compile_id set (Monte)
+    - add support for merging appended vars (messju, Monte)
+    - allow null as function attribute value
+      (André Rabold, Monte)
+    - support $foo->bar[index] syntax (Monte)
+    - add get_registered_object function (messju, Monte)
+    - treat unrecognized param attribute syntax as string (Monte)
+    - support $smarty.const.$foo syntax (messju, Monte)
+    - remove E_NOTICE warnings from debug.tpl,
+      escape modifier (Kanstantin, Monte)
+    - don't count non-ascii chars in count_words modifier
+      (Kanstantin, Monte)
+    - clean up param calls to _parse_var and _parse_attrs (Monte)
+    - define $template_source var, elude possible warning
+      (Monte)
+    - fix syntax problem with evaluating PHP constants (Monte)
+    - add @ and === as valid if statement tokens (Monte)
+    - enable error messages for config_load errors,
+      use $this->config_class for loading class name (Monte)
+    - fix html_options to not escape already escaped entities (Monte)
+    - send Last-Modified header on cache creation (Monte)
+    - check strict syntax of function attributes (Monte) 
+    - dropped support for modifers on object parameters,
+      added support for objects as modifier parameters (Monte)
+    - fixed bug with decimal numbers in if statements (Monte)
+
+Version 2.4.2 (Feb 11, 2003)
+----------------------------
+    - support embedded variables in objects (Monte)
+    - fix bug with objects with no properties (M Mohr, Monte)
+    - support full dollar var syntax in quoted text (Monte)
+    - fixed bug in $smarty.const.FOO introduced in 2.4.1 (M
+      Mohr, Monte)
+
+Version 2.4.1 (Feb 6, 2003)
+---------------------------
+
+    - ignore case in IF statements (Rainer Collet, Monte)
+    - treat undefined constants as null (Ferdinand Beyer, Monte)
+    - fix problem with inserts and nested fetches
+      (Rainer Collet, Monte)
+    - added support for passing params to include_php
+      (Tim Riley, Monte)
+    - added support for math operators in if statements (Monte)
+    - added support for $foo->bar[$x].blah syntax (Monte)
+
+Version 2.4.0 (Feb 2, 2003)
+---------------------------
+
+    - fix known problems with php tag handling in templates
+      (recursion, echoing xml tags) (Monte)
+    - add support for object registration (Monte)
+    - add debug template to secure_dir, add template_dir
+      to secure_dir by default (Ferdinand Beyer, Monte)
+    - added support for assigned object access (Monte)
+    - fixed bug with directories named '0' (Frank Bauer, Monte)
+    - add javascript parameter to escape modifier (Monte)
+    - added calling function line numbers to syntax error
+      messages in compiler (Monte)
+    - added support for modifiers to function calls (Monte)
+    - support return value for custom functions
+      instead of echoing (but echo still works) (Monte)
+    - added direct access to constants
+      via $smarty.const.FOO (Monte)
+    - added support for passing modifiers
+      to static values (Monte)
+    - fix up regex code in compiler, more accurate and
+      maintainable (Monte)
+    - added day_value_format to html_select_date (Marcus
+      Bointon, Monte)
+    - assigned variables are no longer in global
+      namespace, saving extract() calls and speeding
+      up fetch() and display() linearly with no. of
+      assigned variables (Monte)
+    - added trimwhitespace output filter to dist. (Monte)
+    - fix popup function to allow newlines in text (Monte)
+    - escape html entities in html_options (Monte)
+    - fixed bug with label for html_options (Monte)
+    - added config_load API function (Monte)
+    - added caching to config file loading (Monte)
+    - added "extra" parameter to mailto function (Monte,
+      Massimiliano Perantoni)
+    - added mailto plugin to dist.  (Monte)
+
+Version 2.3.1 (Nov 19, 2002)
+----------------------------
+
+    - added optgroup support to html_options (Monte, Robert
+      Amos)
+    - set mtime on compile files so they match source
+      files (Monte, Peter Bowen)
+    - added proper support for open_basedir setting
+      (Monte, Alessandro Astarita)
+    - added strip variable modifier, updated docs (Monte)
+    - fixed access to $smarty.x variables as arrays. (Andrei)
+    - fixed errors with example setup docs (Monte, Matthew
+      Hagerty)
+    - added textformat block function (Monte)
+
+Version 2.3.0 (Aug 7, 2002)
+---------------------------
 
     - added assign_by_ref() and append_by_ref() functions
       (Bob Silva, Monte)
@@ -23,8 +216,8 @@ Version 2.3.0
     - fix bug with debug_tpl file path with Windows (.SMK., Monte)
     - fix append() function with string/array problem (Monte)
 
-Version 2.2.0
--------------
+Version 2.2.0 (July 11, 2002)
+-----------------------------
 
     - make debug.tpl work with any delimiter (Monte)
     - change logic in assign() and append() to test var names
