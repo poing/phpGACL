@@ -34,57 +34,13 @@ switch ($_POST['action']) {
 		if (!empty($_POST['acl_id']) ) {
 			//Update existing ACL
 			$acl_id = $_POST['acl_id'];
-
-			$query = "update acl set allow=".$_POST['allow'].", enabled=$enabled, updated_date=".time()." where id=$acl_id";
-			$rs = $db->Execute($query);
-
-			if ($rs) {
-				debug("Update completed without error, delete mappings...");
-				//Delete all mappings so they can be re-inserted.
-				$query = "delete from aco_map where acl_id=$acl_id";
-				$db->Execute($query);
-				
-				$query = "delete from aro_map where acl_id=$acl_id";
-				$db->Execute($query);
-
-				$query = "delete from groups_map where acl_id=$acl_id";
-				$db->Execute($query);
-			}
+			$gacl_api->edit_acl($acl_id, $_POST['selected_aco'], $_POST['selected_aro'], $_POST['groups'], $_POST['allow'], $enabled);
 		} else {
 			//Insert new ACL.
-
-			//Create ACL row first, so we have the acl_id
-			$acl_id = $db->GenID('acl_seq',10);
-			$query = "insert into acl (id,allow,enabled,updated_date) VALUES($acl_id, ".$_POST['allow'].", $enabled, ".time().")";
-			$rs = $db->Execute($query);
+			$acl_id = $gacl_api->add_acl($_POST['selected_aco'], $_POST['selected_aro'], $_POST['groups'], $_POST['allow'], $enabled);
+			showarray($acl_id);
 		}       
 
-		if ($rs) {
-			debug("Insert or Update completed without error, insert new mappings.");
-			//Insert ACO mappings
-			while (list(,$aco_id) = @each($_POST['selected_aco'])) {
-				debug("Insert: ACO ID: $aco_id");   
-
-				$query = "insert into aco_map (acl_id,aco_id) VALUES($acl_id, $aco_id)";
-				$rs = $db->Execute($query);
-			}
-
-			//Insert ARO mappings
-			while (list(,$aro_id) = @each($_POST['selected_aro'])) {
-				debug("Insert: ARO ID: $aro_id");   
-
-				$query = "insert into aro_map (acl_id,aro_id) VALUES($acl_id, $aro_id)";
-				$rs = $db->Execute($query);
-			}
-			
-			//Insert GROUP mappings
-			while (list(,$group_id) = @each($_POST['groups'])) {
-				debug("Insert: GROUP ID: $group_id");   
-
-				$query = "insert into groups_map (acl_id,group_id) VALUES($acl_id, $group_id)";
-				$rs = $db->Execute($query);
-			}
-		}
         return_page($_POST[return_page]);
         
         break;    

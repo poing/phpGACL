@@ -10,12 +10,236 @@
  *	$section_id = $gacl_api->get_aco_section_id('System');
  *	$aro_id= $gacl_api->add_aro($section_id, 'John Doe', 10);
  *
+ * For more examples, see the Administration interface, as it makes use of nearly every API Call.
  *
  */
 
 class gacl_api {
 	var $debug = false;
+
+	/*
+	 *
+	 * ACL
+	 *
+	 */
+
+	/*======================================================================*\
+		Function:	add_acl()
+		Purpose:	Add's an ACL. ACO_IDS, ARO_IDS, GROUP_IDS must all be arrays.
+	\*======================================================================*/
+	function add_acl($aco_ids, $aro_ids, $group_ids, $allow=1, $enabled=1, $acl_id=FALSE ) {
+		global $db;
+		
+		debug("add_ac(): Name: $name");
+		
+		if (count($aco_ids) == 0) {
+			debug("Must select at least one Access Control Object");
+			return false;
+		}
+		
+		if (count($aro_ids) == 0 AND count($group_ids) == 0) {
+			debug("Must select at least one Access Request Object or Group");
+			return false;
+		}
+		
+		if (empty($allow)) {
+			$allow=0;	
+		}
+
+		if (empty($enabled)) {
+			$enabled=0;	
+		}
+		
+		//Edit ACL if acl_id is set. This is simply if we're being called by edit_acl(). 
+		if (empty($acl_id)) {
+			//Create ACL row first, so we have the acl_id
+			$acl_id = $db->GenID('acl_seq',10);
+			$query = "insert into acl (id,allow,enabled,updated_date) VALUES($acl_id, $allow, $enabled, ".time().")";
+			//$rs = $db->Execute($query);
+		} else {
+			//Create ACL row first, so we have the acl_id
+			$query = "update acl set allow=$allow,enabled=$enabled,updated_date=".time()." where id=$acl_id";
+			$rs = $db->Execute($query);			
+
+			if ($rs) {
+				debug("Update completed without error, delete mappings...");
+				//Delete all mappings so they can be re-inserted.
+				$query = "delete from aco_map where acl_id=$acl_id";
+				$db->Execute($query);
+
+				if ($db->ErrorNo() != 0) {
+					debug("add_acl(): database error: ". $db->ErrorMsg() ." (". $db->ErrorNo() .")");
+					return false;	
+				}
+				
+				$query = "delete from aro_map where acl_id=$acl_id";
+				$db->Execute($query);
+
+				if ($db->ErrorNo() != 0) {
+					debug("add_acl(): database error: ". $db->ErrorMsg() ." (". $db->ErrorNo() .")");
+					return false;	
+				}
+
+				$query = "delete from groups_map where acl_id=$acl_id";
+				$db->Execute($query);
+
+				if ($db->ErrorNo() != 0) {
+					debug("add_acl(): database error: ". $db->ErrorMsg() ." (". $db->ErrorNo() .")");
+					return false;	
+				}
+
+			}
+
+		}
+
+		
+		if ($db->ErrorNo() != 0) {
+			debug("add_acl(): database error: ". $db->ErrorMsg() ." (". $db->ErrorNo() .")");
+			return false;	
+		}
+		
+		if ($rs) {
+			debug("Insert or Update completed without error, insert new mappings.");
+			//Insert ACO mappings
+			while (list(,$aco_id) = @each($aco_ids)) {
+				debug("Insert: ACO ID: $aco_id");   
+
+				$query = "insert into aco_map (acl_id,aco_id) VALUES($acl_id, $aco_id)";
+				$rs = $db->Execute($query);
+
+				if ($db->ErrorNo() != 0) {
+					debug("add_acl(): database error: ". $db->ErrorMsg() ." (". $db->ErrorNo() .")");
+					return false;	
+				}
+
+			}
+
+			//Insert ARO mappings
+			while (list(,$aro_id) = @each($aro_ids)) {
+				debug("Insert: ARO ID: $aro_id");   
+
+				$query = "insert into aro_map (acl_id,aro_id) VALUES($acl_id, $aro_id)";
+				$rs = $db->Execute($query);
+
+				if ($db->ErrorNo() != 0) {
+					debug("add_acl(): database error: ". $db->ErrorMsg() ." (". $db->ErrorNo() .")");
+					return false;	
+				}
+
+			}
+			
+			//Insert GROUP mappings
+			while (list(,$group_id) = @each($group_ids)) {
+				debug("Insert: GROUP ID: $group_id");   
+
+				$query = "insert into groups_map (acl_id,group_id) VALUES($acl_id, $group_id)";
+				$rs = $db->Execute($query);
+
+				if ($db->ErrorNo() != 0) {
+					debug("add_acl(): database error: ". $db->ErrorMsg() ." (". $db->ErrorNo() .")");
+					return false;	
+				}
+
+			}
+		}
+
+		if ($db->ErrorNo() != 0) {
+			debug("add_acl(): database error: ". $db->ErrorMsg() ." (". $db->ErrorNo() .")");
+			return false;	
+		} else {
+			//Return only the ID in the first row.
+			return $acl_id;	
+
+		}
+	}
+
+	/*======================================================================*\
+		Function:	edit_acl()
+		Purpose:	Edit's an ACL, ACO_IDS, ARO_IDS, GROUP_IDS must all be arrays.
+	\*======================================================================*/
+	function edit_acl($acl_id, $aco_ids, $aro_ids, $group_ids, $allow=1, $enabled=1) {
+		global $db;
+		
+		debug("add_ac(): Name: $name");
+		
+		if (empty($acl_id) ) {
+			debug("edit_acl(): Must specify a single ACL_ID to edit");
+			return false;
+		}
+		if (count($aco_ids) == 0) {
+			debug("edit_acl(): Must select at least one Access Control Object");
+			return false;
+		}
+		
+		if (count($aro_ids) == 0 AND count($group_ids) == 0) {
+			debug("edit_acl(): Must select at least one Access Request Object or Group");
+			return false;
+		}
+		
+		if (empty($allow)) {
+			$allow=0;	
+		}
+
+		if (empty($enabled)) {
+			$enabled=0;	
+		}
+		
+		if ($this->add_acl($aco_ids, $aro_ids, $group_ids, $allow, $enabled, $acl_id)) {
+			return true;	
+		} else {
+			debug("edit_acl(): error in add_acl()");
+			return false;	
+		}
+	}
 	
+	/*======================================================================*\
+		Function:	del_acl()
+		Purpose:	Deletes a given ACL
+	\*======================================================================*/
+	function del_acl($acl_id) {
+		global $db;
+		
+		debug("del_acl(): ID: $acl_id");
+		
+		if (empty($acl_id) ) {
+			debug("del_acl(): ACL_ID ($acl_id) is empty, this is required");
+			return false;	
+		}
+
+		$query = "delete from acl where id = $acl_id";
+		debug("delete query: $query");
+		$db->Execute($query);
+		if ($db->ErrorNo() != 0) {
+			debug("del_acl(): database error: ". $db->ErrorMsg() ." (". $db->ErrorNo() .")");
+			return false;	
+		}
+		
+		$query = "delete from aco_map where acl_id= $acl_id";
+		$db->Execute($query);
+		if ($db->ErrorNo() != 0) {
+			debug("del_acl(): database error: ". $db->ErrorMsg() ." (". $db->ErrorNo() .")");
+			return false;	
+		}
+		$query = "delete from aro_map where acl_id = $acl_id";
+		$db->Execute($query);
+		if ($db->ErrorNo() != 0) {
+			debug("del_acl(): database error: ". $db->ErrorMsg() ." (". $db->ErrorNo() .")");
+			return false;	
+		}		
+		$query = "delete from groups_map where acl_id = $acl_id";
+		$db->Execute($query);			
+
+		if ($db->ErrorNo() != 0) {
+			debug("del_acl(): database error: ". $db->ErrorMsg() ." (". $db->ErrorNo() .")");
+			return false;	
+		} else {
+			debug("del_acl(): deleted ACL ID: $acl_id");
+			return true;
+		}
+
+	}
+
+
 	/*
 	 *
 	 * Groups
@@ -520,7 +744,7 @@ class gacl_api {
 		debug("add_aro(): ID: $aro_id");
 		
 		if (empty($aro_id) ) {
-			debug("add_aro(): Section ID ($aro_id) is empty, this is required");
+			debug("add_aro(): ARO_ID ($aro_id) is empty, this is required");
 			return false;	
 		}
 
@@ -665,6 +889,198 @@ class gacl_api {
 			return false;	
 		} else {
 			debug("add_aro_section(): deleted aro_section ID: $aro_section_id");
+			return true;
+		}
+
+	}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+	/*
+	 *
+	 * Access Control Objects (ACO)
+	 *
+	 */
+
+	/*======================================================================*\
+		Function:	get_aco_id()
+		Purpose:	Gets the aco_id given the name OR value of the ARO.
+						so if there are duplicate names, it will return false.
+	\*======================================================================*/
+	function get_aco_id($name = null, $value = null) {
+		global $db;
+		
+		debug("add_aco(): Value: $value Name: $name");
+		
+		if (empty($name) AND empty($value) ) {
+			debug("add_aco(): name ($name) OR value ($value) is empty, this is required");
+			return false;	
+		}
+			
+		$query = "select id from aco where name='$name' OR value='$value'";
+		$rs = $db->Execute($query);
+
+		if ($db->ErrorNo() != 0) {
+			debug("add_aco(): database error: ". $db->ErrorMsg() ." (". $db->ErrorNo() .")");
+			return false;	
+		} else {
+			$row_count = $rs->RecordCount();
+			
+			if ($row_count > 1) {
+				debug("add_aco(): Returned $row_count rows, can only return one. Please search by value not name, or make your names unique.");
+				return false;	
+			} else {
+				$rows = $rs->GetRows();
+
+				//Return only the ID in the first row.
+				return $rows[0][0];	
+			}
+		}
+	}
+
+	/*======================================================================*\
+		Function:	get_aco_section_id()
+		Purpose:	Gets the aco_section_id given ARO id
+	\*======================================================================*/
+	function get_aco_section_id($aco_id) {
+		global $db;
+		
+		debug("add_aco(): Value: $value Name: $name");
+		
+		if (empty($aco_id) ) {
+			debug("add_aco(): ID ($aco_id) is empty, this is required");
+			return false;	
+		}
+			
+		$query = "select section_id from aco where id=$aco_id";
+		$rs = $db->Execute($query);
+
+		if ($db->ErrorNo() != 0) {
+			debug("add_aco(): database error: ". $db->ErrorMsg() ." (". $db->ErrorNo() .")");
+			return false;	
+		} else {
+			$rows = $rs->GetRows();
+
+			//Return only the ID in the first row.
+			return $rows[0][0];	
+		}
+	}
+
+	/*======================================================================*\
+		Function:	add_aco()
+		Purpose:	Inserts a new ARO
+	\*======================================================================*/
+	function add_aco($section_id, $name, $value=0, $order=0) {
+		global $db;
+		
+		debug("add_aco(): Section ID: $section_id Value: $value Order: $order Name: $name");
+		
+		if (empty($name) OR empty($section_id) ) {
+			debug("add_aco(): name ($name) OR section id ($section_id) is empty, this is required");
+			return false;	
+		}
+		
+		$insert_id = $db->GenID('aco_seq',10);
+		$query = "insert into aco (id,section_id, value,order_value,name) VALUES($insert_id, $section_id, '$value', '$order', '$name')";
+		$rs = $db->Execute($query);                   
+
+		if ($db->ErrorNo() != 0) {
+			debug("add_aco(): database error: ". $db->ErrorMsg() ." (". $db->ErrorNo() .")");
+			return false;	
+		} else {
+			debug("add_aco(): Added aco as ID: $insert_id");
+			return $insert_id;
+		}
+	}
+	
+	/*======================================================================*\
+		Function:	edit_aco()
+		Purpose:	Edits a given ARO
+	\*======================================================================*/
+	function edit_aco($aco_id, $section_id, $name, $value=0, $order=0) {
+		global $db;
+		
+		debug("add_aco(): ID: $aco_id Section ID: $section_id Value: $value Order: $order Name: $name");
+		
+		if (empty($aco_id) OR empty($section_id) ) {
+			debug("add_aco(): ARO ID ($aco_id) OR Section ID ($section_id) is empty, this is required");
+			return false;	
+		}
+
+		if (empty($name) ) {
+			debug("add_aco(): name ($name) is empty, this is required");
+			return false;	
+		}
+		
+		$query = "update aco set
+																section_id=$section_id,
+																value='$value',
+																order_value='$order',
+																name='$name'
+													where   id=$aco_id";
+		$rs = $db->Execute($query);                   
+
+		if ($db->ErrorNo() != 0) {
+			debug("add_aco(): database error: ". $db->ErrorMsg() ." (". $db->ErrorNo() .")");
+			return false;	
+		} else {
+			debug("add_aco(): Modified aco ID: $aco_id");
+			return true;
+		}
+	}
+	
+	/*======================================================================*\
+		Function:	del_aco()
+		Purpose:	Deletes a given ARO
+	\*======================================================================*/
+	function del_aco($aco_id) {
+		global $db;
+		
+		debug("add_aco(): ID: $aco_id");
+		
+		if (empty($aco_id) ) {
+			debug("add_aco(): ACO ID ($aco_id) is empty, this is required");
+			return false;	
+		}
+
+		$query = "delete from aco where id=$aco_id";
+		$db->Execute($query);
+	
+		if ($db->ErrorNo() != 0) {
+			debug("add_aco(): database error: ". $db->ErrorMsg() ." (". $db->ErrorNo() .")");
+			return false;	
+		} else {
+			debug("add_aco(): deleted aco ID: $aco_id");
 			return true;
 		}
 

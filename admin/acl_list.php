@@ -6,22 +6,11 @@ switch ($_POST[action]) {
 	    debug("Delete!");
 
         if (count($_POST[delete_acl]) > 0) {
-			$sql_acl_ids = implode(",", $_POST[delete_acl]);
-
-			$query = "delete from acl where id in ($sql_acl_ids)";
-            debug("delete query: $query");
-            $db->Execute($query);
-			
-			$query = "delete from aco_map where acl_id in ($sql_acl_ids)";
-			$db->Execute($query);
-
-			$query = "delete from aro_map where acl_id in ($sql_acl_ids)";
-			$db->Execute($query);
-			
-			$query = "delete from groups_map where acl_id in ($sql_acl_ids)";
-			$db->Execute($query);			
+            foreach($_POST[delete_acl] as $id) {
+                $gacl_api->del_acl($id);            
+            }
         }   
-            
+
         //Return page.
         return_page($_POST[return_page]);
 	

@@ -4,12 +4,11 @@ require_once("gacl_admin.inc.php");
 
 switch ($_POST[action]) {
     case Delete:
-        //showarray($_POST[delete_sections]);
-    
+   
         if (count($_POST[delete_aco]) > 0) {
-            $query = "delete from aco where id in (".implode(",", $_POST[delete_aco]).")";
-            debug("delete query: $query");
-            $db->Execute($query);
+            foreach($_POST[delete_aco] as $id) {
+                $gacl_api->del_aco($id);            
+            }
         }   
             
         //Return page.
@@ -18,22 +17,11 @@ switch ($_POST[action]) {
         break;
     case Submit:
         debug("Submit!!");
-        //showarray($_POST[sections]);
-        //showarray($_POST[new_sections]);
     
-        
-        //Update sections
+        //Update aco's
         while (list(,$row) = @each($_POST[aco])) {
             list($id, $value, $order, $name) = $row;
-
-            $query = "update aco set
-                                                                    section_id=$_POST[section_id],
-                                                                    value='$value',
-                                                                    order_value='$order',
-                                                                    name='$name'
-                                                        where   id=$id";
-            $rs = $db->Execute($query);                   
-            
+            $gacl_api->edit_aco($id, $_POST['section_id'], $name, $value, $order);            
         }
         unset($id);
         unset($section_id);
@@ -46,9 +34,7 @@ switch ($_POST[action]) {
             list($value, $order, $name) = $row;
             
             if (!empty($value) AND $order != "" AND !empty($name)) {
-                $insert_id = $db->GenID('aco_seq',10);
-                $query = "insert into aco (id,section_id, value,order_value,name) VALUES($insert_id, $_POST[section_id], '$value', '$order', '$name')";
-                $rs = $db->Execute($query);                   
+                $aco_id= $gacl_api->add_aco($_POST['section_id'], $name, $value, $order);
             }
         }
         debug("return_page: $_POST[return_page]");
