@@ -1,6 +1,6 @@
 <?php
 /* 
-V2.20 09 July 2002 (c) 2000-2002 John Lim (jlim@natsoft.com.my). All rights reserved.
+V2.40 4 Sept 2002  (c) 2000-2002 John Lim (jlim@natsoft.com.my). All rights reserved.
   Released under both BSD license and Lesser GPL library license. 
   Whenever there is any discrepancy between the two licenses, 
   the BSD license will take precedence. 
@@ -16,7 +16,7 @@ include_once('../adodb.inc.php');
 include_once('../adodb-pager.inc.php');
 
 $driver = 'mysql';
-$sql = 'select ID, firstname as "First Name", lastname as "Last Name", created as "Date Created" from adoxyz order  by  id';
+$sql = 'select ID, firstname as "First Name", lastname as "Last Name", created as "Date Created" from adoxyz  order  by  id';
 //$sql = 'select count(unitsinstock),categoryid from products group by categoryid order by 1 ';
 
 if ($driver == 'access') {
@@ -69,6 +69,8 @@ print "</pre>";
 }
 
 $pager = new ADODB_Pager($db,$sql);
+$pager->showPageLinks = true;
+$pager->linksPerPage = 3;
 //$pager->cache = 60;
 $pager->Render($rows=7);
 ?>

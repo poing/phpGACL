@@ -12,10 +12,13 @@ function smarty_function_eval($params, &$this)
 {
     extract($params);
 
-    if (empty($var)) {
-        $this->trigger_error("assign: missing 'var' parameter");
+    if (!isset($var)) {
+        $this->trigger_error("eval: missing 'var' parameter");
         return;
     }
+	if($var == '') {
+		return;
+	}
 
 	$this->_compile_template("evaluated template", $var, $source);
 	

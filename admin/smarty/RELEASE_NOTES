@@ -1,3 +1,55 @@
+2.3.0
+-----
+
+Smarty now has a {debug} template function that brings up the debugging console
+right where {debug} is called, regardless of $debugging settings. This works a
+little different than turning on $debugging in the sense that it shows all the
+template variables available at the time {debug} is called, including local
+scope vars. It does not show the templates names however, since this
+executed during runtime of the template.
+
+You can now supply an expire time when clearing cache or compile files. This is
+mostly useful for removing stale files via the API.
+
+Plugins now stop execution upon error, instead of outputting a warning and
+continuing.
+
+Two new API functions, assign_by_ref() and append_by_ref() were added. They
+allow assigning template variables by reference. This can make a significance
+performance gain, especially if you are assigning large arrays of data. PHP 5.0
+will do this implicitly, so these functions are basically workarounds.
+
+Several misc bug fixes, see the Change Log for information.
+
+
+2.2.0
+-----
+
+Smarty now allows an array of paths for the $plugin_dir class variable. The
+directories will be searched in the order they are given, so for efficiency keep
+the most-used plugins at the top. Also, absolute paths to the plugin directories are
+more efficient than relying on the PHP include_path.
+
+Cache files can now be grouped with the cache_id. See the documentation under
+the new "Caching" section for details. compile_id also respects the same
+grouping syntax. The cache/compile file structure changed, so be sure to clear
+out all your cache and compile files when upgrading Smarty. Also if you are
+using PHP-accelerator, restart apache. I've seen some quirky things happen if
+the phpa files do not get cleared (known issue with phpa and parent
+class-member changes, so just clear 'em.)
+
+Smarty now correctly respects the PHP include_path for $template_dir, $compile_dir,
+$cache_dir, $config_dir and $plugin_dir. Be aware that relying on the
+include_path is an overhead, try to use absolute pathnames when possible
+(or relative to working directory.)
+
+Documentation has been updated and rearranged a bit. Most notably, the
+installation instructions are completely revamped, and a new Caching section
+explains Smarty's caching in detail along with the new grouping functionality.
+
+Many misc. bug fixes and enhancements, see the full ChangeLog (NEWS file) for
+details.
+
 2.1.1
 -----
 

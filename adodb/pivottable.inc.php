@@ -1,6 +1,6 @@
 <?php
 /** 
- * @version V2.30 1 Aug 2002 (c) 2000-2002 John Lim (jlim@natsoft.com.my). All rights reserved.
+ * @version V2.40 4 Sept 2002 (c) 2000-2002 John Lim (jlim@natsoft.com.my). All rights reserved.
  * Released under both BSD license and Lesser GPL library license. 
  * Whenever there is any discrepancy between the two licenses, 
  * the BSD license will take precedence. 
@@ -21,14 +21,15 @@
  * @colfield		Pivot field to slice and display in columns, if we want to calculate
  *						ranges, we pass in an array (see example2)
  * @where			Where clause. Optional.
- * @sumfield		Add columns to sum numbers instead of counting. 
- *						This is the field to sum. Optional.
+ * @aggfield		This is the field to sum. Optional. 
+ *						Since 2.3.1, if you can use your own aggregate function 
+ *						instead of SUM, eg. $sumfield = 'AVG(fieldname)';
  * @sumlabel		Prefix to display in sum columns. Optional.
  *
  * @returns			Sql generated
  */
  
- function PivotTableSQL($db,$tables,$rowfields,$colfield, $where=false,$sumfield = false,$sumlabel='Sum ')
+ function PivotTableSQL($db,$tables,$rowfields,$colfield, $where=false,$aggfield = false,$sumlabel='Sum ')
  {
  	if ($where) $where = " WHERE $where";
 	if (!is_array($colfield)) $colarr = $db->GetCol("select distinct $colfield from $tables $where");
@@ -48,7 +49,13 @@
 			$sel .= "\n\tSUM(CASE WHEN $colfield=$vq THEN 1 ELSE 0 END) AS \"$v\", ";
 		}
 	}
-	$sel .= "\n\t".'SUM(1) as Total';
+	if ($aggfield){
+		$sel .= (strpos($aggfield,'(') === false) ? 
+			"\n\tSUM($aggfield) as \"$sumlabel$aggfield\", " : "\n\t$aggfield, ";
+		
+	}
+	$sel .= "\n\tSUM(1) as Total";
+	
 	
 	$sql = "SELECT $sel \nFROM $tables $where \nGROUP BY $rowfields";
 	return $sql;

@@ -1,6 +1,8 @@
 <?php
 /*
-V2.20 09 July 2002 (c) 2000-2002 John Lim. All rights reserved.
+
+  version V2.40 4 Sept 2002 (c) 2000-2002 John Lim. All rights reserved.
+
   Released under both BSD license and Lesser GPL library license. 
   Whenever there is any discrepancy between the two licenses, 
   the BSD license will take precedence.
@@ -59,9 +61,11 @@ class ADODB_oci8 extends ADOConnection {
 	var $leftOuter = '(+)=';
 	var $session_sharing_force_blob = false; // alter session on updateblob if set to true 
 	var $firstrows = true; // enable first rows optimization on SelectLimit()
+	var $selectOffsetAlg1 = 100; // when to use 1st algorithm of selectlimit.
+	var $NLS_DATE_FORMAT = 'YYYY-MM-DD';
 	
 	// var $ansiOuter = true; // if oracle9
-
+    
 	function ADODB_oci8() 
 	{
 		$this->_hasOCIFetchStatement = (strnatcmp(PHP_VERSION,'4.2.0')>=0);;
@@ -98,7 +102,6 @@ NATSOFT.DOMAIN =
 	// returns true or false
 	function _connect($argHostname, $argUsername, $argPassword, $argDatabasename,$persist=false)
 	{
-				 
 		if($argHostname) { // added by Jorma Tuomainen <jorma.tuomainen@ppoy.fi>
 			if(strpos($argHostname,":")) {
 				$argHostinfo=explode(":",$argHostname);
@@ -122,7 +125,7 @@ NATSOFT.DOMAIN =
 		
 		if ($this->_connectionID === false) return false;
 		if ($this->_initdate) {
-			$this->Execute("ALTER SESSION SET NLS_DATE_FORMAT='YYYY-MM-DD'");
+			$this->Execute("ALTER SESSION SET NLS_DATE_FORMAT='".$this->NLS_DATE_FORMAT."'");
 		}
 		
 		if ($persist && $this->autoRollback)  OCIrollback($this->_connectionID);
@@ -249,11 +252,16 @@ NATSOFT.DOMAIN =
 				$sql = preg_replace('/^[ \t\n]*select/i','SELECT /*+FIRST_ROWS*/',$sql);
 		}
 		
-		if ($offset < 100) {
+		if ($offset < $this->selectOffsetAlg1) {
 			if ($nrows > 0) {	
 				if ($offset > 0) $nrows += $offset;
 				//$inputarr['adodb_rownum'] = $nrows;
-				$sql = "select * from ($sql) where rownum <= $nrows";
+				if ($this->databaseType == 'oci8po') {
+					$sql = "select * from ($sql) where rownum <= ?";
+				} else {
+					$sql = "select * from ($sql) where rownum <= :adodb_offset";
+				} 
+				$inputarr['adodb_offset'] = $nrows;
 				$nrows = -1;
 			}
 			// note that $nrows = 0 still has to work ==> no rows returned
@@ -279,12 +287,21 @@ NATSOFT.DOMAIN =
 			 $fields = implode(',', $cols);
 			 $nrows += $offset;
 			 $offset += 1; // in Oracle rownum starts at 1
-			 
-			 $sql = "SELECT $fields FROM".
+			
+			if ($this->databaseType == 'oci8po') {
+					 $sql = "SELECT $fields FROM".
 					  "(SELECT rownum as adodb_rownum, $fields FROM".
-					  " ($sql) WHERE rownum <= $nrows".
-					  ") WHERE adodb_rownum >= $offset";
-		
+					  " ($sql) WHERE rownum <= ?".
+					  ") WHERE adodb_rownum >= ?";
+				} else {
+					 $sql = "SELECT $fields FROM".
+					  "(SELECT rownum as adodb_rownum, $fields FROM".
+					  " ($sql) WHERE rownum <= :adodb_nrows".
+					  ") WHERE adodb_rownum >= :adodb_offset";
+				} 
+				$inputarr['adodb_nrows'] = $nrows;
+				$inputarr['adodb_offset'] = $offset;
+				
 			if ($secs2cache>0) return $this->CacheExecute($secs2cache, $sql,$inputarr,$arg3);
 			else return $this->Execute($sql,$inputarr,$arg3);
 		}
@@ -379,10 +396,36 @@ NATSOFT.DOMAIN =
 	static $BINDNUM = 0;
 	
 		$stmt = OCIParse($this->_connectionID,$sql);
+
 		if (!$stmt) return $sql; // error in statement, let Execute() handle the error
 		
 		$BINDNUM += 1;
+		
+		if (@OCIStatementType($stmt) == 'BEGIN') {
+			return array($sql,$stmt,0,$BINDNUM,OCINewCursor($this->_connectionID));
+		} 
+		
 		return array($sql,$stmt,0,$BINDNUM);
+	}
+	
+	/*
+		Call an oracle stored procedure and return a cursor variable. 
+		Convert the cursor variable into a recordset. 
+		Concept by Robert Tuttle robert@ud.com
+		
+		Example:
+			Note: we return a cursor variable in :RS2
+			$rs = $db->RunCursor("BEGIN adodb.open_tab(:RS2); END;",'RS2');
+			
+	*/
+	function &ExecuteCursor($sql,$cursorName='rs')
+	{
+		$stmt = ADODB_oci8::Prepare($sql);
+			
+		if (is_array($stmt) && sizeof($stmt) >= 5) {
+			$this->Parameter($stmt, $ignoreCur, $cursorName, false, -1, OCI_B_CURSOR);
+		}
+		return $this->Execute($stmt);
 	}
 	
 	/*
@@ -418,6 +461,11 @@ NATSOFT.DOMAIN =
 	function Bind(&$stmt,&$var,$size=4000,$type=false,$name=false)
 	{
 		if (!is_array($stmt)) return false;
+        
+        if (($type == OCI_B_CURSOR) && sizeof($stmt) >= 5) { 
+            return OCIBindByName($stmt[1],":".$name,$stmt[4],$size,$type);
+        }
+        
 		if ($name == false) {
 			if ($type !== false) $rez = OCIBindByName($stmt[1],":".$name,$var,$size,$type);
 			else $rez = OCIBindByName($stmt[1],":".$stmt[2],$var,$size); // +1 byte for null terminator
@@ -519,9 +567,30 @@ NATSOFT.DOMAIN =
 		}
 		
 		if (OCIExecute($stmt,$this->_commit)) {
+        
+            switch (@OCIStatementType($stmt)) {
+                case "SELECT" :
+					return $stmt;
+					
+                case "BEGIN" :
+                    if (isset($sql[4])) {
+					// jlim
+						$cursor = $sql[4];
+					// jlim
+                        OCIExecute($cursor);
+                        return $cursor;
+                    } else {
+                        return $stmt;
+                    }
+                    break;
+                default :
+                    return true;
+            }
+        
 		   /* Now this could be an Update/Insert or Delete */
-			if (@OCIStatementType($stmt) != 'SELECT') return true;
-			return $stmt;
+			//if (@OCIStatementType($stmt) != 'SELECT') return true;
+			//return $stmt;
+            
 		}
 		return false;
 	}

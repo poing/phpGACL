@@ -1,6 +1,6 @@
 <?php
 /*
-V2.20 09 July 2002 (c) 2000-2002 John Lim (jlim@natsoft.com.my). All rights reserved.  
+V2.40 4 Sept 2002  (c) 2000-2002 John Lim (jlim@natsoft.com.my). All rights reserved.  
   Released under both BSD license and Lesser GPL library license. 
   Whenever there is any discrepancy between the two licenses, 
   the BSD license will take precedence.
@@ -172,11 +172,11 @@ class ADODB_ibase extends ADOConnection {
 	   // returns true or false
 	function _connect($argHostname, $argUsername, $argPassword, $argDatabasename)
 	{  
-		//if ($this->charSet !== false)
-			$this->_connectionID = ibase_connect($argHostname,$argUsername,$argPassword,$this->charSet,$this->buffers,$this->dialect);
-	  //  else		
-		//	$this->_connectionID = ibase_connect($argHostname,$argUsername,$argPassword);
-				 	
+
+		$this->_connectionID = ibase_connect($argHostname,$argUsername,$argPassword,$this->charSet,$this->buffers,$this->dialect);
+	 	if ($this->dialect != 1) { // http://www.ibphoenix.com/ibp_60_del_id_ds.html
+			$this->replaceQuote = "''";
+		}
 		if ($this->_connectionID === false) {
 			$this->_handleerror();
 			return false;
@@ -187,11 +187,10 @@ class ADODB_ibase extends ADOConnection {
 	   // returns true or false
 	function _pconnect($argHostname, $argUsername, $argPassword, $argDatabasename)
 	{
-		//if ($this->charSet !== false)
-			$this->_connectionID = ibase_pconnect($argHostname,$argUsername,$argPassword,$this->charSet,$this->buffers,$this->dialect);
-	  //  else		
-		//	$this->_connectionID = ibase_pconnect($argHostname,$argUsername,$argPassword);
-					 
+		$this->_connectionID = ibase_pconnect($argHostname,$argUsername,$argPassword,$this->charSet,$this->buffers,$this->dialect);
+		if ($this->dialect != 1) { // http://www.ibphoenix.com/ibp_60_del_id_ds.html
+			$this->replaceQuote = "''";
+		}
 		if ($this->_connectionID === false) {
 			$this->_handleerror();
 			return false;

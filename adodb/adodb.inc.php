@@ -1,7 +1,7 @@
 <?php 
 
 /** 
- * @version V2.30 1 Aug 2002 (c) 2000-2002 John Lim (jlim@natsoft.com.my). All rights reserved.
+ * @version V2.40 4 Sept 2002 (c) 2000-2002 John Lim (jlim@natsoft.com.my). All rights reserved.
  * Released under both BSD license and Lesser GPL library license. 
  * Whenever there is any discrepancy between the two licenses, 
  * the BSD license will take precedence. 
@@ -90,7 +90,7 @@
 	/**
 	 * ADODB version as a string.
 	 */
-	$ADODB_vers = 'V2.20 09 July 2002 (c) 2000-2002 John Lim (jlim@natsoft.com.my). All rights reserved. Released BSD & LGPL.';
+	$ADODB_vers = 'V2.40 4 Sept 2002 (c) 2000-2002 John Lim (jlim@natsoft.com.my). All rights reserved. Released BSD & LGPL.';
 
 	/**
 	 * Determines whether recordset->RecordCount() is used. 
@@ -755,6 +755,11 @@
 	function &_rs2rs(&$rs,$nrows=-1,$offset=-1)
 	{
 		if (! $rs) return false;
+		if ($rs->databaseType == 'array' && $nrows == -1 && $offset == -1) {
+			$rs->MoveFirst();
+			$rs = &$rs; // required to prevent crashing in 4.2.1-- why ?
+			return $rs;
+		}
 		$arr = &$rs->GetArrayLimit($nrows,$offset);
 		$flds = array();
 		for ($i=0, $max=$rs->FieldCount(); $i < $max; $i++)
@@ -905,7 +910,9 @@
 	}
 	
 	/**
-	* Insert or replace a single record
+	* Insert or replace a single record. Note: this is not the same as MySQL's replace
+	*   function as the replace works even if no primary key is defined. ADOdb's Replace()
+	*   uses update-insert semantics, not insert-delete-duplicates that MySQL uses...
 	*
 	* $this->Replace('products', array('prodname' =>"'Nails'","price" => 3.99), 'prodname');
 	*
@@ -958,8 +965,16 @@
 			$update = "UPDATE $table SET $uSet WHERE $where";
 		
 			$rs = $this->Execute($update);
-			if ($rs and $this->Affected_Rows()>0) return 1;
+			if ($rs && ($this->Affected_Rows()>0)) return 1;
+			
+			if ($this->dataProvider == 'mysql') {
+			# affected_rows == 0 if update field values identical to old values
+			# for mysql - which is silly.
+				$cnt = $this->GetOne("select count(*) from $table where $where");
+				if ($cnt > 0) return 1; // record already exists
+			}
 		}
+	//	print "<p>Error=".$this->ErrorNo().'<p>';
 		$first = true;
 		foreach($fieldArray as $k => $v) {
 			if ($has_autoinc && in_array($k,$keyCol)) continue; // skip autoinc col
@@ -1005,9 +1020,10 @@
 			if ($offset == -1) $offset = false;
 									  // sql,	nrows, offset,inputarr,arg3
 			return $this->SelectLimit($secs2cache,$sql,$nrows,$offset,$inputarr,$this->cacheSecs);
+		} else {
+			if ($sql === false) ADOConnection::outp( "Warning: \$sql missing from CacheSelectLimit()");
+			return $this->SelectLimit($sql,$nrows,$offset,$inputarr,$arg3,$secs2cache);
 		}
-		if ($sql === false) ADOConnection::outp( "Warning: \$sql missing from CacheSelectLimit()");
-		return $this->SelectLimit($sql,$nrows,$offset,$inputarr,$arg3,$secs2cache);
 	}
 	
 	
@@ -1470,7 +1486,7 @@
 	function UnixTimeStamp($v)
 	{
 		if (!preg_match( 
-			"|^([0-9]{4})[-/\.]?([0-9]{1,2})[-/\.]?([0-9]{1,2})[ -]?(([0-9]{1,2}):?([0-9]{1,2}):?([0-9]{1,2}))?$|", 
+			"|^([0-9]{4})[-/\.]?([0-9]{1,2})[-/\.]?([0-9]{1,2})[ -]?(([0-9]{1,2}):?([0-9]{1,2}):?([0-9\.]{1,4}))?|", 
 			($v), $rr)) return false;
 		if ($rr[1] <= TIMESTAMP_FIRST_YEAR && $rr[2]<= 1) return 0;
 	
@@ -1922,7 +1938,7 @@
 	function UnixTimeStamp($v)
 	{
 		if (!preg_match( 
-			"|^([0-9]{4})[-/\.]?([0-9]{1,2})[-/\.]?([0-9]{1,2})[ -]?(([0-9]{1,2}):?([0-9]{1,2}):?([0-9]{1,2}))?$|", 
+			"|^([0-9]{4})[-/\.]?([0-9]{1,2})[-/\.]?([0-9]{1,2})[ -]?(([0-9]{1,2}):?([0-9]{1,2}):?([0-9\.]{1,4}))?|", 
 			($v), $rr)) return false;
 		if ($rr[1] <= 1903 && $rr[2]<= 1) return 0;
 	
@@ -2298,6 +2314,96 @@
 	*/
 	function MetaType($t,$len=-1,$fieldobj=false)
 	{
+	// changed in 2.32 to hashing instead of switch for speed...
+	static $typeMap = array(
+		'VARCHAR' => 'C',
+		'VARCHAR2' => 'C',
+		'CHAR' => 'C',
+		'C' => 'C',
+		'STRING' => 'C',
+		'NCHAR' => 'C',
+		'NVARCHAR' => 'C',
+		'VARYING' => 'C',
+		'BPCHAR' => 'C',
+		'CHARACTER' => 'C',
+		##
+		'LONGCHAR' => 'X',
+		'TEXT' => 'X',
+		'M' => 'X',
+		'X' => 'X',
+		'CLOB' => 'X',
+		'NCLOB' => 'X',
+		'LONG' => 'X',
+		'LVARCHAR' => 'X',
+		##
+		'BLOB' => 'B',
+		'NTEXT' => 'B',
+		'BINARY' => 'B',
+		'VARBINARY' => 'B',
+		'LONGBINARY' => 'B',
+		'B' => 'B',
+		##
+		'DATE' => 'D',
+		'D' => 'D',
+		##
+		'TIME' => 'T',
+		'TIMESTAMP' => 'T',
+		'DATETIME' => 'T',
+		'TIMESTAMPTZ' => 'T',
+		'T' => 'T',
+		##
+		'BOOLEAN' => 'L', 
+		'BIT' => 'L',
+		'L' => 'L',
+		##
+		'COUNTER' => 'R',
+		'R' => 'R',
+		'SERIAL' => 'R', // ifx
+		##
+		'INT' => 'I',
+		'INTEGER' => 'I',
+		'SHORT' => 'I',
+		'TINYINT' => 'I',
+		'SMALLINT' => 'I',
+		'I' => 'I',
+		##
+		'BIGINT' => 'N', // this is bigger than PHP 32-bit integers
+		'DECIMAL' => 'N',
+		'DEC' => 'N',
+		'REAL' => 'N',
+		'DOUBLE' => 'N',
+		'DOUBLE PRECISION' => 'N',
+		'SMALLFLOAT' => 'N',
+		'FLOAT' => 'N',
+		'NUMBER' => 'N',
+		'NUM' => 'N',
+		'NUMERIC' => 'N',
+		'MONEY' => 'N'
+		);
+		
+		$tmap = false;
+		$tmap = @$typeMap[strtoupper($t)];
+		switch ($tmap) {
+		case 'C':
+			if (!empty($this)) if ($len <= $this->blobSize) return 'C';
+			else if ($len <= 250) return 'C';
+			
+			// ok, the char field is too long, return as text field... 
+			return 'X';
+			
+		case 'I':
+			if (!empty($fieldobj->primary_key)) return 'R';
+			return 'I';
+		
+		case false:
+			return 'N';
+			
+		default: return $tmap;
+		}
+	}
+	/*
+	function oldMetaType($t,$len=-1,$fieldobj=false)
+	{
 		switch (strtoupper($t)) {
 		case 'VARCHAR':
 		case 'VARCHAR2':
@@ -2348,7 +2454,7 @@
 			
 		case 'COUNTER':
 		case 'R':
-		case 'SERIAL': /* ifx */
+		case 'SERIAL': // ifx 
 			return 'R';
 			
 		case 'INT':
@@ -2362,7 +2468,7 @@
 			
 		default: return 'N';
 		}
-	}
+	}*/
 	
 	function _close() {}
 	
@@ -2413,8 +2519,8 @@
 	
 	class ADORecordSet_array extends ADORecordSet
 	{
-		var $databaseType = "array";
-	
+		var $databaseType = 'array';
+
 		var $_array; 	// holds the 2-dimensional data array
 		var $_types;	// the array of types of each column (C B I L M)
 		var $_colnames;	// names of each column in array
@@ -2517,7 +2623,11 @@
 			
 		function _seek($row)
 		{
-			return true;
+			if (sizeof($this->_array) && $row < $this->_numOfRows) {
+				$this->fields = $this->_array[$row];
+				return true;
+			}
+			return false;
 		}
 		
 		function _fetch()

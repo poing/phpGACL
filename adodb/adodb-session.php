@@ -1,6 +1,6 @@
 <?php
 /*
-V2.20 09 July 2002 (c) 2000-2002 John Lim (jlim@natsoft.com.my). All rights reserved.
+V2.40 4 Sept 2002  (c) 2000-2002 John Lim (jlim@natsoft.com.my). All rights reserved.
   Released under both BSD license and Lesser GPL library license. 
   Whenever there is any discrepancy between the two licenses, 
   the BSD license will take precedence.
@@ -71,7 +71,7 @@ GLOBAL 	$ADODB_SESSION_CONNECT,
 	$ADODB_SESS_INSERT, 
 	$ADODB_SESSION_CRC;
 	
-	$ADODB_SESS_LIFE = get_cfg_var('session.gc_maxlifetime');
+	$ADODB_SESS_LIFE = ini_get('session.gc_maxlifetime');
 	if ($ADODB_SESS_LIFE <= 1) {
 	 // bug in PHP 4.0.3 pl 1  -- how about other versions?
 	 //print "<h3>Session Error: PHP.INI setting <i>session.gc_maxlifetime</i>not set: $ADODB_SESS_LIFE</h3>";
@@ -183,26 +183,30 @@ function adodb_sess_write($key, $val)
 
 	$expiry = time() + $ADODB_SESS_LIFE;
 	
-	// new optimization adodb 2.1
+	// crc32 optimization since adodb 2.1
+	// now we only update expiry date, thx to sebastian thom in adodb 2.32
 	if ($ADODB_SESSION_CRC !== false && $ADODB_SESSION_CRC == strlen($val).crc32($val)) {
-		if ($ADODB_SESS_DEBUG) echo "<p>Session: No need to update - crc32 not changed</p>";
+		if ($ADODB_SESS_DEBUG) echo "<p>Session: Only updating date - crc32 not changed</p>";
+		$qry = "UPDATE $ADODB_SESSION_TBL SET expiry=$expiry WHERE sesskey='$key'";
+		$rs = $ADODB_SESS_CONN->Execute($qry);	
 		return true;
 	}
 	$val = rawurlencode($val);
 	$qry = "UPDATE $ADODB_SESSION_TBL SET expiry=$expiry,data='$val' WHERE sesskey='$key'";
 	$rs = $ADODB_SESS_CONN->Execute($qry);
-	if ($rs) $rs->Close();
-	else ADOConnection::outp( '<p>Session Update: '.$ADODB_SESS_CONN->ErrorMsg().'</p>',false);
+	if (!$rs)
+		ADOConnection::outp( '<p>Session Update: '.$ADODB_SESS_CONN->ErrorMsg().'</p>',false);
 	
-	if ($ADODB_SESS_INSERT || $rs === false) {
+	if ($ADODB_SESS_INSERT || !$rs) {
 		$qry = "INSERT INTO $ADODB_SESSION_TBL(sesskey,expiry,data) VALUES ('$key',$expiry,'$val')";
 		$rs = $ADODB_SESS_CONN->Execute($qry);
-		if ($rs) $rs->Close();
-		else ADOConnection::outp('<p>Session Insert: '.$ADODB_SESS_CONN->ErrorMsg().'</p>',false);
+		if (!$rs)
+			ADOConnection::outp('<p>Session Insert: '.$ADODB_SESS_CONN->ErrorMsg().'</p>',false);
 	}
 	// bug in access driver (could be odbc?) means that info is not commited
 	// properly unless select statement executed in Win2000
-	if ($ADODB_SESS_CONN->databaseType == 'access') $rs = $ADODB_SESS_CONN->Execute("select sesskey from $ADODB_SESSION_TBL WHERE sesskey='$key'");
+	if ($rs && $ADODB_SESS_CONN->databaseType == 'access') 
+		$rs = $ADODB_SESS_CONN->Execute("select sesskey from $ADODB_SESSION_TBL WHERE sesskey='$key'");
 
 	return isset($rs);
 }

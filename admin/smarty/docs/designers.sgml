@@ -131,7 +131,7 @@
 
 {$Contacts[row].Phone}
 
-&lt;body bgcolr="{#bgcolor#}"&gt;</programlisting>
+&lt;body bgcolor="{#bgcolor#}"&gt;</programlisting>
    </para>
 
    <sect1 id="language.assigned.variables">
@@ -362,7 +362,7 @@ Topic: {$topic|truncate:40:"..."}</programlisting>
       elements in the $articleTitle array.)
      </para>
 
-      <sect1>
+      <sect1 id="language.modifier.capitalize">
        <title>capitalize</title>
        <para>
         This is used to capitalize the first letter of all words in a variable.
@@ -379,7 +379,7 @@ Police begin campaign to rundown jaywalkers.
 Police Begin Campaign To Rundown Jaywalkers.</programlisting>
 </example>
 		</sect1>
-		<sect1>
+		<sect1 id="language.modifier.count.characters">
 			<title>count_characters</title>
 			<para>
 			This is used to count the number of characters in a variable.
@@ -397,7 +397,7 @@ Cold Wave Linked to Temperatures
 32</programlisting>
 </example>
 		</sect1>
-		<sect1>
+		<sect1 id="language.modifier.count.paragraphs">
 			<title>count_paragraphs</title>
 			<para>
 			This is used to count the number of paragraphs in a variable.
@@ -417,7 +417,7 @@ Man is Fatally Slain. Death Causes Loneliness, Feeling of Isolation.
 2</programlisting>
 </example>
 		</sect1>
-		<sect1>
+		<sect1 id="language.modifier.count.sentences">
 			<title>count_sentences</title>
 			<para>
 			This is used to count the number of sentences in a variable.
@@ -435,7 +435,7 @@ Two Soviet Ships Collide - One Dies. Enraged Cow Injures Farmer with Axe.
 2</programlisting>
 </example>
 		</sect1>
-		<sect1>
+		<sect1 id="language.modifier.count.words">
 			<title>count_words</title>
 			<para>
 			This is used to count the number of words in a variable.
@@ -453,7 +453,7 @@ Dealers Will Hear Car Talk at Noon.
 7</programlisting>
 </example>
 		</sect1>
-		<sect1 id="date.format">
+		<sect1 id="language.modifier.date.format">
 			<title>date_format</title>
             <informaltable frame=all>
                 <tgroup cols=5>
@@ -479,6 +479,13 @@ Dealers Will Hear Car Talk at Noon.
                         <entry>%b %e, %Y</entry>
                         <entry>This is the format for the outputted date.</entry>
                     </row>
+                    <row>
+                        <entry>2</entry>
+                        <entry>string</entry>
+                        <entry>No</entry>
+                        <entry>n/a</entry>
+                        <entry>This is the default date if the input is empty.</entry>
+                    </row>
                 </tbody>
                 </tgroup>
             </informaltable>
@@ -487,14 +494,16 @@ Dealers Will Hear Car Talk at Noon.
             Dates can be passed to Smarty as unix timestamps, mysql timestamps
             or any string made up of month day year (parsable by strtotime).
             Designers can then use date_format to have complete control of the
-            formatting of the date.
+            formatting of the date. If the date passed to date_format is empty
+			and a second paramter is passed, that will be used as the date to
+			format.
 			</para>
 <example>
 <title>date_format</title>
 <programlisting>
-{$currentDate}
-{$currentDate|date_format:"%A, %B %e, %Y"}
-{$currentDate|date_format:"%H:%M:%S"}
+{$smarty.now|date_format}
+{$smarty.now|date_format:"%A, %B %e, %Y"}
+{$smarty.now|date_format:"%H:%M:%S"}
 
 OUTPUT:
 
@@ -590,7 +599,7 @@ system's manpage for a full list of valid specifiers.</programlisting>
 </example>
 
 		</sect1>
-		<sect1>
+		<sect1 id="language.modifier.default">
 			<title>default</title>
             <informaltable frame=all>
                 <tgroup cols=5>
@@ -636,7 +645,7 @@ OUTPUT:
 no title</programlisting>
 </example>
 		</sect1>
-		<sect1>
+		<sect1 id="language.modifier.escape">
 			<title>escape</title>
             <informaltable frame=all>
                 <tgroup cols=6>
@@ -661,7 +670,7 @@ no title</programlisting>
                         <entry>1</entry>
                         <entry>string</entry>
                         <entry>No</entry>
-                        <entry>html,url,quotes,hex,hexentity</entry>
+                        <entry>html,htmlall,url,quotes,hex,hexentity</entry>
                         <entry>html</entry>
                         <entry>This is the escape format to use.</entry>
                     </row>
@@ -669,12 +678,12 @@ no title</programlisting>
                 </tgroup>
             </informaltable>
 			<para>
-			This is used to html (or htmlall) escape, url escape, escape single
-			quotes on a variable not already escaped, hex escape or hexentity
-			escape. hex and hexentity escape can be used in conjunction to hide
-			"mailto:" links on a page from web spiders (spam collectors) and
-			yet keep them readable and linkable. By default, the variable is
-			html escaped.
+			This is used to html escape, url escape, escape single quotes on a
+			variable not already escaped, hex escape or hexentity escape. hex
+			and hexentity escape can be used in conjunction to hide "mailto:"
+			links on a page from web spiders (spam collectors) and yet keep
+			them readable and linkable. By default, the variable is html
+			escaped.
 			</para>
 <example>
 <title>escape</title>
@@ -700,7 +709,7 @@ OUTPUT:
 href="mailto:%62%6f%62%40%6d%65%2e%6e%65%74"&gt;&amp;#x62;&amp;#x6f;&amp;#x62;&amp;#x40;&amp;#x6d;&amp;#x65;&amp;#x2e;&amp;#x6e;&amp;#x65;&amp;#x74;&lt;/a&gt;</programlisting>
 </example>
 		</sect1>
-		<sect1>
+		<sect1 id="language.modifier.indent">
 			<title>indent</title>
             <informaltable frame=all>
                 <tgroup cols=5>
@@ -773,7 +782,7 @@ Statistics show that teen pregnancy drops off significantly after 25.
 	Statistics show that teen pregnancy drops off significantly after 25.</programlisting>
 </example>
 		</sect1>
-		<sect1>
+		<sect1 id="language.modifier.lower">
 			<title>lower</title>
 			<para>
 			This is used to lowercase a variable.
@@ -790,7 +799,7 @@ Two Convicts Evade Noose, Jury Hung.
 two convicts evade noose, jury hung.</programlisting>
 </example>
 		</sect1>
-		<sect1>
+		<sect1 id="language.modifier.regex.replace">
 			<title>regex_replace</title>
             <informaltable frame=all>
                 <tgroup cols=5>
@@ -830,9 +839,6 @@ two convicts evade noose, jury hung.</programlisting>
 			A regular expression search and replace on a variable. Use the
 			syntax for preg_replace() from the PHP manual.
 			</para>
-			<para>
-			NOTE: This function was added to Smarty 1.4.3.
-			</para>
 <example>
 <title>regex_replace</title>
 <programlisting>
@@ -848,7 +854,7 @@ Infertility unlikely to
 Infertility unlikely to be passed on, experts say</programlisting>
 </example>
 		</sect1>
-		<sect1>
+		<sect1 id="language.modifier.replace">
 			<title>replace</title>
             <informaltable frame=all>
                 <tgroup cols=5>
@@ -901,7 +907,7 @@ Child's Stool Great for Use in Vineyard.
 Child's   Stool   Great   for   Use   in   Garden.</programlisting>
 </example>
 		</sect1>
-		<sect1>
+		<sect1 id="language.modifier.spacify">
 			<title>spacify</title>
             <informaltable frame=all>
                 <tgroup cols=5>
@@ -949,7 +955,7 @@ S o m e t h i n g   W e n t   W r o n g   i n   J e t   C r a s h ,   E x p e r 
 S^^o^^m^^e^^t^^h^^i^^n^^g^^ ^^W^^e^^n^^t^^ ^^W^^r^^o^^n^^g^^ ^^i^^n^^ ^^J^^e^^t^^ ^^C^^r^^a^^s^^h^^,^^ ^^E^^x^^p^^e^^r^^t^^s^^ ^^S^^a^^y^^.</programlisting>
 </example>
 		</sect1>
-		<sect1>
+		<sect1 id="language.modifier.string.format">
 			<title>string_format</title>
             <informaltable frame=all>
                 <tgroup cols=5>
@@ -996,7 +1002,7 @@ OUTPUT:
 24</programlisting>
 </example>
 		</sect1>
-		<sect1>
+		<sect1 id="language.modifier.strip.tags">
 			<title>strip_tags</title>
 			<para>
 			This strips out markup tags, basically anything between &lt; and &gt;.
@@ -1013,7 +1019,7 @@ Blind Woman Gets &lt;font face="helvetica"&gt;New Kidney&lt;/font&gt; from Dad s
 Blind Woman Gets New Kidney from Dad she Hasn't Seen in years.</programlisting>
 </example>
 		</sect1>
-		<sect1>
+		<sect1 id="language.modifier.truncate">
 			<title>truncate</title>
             <informaltable frame=all>
                 <tgroup cols=5>
@@ -1089,7 +1095,7 @@ Two Sisters Reunite after Eigh
 Two Sisters Reunite after E...</programlisting>
 </example>
 		</sect1>
-		<sect1>
+		<sect1 id="language.modifier.upper">
 			<title>upper</title>
 			<para>
             This is used to uppercase a variable.
@@ -1106,7 +1112,7 @@ If Strike isn't Settled Quickly it may Last a While.
 IF STRIKE ISN'T SETTLED QUICKLY IT MAY LAST A WHILE.</programlisting>
 </example>
 		</sect1>
-		<sect1>
+		<sect1 id="language.modifier.wordwrap">
 			<title>wordwrap</title>
             <informaltable frame=all>
                 <tgroup cols=5>
@@ -1189,8 +1195,8 @@ Blind woman gets new kidney&lt;br&gt;
 from dad she hasn't seen in years.
 
 Blind woman gets new kidney fr
-om dad she hasn't seen in
-years.</programlisting>
+om dad she hasn't seen in year
+s.</programlisting>
 </example>
         </sect1>
 
@@ -1242,19 +1248,20 @@ s m o k e r s   a r e   p. . .</programlisting>
        template from the special variable $smarty.capture.foo where foo is
        the value passed in the name attribute. If you do not supply a name
        attribute, then "default" will be used. All {capture} commands must
-       be paired with {/capture}. You can nest capture commands. capture
-       was added to Smarty 1.4.0. The "name" attribute was added to Smarty
-       1.4.5.
+       be paired with {/capture}. You can nest capture commands.
       </para>
+	  <note>
+	  <title>Technical Note</title>
       <para>
-       NOTE: Smarty 1.4.0 - 1.4.4 placed the captured content into the
+       Smarty 1.4.0 - 1.4.4 placed the captured content into the
        variable named $return. As of 1.4.5, this behavior was changed to use
        the name attribute, so update your templates accordingly.
       </para>
+	  </note>
       <caution>
        <para>
-        Be careful when capturing <command>{insert}</command> output. If
-        you have caching turned on and you have <command>{insert}</command>
+        Be careful when capturing <command>insert</command> output. If
+        you have caching turned on and you have <command>insert</command>
         commands that you expect to run within cached content, do not
         capture this content.
        </para>
@@ -1322,7 +1329,7 @@ s m o k e r s   a r e   p. . .</programlisting>
 						context. parent means variables are loaded into both
 						the local context and the parent template that called
 						it. global means variables are available to all
-						templates. NOTE: This was added to Smarty 1.4.3.
+						templates.
 						</entry>
                     </row>
                     <row>
@@ -1563,7 +1570,7 @@ cell: 760-1234&lt;br&gt;</programlisting>
 			You can optionally pass the <emphasis>assign</emphasis> attribute,
 			which will specify a template variable name that the output of
 			<emphasis>include</emphasis> will be assigned to instead of
-			displayed. This was added to Smarty 1.5.0.
+			displayed.
 			</para>
 <example>
 <title>function include</title>
@@ -1638,6 +1645,14 @@ cell: 760-1234&lt;br&gt;</programlisting>
                         <entry>The name of the php file to include</entry>
                     </row>
                     <row>
+                        <entry>once</entry>
+                        <entry>boolean</entry>
+                        <entry>No</entry>
+                        <entry><emphasis>true</emphasis></entry>
+                        <entry>whether or not to include the php file more than
+						once if included multiple times</entry>
+                    </row>
+                    <row>
                         <entry>assign</entry>
                         <entry>string</entry>
                         <entry>No</entry>
@@ -1666,13 +1681,17 @@ cell: 760-1234&lt;br&gt;</programlisting>
 			before hand.
 			</para>
 			<para>
+			By default, php files are only included once even if called
+			multiple times in the template. You can specify that it should be
+			included every time with the <emphasis>once</emphasis> attribute.
+			Setting once to true will include the php script each time it is
+			included.
+			</para>
+			<para>
 			You can optionally pass the <emphasis>assign</emphasis> attribute,
 			which will specify a template variable name that the output of
 			<emphasis>include_php</emphasis> will be assigned to instead of
 			displayed.
-			</para>
-			<para>
-			include_php was added to Smarty 1.5.0.
 			</para>
 <example>
 <title>function include_php</title>
@@ -1757,7 +1776,7 @@ index.tpl
 			<para>
 			Insert tags work much like include tags, except that insert tags
 			are not cached when you have template <link
-			linkend="features.caching">caching</link> enabled. They will be
+			linkend="caching">caching</link> enabled. They will be
 			executed on every invocation of the template.
 			</para>
             <para>
@@ -1793,7 +1812,7 @@ index.tpl
 			If you supply the "assign" attribute, the output of the insert tag
 			will be assigned to this template variable instead of being output
 			to the template. NOTE: assigning the output to a template variable
-			isn't too useful with caching enabled. (added to Smarty 1.5.0)
+			isn't too useful with caching enabled.
 			</para>
 			<para>
 			If you supply the "script" attribute, this php script will be
@@ -1801,19 +1820,18 @@ index.tpl
 			is the case where the insert function may not exist yet, and a php
 			script must be included first to make it work. The path can be
 			either absolute, or relative to $trusted_dir. When security is
-			enabled, the script must reside in $trusted_dir. (added to Smarty
-			1.5.2)
+			enabled, the script must reside in $trusted_dir.
 			</para>
 			<para>
 			The Smarty object is passed as the second argument. This way you
 			can reference and modify information in the Smarty object from
-			within the insert function. (added in 1.4.5)
+			within the insert function.
 			</para>
 			<note>
 			<title>Technical Note</title>
 			<para>
             It is possible to have portions of the template not
-            cached. If you have <link linkend="features.caching">caching</link>
+            cached. If you have <link linkend="caching">caching</link>
             turned on, insert tags will not be cached. They will run
             dynamically every time the page is created, even within cached
             pages. This works good for things like banners, polls, live
@@ -1959,8 +1977,7 @@ OUTPUT:
 			php tags allow php to be embedded directly into the template. They
 			will not be escaped, regardless of the <link
 			linkend="variable.php.handling">$php_handling</link> setting. This
-			is for advanced users only, not normally needed. This was added to
-			1.4.0.
+			is for advanced users only, not normally needed.
 			</para>
 <example>
 <title>php tags</title>
@@ -2017,7 +2034,7 @@ OUTPUT:
 						seven values in the loop array and start is -2, the
 						start index is 5. Invalid values (values outside of the
 						length of the loop array) are automatically truncated
-						to the closest valid value. (Added to Smarty 1.4.4.)</entry>
+						to the closest valid value.</entry>
                     </row>
                     <row>
                         <entry>step</entry>
@@ -2027,7 +2044,7 @@ OUTPUT:
 						<entry>The step value that will be used to traverse the
 						loop array. For example, step=2 will loop on index
 						0,2,4, etc. If step is negative, it will step through
-						the array backwards. (Added to Smarty 1.4.4.)</entry>
+						the array backwards.</entry>
                     </row>
                     <row>
                         <entry>max</entry>
@@ -2035,7 +2052,7 @@ OUTPUT:
                         <entry>No</entry>
                         <entry><emphasis>1</emphasis></entry>
 						<entry>Sets the maximum number of times the section
-						will loop. (Added to Smarty 1.4.4.)</entry>
+						will loop.</entry>
                     </row>
                     <row>
                         <entry>show</entry>
@@ -2216,7 +2233,7 @@ e-mail: jane@mydomain.com&lt;p&gt;</programlisting>
 		supported, but you will only see reference to the new syntax in the
 		manual examples.
 		</para>
-			<sect2>	
+			<sect2 id="section.property.index">	
 			<title>index</title>
 			<para>
 			index is used to display the current loop index, starting with zero
@@ -2247,7 +2264,7 @@ e-mail: jane@mydomain.com&lt;p&gt;</programlisting>
 </programlisting>
 	</example>
 			</sect2>
-			<sect2>	
+			<sect2 id="section.property.index.prev">	
 			<title>index_prev</title>
 			<para>
 			index_prev is used to display the previous loop index.
@@ -2276,7 +2293,7 @@ e-mail: jane@mydomain.com&lt;p&gt;</programlisting>
 </programlisting>
 	</example>
 			</sect2>
-			<sect2>
+			<sect2 id="section.property.index.next">
 			<title>index_next</title>
 			<para>
         	index_next is used to display the next loop index. On the last
@@ -2306,7 +2323,7 @@ e-mail: jane@mydomain.com&lt;p&gt;</programlisting>
 </programlisting>
 	</example>
 			</sect2>
-			<sect2>
+			<sect2 id="section.property.iteration">
 			<title>iteration</title>
 			<para>
         	iteration is used to display the current loop iteration.
@@ -2314,9 +2331,6 @@ e-mail: jane@mydomain.com&lt;p&gt;</programlisting>
 			<para>
 			NOTE: This is not affected by the section properties start, step and
 			max, unlike the index property.
-			</para>
-			<para>
-			This was added to Smarty 1.4.4.
 			</para>
 	<example>
 	<title>section property iteration</title>
@@ -2345,7 +2359,7 @@ e-mail: jane@mydomain.com&lt;p&gt;</programlisting>
 </programlisting>
 	</example>
 			</sect2>
-			<sect2>
+			<sect2 id="section.property.first">
 			<title>first</title>
 			<para>
         	first is set to true if the current section iteration is the first
@@ -2378,7 +2392,7 @@ e-mail: jane@mydomain.com&lt;p&gt;</programlisting>
 </programlisting>
 	</example>
 			</sect2>
-			<sect2>
+			<sect2 id="section.property.last">
 			<title>last</title>
 			<para>
         	last is set to true if the current section iteration is the last
@@ -2411,7 +2425,7 @@ e-mail: jane@mydomain.com&lt;p&gt;</programlisting>
 </programlisting>
 	</example>
 			</sect2>
-			<sect2>	
+			<sect2 id="section.property.rownum">	
 			<title>rownum</title>
 			<para>
 			rownum is used to display the current loop iteration,
@@ -2433,7 +2447,7 @@ e-mail: jane@mydomain.com&lt;p&gt;</programlisting>
 </programlisting>
 	</example>
 			</sect2>
-			<sect2>	
+			<sect2 id="section.property.loop">	
 			<title>loop</title>
 			<para>
 			loop is used to display the last index number that this section
@@ -2458,7 +2472,7 @@ e-mail: jane@mydomain.com&lt;p&gt;</programlisting>
 </programlisting>
 	</example>
 			</sect2>
-			<sect2>	
+			<sect2 id="section.property.show">	
 			<title>show</title>
 			<para>
         	<emphasis>show</emphasis> is used as a parameter to section.
@@ -2492,14 +2506,11 @@ e-mail: jane@mydomain.com&lt;p&gt;</programlisting>
 </programlisting>
 	</example>
 			</sect2>
-			<sect2>	
+			<sect2 id="section.property.total">	
 			<title>total</title>
 			<para>
 			total is used to display the number of iterations that this section
 			will loop. This can be used inside or after the section.
-			</para>
-			<para>
-			This was added to Smarty 1.4.4.
 			</para>
 	<example>
 	<title>section property total</title>
@@ -2614,9 +2625,6 @@ OUTPUT:
 			assign is used for assigning template variables during the execution
 			of the template.
 			</para>
-			<para>
-			NOTE: This was added to Smarty 1.4.3.
-			</para>
 <example>
 <title>assign</title>
 <programlisting>
@@ -2700,12 +2708,12 @@ The value of $name is Bob.</programlisting>
 			and the direction of the count, as well as determine whether or not
 			to print the value. You can run multiple counters concurrently by
 			supplying a unique id for each one. If you do not supply a name, the
-			name 'default' will be used. counter was added to Smarty 1.4.0.
+			name 'default' will be used.
 			</para>
 			<para>
 			If you supply the special "assign" attribute, the output of the
 			counter function will be assigned to this template variable instead of
-			being output to the template. (new in Smarty 1.5.0)
+			being output to the template.
 			</para>
 <example>
 <title>counter</title>
@@ -2786,8 +2794,23 @@ OUTPUT:
                 </tgroup>
             </informaltable>
 			<para>
-			cycle is used to cycle though a set of values. This makes it easy to
-			alternate colors in a table, or even cycle through several of them.
+			Cycle is used to cycle though a set of values. This makes it easy
+			to alternate between two or more colors in a table, or cycle
+			through an array of values.
+			</para>
+			<para>
+			You can cycle through more than one set of values in your template
+			by supplying a name attribute. Give each set of values a unique
+			name.
+			</para>
+			<para>
+			You can force the current value not to print with the print
+			attribute set to false. This would be useful for silently skipping
+			a value.
+			</para>
+			<para>
+			The advance attribute is used to repeat a value. When set to true,
+			the next call to cycle will print the same value.
 			</para>
 			<para>
 			If you supply the special "assign" attribute, the output of the
@@ -2797,7 +2820,7 @@ OUTPUT:
 <example>
 <title>cycle</title>
 <programlisting>
-{* initialize the count *}
+{* initialize the values *}
 {cycle values="#eeeeee,#d0d0d0"}
 {cycle}
 {cycle}
@@ -2809,6 +2832,44 @@ OUTPUT:
 #d0d0d0
 #eeeeee</programlisting>
 </example>
+		</sect1>
+		<sect1 id="language.function.debug">
+			<title>debug</title>
+            <informaltable frame=all>
+                <tgroup cols=5>
+                <colspec colname=param align=center>
+                <colspec colname=type align=center>
+                <colspec colname=required align=center>
+                <colspec colname=default align=center>
+                <colspec colname=desc>
+                <thead>
+                    <row>
+                        <entry>Attribute Name</entry>
+                        <entry>Type</entry>
+                        <entry>Required</entry>       
+                        <entry>Default</entry>
+                        <entry>Description</entry>
+                    </row>
+                </thead>
+                <tbody>
+                    <row>
+                        <entry>output</entry>
+                        <entry>string</entry>
+                        <entry>No</entry>
+                        <entry><emphasis>html</emphasis></entry>
+                        <entry>output type, html or javascript</entry>
+                    </row>
+                </tbody>
+                </tgroup>
+            </informaltable>
+			<para>
+			{debug} dumps the debug console to the page. This works regardless
+			of the <link linkend="chapter.debugging.console">debug</link>
+			settings in Smarty. Since this gets executed at runtime, this is
+			only able to show the assigned variables, not the templates that
+			are in use. But, you see all the currently available variables
+			within the scope of this template.
+			</para>
 		</sect1>
 		<sect1 id="language.function.eval">
 			<title>eval</title>
@@ -3064,8 +3125,7 @@ You must supply a &lt;b&gt;state&lt;/b&gt;.
 
 
 {* an alternative method is to pass the values & output as an associative array into
-   options. $customer_options is an associative array in this example. This
-   functionality was added to Smarty 1.3.0 *}
+   options. $customer_options is an associative array in this example. *}
 
 &lt;select name=customer_id&gt;
 	{html_options options=$customer_options selected=$customer_id}
@@ -3259,17 +3319,20 @@ OUTPUT:
                         <entry>\n</entry>
                         <entry>string printed between different fields</entry>
                     </row>
+                    <row>
+                        <entry>month_value_format</entry>
+                        <entry>string</entry>
+                        <entry>No</entry>
+                        <entry>%m</entry>
+						<entry>strftime format of the month values, default is
+						%m for month numbers.</entry>
+                    </row>
                 </tbody>
                 </tgroup>
             </informaltable>
 			<para>
 			html_select_date is a custom function that creates date dropdowns
 			for you. It can display any or all of year, month, and day.
-			</para>
-			<para>
-			NOTE: reverse_years, field_array, day_size, month_size, year_size,
-			all_extra, day_extra, month_extra, year_extra, field_order,
-			field_separator added in Smarty 1.4.5.
 			</para>
 <example>
 <title>html_select_date</title>
@@ -3454,6 +3517,46 @@ OUTPUT: (current year is 2000)
                         <entry>No</entry>
                         <entry>n/a</entry>
                         <entry>outputs values to array of this name</entry>
+                    </row>
+                    <row>
+                        <entry>all_extra</entry>
+                        <entry>string</entry>
+                        <entry>No</entry>
+                        <entry>null</entry>
+                        <entry>adds extra attributes to select/input tags if
+						given</entry>
+                    </row>
+                    <row>
+                        <entry>hour_extra</entry>
+                        <entry>string</entry>
+                        <entry>No</entry>
+                        <entry>null</entry>
+                        <entry>adds extra attributes to select/input tags if
+						given</entry>
+                    </row>
+                    <row>
+                        <entry>minute_extra</entry>
+                        <entry>string</entry>
+                        <entry>No</entry>
+                        <entry>null</entry>
+                        <entry>adds extra attributes to select/input tags if
+						given</entry>
+                    </row>
+                    <row>
+                        <entry>second_extra</entry>
+                        <entry>string</entry>
+                        <entry>No</entry>
+                        <entry>null</entry>
+                        <entry>adds extra attributes to select/input tags if
+						given</entry>
+                    </row>
+                    <row>
+                        <entry>meridian_extra</entry>
+                        <entry>string</entry>
+                        <entry>No</entry>
+                        <entry>null</entry>
+                        <entry>adds extra attributes to select/input tags if
+						given</entry>
                     </row>
                 </tbody>
                 </tgroup>
@@ -3691,7 +3794,7 @@ OUTPUT:
             variables used in the equation are passed as parameters, which can
             be template variables or static values. +, -, /, *, abs, ceil, cos,
             exp, floor, log, log10, max, min, pi, pow, rand, round, sin, sqrt,
-            srans and tan are all valid operators. Check the PHP documenation
+            srans and tan are all valid operators. Check the PHP documentation
             for further information on these math functions.
 			</para>
 			<para>
@@ -3699,6 +3802,16 @@ OUTPUT:
 			math function will be assigned to this template variable instead of
 			being output to the template.
 			</para>
+			<note>
+				<title>Technical Note</title>
+				<para>
+				math is an expensive function in performance due to its use of
+				the php eval() function. Doing the math in PHP is much more
+				efficient, so whenever possible do the math calculations in PHP
+				and assign the results to the template. Definately avoid
+				repetitive math function calls, like within section loops.
+            	</para>
+			</note>
 <example>
 <title>math</title>
 <programlisting>
@@ -3753,8 +3866,17 @@ OUTPUT:
 			http://www.bosrup.com/web/overlib/.
 			</para>
 			<para>
-			This was added to Smarty 1.4.4.
+			As of Smarty version 2.1.2, overLib does NOT come with the release.
+			Download overLib, place the overlib.js file under your document
+			root and supply the relative path to this file as the "src"
+			parameter to popup_init.
 			</para>
+<example>
+<title>popup_init</title>
+<programlisting>
+{* popup_init must be called once at the top of the page *}
+{popup_init src="/javascripts/overlib.js"}</programlisting>
+</example>
 		</sect1>
 		<sect1 id="language.function.popup">
 			<title>popup</title>
@@ -4153,7 +4275,7 @@ OUTPUT:
 <title>popup</title>
 <programlisting>
 {* popup_init must be called once at the top of the page *}
-{popup_init}
+{popup_init src="/javascripts/overlib.js"}
 
 {* create a link with a popup window when you move your mouse over *}
 &lt;A href="mypage.html" {popup text="This link takes you to my page!"}&gt;mypage&lt;/A&gt;
@@ -4241,18 +4363,20 @@ pass=foobar</programlisting>
   <chapter id="chapter.debugging.console">
    <title>Debugging Console</title>
    <para>
-    There is a debugging console included with Smarty. The console informs you
-    of all the included templates, assigned variables and config file variables
-    for the current invocation of the template. A template named "debug.tpl" is
-    included with the distribution of Smarty which controls the formatting of
-    the console. Set $debugging to true in Smarty, and if needed set $debug_tpl
-    to the template resource path for debug.tpl (this is in $template_dir by
-    default.) When you load the page, a javascript console window should pop up
-    and give you the names of all the included templates and assigned variables
-    for the current page. To disable the debugging console, set $debugging to
-    false. You can also temporarily turn on the debugging console by putting
-    SMARTY_DEBUG in the URL if you enable this option with <link
-     linkend="variable.debugging.ctrl">$debugging_ctrl</link>.
+	There is a debugging console included with Smarty. The console informs you
+	of all the included templates, assigned variables and config file variables
+	for the current invocation of the template. A template named "debug.tpl" is
+	included with the distribution of Smarty which controls the formatting of
+	the console. Set $debugging to true in Smarty, and if needed set $debug_tpl
+	to the template resource path for debug.tpl (this is in SMARTY_DIR by
+	default.) When you load the page, a javascript console window should pop up
+	and give you the names of all the included templates and assigned variables
+	for the current page. To see the available variables for a particular
+	templates, see the <link linkend="language.function.debug">{debug}</link>
+	template function. To disable the debugging console, set $debugging to
+	false. You can also temporarily turn on the debugging console by putting
+	SMARTY_DEBUG in the URL if you enable this option with <link
+	linkend="variable.debugging.ctrl">$debugging_ctrl</link>.
    </para>
    <note>
     <title>Technical Note</title>
