@@ -59,9 +59,9 @@ $db = &$gacl->db;
 /*
  * Configure the Smarty Class for the administration interface ONLY!
  */
-$smarty_dir = 'smarty'; //NO trailing slash!
-$smarty_template_dir = $smarty_dir.'/templates'; //NO trailing slash!
-$smarty_compile_dir = $smarty_dir.'/templates_c'; //NO trailing slash!
+$smarty_dir = 'smarty/libs'; //NO trailing slash!
+$smarty_template_dir = 'templates'; //NO trailing slash!
+$smarty_compile_dir = '/templates_c'; //NO trailing slash!
 
 //Setup the Smarty Class.
 require_once($smarty_dir.'/Smarty.class.php');
