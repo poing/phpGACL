@@ -160,11 +160,11 @@ class gacl {
 		Purpose:	Handles ACL lookups over arrays of AROs
 					Returns the same data format as inputted.
 	\*======================================================================*/	
-	function acl_query_array($aco_section_value, $aco_value, $aro_array) {
+	function acl_check_array($aco_section_value, $aco_value, $aro_array) {
 		/*
 			Input Array:
-				Section -> Value, Value, Value
-				Section -> Value, Value, Value
+				Section => array(Value, Value, Value),
+				Section => array(Value, Value, Value)
 				
 		 */
 		
