@@ -30,9 +30,9 @@
 
 //$debug=1;
 
-require_once('../config.inc.php');
+require_once(dirname(__FILE__).'/../config.inc.php');
 
-require_once('gacl_api.class.php');
+require_once($gacl_dir.'/admin/gacl_api.class.php');
 $gacl_api = new gacl_api;
 
 require_once($adodb_dir.'/adodb.inc.php');

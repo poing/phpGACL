@@ -1,6 +1,7 @@
 Sun Nov 30 2002
 	- Merged ERASE feature to API functions, del_object() and del_object_section() thanks to Martino.
 	- Changed the acl list page layout
+	- Changed the acl test page layout
 	- Added assigned object count to the group admin page.
 	- Fixed a JS bug that wouldn't allow you to "select" (>>) any objects at all, if one was already selected.
 Sun Nov 17 2002
