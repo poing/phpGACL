@@ -92,7 +92,7 @@ class gacl {
 		//If your using ADODB v3.5+ feel free to comment out the following line if its giving you problems.
 		$ADODB_FETCH_MODE = ADODB_FETCH_NUM;
 
-		if ($this->_db) {
+		if (is_object($this->_db)) {
 			$this->db = &$this->_db;
 		} else {
 			$this->db = ADONewConnection($this->_db_type);
