@@ -82,6 +82,8 @@ switch ($db_type) {
 																  id int(12) NOT NULL default '0',
 																  allow smallint(1) NOT NULL default '0',
 																  enabled smallint(1) NOT NULL default '0',
+																  return_value text default NULL,
+																  note text default NULL,
 																  updated_date int(12) NOT NULL default '0',
 																  UNIQUE KEY id (id),
 																  INDEX (enabled)
@@ -344,6 +346,8 @@ switch ($db_type) {
 																	   id integer NOT NULL default 0,
 																	   allow smallint NOT NULL default 0,
 																	   enabled smallint NOT NULL default 0,
+																	   return_value text default NULL,
+																	   note text default NULL,								   
 																	   updated_date integer NOT NULL default 0
 																	);
 																	create unique index id_acl on acl(id);

@@ -1,3 +1,6 @@
+Tue Jan 14 2003
+	- Upgraded ADODB to v3.00
+
 Sun Dec 15 2002
 	- Moved to a completely OO structure.
 	- Config options can now be passed during object creation. $gacl = new gacl($options);

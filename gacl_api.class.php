@@ -57,7 +57,7 @@ class gacl_api extends gacl {
 		Function:	add_acl()
 		Purpose:	Add's an ACL. ACO_IDS, ARO_IDS, GROUP_IDS must all be arrays.
 	\*======================================================================*/
-	function add_acl($aco_array, $aro_array, $aro_group_ids=NULL, $axo_array=NULL, $axo_group_ids=NULL, $allow=1, $enabled=1, $acl_id=FALSE ) {
+	function add_acl($aco_array, $aro_array, $aro_group_ids=NULL, $axo_array=NULL, $axo_group_ids=NULL, $allow=1, $enabled=1, $return_value=NULL, $note=NULL, $acl_id=FALSE ) {
 
 		$this->debug_text("add_acl():");
 		
@@ -83,11 +83,11 @@ class gacl_api extends gacl {
 		if (empty($acl_id)) {
 			//Create ACL row first, so we have the acl_id
 			$acl_id = $this->db->GenID('acl_seq',10);
-			$query = "insert into acl (id,allow,enabled,updated_date) VALUES($acl_id, $allow, $enabled, ".time().")";
+			$query = "insert into acl (id,allow,enabled,return_value, note, updated_date) VALUES($acl_id, $allow, $enabled, ".$this->db->quote($return_value).", ".$this->db->quote($note).", ".time().")";
 			$rs = $this->db->Execute($query);
 		} else {
 			//Update ACL row, and remove all mappings so they can be re-inserted.
-			$query = "update acl set allow=$allow,enabled=$enabled,updated_date=".time()." where id=$acl_id";
+			$query = "update acl set allow=$allow,enabled=$enabled,return_value=".$this->db->quote($return_value).", note=".$this->db->quote($note).",updated_date=".time()." where id=$acl_id";
 			$rs = $this->db->Execute($query);			
 
 			if ($rs) {
@@ -231,7 +231,7 @@ class gacl_api extends gacl {
 		Function:	edit_acl()
 		Purpose:	Edit's an ACL, ACO_IDS, ARO_IDS, GROUP_IDS must all be arrays.
 	\*======================================================================*/
-	function edit_acl($acl_id, $aco_array, $aro_array, $aro_group_ids=NULL, $axo_array=NULL, $axo_group_ids=NULL, $allow=1, $enabled=1) {
+	function edit_acl($acl_id, $aco_array, $aro_array, $aro_group_ids=NULL, $axo_array=NULL, $axo_group_ids=NULL, $allow=1, $enabled=1, $return_value=NULL, $note=NULL) {
 		
 		$this->debug_text("edit_acl():");
 		
