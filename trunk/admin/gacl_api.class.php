@@ -380,11 +380,11 @@ class gacl_api {
 		Function:	format_groups()
 		Purpose:	Takes the array returned by sort_groups() and formats for human consumption.
 	\*======================================================================*/
-	function format_groups($sorted_groups, $type='TEXT', $root_id=0, $level=0, $formatted_groups=NULL) {
+	function format_groups($sorted_groups, $type='TEXT', $root_id=0, $level=0) {
 		/*
 		 * Recursing with a global array, not the most effecient or safe way to do it, but it will work for now.
 		 */
-		//global $formatted_groups;
+		global $formatted_groups;
 
 		while (list($id,$name) = @each($sorted_groups[$root_id])) {
 			switch ($type) {
@@ -408,13 +408,12 @@ class gacl_api {
 					break;
 			}
 			$formatted_groups[$id] = $text;
-
 			/*
 			 * Recurse if we can.
 			 */
 			if (isset($sorted_groups[$id]) AND count($sorted_groups[$id]) > 0) {
 				debug("format_groups(): Recursing! Level: $level");
-				return $this->format_groups($sorted_groups, $type, $id, $level + 1, $formatted_groups);
+				$this->format_groups($sorted_groups, $type, $id, $level + 1);
 			} else {
 				debug("format_groups(): Found last branch!");
 			}
