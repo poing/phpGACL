@@ -19,6 +19,12 @@ switch ($_POST[action]) {
         debug("Submit!!");
         break;    
     default:
+/*
+		//Count all ACL's
+		$count_query = "select count(*) from acl";
+		$total_rows = $db->getone($count_query);
+		echo "Total Rows: $total_rows<br>\n";
+*/		
         //Grab all ACLs
         $query = "select	distinct
                                         a.id,
@@ -60,7 +66,8 @@ switch ($_POST[action]) {
 										LEFT JOIN axo_groups n ON n.id=k.group_id
 
                                 order by a.id, f.name, e.name, h.name, g.name, i.name";
-        $rs = $db->Execute($query);
+        //$rs = $db->Execute($query);
+        $rs = $db->pageexecute($query, $gacl_api->_items_per_page, $_GET['page']);
         $rows = $rs->GetRows();
 
 		if ($rows) {
@@ -150,10 +157,11 @@ switch ($_POST[action]) {
 		}
 		
         $smarty->assign("acls", $acls);
+
+        $smarty->assign("paging_data", get_paging_data($rs));
         
         break;
 }
-
 
 $smarty->assign("return_page", $_SERVER[PHP_SELF] );
 

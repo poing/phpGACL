@@ -3,9 +3,35 @@ $debug=1;
 require_once("gacl_admin.inc.php");
 //require_once("../gacl.inc.php");
 
+$query = "select 		a.value,
+								a.name,
+								b.value,
+								b.name,
+
+								c.value,
+								c.name,
+								d.value,
+								d.name
+					from 	aco_sections as a,
+								aco as b,
+								aro_sections as c,
+								aro as d
+					where	a.value=b.section_value
+						AND c.value=d.section_value
+					order by a.value, b.value, c.value, d.value";
+//$rs = $db->Execute($query);
+//$rows = $rs->GetRows();
+$rs = $db->pageexecute($query, 100, 2);
+showarray($rows);
+$rows = $rs->GetRows();
+showarray($rows);
+
+//$test=$gacl-> acl_query('system', 'email_pw', 'users', '1');
+//showarray($test);
+
 //Test object deleting.
 //$gacl_api->del_object(10,'ARO', TRUE);
-$gacl_api->del_object_section(10,'ACO',TRUE);
+//$gacl_api->del_object_section(10,'ACO',TRUE);
 
 /*
 //Test AXO's

@@ -27,7 +27,8 @@ $query = "select 		a.value,
 					where	a.value=b.section_value
 						AND c.value=d.section_value
 					order by a.value, b.value, c.value, d.value";
-$rs = $db->Execute($query);
+//$rs = $db->Execute($query);
+$rs = $db->pageexecute($query, $gacl_api->_items_per_page, $_GET['page']);
 $rows = $rs->GetRows();
 
 $total_rows = count($rows);
@@ -45,8 +46,11 @@ while (list(,$row) = @each(&$rows)) {
 		) = $row;
 	
 	$acl_check_begin_time = $profiler->getMicroTime();
-	$access = $gacl->acl_check($aco_section_value, $aco_value, $aro_section_value, $aro_value);
+	$acl_result = $gacl->acl_query($aco_section_value, $aco_value, $aro_section_value, $aro_value);
 	$acl_check_end_time = $profiler->getMicroTime();
+	
+	$access = &$acl_result['allow'];
+	$return_value = &$acl_result['return_value'];
 
 	$acl_check_time = ($acl_check_end_time - $acl_check_begin_time) * 100;
 	$total_acl_check_time += $acl_check_time;
@@ -69,6 +73,7 @@ while (list(,$row) = @each(&$rows)) {
 						aro_name => $aro_name,
 						
 						access => $access,
+						return_value => $return_value,
 						acl_check_time => number_format($acl_check_time, 2),
 						
 						display_aco_name => $display_aco_name,
@@ -89,6 +94,8 @@ if ($total_rows > 0) {
 	$avg_acl_check_time = $total_acl_check_time / $total_rows;
 }
 $smarty->assign("avg_acl_check_time", number_format( ($avg_acl_check_time + 0) ,2));
+
+$smarty->assign("paging_data", get_paging_data($rs));
 
 $smarty->assign("return_page", $_SERVER[PHP_SELF] );
 

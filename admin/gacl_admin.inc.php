@@ -33,22 +33,24 @@ require_once(dirname(__FILE__).'/../gacl_api.class.php');
 
 
 $gacl_options = array(
+								'debug' => FALSE,
+								'items_per_page' => 5,
 								'db_type' => 'mysql',
 								'db_host' => 'localhost',
 								'db_user' => 'root',
 								'db_password' => '',
 								'db_name' => 'gacl',
-								'caching' => FALSE,
-								'cache_dir' => '/tmp/phpgacl',
+								'caching' => TRUE,
+								'cache_dir' => '/tmp/phpgacl_cache',
 								'cache_expire_time' => 600
 							);
 
 
 $gacl_api = new gacl_api($gacl_options);
 
-$gacl = $gacl_api;
+$gacl = &$gacl_api;
 
-$db = $gacl->db;
+$db = &$gacl->db;
 
 /*
  * Configure the Smarty Class for the administration interface ONLY!
@@ -121,4 +123,21 @@ function return_page($url="") {
         debug("return_page(): URL: $url -- Referer: $_SERVER[HTTP_REFERRER]");   
     }
 }
+
+/*======================================================================*\
+    Function:   get_pading_data()
+    Purpose:	Creates a basic array for Smarty to deal with paging large recordsets.
+					Pass it the ADODB recordset.
+\*======================================================================*/
+function get_paging_data($rs) {
+
+	return array( 'prevpage' => $rs->absolutepage() - 1,
+						'currentpage' => $rs->absolutepage(),
+						'nextpage' => $rs->absolutepage() + 1,
+						'atfirstpage' => $rs->atfirstpage(),
+						'atlastpage' => $rs->atlastpage(),
+						'lastpageno' => $rs->lastpageno()
+				 );			
+}
+
 ?>

@@ -5,6 +5,7 @@
     <title>phpGACL Admin</title>
     <meta http-equiv="content-type" content="text/html; charset=ISO-8859-1">
   </head>
+
 <form method="post" name="acl_list" action="acl_list.php">
     <table cellpadding="2" cellspacing="2" border="2" width="100%">
   <tr align="center">
@@ -17,7 +18,11 @@
 		<br>
 	</td>
   </tr>
-
+  <tr>
+	<td valign="top" colspan="11" bgcolor="#cccccc">
+		{include file="pager.tpl" pager_data=$paging_data link="?"}
+	</td>
+  </tr>
   <tr>
     <td valign="top" bgcolor="#cccccc" align="center">
         <b>ID</b>
@@ -131,6 +136,11 @@
     </td>
   </tr>
     {/section}
+  <tr>
+	<td valign="top" colspan="11" bgcolor="#cccccc">
+		{include file="pager.tpl" pager_data=$paging_data link="?"}
+	</td>
+  </tr>
 	  <tr>
 		<td valign="top" bgcolor="#999999" colspan="10">
 		</td>

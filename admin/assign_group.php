@@ -143,8 +143,8 @@ switch ($_POST[action]) {
                                         AND a.value=b.value
                                         AND b.section_value=c.value
                             order by c.name, b.name";
-        $rs = $db->Execute($query);
-
+        //$rs = $db->Execute($query);
+        $rs = $db->pageexecute($query, $gacl_api->_items_per_page, $_GET['page']);
         $rows = $rs->GetRows();
         //showarray($rows);
 
@@ -171,6 +171,8 @@ switch ($_POST[action]) {
         $smarty->assign("group_name", $group_name);
         
         $smarty->assign("group_id", $_GET['group_id']);
+        
+        $smarty->assign("paging_data", get_paging_data($rs));
         
         break;
 }
