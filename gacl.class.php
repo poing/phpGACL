@@ -529,7 +529,7 @@ class gacl {
 				$query .= ','. $group_table .' g3';
 
 				$where .= '
-						AND		g3.value='. $root_group .'
+						AND		g3.value='. $this->db->quote( $root_group ) .'
 						AND		((g2.lft BETWEEN g3.lft AND g1.lft) AND (g2.rgt BETWEEN g1.rgt AND g3.rgt))';
 			} else {
 				$where .= '
