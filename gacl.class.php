@@ -394,12 +394,15 @@ class gacl {
 					 */
 					$query = "select group_id from $group_path_table where id = $path_id AND tree_level <= $tree_level";
 					$parent_ids_sql = @implode($this->db->GetCol($query),',');
-				} else {
+				}
+				//else {
 					/*
 					 * Subtree is too deep, or invalid, so don't return any parent IDs
+					 * This is irrelevant.
 					 */
-					$parent_ids_sql = array(-1);	
-				}
+					//$parent_ids_sql = array(-1);
+					
+				//}
 			}
 
 			/*
@@ -413,7 +416,7 @@ class gacl {
 			 * This essentially creates a virtual "subtree" and ignores all outside groups.
 			 * Useful for sites like sourceforge where you may seperate groups by "project".
 			 */
-			if (!empty($parent_ids_sql)) {
+			if (!isset($parent_ids_sql)) {
 				//$query .= " AND (a.id = $root_group_id OR a.parent_id = $root_group_id)";
 				$query .= " AND ( a.parent_id in ($parent_ids_sql) )";
 			}

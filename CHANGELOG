@@ -1,3 +1,7 @@
+Fri May 16 2003
+	- Fixed a few PHP warnings phpgacl.class.php
+	- Removed an else condition from an if statement that didn't do anything anyways.
+	
 Sun Mar 09 2003
 	- Fixed small bug in API function get_object_id() where it referenced the $name variable,
 		but $name was never used. If the function was used properly, this shouldn't have affected anything.
