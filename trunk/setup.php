@@ -89,7 +89,14 @@ switch ($db_type) {
 										  UNIQUE KEY id (id)
 										) TYPE=MyISAM
 										";
-
+		
+		$table_array[aco_map] = 	"
+										CREATE TABLE aco_map (
+										  acl_id int(12) NOT NULL default '0',
+										  aco_id int(12) NOT NULL default '0'
+										) TYPE=MyISAM
+										";
+    
 		$table_array[aco_sections] = "
 										CREATE TABLE aco_sections (
 										  id int(12) NOT NULL default '0',
