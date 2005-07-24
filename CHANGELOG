@@ -7,6 +7,9 @@ Sun Jul 24 2005
 	mikeb - Fixed a couple notices with E_ALL enabled in the API. John Mortlock <johnm@hlaustralia.com.au>
 	mikeb - Added a SQL quoting to insert. Eder <lukas.eder@iomedia.ch>
 	mikeb - Added support for custom ACL sections to add_acl(), for instance if someone deletes the 'system' section. Vincent Woo <vwooa@sfu.ca>
+	mikeb - Upgraded ADODB to v4.65
+	mikeb - Upgraded Smarty to v2.6.9
+	mikeb - Release v3.3.5b1
 Wed Dec 8 2004
 	mikeb - Release v3.3.4
 Sun Dec 5 2004

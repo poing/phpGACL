@@ -1,10 +1,13 @@
+;<? if (; //Cause parse error to hide from prying eyes?> 
 ;
-; This file has the .php extension at the end 
-; as a security measure incase you don't remove
-; it from your webroot directory. This should 
-; keep prying eyes away.
+; *WARNING* 
 ;
-
+; DO NOT PUT THIS FILE IN YOUR WEBROOT DIRECTORY. 
+;
+; *WARNING*
+;
+; Anyone can view your database password if you do!
+;
 debug 			= FALSE
 
 ;
