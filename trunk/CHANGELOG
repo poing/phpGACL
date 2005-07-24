@@ -5,6 +5,8 @@ Sun Jul 24 2005
 	mikeb - Added Russian manual translation thanks to <kuzma@russofile.ru>
 	mikeb - Added gacl.conf config file for both admin interface and gacl.class.php. Thanks to Richard Plevin <rich@plevin.com>
 	mikeb - Fixed a couple notices with E_ALL enabled in the API. John Mortlock <johnm@hlaustralia.com.au>
+	mikeb - Added a SQL quoting to insert. Eder <lukas.eder@iomedia.ch>
+	mikeb - Added support for custom ACL sections to add_acl(), for instance if someone deletes the 'system' section. Vincent Woo <vwooa@sfu.ca>
 Wed Dec 8 2004
 	mikeb - Release v3.3.4
 Sun Dec 5 2004
