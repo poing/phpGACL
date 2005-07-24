@@ -33,7 +33,7 @@ require_once(dirname(__FILE__).'/../gacl_api.class.php');
 require_once(dirname(__FILE__).'/gacl_admin_api.class.php');
 
 // phpGACL Configuration file.
-$config_file = '../gacl.cfg';
+$config_file = '../gacl.ini.php';
 
 //Values supplied in $gacl_options array overwrite those in the config file.
 if ( file_exists($config_file) ) {
