@@ -1,6 +1,6 @@
 <?php
 /* 
-V4.54 5 Nov 2004  (c) 2000-2004 John Lim (jlim@natsoft.com.my). All rights reserved.
+V4.65 22 July 2005  (c) 2000-2005 John Lim (jlim@natsoft.com.my). All rights reserved.
   Released under both BSD license and Lesser GPL library license. 
   Whenever there is any discrepancy between the two licenses, 
   the BSD license will take precedence. 
@@ -8,7 +8,7 @@ Set tabs to 4 for best viewing.
   
   Latest version is available at http://adodb.sourceforge.net
   
-	Microsoft ADO data driver. Requires ADO. Works only on MS Windows.
+	Microsoft ADO data driver. Requires ADO. Works only on MS Windows. PHP5 compat version.
 */
 
 // security - hide paths
@@ -341,7 +341,7 @@ class ADORecordSet_ado extends ADORecordSet {
 
 
 	// returns the field object
-	function FetchField($fieldOffset = -1) {
+	function &FetchField($fieldOffset = -1) {
 		$off=$fieldOffset+1; // offsets begin at 1
 		
 		$o= new ADOFieldObject();
