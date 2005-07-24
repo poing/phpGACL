@@ -52,27 +52,13 @@ $gacl = &$gacl_api;
 
 $db = &$gacl->db;
 
-/*
- * Configure the Smarty Class for the administration interface ONLY!
- * Change these in the gacl.ini.php file.
- */
-if ( !isset($gacl_options['smarty_dir']) ) {
-	$smarty_dir = 'smarty/libs'; //NO trailing slash!
-}
-if ( !isset($gacl_options['smarty_template_dir']) ) {
-	$smarty_template_dir = 'templates'; //NO trailing slash!
-}
-if ( !isset($gacl_options['smarty_compile_dir']) ) {
-	$smarty_compile_dir = 'templates_c'; //NO trailing slash!
-}
-
 //Setup the Smarty Class.
-require_once($smarty_dir.'/Smarty.class.php');
+require_once($gacl_options['smarty_dir'].'/Smarty.class.php');
 
 $smarty = new Smarty;
 $smarty->compile_check = TRUE;
-$smarty->template_dir = $smarty_template_dir;
-$smarty->compile_dir = $smarty_compile_dir;
+$smarty->template_dir = $gacl_options['smarty_template_dir'];
+$smarty->compile_dir = $gacl_options['smarty_compile_dir'];
 
 /*
  * Email address used in setup.php, please do not change.
