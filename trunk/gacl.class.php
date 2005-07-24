@@ -49,6 +49,11 @@ if ( !defined('ADODB_DIR') ) {
 */
 class gacl {
 	/*
+	--- phpGACL Configuration path/file ---
+	*/
+	var $config_file = './gacl.cfg';
+
+	/*
 	--- Private properties ---
 	*/
 	/** @var boolean Enables Debug output if true */
@@ -105,6 +110,18 @@ class gacl {
 	function gacl($options = NULL) {
 
 		$available_options = array('db','debug','items_per_page','max_select_box_items','max_search_return_items','db_table_prefix','db_type','db_host','db_user','db_password','db_name','caching','force_cache_expire','cache_dir','cache_expire_time');
+
+		//Values supplied in $options array overwrite those in the config file.
+		if ( file_exists($config_file) ) {
+		        $config = parse_ini_file($config_file);
+
+		        if ( is_array($config) ) {
+		                $gacl_options = array_merge($config, $gacl_options);
+		        }
+
+	        	unset($config);
+		}
+
 		if (is_array($options)) {
 			foreach ($options as $key => $value) {
 				$this->debug_text("Option: $key");
@@ -274,8 +291,8 @@ class gacl {
 	* @param string The ARO section
 	* @param string The AXO section value (optional)
 	* @param string The AXO section value (optional)
-	* @param integer The group id of the ARO ??Mike?? (optional)
-	* @param integer The group id of the AXO ??Mike?? (optional)
+	* @param string The value of the ARO group (optional)
+	* @param string The value of the AXO group (optional)
 	* @param boolean Debug the operation if true (optional)
 	* @return array Returns as much information as possible about the ACL so other functions can trim it down and omit unwanted data.
 	*/

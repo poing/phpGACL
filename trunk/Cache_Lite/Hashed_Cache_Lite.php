@@ -27,7 +27,10 @@
  * http://phpgacl.sourceforge.net/
  *
  */
-require_once(dirname(__FILE__) .'/Lite.php');
+
+if ( !class_exists('Cache_Lite') ) {
+	require_once(dirname(__FILE__) .'/Lite.php');
+}
 
 define('DIR_SEP',DIRECTORY_SEPARATOR);
 
