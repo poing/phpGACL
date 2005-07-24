@@ -434,15 +434,18 @@ class gacl_api extends gacl {
 
 			while (list($aro_section_value,$aro_value_array) = @each($aro_array)) {
 				foreach ($aro_value_array as $aro_value) {
-
-					if (!in_array($aro_value, $acl_array['aro'][$aro_section_value])) {
-						$this->debug_text("append_acl(): ARO Section Value: $aro_section_value ARO VALUE: $aro_value");
+					if ( count($acl_array['aro'][$aro_section_value]) != 0 ) {
+						if (!in_array($aro_value, $acl_array['aro'][$aro_section_value])) {
+							$this->debug_text("append_acl(): ARO Section Value: $aro_section_value ARO VALUE: $aro_value");
+							$acl_array['aro'][$aro_section_value][] = $aro_value;
+							$update=1;
+						} else {
+							$this->debug_text("append_acl(): Duplicate ARO, ignoring... ");
+						}
+					} else { //Array is empty so add this aro value.
 						$acl_array['aro'][$aro_section_value][] = $aro_value;
 						$update=1;
-					} else {
-						$this->debug_text("append_acl(): Duplicate ARO, ignoring... ");
 					}
-
 				}
 			}
 		}
@@ -551,14 +554,18 @@ class gacl_api extends gacl {
 			while (list($aro_section_value,$aro_value_array) = @each($aro_array)) {
 				foreach ($aro_value_array as $aro_value) {
 					$this->debug_text("shift_acl(): ARO Section Value: $aro_section_value ARO VALUE: $aro_value");
-					$aro_key = array_search($aro_value, $acl_array['aro'][$aro_section_value]);
+					
+					//Only search if aro array contains data.
+					if ( count($acl_array['aro'][$aro_section_value]) != 0 ) {
+						$aro_key = array_search($aro_value, $acl_array['aro'][$aro_section_value]);
 
-					if ($aro_key !== FALSE) {
-						$this->debug_text("shift_acl(): Removing ARO. ($aro_key)");
-						unset($acl_array['aro'][$aro_section_value][$aro_key]);
-						$update=1;
-					} else {
-						$this->debug_text("shift_acl(): ARO doesn't exist, can't remove it.");
+						if ($aro_key !== FALSE) {
+							$this->debug_text("shift_acl(): Removing ARO. ($aro_key)");
+							unset($acl_array['aro'][$aro_section_value][$aro_key]);
+							$update=1;
+						} else {
+							$this->debug_text("shift_acl(): ARO doesn't exist, can't remove it.");
+						}
 					}
 
 				}
@@ -932,17 +939,11 @@ class gacl_api extends gacl {
 			$enabled=0;
 		}
 
-		if (empty($section_value)) {
-			$section_value='system';
-		}
-
-		//Use section_values instead of IDs to be consistent.
-		$section_id = &$this->get_object_section_section_id(NULL, $section_value, 'ACL');
-		if (empty($section_id)) {
+		if (!empty($section_value) 
+			AND !$this->get_object_section_section_id(NULL, $section_value, 'ACL')) {
 			$this->debug_text("add_acl(): Section Value: $section_value DOES NOT exist in the database.");
 			return false;
 		}
-		unset($section_id);
 
 		//Unique the group arrays. Later one we unique ACO/ARO/AXO arrays.
 		if (is_array($aro_group_ids)) {
@@ -960,6 +961,29 @@ class gacl_api extends gacl {
 
 		//Edit ACL if acl_id is set. This is simply if we're being called by edit_acl().
 		if (empty($acl_id)) {
+			if ( empty($section_value) ) {
+				$section_value='system';
+				if( !$this->get_object_section_section_id(NULL, $section_value, 'ACL') ) {
+					// Use the acl section with the lowest order value.
+					$acl_sections_table = $this->_db_table_prefix .'acl_sections';
+					$acl_section_order_value = $this->db->GetOne("SELECT min(order_value) from $acl_sections_table");
+
+					$query = "
+						SELECT value
+						FROM $acl_sections_table
+						WHERE order_value = $acl_section_order_value
+					";
+					$section_value = $this->db->GetOne($query);
+
+					if ( empty($section_value) ) {
+						$this->debug_text("add_acl(): No valid acl section found.");
+						return false;
+					} else {
+						$this->debug_text("add_acl(): Using default section value: $section_value.");
+					}
+				}
+			}
+
 			//Create ACL row first, so we have the acl_id
 			$acl_id = $this->db->GenID($this->_db_table_prefix.'acl_seq',10);
 
@@ -976,13 +1000,17 @@ class gacl_api extends gacl {
 			$query = 'INSERT INTO '.$this->_db_table_prefix."acl (id,section_value,allow,enabled,return_value,note,updated_date) VALUES($acl_id,".$this->db->quote($section_value).",$allow,$enabled,".$this->db->quote($return_value).','.$this->db->quote($note).','.time().')';
 			$result = $this->db->Execute($query);
 		} else {
+			$section_sql = '';
+			if ( !empty($section_value) ) {
+				$section_sql = 'section_value='. $this->db->quote ($section_value) .',';
+			}
 
 			$this->db->BeginTrans();
 
 			//Update ACL row, and remove all mappings so they can be re-inserted.
 			$query  = '
 				UPDATE	'. $this->_db_table_prefix .'acl
-				SET		section_value='. $this->db->quote ($section_value) .',
+				SET             ' . $section_sql . '
 						allow='. $allow .',
 						enabled='. $enabled .',
 						return_value='. $this->db->quote($return_value) .',
@@ -3027,7 +3055,7 @@ class gacl_api extends gacl {
 		}
 
 		$insert_id = $this->db->GenID($this->_db_table_prefix.$object_type.'_seq',10);
-		$query = "INSERT INTO $table (id,section_value,value,order_value,name,hidden) VALUES($insert_id,'$section_value','$value','$order','$name',$hidden)";
+		$query = "INSERT INTO $table (id,section_value,value,order_value,name,hidden) VALUES($insert_id,'. $this->db->quote($section_value) .','. $this->db->quote($value) .','$order','. $this->db->quote($name) .',$hidden)";
 		$rs = $this->db->Execute($query);
 
 		if (!is_object($rs)) {
@@ -3097,7 +3125,7 @@ class gacl_api extends gacl {
 			return false;
 		}
 
-    $this->db->BeginTrans();
+		$this->db->BeginTrans();
 
 		//Get old value incase it changed, before we do the update.
 		$query = 'SELECT value, section_value FROM '. $table .' WHERE id='. $object_id;
@@ -3141,7 +3169,7 @@ class gacl_api extends gacl {
 			$this->debug_text ('edit_object(): Modified Map Value: '. $value .' Section Value: '. $section_value);
 		}
 
-    $this->db->CommitTrans();
+		$this->db->CommitTrans();
 
 		return TRUE;
 	}
@@ -3279,9 +3307,9 @@ class gacl_api extends gacl {
 						FROM		'. $this->_db_table_prefix .'acl a
 						LEFT JOIN	'. $object_map_table .' b ON a.id=b.acl_id
 						LEFT JOIN	'. $groups_map_table .' c ON a.id=c.acl_id
-						WHERE		value IS NULL
-							AND		section_value IS NULL
-							AND		group_id IS NULL
+						WHERE		b.value IS NULL
+							AND		b.section_value IS NULL
+							AND		c.group_id IS NULL
 							AND		a.id in ('. $sql_acl_ids .')';
 					$orphan_acl_ids = $this->db->GetCol($query);
 
@@ -3495,7 +3523,7 @@ class gacl_api extends gacl {
 		}
 
 		$insert_id = $this->db->GenID($this->_db_table_prefix.$object_type.'_sections_seq',10);
-		$query = "insert into $object_sections_table (id,value,order_value,name,hidden) VALUES($insert_id, '$value', '$order', '$name', $hidden)";
+		$query = "insert into $object_sections_table (id,value,order_value,name,hidden) VALUES($insert_id, '. $this->db->quote($value) .', '$order', '. $this->db->quote($name .', $hidden)";
 		$rs = $this->db->Execute($query);
 
 		if (!is_object($rs)) {

@@ -32,23 +32,19 @@ require_once(dirname(__FILE__).'/../gacl.class.php');
 require_once(dirname(__FILE__).'/../gacl_api.class.php');
 require_once(dirname(__FILE__).'/gacl_admin_api.class.php');
 
-$gacl_options = array(
-								'debug' => FALSE,
-								'items_per_page' => 100,
-								'max_select_box_items' => 100,
-								'max_search_return_items' => 200,
-								'db_type' => 'mysql',
-								'db_host' => 'localhost',
-								'db_user' => 'root',
-								'db_password' => '',
-								'db_name' => 'gacl',
-								'db_table_prefix' => '', //DO NOT USE "_"
-								'caching' => FALSE,
-								'force_cache_expire' => TRUE,
-								'cache_dir' => '/tmp/phpgacl_cache',
-								'cache_expire_time' => 600
-							);
+// phpGACL Configuration file.
+$config_file = '../gacl.cfg';
 
+//Values supplied in $gacl_options array overwrite those in the config file.
+if ( file_exists($config_file) ) {
+	$config = parse_ini_file($config_file);
+
+	if ( is_array($config) ) {
+		$gacl_options = array_merge($config, $gacl_options);
+	}
+
+	unset($config);
+}
 
 $gacl_api = new gacl_admin_api($gacl_options);
 

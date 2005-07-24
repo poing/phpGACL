@@ -1,3 +1,10 @@
+Sun Jul 24 2005
+	mikeb - Removed table prefix comment regarding not using "_". Apparently it works now
+	mikeb - Fixed comments in gacl.class.php regarding group IDs, it now correctly says group values.
+	mikeb - Hashed_Cache_Lite class now checks to see if Cache_Lite class already exists before including it.
+	mikeb - Added Russian manual translation thanks to <kuzma@russofile.ru>
+	mikeb - Added gacl.conf config file for both admin interface and gacl.class.php. Thanks to Richard Plevin <rich@plevin.com>
+	mikeb - Fixed a couple notices with E_ALL enabled in the API. John Mortlock <johnm@hlaustralia.com.au>
 Wed Dec 8 2004
 	mikeb - Release v3.3.4
 Sun Dec 5 2004
