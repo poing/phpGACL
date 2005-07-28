@@ -1,3 +1,5 @@
+Thu Jul 28 2005
+	mikeb - Fixed bug with double/single quotes on line 3526. Jérémy Cohen Solal <jeremy@eiole.com>
 Sun Jul 24 2005
 	mikeb - Removed table prefix comment regarding not using "_". Apparently it works now
 	mikeb - Fixed comments in gacl.class.php regarding group IDs, it now correctly says group values.
