@@ -997,7 +997,7 @@ class gacl_api extends gacl {
 			//the transaction will fail.
 			$this->db->BeginTrans();
 
-			$query = 'INSERT INTO '.$this->_db_table_prefix."acl (id,section_value,allow,enabled,return_value,note,updated_date) VALUES($acl_id,".$this->db->quote($section_value).",$allow,$enabled,".$this->db->quote($return_value).','.$this->db->quote($note).','.time().')';
+			$query = 'INSERT INTO '.$this->_db_table_prefix.'acl (id,section_value,allow,enabled,return_value,note,updated_date) VALUES('. $acl_id .','. $this->db->quote($section_value) .','. $allow .','. $enabled .','. $this->db->quote($return_value) .', '. $this->db->quote($note) .','. time() .')';
 			$result = $this->db->Execute($query);
 		} else {
 			$section_sql = '';
@@ -3523,7 +3523,7 @@ class gacl_api extends gacl {
 		}
 
 		$insert_id = $this->db->GenID($this->_db_table_prefix.$object_type.'_sections_seq',10);
-		$query = "insert into $object_sections_table (id,value,order_value,name,hidden) VALUES($insert_id, '. $this->db->quote($value) .', '$order', '. $this->db->quote($name .', $hidden)";
+		$query = 'insert into $object_sections_table (id,value,order_value,name,hidden) VALUES($insert_id, '. $this->db->quote($value) .', '$order', '. $this->db->quote($name .', $hidden)';
 		$rs = $this->db->Execute($query);
 
 		if (!is_object($rs)) {
