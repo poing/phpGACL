@@ -1,5 +1,7 @@
 <?php
 
+$config_file = './gacl.ini.php';
+
 require_once('./admin/gacl_admin.inc.php');
 require_once(ADODB_DIR .'/adodb-xmlschema.inc.php');
 

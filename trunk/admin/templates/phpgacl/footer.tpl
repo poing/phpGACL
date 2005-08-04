@@ -3,7 +3,7 @@
 		<div id="bot-br"><div id="bot-bl"><div id="bot-tr"><div id="bot-tl">
 			<a href="http://phpgacl.sourceforge.net">phpGACL</a> v{$phpgacl_version} (Schema v{$phpgacl_schema_version}) - Generic Access Control Lists
 			<br />
-			Copyright &copy; 2004 <a href="about.php">Mike Benoit</a>
+			Copyright &copy; 2005 <a href="about.php">Mike Benoit</a>
 		</div></div></div></div>
 		
 	<!-- End Body -->

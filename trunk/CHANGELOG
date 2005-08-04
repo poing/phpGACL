@@ -1,3 +1,5 @@
+Thu Aug 04 2005
+	mikeb - Fixed bug with config ini file path in setup.php
 Thu Jul 28 2005
 	mikeb - Fixed bug with double/single quotes on line 3526. Jérémy Cohen Solal <jeremy@eiole.com>
 Sun Jul 24 2005
