@@ -3523,7 +3523,7 @@ class gacl_api extends gacl {
 		}
 
 		$insert_id = $this->db->GenID($this->_db_table_prefix.$object_type.'_sections_seq',10);
-		$query = 'insert into $object_sections_table (id,value,order_value,name,hidden) VALUES($insert_id, '. $this->db->quote($value) .', '$order', '. $this->db->quote($name .', $hidden)';
+		$query = 'insert into '. $object_sections_table .' (id,value,order_value,name,hidden) VALUES( '. $insert_id .', '. $this->db->quote($value) .', '. $order .', '. $this->db->quote($name) .', '. $hidden .')';
 		$rs = $this->db->Execute($query);
 
 		if (!is_object($rs)) {
