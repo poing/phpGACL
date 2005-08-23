@@ -675,7 +675,7 @@ class gacl_api extends gacl {
 	 * 
 	 * Grabs ACL data.
 	 *
-	 * @return array Associative Array with the following items:
+	 * @return bool FALSE if not found, or Associative Array with the following items:
 	 *
 	 *	- 'aco' => Associative array, item={Section Value}, key={Array of Object Values} i.e. ["<Section Value>" => ["<Value 1>", "<Value 2>", "<Value 3>"], ...]
 	 *	- 'aro' => Associative array, item={Section Value}, key={Array of Object Values} i.e. ["<Section Value>" => ["<Value 1>", "<Value 2>", "<Value 3>"], ...]
@@ -702,6 +702,13 @@ class gacl_api extends gacl {
 		//Grab ACL information
 		$query = "select id, allow, enabled, return_value, note from ".$this->_db_table_prefix."acl where id = ".$acl_id."";
 		$acl_row = $this->db->GetRow($query);
+
+		// return false if not found
+		if (!$acl_row) {
+			$this->debug_text("get_acl(): No ACL found for that ID! ACL_ID: $acl_id");
+			return false;
+		}
+
 		list($retarr['acl_id'], $retarr['allow'], $retarr['enabled'], $retarr['return_value'], $retarr['note']) = $acl_row;
 
 		//Grab selected ACO's
@@ -960,7 +967,7 @@ class gacl_api extends gacl {
 		}
 
 		//Edit ACL if acl_id is set. This is simply if we're being called by edit_acl().
-		if (empty($acl_id)) {
+		if ($this->get_acl($acl_id) == FALSE) {
 			if ( empty($section_value) ) {
 				$section_value='system';
 				if( !$this->get_object_section_section_id(NULL, $section_value, 'ACL') ) {
@@ -983,14 +990,17 @@ class gacl_api extends gacl {
 					}
 				}
 			}
-
-			//Create ACL row first, so we have the acl_id
-			$acl_id = $this->db->GenID($this->_db_table_prefix.'acl_seq',10);
-
-			//Double check the ACL ID was generated.
+			
+			//ACL not specified, so create acl_id
 			if (empty($acl_id)) {
-				$this->debug_text("add_acl(): ACL_ID generation failed!");
-				return false;
+				//Create ACL row first, so we have the acl_id
+				$acl_id = $this->db->GenID($this->_db_table_prefix.'acl_seq',10);
+	
+				//Double check the ACL ID was generated.
+				if (empty($acl_id)) {
+					$this->debug_text("add_acl(): ACL_ID generation failed!");
+					return false;
+				}
 			}
 
 			//Begin transaction _after_ GenID. Because on the first run, if GenID has to create the sequence,
