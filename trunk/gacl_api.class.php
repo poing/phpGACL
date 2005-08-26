@@ -3065,7 +3065,7 @@ class gacl_api extends gacl {
 		}
 
 		$insert_id = $this->db->GenID($this->_db_table_prefix.$object_type.'_seq',10);
-		$query = "INSERT INTO $table (id,section_value,value,order_value,name,hidden) VALUES($insert_id,'. $this->db->quote($section_value) .','. $this->db->quote($value) .','$order','. $this->db->quote($name) .',$hidden)";
+		$query = 'INSERT INTO '. $table .' (id,section_value,value,order_value,name,hidden) VALUES('. $insert_id .','. $this->db->quote($section_value) .','. $this->db->quote($value) .','. $order .','. $this->db->quote($name) .','. $hidden .')';
 		$rs = $this->db->Execute($query);
 
 		if (!is_object($rs)) {
