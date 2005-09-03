@@ -218,7 +218,7 @@ class gacl {
 	* @param string The AXO section value (optional)
 	* @param integer The group id of the ARO ??Mike?? (optional)
 	* @param integer The group id of the AXO ??Mike?? (optional)
-	* @return mixed Generally a zero (0) or (1) or the extended return value of the ACL
+	* @return boolean TRUE if the check succeeds, false if not.
 	*/
 	function acl_check($aco_section_value, $aco_value, $aro_section_value, $aro_value, $axo_section_value=NULL, $axo_value=NULL, $root_aro_group=NULL, $root_axo_group=NULL) {
 		$acl_result = $this->acl_query($aco_section_value, $aco_value, $aro_section_value, $aro_value, $axo_section_value, $axo_value, $root_aro_group, $root_axo_group);
@@ -236,9 +236,9 @@ class gacl {
 	* @param string The ARO section
 	* @param string The AXO section value (optional)
 	* @param string The AXO section value (optional)
-	* @param integer The group id of the ARO ??Mike?? (optional)
-	* @param integer The group id of the AXO ??Mike?? (optional)
-	* @return mixed Generally a zero (0) or (1) or the extended return value of the ACL
+	* @param integer The group id of the ARO (optional)
+	* @param integer The group id of the AXO (optional)
+	* @return string The return value of the ACL
 	*/
 	function acl_return_value($aco_section_value, $aco_value, $aro_section_value, $aro_value, $axo_section_value=NULL, $axo_value=NULL, $root_aro_group=NULL, $root_axo_group=NULL) {
 		$acl_result = $this->acl_query($aco_section_value, $aco_value, $aro_section_value, $aro_value, $axo_section_value, $axo_value, $root_aro_group, $root_axo_group);

@@ -1,3 +1,7 @@
+Sat Sep 03 2005
+	mikeb - Fixed typo in manual
+	mikeb - Fixed comments in gacl.class.php
+	mikeb - released v3.3.5
 Mon Aug 22 2005
 	mikeb - Fixed bug with edit_acl() for cases where a non-existant acl_id is specified. Thanks to Caleb Simonyi-Gindele <caleb@vetstar.com>
 Thu Aug 04 2005
