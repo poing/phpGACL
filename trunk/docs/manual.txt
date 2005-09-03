@@ -6,8 +6,8 @@ Karsten Dambekalns <k.dambekalns@fishfarm.de>
 Copyright © 2002,2003,2004 Mike Benoit
 Copyright © 2003, James Russell
 Copyright © 2003, Karsten Dambekalns
-Document Version: 55
-Last Updated: November 7, 2004 - 06:55 pm
+Document Version: 58
+Last Updated: September 3, 2005 - 06:55 PM
 Table of Contents
 Table of Contents	2
 About	4
@@ -337,8 +337,8 @@ Example ARO "Section > Values":
 "People > Cathy_Jones"
 "Hosts > sandbox.something.com"
 Example API usage:
-acl_check ( aro_section, aro_value, aco_section, aco_value);
-acl_check ( 'People', 'John_Smith', 'Floors', '2nd');
+acl_check ( aco_section, aco_value, aro_section, aro_value);
+acl_check ( 'Floors', '2nd', 'People', 'John_Smith' );
 Valid Naming Restrictions Examples:
 "ACO -Frob > Flerg", "ARO - Frob > Flerg" (The Section and Value are the same in both, but this is fine as namespaces are separate across Access Object types)
 "ACO -Frob > Flerg", "ACO - Frob > Queegle" (The Access Object type and Section are the same, but this is fine as the Values are different)
@@ -420,9 +420,9 @@ Projects
   ??PaperclipKiller
   ??PopupStopper
 The actions that can be taken with each project are "View" and "Edit". These are the ACOs.
-Now we want Bob to have "View" access to all the Linux projects, so it's possible to add an ADP that links Bob's ARO to the View ACO and the Linux AXO, and thus we can ask the question:
+Now we want Bob to have "View" access to all the Linux projects, so it's possible to add an ACL that links Bob's ARO to the View ACO and the Linux AXO, and thus we can ask the question:
 	Bob (ARO) requests access to "View" (ACO) the project(s) called "Linux" (AXO)
-Keep in mind AXO's are optional, if you don't specify an AXO when calling acl_check() and a matching ADP exists with no AXO, it will be allowed. However if only APDs exist with AXO's, and you call acl_check() without an AXO, it will fail.
+Keep in mind AXO's are optional, if you don't specify an AXO when calling acl_check() and a matching ACL exists with no AXO, it will be allowed. However if only ACLs exist with AXO's, and you call acl_check() without an AXO, it will fail.
 So basically as soon as you specify an AXO when calling acl_check(), acl_check() will only search ACLs containing AXO's. If no AXO is specified, only ACLs without AXOs are searched. This in theory (I haven't benchmarked) gives us a slight performance increase as well.
 Installation
 Basic setup
@@ -485,7 +485,7 @@ against the ACO object 'login' from the ACO section 'system'.
 Advanced usage
 
 Using the ACL admin utility
-If you want to get a grip on the included ACL admin utitlity, it will help you a lot to import the demonstration data into the database. You find a MySQL dump in the file phpgacl/admin/mysql_db_demo_data.sql (Mike - NOT AVAILABLE??). It contains some ACO, ARO and AXO objects, as well as some ACL defined using those objects. After importing the dump, calling the ACL admin and going to the ACL list should show this:
+If you want to get a grip on the included ACL admin utitlity, it will help you a lot if you run the example.php file. It contains some ACO, ARO and AXO objects, as well as some ACL defined using those objects. After running it, you should see some sample data in the admin interface.
 
 
 Play around with it, and if you get stuck, come back and read on...

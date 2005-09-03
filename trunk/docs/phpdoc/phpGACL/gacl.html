@@ -184,7 +184,7 @@
 								
 				<div class="method-definition">
 					<img src="../media/images/Method.png" alt=" "/>
-											<span class="method-result">mixed</span>
+											<span class="method-result">boolean</span>
 										<a href="#acl_check" title="details" class="method-name">acl_check</a>
 											(<span class="var-type">string</span>&nbsp;<span class="var-name">$aco_section_value</span>, <span class="var-type">string</span>&nbsp;<span class="var-name">$aco_value</span>, <span class="var-type">string</span>&nbsp;<span class="var-name">$aro_section_value</span>, <span class="var-type">string</span>&nbsp;<span class="var-name">$aro_value</span>, [<span class="var-type">string</span>&nbsp;<span class="var-name">$axo_section_value</span> = <span class="var-default">NULL</span>], [<span class="var-type">string</span>&nbsp;<span class="var-name">$axo_value</span> = <span class="var-default">NULL</span>], [<span class="var-type">integer</span>&nbsp;<span class="var-name">$root_aro_group</span> = <span class="var-default">NULL</span>], [<span class="var-type">integer</span>&nbsp;<span class="var-name">$root_axo_group</span> = <span class="var-default">NULL</span>])
 									</div>
@@ -212,7 +212,7 @@
 								
 				<div class="method-definition">
 					<img src="../media/images/Method.png" alt=" "/>
-											<span class="method-result">mixed</span>
+											<span class="method-result">string</span>
 										<a href="#acl_return_value" title="details" class="method-name">acl_return_value</a>
 											(<span class="var-type">string</span>&nbsp;<span class="var-name">$aco_section_value</span>, <span class="var-type">string</span>&nbsp;<span class="var-name">$aco_value</span>, <span class="var-type">string</span>&nbsp;<span class="var-name">$aro_section_value</span>, <span class="var-type">string</span>&nbsp;<span class="var-name">$aro_value</span>, [<span class="var-type">string</span>&nbsp;<span class="var-name">$axo_section_value</span> = <span class="var-default">NULL</span>], [<span class="var-type">string</span>&nbsp;<span class="var-name">$axo_value</span> = <span class="var-default">NULL</span>], [<span class="var-type">integer</span>&nbsp;<span class="var-name">$root_aro_group</span> = <span class="var-default">NULL</span>], [<span class="var-type">integer</span>&nbsp;<span class="var-name">$root_axo_group</span> = <span class="var-default">NULL</span>])
 									</div>
@@ -270,7 +270,7 @@
 		<span class="var-title">
 			<span class="var-type">mixed</span>
 			<span class="var-name">$config_file</span>
-			 = <span class="var-default"> './gacl.cfg'</span>			(line <span class="line-number">54</span>)
+			 = <span class="var-default"> './gacl.ini.php'</span>			(line <span class="line-number">54</span>)
 		</span>
 	</div>
 
@@ -623,11 +623,11 @@
 <p class="short-description">Wraps the actual acl_query() function.</p>
 <p class="description"><p>It is simply here to return TRUE/FALSE accordingly.</p></p>
 	<ul class="tags">
-				<li><span class="field">return:</span> Generally a zero (0) or (1) or the extended return value of the ACL</li>
+				<li><span class="field">return:</span> TRUE if the check succeeds, false if not.</li>
 			</ul>
 	
 	<div class="method-signature">
-		<span class="method-result">mixed</span>
+		<span class="method-result">boolean</span>
 		<span class="method-name">
 			acl_check
 		</span>
@@ -801,11 +801,11 @@
 <p class="short-description">Wraps the actual acl_query() function.</p>
 <p class="description"><p>Quick access to the return value of an ACL.</p></p>
 	<ul class="tags">
-				<li><span class="field">return:</span> Generally a zero (0) or (1) or the extended return value of the ACL</li>
+				<li><span class="field">return:</span> The return value of the ACL</li>
 			</ul>
 	
 	<div class="method-signature">
-		<span class="method-result">mixed</span>
+		<span class="method-result">string</span>
 		<span class="method-name">
 			acl_return_value
 		</span>
@@ -833,10 +833,10 @@
 				<span class="var-name">$axo_value</span><span class="var-description">: The AXO section value (optional)</span>			</li>
 					<li>
 				<span class="var-type">integer</span>
-				<span class="var-name">$root_aro_group</span><span class="var-description">: The group id of the ARO ??Mike?? (optional)</span>			</li>
+				<span class="var-name">$root_aro_group</span><span class="var-description">: The group id of the ARO (optional)</span>			</li>
 					<li>
 				<span class="var-type">integer</span>
-				<span class="var-name">$root_axo_group</span><span class="var-description">: The group id of the AXO ??Mike?? (optional)</span>			</li>
+				<span class="var-name">$root_axo_group</span><span class="var-description">: The group id of the AXO (optional)</span>			</li>
 				</ul>
 		
 		
@@ -969,7 +969,7 @@
 
 	
 	<p class="notes" id="credit">
-		Documentation generated on Sun, 24 Jul 2005 12:31:26 -0700 by <a href="http://www.phpdoc.org" target="_blank">phpDocumentor 1.3.0RC3</a>
+		Documentation generated on Sat, 03 Sep 2005 14:59:44 -0700 by <a href="http://www.phpdoc.org" target="_blank">phpDocumentor 1.3.0RC3</a>
 	</p>
 	</div></body>
 </html>

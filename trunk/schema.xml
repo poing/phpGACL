@@ -17,7 +17,7 @@
 			DELETE FROM phpgacl WHERE name='version'
 		</query>
 		<query>
-			INSERT INTO phpgacl (name,value) VALUES ('version','3.3.5b1')
+			INSERT INTO phpgacl (name,value) VALUES ('version','3.3.5')
 		</query>
 		<query>
 			DELETE FROM phpgacl WHERE name='schema_version'
