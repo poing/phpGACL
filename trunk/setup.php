@@ -57,7 +57,7 @@ if (is_resource($db->_connectionID)) {
 echo '<hr/><h2>Testing database type...</h2>'."\n";
 
 switch ($db_type) {
-	case mysql:
+	case "mysql":
 		echo_success("Compatible database type \"<b>$db_type</b>\" detected!");
 		echo_normal("Making sure database \"<b>$db_name</b>\" exists...");
 
@@ -80,7 +80,7 @@ switch ($db_type) {
 		}
 
 		break;
-	case postgres7:
+	case "postgres7":
 		echo_success("Compatible database type \"<b>$db_type</b>\" detected!");
 
 		echo_normal("Making sure database \"<b>$db_name</b>\" exists...");
@@ -105,7 +105,7 @@ switch ($db_type) {
 
 		break;
 
-	case oci8-po:
+	case "oci8-po":
 		echo_success("Compatible database type \"<b>$db_type</b>\" detected!");
 
 		echo_normal("Making sure database \"<b>$db_name</b>\" exists...");
@@ -129,6 +129,32 @@ switch ($db_type) {
 		}
 
 		break;
+		
+	case "mssql":
+		echo_success("Compatible database type \"<b>$db_type</b>\" detected!");
+
+		echo_normal("Making sure database \"<b>$db_name</b>\" exists...");
+
+		$databases = $db->GetCol("select CATALOG_NAME from INFORMATION_SCHEMA.SCHEMATA");
+
+		if (in_array($db_name, $databases) ) {
+				echo_success("Good, database \"<b>$db_name</b>\" already exists!");
+		} else {
+				echo_normal("Database \"<b>$db_name</b>\" does not exist!");
+				echo_normal("Lets try to create it...");
+
+				if (!$db->Execute("create database $db_name") ) {
+						echo_failed("Database \"<b>$db_name</b>\" could not be created, please do so manually.");
+				} else {
+						echo_success("Good, database \"<b>$db_name</b>\" has been created!!");
+
+						//Reconnect. Hrmm, this is kinda weird.
+						$db->Connect($db_host, $db_user, $db_password, $db_name);
+				}
+		}
+
+		break;
+		
 	default:
 		echo_normal("Sorry, <b>setup.php</b> currently does not fully support \"<b>$db_type</b>\" databases.
 					<br>I'm assuming you've already created the database \"$db_name\", attempting to create tables.
