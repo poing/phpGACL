@@ -108,7 +108,11 @@ switch ($_POST['action']) {
 	
 	if (is_object($rs)) {
 		while ($row = $rs->FetchRow()) {
-			list($section_value, $value, $name) = $row;
+			//list($section_value, $value, $name) = $row;
+
+			$section_value = addslashes($row[0]);
+			$value = addslashes($row[1]);
+			$name = addslashes($row[2]);
 			
 			//Prepare javascript code for dynamic select box.
 			//Init the javascript sub-array.

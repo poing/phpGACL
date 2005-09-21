@@ -1,3 +1,5 @@
+Wed Sep 21 2005
+	mikeb - Addslashes to JS creation code in assign_group.php. 
 Thu Sep 08 2005
 	mikeb - Added support for MS-SQL in setup.php, thanks to François Tissandier <francois.tissandier@tebu-bio.com>
 Sat Sep 03 2005
