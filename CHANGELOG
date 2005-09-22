@@ -1,3 +1,5 @@
+Thu Sep 22 2005
+	mikeb - added dirname() to the config_file variable in admin/gacl_admin.inc.php
 Wed Sep 21 2005
 	mikeb - Addslashes to JS creation code in assign_group.php. 
 Thu Sep 08 2005
