@@ -34,7 +34,8 @@ require_once(dirname(__FILE__).'/gacl_admin_api.class.php');
 
 // phpGACL Configuration file.
 if ( !isset($config_file) ) {
-	$config_file = '../gacl.ini.php';
+#	$config_file = '../gacl.ini.php';
+	$config_file = dirname(__FILE__).'/../gacl.ini.php';
 }
 
 //Values supplied in $gacl_options array overwrite those in the config file.
