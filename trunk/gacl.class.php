@@ -112,8 +112,8 @@ class gacl {
 		$available_options = array('db','debug','items_per_page','max_select_box_items','max_search_return_items','db_table_prefix','db_type','db_host','db_user','db_password','db_name','caching','force_cache_expire','cache_dir','cache_expire_time');
 
 		//Values supplied in $options array overwrite those in the config file.
-		if ( file_exists($config_file) ) {
-		        $config = parse_ini_file($config_file);
+		if ( file_exists($this->config_file) ) {
+		        $config = parse_ini_file($this->config_file);
 
 		        if ( is_array($config) ) {
 		                $gacl_options = array_merge($config, $gacl_options);
