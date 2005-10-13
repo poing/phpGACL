@@ -43,9 +43,12 @@ if ( file_exists($config_file) ) {
 	$config = parse_ini_file($config_file);
 
 	if ( is_array($config) ) {
-		$gacl_options = array_merge($config, $gacl_options);
+		if ( isset($gacl_options) ) {
+			$gacl_options = array_merge($config, $gacl_options);
+		} else {
+			$gacl_options = $config;
+		}
 	}
-
 	unset($config);
 }
 

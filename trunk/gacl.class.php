@@ -116,7 +116,7 @@ class gacl {
 		        $config = parse_ini_file($this->config_file);
 
 		        if ( is_array($config) ) {
-		                $gacl_options = array_merge($config, $gacl_options);
+		                $gacl_options = array_merge($config, $options);
 		        }
 
 	        	unset($config);
