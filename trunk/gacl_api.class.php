@@ -3793,6 +3793,63 @@ class gacl_api extends gacl {
 	}
 
 	/**
+	 * get_section_data()
+	 *
+	 * Gets the section data given the Section Value
+	 *
+	 * @return array Returns numerically indexed array with the following columns:
+	 *	- array[0] = (int) Section ID #
+	 *	- array[1] = (string) Section Value
+	 *	- array[2] = (int) Section Order
+	 *	- array[3] = (string) Section Name
+	 *	- array[4] = (int) Section Hidden?
+	 * @param string Section Value
+	 * @param string Object Type, either 'ACO', 'ARO', or 'AXO'
+	 */
+	function get_section_data($section_value, $object_type=NULL) {
+
+		switch(strtolower(trim($object_type))) {
+			case 'aco':
+				$object_type = 'aco';
+				$table = $this->_db_table_prefix .'aco_sections';
+				break;
+			case 'aro':
+				$object_type = 'aro';
+				$table = $this->_db_table_prefix .'aro_sections';
+				break;
+			case 'axo':
+				$object_type = 'axo';
+				$table = $this->_db_table_prefix .'axo_sections';
+				break;
+			default:
+				$this->debug_text('get_section_data(): Invalid Object Type: '. $object_type);
+				return FALSE;
+		}
+
+		$this->debug_text("get_section_data(): Section Value: $section_value Object Type: $object_type");
+
+		if (empty($section_value) ) {
+			$this->debug_text("get_section_data(): Section Value ($section_value) is empty, this is required");
+			return false;
+		}
+
+		if (empty($object_type) ) {
+			$this->debug_text("get_section_data(): Object Type ($object_type) is empty, this is required");
+			return false;
+		}
+
+		$query = "SELECT id, value, order_value, name, hidden FROM '. $table .' WHERE value='$section_value'";
+		$row = $this->db->GetRow($query);
+
+		if ($row) {
+			return $row;
+		}
+
+		$this->debug_text("get_section_data(): Section does not exist.");
+		return false;
+	}
+
+	/**
 	 * clear_database()
 	 *
 	 * Deletes all data from the phpGACL tables. USE WITH CAUTION.
