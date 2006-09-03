@@ -17,6 +17,20 @@
  * @package axmls
  * @tutorial getting_started.pkg
  */
+ 
+function _file_get_contents($file) 
+{
+ 	if (function_exists('file_get_contents')) return file_get_contents($file);
+	
+	$f = fopen($file,'r');
+	if (!$f) return '';
+	$t = '';
+	
+	while ($s = fread($f,100000)) $t .= $s;
+	fclose($f);
+	return $t;
+}
+
 
 /**
 * Debug on or off
@@ -1429,6 +1443,10 @@ class adoSchema {
 		
 		if ( $returnSchema )
 		{
+			$xmlstring = '';
+			while( $data = fread( $fp, 100000 ) ) {
+				$xmlstring .= $data;
+			}
 			return $xmlstring;
 		}
 		
@@ -1572,6 +1590,7 @@ class adoSchema {
 	* @return array Array of SQL statements or FALSE if an error occurs
 	*/
 	function PrintSQL( $format = 'NONE' ) {
+		$sqlArray = null;
 		return $this->getSQL( $format, $sqlArray );
 	}
 	
@@ -1702,6 +1721,13 @@ class adoSchema {
 		return $result;
 	}
 	
+	// compat for pre-4.3 - jlim
+	function _file_get_contents($path)
+	{
+		if (function_exists('file_get_contents')) return file_get_contents($path);
+		return join('',file($path));
+	}
+	
 	/**
 	* Converts an XML schema file to the specified DTD version.
 	*
@@ -1730,7 +1756,7 @@ class adoSchema {
 		}
 		
 		if( $version == $newVersion ) {
-			$result = file_get_contents( $filename );
+			$result = _file_get_contents( $filename );
 			
 			// remove unicode BOM if present
 			if( substr( $result, 0, 3 ) == sprintf( '%c%c%c', 239, 187, 191 ) ) {
@@ -1769,7 +1795,7 @@ class adoSchema {
 					return FALSE;
 				}
 				
-				$schema = file_get_contents( $schema );
+				$schema = _file_get_contents( $schema );
 				break;
 			case 'string':
 			default:
@@ -1780,7 +1806,7 @@ class adoSchema {
 		
 		$arguments = array (
 			'/_xml' => $schema,
-			'/_xsl' => file_get_contents( $xsl_file )
+			'/_xsl' => _file_get_contents( $xsl_file )
 		);
 		
 		// create an XSLT processor

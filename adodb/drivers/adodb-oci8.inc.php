@@ -1,7 +1,7 @@
 <?php
 /*
 
-  version V4.65 22 July 2005 (c) 2000-2005 John Lim. All rights reserved.
+  version V4.92a 29 Aug 2006 (c) 2000-2006 John Lim. All rights reserved.
 
   Released under both BSD license and Lesser GPL library license. 
   Whenever there is any discrepancy between the two licenses, 
@@ -75,6 +75,7 @@ class ADODB_oci8 extends ADOConnection {
 	var $noNullStrings = false;
 	var $connectSID = false;
 	var $_bind = false;
+	var $_nestedSQL = true;
 	var $_hasOCIFetchStatement = false;
 	var $_getarray = false; // currently not working
 	var $leftOuter = '';  // oracle wierdness, $col = $value (+) for LEFT OUTER, $col (+)= $value for RIGHT OUTER
@@ -195,7 +196,7 @@ NATSOFT.DOMAIN =
 				   	$argHostname=$argHostinfo[0];
 					$argHostport=$argHostinfo[1];
 			 	} else {
-					$argHostport="1521";
+					$argHostport = empty($this->port)?  "1521" : $this->port;
 	   			}
 				
 				if ($this->connectSID) {
@@ -278,6 +279,21 @@ NATSOFT.DOMAIN =
 		return "TO_DATE(".adodb_date($this->fmtDate,$d).",'".$this->NLS_DATE_FORMAT."')";
 	}
 
+	function BindDate($d)
+	{
+		$d = ADOConnection::DBDate($d);
+		if (strncmp($d,"'",1)) return $d;
+		
+		return substr($d,1,strlen($d)-2);
+	}
+	
+	function BindTimeStamp($d)
+	{
+		$d = ADOConnection::DBTimeStamp($d);
+		if (strncmp($d,"'",1)) return $d;
+		
+		return substr($d,1,strlen($d)-2);
+	}
 	
 	// format and return date string in database timestamp format
 	function DBTimeStamp($ts)
@@ -298,7 +314,7 @@ NATSOFT.DOMAIN =
 		if ($mask) {
 			$save = $this->metaTablesSQL;
 			$mask = $this->qstr(strtoupper($mask));
-			$this->metaTablesSQL .= " AND table_name like $mask";
+			$this->metaTablesSQL .= " AND upper(table_name) like $mask";
 		}
 		$ret =& ADOConnection::MetaTables($ttype,$showSchema);
 		
@@ -381,6 +397,8 @@ NATSOFT.DOMAIN =
 		$this->transCnt += 1;
 		$this->autoCommit = false;
 		$this->_commit = OCI_DEFAULT;
+		
+		if ($this->_transmode) $this->Execute("SET TRANSACTION ".$this->_transmode);
 		return true;
 	}
 	
@@ -502,6 +520,10 @@ NATSOFT.DOMAIN =
 				
 			case 'l':
 				$s .= 'DAY';
+				break;
+				
+			 case 'W':
+				$s .= 'WW';
 				break;
 				
 			default:
@@ -670,7 +692,7 @@ NATSOFT.DOMAIN =
 		if ($this->session_sharing_force_blob) $this->Execute('ALTER SESSION SET CURSOR_SHARING=EXACT');
 		$commit = $this->autoCommit;
 		if ($commit) $this->BeginTrans();
-		$rs = $this->Execute($sql,$arr);
+		$rs = $this->_Execute($sql,$arr);
 		if ($rez = !empty($rs)) $desc->save($val);
 		$desc->free();
 		if ($commit) $this->CommitTrans();
@@ -793,6 +815,7 @@ NATSOFT.DOMAIN =
 	
 		if (is_array($stmt) && sizeof($stmt) >= 5) {
 			$hasref = true;
+			$ignoreCur = false;
 			$this->Parameter($stmt, $ignoreCur, $cursorName, false, -1, OCI_B_CURSOR);
 			if ($params) {
 				foreach($params as $k => $v) {
@@ -803,8 +826,10 @@ NATSOFT.DOMAIN =
 			$hasref = false;
 			
 		$rs =& $this->Execute($stmt);
-		if ($rs->databaseType == 'array') OCIFreeCursor($stmt[4]);
-		else if ($hasref) $rs->_refcursor = $stmt[4];
+		if ($rs) {
+			if ($rs->databaseType == 'array') OCIFreeCursor($stmt[4]);
+			else if ($hasref) $rs->_refcursor = $stmt[4];
+		}
 		return $rs;
 	}
 	
@@ -1156,7 +1181,7 @@ SELECT /*+ RULE */ distinct b.column_name
 	 */
 	function qstr($s,$magic_quotes=false)
 	{	
-	$nofixquotes=false;
+		//$nofixquotes=false;
 	
 		if ($this->noNullStrings && strlen($s)==0)$s = ' ';
 		if (!$magic_quotes) {	
