@@ -167,7 +167,7 @@ switch ($db_type) {
  */
 // Create the schema object and build the query array.
 $schema = new adoSchema($db);
-$schema->SetPrefix($db_table_prefix);
+$schema->SetPrefix($db_table_prefix, FALSE); //set $underscore == FALSE
 
 // Build the SQL array
 $schema->ParseSchema('schema.xml');
