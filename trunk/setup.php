@@ -56,8 +56,8 @@ if (is_resource($db->_connectionID)) {
  */
 echo '<hr/><h2>Testing database type...</h2>'."\n";
 
-switch ($db_type) {
-	case "mysql":
+switch ( $db_type ) {
+	case ($db_type == "mysql" OR $db_type == "mysqlt" OR $db_type == "maxsql" ):
 		echo_success("Compatible database type \"<b>$db_type</b>\" detected!");
 		echo_normal("Making sure database \"<b>$db_name</b>\" exists...");
 
@@ -80,7 +80,7 @@ switch ($db_type) {
 		}
 
 		break;
-	case "postgres7":
+	case ( $db_type == "postgres8" OR $db_type == "postgres7" ):
 		echo_success("Compatible database type \"<b>$db_type</b>\" detected!");
 
 		echo_normal("Making sure database \"<b>$db_name</b>\" exists...");
