@@ -5,8 +5,8 @@ Sun Sep 03 2006
 	mikeb - Allow ADODB_DIR to be set prior to GACL class being loaded
 	mikeb - Remove ADODB_FETCH_MODE global variable, use just setFetchMode() so we don't conflict with other
 		application code.
-	mikeb - Upgrade Smarty 2.6.14
-	mikeb - Upgrade ADODB
+	mikeb - Upgrade Smarty v2.6.14
+	mikeb - Upgrade ADODB v4.92
 Sat Dec 03 2005
 	mikeb - Release version 3.3.6
 Wed Oct 26 2005
