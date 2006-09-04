@@ -3313,7 +3313,7 @@ class gacl_api extends gacl {
 
 					// Get rid of $object_id map referencing erased objects
 					$query = "DELETE FROM $object_map_table WHERE section_value='$section_value' AND value='$value'";
-					$this->db->Execute($query);
+					$rs = $this->db->Execute($query);
 
 					if (!is_object($rs)) {
 						$this->debug_db('edit_object');
@@ -3838,7 +3838,7 @@ class gacl_api extends gacl {
 			return false;
 		}
 
-		$query = "SELECT id, value, order_value, name, hidden FROM '. $table .' WHERE value='$section_value'";
+		$query = 'SELECT id, value, order_value, name, hidden FROM '. $table .' WHERE value = \''. $section_value .'\'';
 		$row = $this->db->GetRow($query);
 
 		if ($row) {

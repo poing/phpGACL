@@ -113,23 +113,23 @@ switch ( $db_type ) {
 		$databases = $db->GetCol("select '$db_name' from dual");
 
 		if (in_array($db_name, $databases) ) {
-				echo_success("Good, database \"<b>$db_name</b>\" already exists!");
+			echo_success("Good, database \"<b>$db_name</b>\" already exists!");
 		} else {
-				echo_normal("Database \"<b>$db_name</b>\" does not exist!");
-				echo_normal("Lets try to create it...");
+			echo_normal("Database \"<b>$db_name</b>\" does not exist!");
+			echo_normal("Lets try to create it...");
 
-				if (!$db->Execute("create database $db_name") ) {
-						echo_failed("Database \"<b>$db_name</b>\" could not be created, please do so manually.");
-				} else {
-						echo_success("Good, database \"<b>$db_name</b>\" has been created!!");
+			if (!$db->Execute("create database $db_name") ) {
+				echo_failed("Database \"<b>$db_name</b>\" could not be created, please do so manually.");
+			} else {
+				echo_success("Good, database \"<b>$db_name</b>\" has been created!!");
 
-						//Reconnect. Hrmm, this is kinda weird.
-						$db->Connect($db_host, $db_user, $db_password, $db_name);
-				}
+				//Reconnect. Hrmm, this is kinda weird.
+				$db->Connect($db_host, $db_user, $db_password, $db_name);
+			}
 		}
 
 		break;
-		
+
 	case "mssql":
 		echo_success("Compatible database type \"<b>$db_type</b>\" detected!");
 
@@ -138,23 +138,43 @@ switch ( $db_type ) {
 		$databases = $db->GetCol("select CATALOG_NAME from INFORMATION_SCHEMA.SCHEMATA");
 
 		if (in_array($db_name, $databases) ) {
-				echo_success("Good, database \"<b>$db_name</b>\" already exists!");
+			echo_success("Good, database \"<b>$db_name</b>\" already exists!");
 		} else {
-				echo_normal("Database \"<b>$db_name</b>\" does not exist!");
-				echo_normal("Lets try to create it...");
+			echo_normal("Database \"<b>$db_name</b>\" does not exist!");
+			echo_normal("Lets try to create it...");
 
-				if (!$db->Execute("create database $db_name") ) {
-						echo_failed("Database \"<b>$db_name</b>\" could not be created, please do so manually.");
-				} else {
-						echo_success("Good, database \"<b>$db_name</b>\" has been created!!");
+			if (!$db->Execute("create database $db_name") ) {
+				echo_failed("Database \"<b>$db_name</b>\" could not be created, please do so manually.");
+			} else {
+				echo_success("Good, database \"<b>$db_name</b>\" has been created!!");
 
-						//Reconnect. Hrmm, this is kinda weird.
-						$db->Connect($db_host, $db_user, $db_password, $db_name);
-				}
+				//Reconnect. Hrmm, this is kinda weird.
+				$db->Connect($db_host, $db_user, $db_password, $db_name);
+			}
 		}
 
 		break;
-		
+	case 'informix':
+		echo_success("Compatible database type \"<b>$db_type</b>\" detected!");
+
+		echo_normal("Making sure database \"<b>$db_name</b>\" exists...");
+
+		$databases = $db->GetCol("select name from sysmaster:sysdatabases");
+
+		if (in_array($db_name, $databases) ) {
+			 echo_success("Good, database \"<b>$db_name</b>\" already exists!");
+		} else {
+			echo_normal("Database \"<b>$db_name</b>\" does not exist!");
+			echo_normal("Lets try to create it...");
+
+			if (!$db->Execute("create database $db_name") ) {
+				echo_failed("Database \"<b>$db_name</b>\" could not be created, please do so manually.");
+			} else {
+				echo_success("Good, database \"<b>$db_name</b>\" has been created!!");
+				$db->Connect($db_host, $db_user, $db_password, $db_name);
+			}
+		}
+
 	default:
 		echo_normal("Sorry, <b>setup.php</b> currently does not fully support \"<b>$db_type</b>\" databases.
 					<br>I'm assuming you've already created the database \"$db_name\", attempting to create tables.
