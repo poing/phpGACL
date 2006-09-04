@@ -1,5 +1,8 @@
 Tue Sep 05 2006
 	mikeb - Release version 3.3.7
+Mon Sep 04 2006
+	mikeb - Fix bug in del_object() where $rs wasn't being set, but later tested.
+	mikeb - Add informix to setup.php
 Sun Sep 03 2006
 	mikeb - Update documentation to reflect using gacl.ini.php
 	mikeb - Allow ADODB_DIR to be set prior to GACL class being loaded
