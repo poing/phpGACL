@@ -1218,6 +1218,7 @@ function adodb_mktime($hr,$min,$sec,$mon=false,$day=false,$year=false,$is_dst=fa
 		$ret = -( $_total_date * $_day_power + $_day_time - $gmt_different);
 		if ($ret < -12220185600) $ret += 10*86400; // if earlier than 5 Oct 1582 - gregorian correction
 		else if ($ret < -12219321600) $ret = -12219321600; // if in limbo, reset to 15 Oct 1582.
+		else if ($ret <= -942022800 and date("Y-m-d H:i:s",-942022800)=="1940-02-24 23:00:00") $ret += 3600; // if earlier than 25.2.1940 - bug correction 1940-02-25
 	} 
 	//print " dmy=$day/$mon/$year $hr:$min:$sec => " .$ret;
 	return $ret;

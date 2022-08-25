@@ -10,9 +10,9 @@
  * build a database on any ADOdb-supported platform using a simple
  * XML schema.
  *
- * Last Editor: $Author$
+ * Last Editor: $Author: ipso $
  * @author Richard Tango-Lowy & Dan Cech
- * @version $Revision$
+ * @version $Revision: 425 $
  *
  * @package axmls
  * @tutorial getting_started.pkg
@@ -1209,7 +1209,7 @@ class dbQuerySet extends dbObject {
 * @tutorial getting_started.pkg
 *
 * @author Richard Tango-Lowy & Dan Cech
-* @version $Revision$
+* @version $Revision: 425 $
 *
 * @package axmls
 */
@@ -1301,8 +1301,8 @@ class adoSchema {
 	*/
 	function adoSchema( &$db ) {
 		// Initialize the environment
-		$this->mgq = get_magic_quotes_runtime();
-		set_magic_quotes_runtime(0);
+		$this->mgq = (function_exists('get_magic_quotes_runtime') && get_magic_quotes_runtime());
+		 if(function_exists('set_magic_quotes_runtime')) set_magic_quotes_runtime(0);
 		
 		$this->db =& $db;
 		$this->debug = $this->db->debug;
@@ -2191,7 +2191,7 @@ class adoSchema {
 	* @deprecated adoSchema now cleans up automatically.
 	*/
 	function Destroy() {
-		set_magic_quotes_runtime( $this->mgq );
+		 if(function_exists('set_magic_quotes_runtime')) set_magic_quotes_runtime( $this->mgq );
 		unset( $this );
 	}
 }

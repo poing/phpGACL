@@ -1,5 +1,5 @@
 <?php
-// $Id$
+// $Id: gacl.class.php 422 2006-09-03 22:52:20Z ipso $
 
 /**
  * phpGACL - Generic Access Control List
@@ -57,8 +57,7 @@ class gacl {
 	--- Private properties ---
 	*/
 	/** @var boolean Enables Debug output if true */
-	var $_debug = FALSE;
-
+	var $_debug = FALSE; // replaced by DEBUG in line 150
 	/*
 	--- Database configuration. ---
 	*/
@@ -148,6 +147,7 @@ class gacl {
 			$this->db->PConnect($this->_db_host, $this->_db_user, $this->_db_password, $this->_db_name);
 		}
 		$this->db->debug = $this->_debug;
+		$this->db->debug = (DEBUG > 2);
 
 		if ( $this->_caching == TRUE ) {
 			if (!class_exists('Hashed_Cache_Lite')) {

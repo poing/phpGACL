@@ -249,7 +249,8 @@ class ADODB_Session {
 			$_lifetime = ini_get('session.gc_maxlifetime');
 			if ($_lifetime <= 1) {
 				// bug in PHP 4.0.3 pl 1  -- how about other versions?
-				//print "<h3>Session Error: PHP.INI setting <i>session.gc_maxlifetime</i>not set: $lifetime</h3>";
+				print "<h3>Session Error: PHP.INI setting <i>session.gc_maxlifetime</i>not set: $lifetime</h3>";
+				
 				$_lifetime = 1440;
 			}
 		}
