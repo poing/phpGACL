@@ -29,5 +29,8 @@ function test($text) {
 	return $text;
 }
 
+if ( !isset( $HTTP_RAW_POST_DATA ) ){
+	// TODO: , php://input should be used instead of $HTTP_RAW_POST_DATA
+	$HTTP_RAW_POST_DATA =file_get_contents( 'php://input' );
+}
 $s->service($HTTP_RAW_POST_DATA);
-?>

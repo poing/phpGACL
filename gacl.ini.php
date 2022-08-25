@@ -1,4 +1,4 @@
-;<? if (; //Cause parse error to hide from prying eyes?> 
+;<? die(); /* hide from prying eyes */?> 
 ;
 ; *WARNING* 
 ;

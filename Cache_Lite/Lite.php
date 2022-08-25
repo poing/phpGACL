@@ -366,7 +366,7 @@ class Cache_Lite
             $motif = ($group) ? 'cache_'.$group.'_' : 'cache_';
         }
         if ($this->_memoryCaching) {
-            while (list($key, $value) = each($this->_memoryCachingArray)) {
+            foreach($this->_memoryCachingArray as $key=>$value) {
                 if (strpos($key, $motif, 0)) {
                     unset($this->_memoryCachingArray[$key]);
                     $this->_memoryCachingCounter = $this->_memoryCachingCounter - 1;

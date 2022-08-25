@@ -38,6 +38,21 @@ if ( !defined('ADODB_DIR') ) {
 	define('ADODB_DIR', dirname(__FILE__).'/adodb');
 }
 
+/* Workaround function for count() to make phpgacl PHP 8 compatible */
+function phpgacl_legacy_count($array_or_countable, $mode = COUNT_NORMAL) {
+	if (version_compare(PHP_VERSION, '7.2.0') >= 0) {
+		// PHP-Version 7.2 oder hoeher
+		if (is_countable($array_or_countable)) {
+			return count($array_or_countable, $mode);
+		} elseif ($array_or_countable === null) {
+			return 0;
+		}
+		return 1;
+	} else {
+		return count($array_or_countable, $mode);
+	}
+}
+
 /**
 * phpGACL main class
 *
@@ -104,9 +119,9 @@ class gacl {
 
 	/**
 	 * Constructor
-	 * @param array An arry of options to oeverride the class defaults
+	 * @param array An arry of options to override the class defaults
 	 */
-	function gacl($options = NULL) {
+	function __construct($options = NULL) {
 
 		$available_options = array('db','debug','items_per_page','max_select_box_items','max_search_return_items','db_table_prefix','db_type','db_host','db_user','db_password','db_name','caching','force_cache_expire','cache_dir','cache_expire_time');
 
@@ -451,7 +466,7 @@ class gacl {
 				return FALSE;
 			}
 
-			$row =& $rs->FetchRow();
+			$row = $rs->FetchRow();
 
 			/*
 			 * Return ACL ID. This is the key to "hooking" extras like pricing assigned to ACLs etc... Very useful.
@@ -468,7 +483,7 @@ class gacl {
 					$allow = FALSE;
 				}
 
-				$retarr = array('acl_id' => &$row[0], 'return_value' => &$row[2], 'allow' => $allow);
+				$retarr = array('acl_id' => $row[0], 'return_value' => $row[2], 'allow' => $allow);
 			} else {
 				// Permission denied.
 				$retarr = array('acl_id' => NULL, 'return_value' => NULL, 'allow' => FALSE);

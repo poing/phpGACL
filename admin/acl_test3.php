@@ -52,9 +52,9 @@ print_r($rows);
 echo("</pre>");
 */
 
-$total_rows = count($rows);
+$total_rows = phpgacl_legacy_count($rows);
 
-while (list(,$row) = @each(&$rows)) {
+foreach($rows as $row) {
     list(	$aco_section_value,
 			$aco_section_name,
 			$aco_value,

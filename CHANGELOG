@@ -1,3 +1,11 @@
+Thu Aug 25 2022
+	rubo77 - Adapt to PHP 8.2
+	rubo77 - Update ADODB to v5.20.20
+	rubo77 - work around missing get- and set_magic_quotes_runtime()
+	rubo77 - Lite.php 376 2004-11-08
+	rubo77 - update adodb to SVN Revision 425
+	rubo77 - Merge remote-tracking branch 'origin/master' from github @IPSO
+	mikeb - Switch from CVS to SVN on sourceforge.net
 Tue Sep 05 2006
 	mikeb - Release version 3.3.7
 Mon Sep 04 2006
@@ -26,7 +34,7 @@ Thu Sep 22 2005
 Wed Sep 21 2005
 	mikeb - Addslashes to JS creation code in assign_group.php.
 Thu Sep 08 2005
-	mikeb - Added support for MS-SQL in setup.php, thanks to François Tissandier <francois.tissandier@tebu-bio.com>
+	mikeb - Added support for MS-SQL in setup.php, thanks to FranÃ§ois Tissandier <francois.tissandier@tebu-bio.com>
 Sat Sep 03 2005
 	mikeb - Fixed typo in manual
 	mikeb - Fixed comments in gacl.class.php
@@ -36,7 +44,7 @@ Mon Aug 22 2005
 Thu Aug 04 2005
 	mikeb - Fixed bug with config ini file path in setup.php
 Thu Jul 28 2005
-	mikeb - Fixed bug with double/single quotes on line 3526. Jérémy Cohen Solal <jeremy@eiole.com>
+	mikeb - Fixed bug with double/single quotes on line 3526. JÃ©rÃ©my Cohen Solal <jeremy@eiole.com>
 Sun Jul 24 2005
 	mikeb - Removed table prefix comment regarding not using "_". Apparently it works now
 	mikeb - Fixed comments in gacl.class.php regarding group IDs, it now correctly says group values.
