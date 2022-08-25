@@ -451,7 +451,7 @@ class gacl {
 				return FALSE;
 			}
 
-			$row =& $rs->FetchRow();
+			$row = $rs->FetchRow();
 
 			/*
 			 * Return ACL ID. This is the key to "hooking" extras like pricing assigned to ACLs etc... Very useful.
@@ -468,7 +468,7 @@ class gacl {
 					$allow = FALSE;
 				}
 
-				$retarr = array('acl_id' => &$row[0], 'return_value' => &$row[2], 'allow' => $allow);
+				$retarr = array('acl_id' => $row[0], 'return_value' => $row[2], 'allow' => $allow);
 			} else {
 				// Permission denied.
 				$retarr = array('acl_id' => NULL, 'return_value' => NULL, 'allow' => FALSE);
