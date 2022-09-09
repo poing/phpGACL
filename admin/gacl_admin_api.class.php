@@ -82,7 +82,7 @@ class gacl_admin_api extends gacl_api {
 
 		if (!$debug OR $debug==0) {
 			# fix CVE-2020-13565: sanitize URL
-			$url=str_replace('://','',$url);
+			$url=preg_replace('/^([a-z0-9\s%;\+]+:\/\/+)+/i','',$url);
 			header("Location: $url\n\n");
 		} else {
 			$this->debug_text("return_page(): URL: $url -- Referer: $_SERVER[HTTP_REFERRER]");
