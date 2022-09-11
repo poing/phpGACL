@@ -1402,7 +1402,7 @@ class soap_transport_http extends nusoap_base {
 		if($this->encoding != '' && function_exists('gzdeflate')){
 			$this->outgoing_payload .= "Accept-Encoding: $this->encoding\r\n".
 			"Connection: close\r\n";
-			set_magic_quotes_runtime(0);
+			 if(function_exists('set_magic_quotes_runtime')) @set_magic_quotes_runtime(0);
 		}
 		// set soapaction
 		if($this->useSOAPAction){
@@ -1568,7 +1568,7 @@ class soap_transport_http extends nusoap_base {
 			if(function_exists('gzdeflate')){
 				$encoding_headers = "Accept-Encoding: $this->encoding\r\n".
 				"Connection: close\r\n";
-				set_magic_quotes_runtime(0);
+				 if(function_exists('set_magic_quotes_runtime')) @set_magic_quotes_runtime(0);
 			}
 		}
 		
@@ -3694,7 +3694,7 @@ class soapclient extends nusoap_base  {
 			
 			// instantiate wsdl object and parse wsdl file
 			$this->debug('instantiating wsdl class with doc: '.$endpoint);
-			$this->wsdl =& new wsdl($this->wsdlFile,$this->proxyhost,$this->proxyport);
+			$this->wsdl = new wsdl($this->wsdlFile,$this->proxyhost,$this->proxyport);
 			$this->debug("wsdl debug: \n".$this->wsdl->debug_str);
 			$this->wsdl->debug_str = '';
 			// catch errors

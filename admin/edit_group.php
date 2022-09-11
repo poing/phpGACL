@@ -30,7 +30,7 @@ switch ($_POST['action']) {
 	case 'Delete':
 		$gacl_api->debug_text('Delete');
 		
-		if (count($_POST['delete_group']) > 0) {
+		if (phpgacl_legacy_count($_POST['delete_group']) > 0) {
 			//Always reparent children when deleting a group.
 			foreach ($_POST['delete_group'] as $group_id) {
 				$gacl_api->debug_text('Deleting group_id: '. $group_id);
@@ -41,7 +41,7 @@ switch ($_POST['action']) {
 				}
 			}
 			
-			if (count($retry) > 0) {
+			if (phpgacl_legacy_count($retry) > 0) {
 				foreach($retry as $group_id) {
 					$gacl_api->del_group($group_id, TRUE, $group_type);	
 				}

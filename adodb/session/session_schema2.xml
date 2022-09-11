@@ -1,26 +1,26 @@
 <?xml version="1.0"?>
 <schema version="0.3">
   <table name="sessions2">
-    <desc>table for ADOdb session-management</desc>
+    <descr>table for ADOdb session-management</descr>
 
     <field name="SESSKEY" type="C" size="64">
       <descr>session key</descr>
       <KEY/>
       <NOTNULL/>
     </field>
- 
 
-	
+
+
     <field name="EXPIRY" type="T">
       <descr></descr>
       <NOTNULL/>
     </field>
-	
+
 	 	<field name="CREATED" type="T">
 	     <descr></descr>
       <NOTNULL/>
     </field>
-	
+
 	 	<field name="MODIFIED" type="T">
 	     <descr></descr>
       <NOTNULL/>
@@ -30,7 +30,7 @@
       <descr></descr>
     </field>
 
-    <field name="DATA" type="XL">
+    <field name="SESSDATA" type="XL">
       <descr></descr>
       <NOTNULL/>
     </field>

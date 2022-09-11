@@ -24,7 +24,7 @@ switch ($_GET['action']) {
 		$exploded_value_search_str = explode("\n", $value_search_str);
 		$exploded_name_search_str = explode("\n", $name_search_str);
 		
-		if (count($exploded_value_search_str) > 1 OR count($exploded_name_search_str) > 1) {
+		if (phpgacl_legacy_count($exploded_value_search_str) > 1 OR phpgacl_legacy_count($exploded_name_search_str) > 1) {
 			//Given a list, lets try to match all lines in it.
 			array_walk($exploded_value_search_str, 'array_walk_trim');
 			array_walk($exploded_name_search_str, 'array_walk_trim');
@@ -45,7 +45,7 @@ switch ($_GET['action']) {
 			WHERE	section_value='. $db->qstr($_GET['section_value']) .'
 			AND		(';
 		
-		if (count($exploded_value_search_str) > 1) {
+		if (phpgacl_legacy_count($exploded_value_search_str) > 1) {
 			$query .= 'lower(value) IN ('. implode(',', $exploded_value_search_str) .')';
 		} else {
 			$query .= 'lower(value) LIKE ' . $db->qstr($value_search_str);
@@ -53,7 +53,7 @@ switch ($_GET['action']) {
 		
 		$query .= ' OR ';
 		
-		if (count($exploded_name_search_str) > 1) {
+		if (phpgacl_legacy_count($exploded_name_search_str) > 1) {
 			$query .= 'lower(name) IN ('. implode(',', $exploded_name_search_str) .')';
 		} else {
 			$query .= 'lower(name) LIKE ' . $db->qstr($name_search_str);

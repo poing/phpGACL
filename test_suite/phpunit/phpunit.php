@@ -5,7 +5,7 @@
 // Written by Fred Yankowski <fred@ontosys.com>
 //            OntoSys, Inc  <http://www.OntoSys.com>
 //
-// $Id$
+// $Id: phpunit.php 212 2003-10-07 02:12:56Z ipso $
 
 // Copyright (c) 2000 Fred Yankowski
 
@@ -118,8 +118,8 @@ class Assert {
 
   function assertEqualsMultilineStrings($string0, $string1,
   $message="") {
-    $lines0 = split("\n",$string0);
-    $lines1 = split("\n",$string1);
+    $lines0 = explode("\n",$string0);
+    $lines1 = explode("\n",$string1);
     if (sizeof($lines0) != sizeof($lines1)) {
       $this->failNotEquals(sizeof($lines0)." line(s)",
                            sizeof($lines1)." line(s)", "expected", $message);
@@ -201,7 +201,7 @@ class TestCase extends Assert /* implements Test */ {
     if (! $testResult)
       $testResult = $this->_createResult();
     $this->fResult = $testResult;
-    $testResult->run(&$this);
+    $testResult->run($this);
     $this->fResult = 0;
     return $testResult;
   }
@@ -264,19 +264,19 @@ class TestCase extends Assert /* implements Test */ {
     //printf("TestCase::fail(%s)<br>\n", ($message) ? $message : '');
     /* JUnit throws AssertionFailedError here.  We just record the
        failure and carry on */
-    $this->fExceptions[] = new Exception(&$message, 'FAILURE');
+    $this->fExceptions[] = new Exception($message, 'FAILURE');
   }
 
   function error($message) {
     /* report error that requires correction in the test script
        itself, or (heaven forbid) in this testing infrastructure */
-    $this->fExceptions[] = new Exception(&$message, 'ERROR');
+    $this->fExceptions[] = new Exception($message, 'ERROR');
     $this->fResult->stop();	// [does not work]
   }
 
   function failed() {
       reset($this->fExceptions);
-      while (list($key, $exception) = each($this->fExceptions)) {
+      foreach($this->fExceptions as $key=>$exception) {
 	  if ($exception->type == 'FAILURE')
 	      return true;
       }
@@ -284,7 +284,7 @@ class TestCase extends Assert /* implements Test */ {
   }
   function errored() {
       reset($this->fExceptions);
-      while (list($key, $exception) = each($this->fExceptions)) {
+      foreach($this->fExceptions as $key=>$exception) {
 	  if ($exception->type == 'ERROR')
 	      return true;
       }
@@ -337,7 +337,7 @@ class TestSuite /* implements Test */ {
       // PHP4 introspection, submitted by Dylan Kuhn
 
       $names = get_class_methods($classname);
-      while (list($key, $method) = @each($names)) {
+      foreach($names as $key=>$method) {
         if (preg_match('/^test/', $method)) {
           $test = new $classname($method);
           if (strcasecmp($method, $classname) == 0 || is_subclass_of($test, $method)) {
@@ -357,7 +357,7 @@ class TestSuite /* implements Test */ {
     else {  // PHP3
       $dummy = new $classname("dummy");
       $names = (array) $dummy;
-      while (list($key, $value) = each($names)) {
+      foreach($names as $key=>$value) {
         $type = gettype($value);
         if ($type == "user function" && preg_match('/^test/', $key)
         && $key != "testcase") {  
@@ -376,10 +376,10 @@ class TestSuite /* implements Test */ {
     /* Run all TestCases and TestSuites comprising this TestSuite,
        accumulating results in the given TestResult object. */
     reset($this->fTests);
-    while (list($na, $test) = each($this->fTests)) {
+    foreach($this->fTests as $na=>$test) {
       if ($testResult->shouldStop())
 	break;
-      $test->run(&$testResult);
+      $test->run($testResult);
     }
   }
 
@@ -388,7 +388,7 @@ class TestSuite /* implements Test */ {
        in any constituent TestSuites) */
     $count = 0;
     reset($fTests);
-    while (list($na, $test_case) = each($this->fTests)) {
+    foreach($this->fTests as $na=>$test_case) {
       $count += $test_case->countTestCases();
     }
     return $count;
@@ -436,11 +436,11 @@ class TestResult {
   }
 
   function addError($test, $exception) {
-      $this->fErrors[] = new TestFailure(&$test, &$exception);
+      $this->fErrors[] = new TestFailure($test, $exception);
   }
 
   function addFailure($test, $exception) {
-      $this->fFailures[] = new TestFailure(&$test, &$exception);
+      $this->fFailures[] = new TestFailure($test, $exception);
   }
 
   function getFailures() {
@@ -457,7 +457,7 @@ class TestResult {
     /* this is where JUnit would catch AssertionFailedError */
     $exceptions = $test->getExceptions();
     reset($exceptions);
-    while (list($key, $exception) = each($exceptions)) {
+    foreach($exceptions as $key=>$exception) {
 	if ($exception->type == 'ERROR')
 	    $this->addError($test, $exception);
 	else if ($exception->type == 'FAILURE')
@@ -517,13 +517,13 @@ class TextTestResult extends TestResult {
 	print("<h2>Failures</h2>");
 	print("<ol>\n");
 	$failures = $this->getFailures();
-	while (list($i, $failure) = each($failures)) {
+	foreach($failures as $i=>$failure) {
 	    $failedTestName = $failure->getTestName();
 	    printf("<li>%s\n", $failedTestName);
 
 	    $exceptions = $failure->getExceptions();
 	    print("<ul>");
-	    while (list($na, $exception) = each($exceptions))
+	    foreach($exceptions as $na=>$exception)
 		printf("<li>%s\n", $exception->getMessage());
 	    print("</ul>");
 	}
@@ -534,7 +534,7 @@ class TextTestResult extends TestResult {
 	print("<h2>Errors</h2>");
 	print("<ol>\n");
 	reset($this->fErrors);
-	while (list($i, $error) = each($this->fErrors)) {
+	foreach($this->fErrors as $i=>$error) {
 	    $erroredTestName = $error->getTestName();
 	    printf("<li>%s\n", $failedTestName);
 
@@ -594,13 +594,13 @@ class PrettyTestResult extends TestResult {
 	echo "<h2>Failure Details</h2>";
     print("<ol>\n");
     $failures = $this->getFailures();
-    while (list($i, $failure) = each($failures)) {
+    foreach($failures as $i=>$failure) {
       $failedTestName = $failure->getTestName();
       printf("<li>%s\n", $failedTestName);
 
       $exceptions = $failure->getExceptions();
       print("<ul>");
-      while (list($na, $exception) = each($exceptions))
+      foreach($exceptions as $na=>$exception)
 	printf("<li>%s\n", $exception->getMessage());
       print("</ul>");
     }
